@@ -1,0 +1,329 @@
+<root>
+	<smtp_server> smtp.163.com </smtp_server>
+	<smtp_port> 25 </smtp_port>
+	<!-- Authentication mode LOGIN=1, PLAIN=2-->
+	<smtp_auth>2</smtp_auth>
+	<username> ouroboros@163.com </username>
+
+ <!-- The password can be clear text, you can also use ouro_private. key-RSA encryption of the password,
+			Fill out the plaintext password LOG will prompt a warning is given and the RSA password, simple from the LOG is copied over -->
+	<password> D4A3839D7E61930E4AC3D0DFACD681B609FAB7B60B7F5FF01E301573575D87844AEAF9390E0541671984EDF4927DD3274641A05A1F7B9C15CB421D38A525E89C70C04E4F576E27F30A344D0460628A418840EB16471174C53450C20818BFEAD04738563B5E535093911587CDFD808853CA3DC112E6032C5AF35058FB27F3017A </password>
+
+	<email_activation>
+		<subject>Account activation</subject>
+		<!-- The message authentication is valid -->
+		<deadline> 259200 </deadline>
+		<message>
+			<![CDATA[
+			<html>
+			<body>
+			Account activation<br><br>
+			This letter is by Ouroboros send the configuration file: ouroboros\ouro\res\server\email_service.xml it.< br>
+			You received this email is because in the Ouroboros new user registration using this email address. If you have not visited Ouroboros, the
+			Or not the above operation, please ignore this message. You do not need to unsubscribe or other further action.< br>
+			----------------------------------------------------------------------<br>
+			<font size="7">new user registration instructions</font><br>
+			----------------------------------------------------------------------<br><br>
+			If you are Ouroboros new users, or modify your registration Email when using the local address, we need to to your address the validity of the verification to avoid spam or address is misused.< br>
+			You just click on the link below to user registration, the following link is valid for 3 days. Expired you can request to re-send a new e-mail validation:<br>
+			<a href="${backlink}">${backlink}</a><br>
+			(If the above is not a link in the form, please send the address manually and paste into your browser address bar and then access)<br><br>
+			Thank you for your visit, wish you used happy!< br>
+			</body>
+			</html>
+			]]>
+		</message>
+
+		<backlink_hello_message></backlink_hello_message>
+
+		<backlink_success_message>
+			<![CDATA[
+				<html>
+				<body>
+				<font size="7">Account activation successful!</font><br>
+				----------------------------------------------------------------------<br><br>
+				<a href="${backlink}">Click to enter official website</a><br><br>
+				Thank you for your visit, wish you used happy!<br>
+				</body>
+				</html>
+			]]>
+		</backlink_success_message>
+
+		<backlink_fail_message>
+			<![CDATA[
+				<html>
+				<body>
+				<font size="7">Account activation failed(may be due to the failure or has been registered and other reasons), please re-send the activation email!</font><br>
+				----------------------------------------------------------------------<br><br>
+				<a href="${backlink}">Click to enter official website</a><br><br>
+				Thank you for your visit, wish you used happy!<br>
+				</body>
+				</html>
+			]]>
+		</backlink_fail_message>
+	</email_activation>
+
+	<email_resetpassword>
+		<subject>Reset account</subject>
+		<!-- The message authentication is valid -->
+		<deadline> 3600 </deadline>
+		<message>
+			<![CDATA[
+				<html>
+				<body>
+					Reset the account<br><br>
+					This letter is by Ouroboros sent.< br>
+					You received this email is because in the Ouroboros the user is bound to this email address. If you have not visited Ouroboros, the
+					Or not the above operation, please ignore this message. You do not need to unsubscribe or other further action.< br>
+					----------------------------------------------------------------------<br>
+					<font size="7">visit the following link to reset your account:</font><br>
+					----------------------------------------------------------------------<br><br>
+					The following link is valid for 1 hour. Expired you can request to re-send a new e-mail reset:<br>
+					<a href="${backlink}">${backlink}</a><br>
+					(If the above is not a link in the form, please send the address manually and paste into your browser address bar and then access)<br><br>
+				</body>
+				</html>
+			]]>
+		</message>
+
+		<backlink_hello_message>
+			<![CDATA[
+				<!DOCTYPE HTML>
+				<head>
+				<title>To reset your password</title>
+				<style type="text/css">
+				/* Font,  Link & Container */
+				body { font:12px/1.6 arial,helvetica,sans-serif; }
+				a:link { color:#369;text-decoration:none; }
+				a:visited { color:#669;text-decoration:none; }
+				a:hover { color:#fff;text-decoration:none;background:#039; }
+				a:active { color:#fff;text-decoration:none;background:#f93; }
+				button { cursor:pointer;line-height:1.2; }
+				.mod { width:100%; }
+				.hd:after, .bd:after, .ft:after, .mod:after {content:'\0020';display:block;clear:both;height:0; }
+				.error-tip { margin-left:10px; }
+				.error-tip, .error { color:#fe2617; }
+
+				/* form */
+				.item { clear:both;margin:15px 0;zoom:1; }
+				label { display: inline-block; float:left; margin-right: 15px; text-align: right; width: 60px; font-size: 14px; line-height: 30px; vertical-align: baseline }
+				.remember { cursor: pointer; font-size: 12px; display: inline; width: auto; text-align: left; float: none; margin: 0; color: #666 }
+				.basic-input { width: 200px; padding: 5px; height: 18px; font-size: 14px;vertical-align:middle; -moz-border-radius: 3px; -webkit-border-radius: 3px; border-radius: 3px; border: 1px solid #c9c9c9 }
+				.basic-input:focus { border: 1px solid #a9a9a9 }
+				.btn-submit { cursor: pointer;color: #ffffff;background: #3fa156; border: 1px solid #528641; font-size: 14px; font-weight: bold; padding:6px 26px; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; *width: 100px;*height:30px; }
+				.btn-submit:hover { background-color:#4fca6c;border-color:#6aad54; }
+				.btn-submit:active { background-color:#3fa156;border-color:#528641; }
+				#item-error { padding-left:75px; }
+				</style>
+
+				</head>
+				<body>
+				<form id="lzform" name="lzform" method="get" action="${backlink}" onsubmit="return validateForm(this);">
+				    <div id="item-error">
+				        <p class="error">Reset password can't be empty</p>
+				    </div>
+				    <div class="item">
+				        <label>Username</label>
+				        <input id="username" name="username" type="text" class="basic-input" maxlength="60" value="" tabindex="1"/>
+				    </div>
+				    <div class="item">
+				        <label>Enter the password</label>
+				        <input id="password1" name="password1" type="password" class="basic-input" maxlength="16" value="" tabindex="2"/>
+				    </div>
+				    <div class="item">
+				        <label>Repeat password</label>
+				        <input id="password" name="password" type="password" class="basic-input" maxlength="16" tabindex="3"/>
+				    </div>
+				    <div class="item">
+				        <label>&nbsp;</label>
+				        <input type="submit" value="Submitted" name="user_submit" class="btn-submit" tabindex="4"/>
+				    </div>
+				</form>
+
+				<script>
+				;(function(doc){
+				var $ = function(id) { return doc.getElementById(id); };
+				var placeholder = 'Email address';
+				var password1 = $('password1'), password = $('password'),username = $('username');
+				    username.onfocus = function(){
+				      if ( this.value == placeholder ) {
+				        this.value = '';
+				        this.style.color = '#000';
+				      }
+				    };
+				    username.onblur = function(){
+				      if (!this.value) {
+				        this.value = placeholder;
+				        this.style.color = '#ccc';
+				      }
+				    };
+
+				  if (username.value == placeholder) {
+				    username.style.color = '#ccc';
+				  } else if(password.value === '') {
+				    password.focus();
+			 	 } else if(password1.value === '') {
+				    password1.focus();
+				  } else if (capcha) {
+				    capcha.focus();
+				  }
+
+				})(document);
+
+				function trim(str){
+				    return str.replace(/^(\s|\u00A0)+/,'').replace(/(\s|\u00A0)+$/,'');
+				}
+
+				function validateForm(frm) {
+				  passwd1 = frm.elements['password1'],
+				  passwd = frm.elements['password'],
+				  username = frm.elements['username'],
+				  defaultError = document.getElementById('item-error');
+
+				  if (defaultError) {
+				    defaultError.style.display = 'none';
+				  }
+
+				  if (username && username.value === '') {
+				    displayError(username, 'Please enter the account name');
+				    return false;
+				  } else {
+				    username && clearError(username);
+				    displayError(username, '');
+				  }
+
+				   if (passwd1 && passwd1.value === '') {
+				    displayError(passwd1, 'Password can't be empty');
+				    return false;
+				  } else if (! (/^([a-zA-Z0-9\_\-\.\\\~\!\@\#\$\%\&\=\^\*\(\)\[\]\"\:\;\?\<\{\+\-\=\`\>\/\|\,\.]{6,16})+$/.test(passwd1.value))){
+				    displayError(passwd1, 'Please enter 6-16 digits, letters or common symbols, letters are case-sensitive');
+				    return false;
+				  } else {
+				    passwd1 && clearError(passwd1);
+				    displayError(passwd1, '');
+				  }
+
+				  if (passwd && passwd.value === '') {
+				    displayError(passwd, 'Password can't be empty');
+				    return false;
+				  } else {
+				    passwd && clearError(passwd);
+				    displayError(passwd, '');
+				  }
+
+				    if (passwd1.value != passwd.value && username.value != '') {
+				    clearError(passwd1);
+				    displayError(passwd1, '');
+				    displayError(passwd, 'The secondary password must be the same and can't be empty!');
+				    return false;
+				  } else {
+				    passwd && clearError(passwd);
+				    displayError(passwd, '');
+				  }
+				  return true;
+				}
+
+				function displayError(el, msg) {
+				  var err = document.getElementById(el.name + '_err');
+				  if (!err) {
+				    err = document.createElement('span');
+				    err.id = el.name + '_err';
+				    err.className = 'error-tip';
+				    el.parentNode.appendChild(err);
+				  }
+				  err.style.display = 'inline';
+				  err.innerHTML = msg;
+				}
+
+				function clearError(el) {
+				  var err = document.getElementById(el.name + '-err');
+				  if (err) {
+				    err.style.display = 'none';
+				  }
+				}
+				</script>
+				</div>
+				</body>
+				</html>
+			]]>
+		</backlink_hello_message>
+
+		<backlink_fail_message>
+			<![CDATA[
+				<html>
+				<body>
+				<font size="7">Operation failed, please re-send the mail!</font><br>
+				----------------------------------------------------------------------<br><br>
+				<a href="${backlink}">Click to enter official website</a><br><br>
+				Thank you for your visit, wish you used happy!<br>
+				</body>
+				</html>
+			]]>
+		</backlink_fail_message>
+
+		<backlink_success_message>
+			<![CDATA[
+				<html>
+				<body>
+				<font size="7">Reset successful!</font><br>
+				----------------------------------------------------------------------<br><br>
+				<a href="${backlink}">Click to enter official website</a><br><br>
+				Thank you for your visit, wish you used happy!<br>
+				</body>
+				</html>
+			]]>
+		</backlink_success_message>
+	</email_resetpassword>
+
+	<email_bind>
+		<subject>Mailbox binding</subject>
+		<!-- The message authentication is valid -->
+		<deadline> 3600 </deadline>
+		<message>
+			<![CDATA[
+				<html>
+				<body>
+				Mailbox binding<br><br>
+				This letter is by Ouroboros sent.< br>
+				You received this email is because in the Ouroboros the user is bound to this email address. If you have not visited Ouroboros, the
+				Or not the above operation, please ignore this message. You do not need to unsubscribe or other further action.< br>
+				----------------------------------------------------------------------<br>
+				<font size="7">visit the following link to bind your email:</font><br>
+				----------------------------------------------------------------------<br><br>
+				The following link is valid for 3 days. Expired you can request to re-send a new e mail binding:<br>
+				<a href="${backlink}? username=${username}">${backlink}? username=${username}</a><br>
+				(If the above is not a link in the form, please send the address manually and paste into your browser address bar and then access)<br><br>
+				</body>
+				</html>
+			]]>
+		</message>
+
+		<backlink_hello_message></backlink_hello_message>
+
+		<backlink_success_message>
+			<![CDATA[
+				<html>
+				<body>
+				<font size="7">The operation is successful!</font><br>
+				----------------------------------------------------------------------<br><br>
+				<a href="${backlink}">Click to enter official website</a><br><br>
+				Thank you for your visit, wish you used happy!<br>
+				</body>
+				</html>
+			]]>
+		</backlink_success_message>
+
+		<backlink_fail_message>
+			<![CDATA[
+				<html>
+				<body>
+				<font size="7">Operation failed, please re-send the mail!</font><br>
+				----------------------------------------------------------------------<br><br>
+				<a href="${backlink}">Click to enter official website</a><br><br>
+				Thank you for your visit, wish you used happy!<br>
+				</body>
+				</html>
+			]]>
+		</backlink_fail_message>
+	</email_bind>
+</root>

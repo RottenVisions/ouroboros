@@ -1,0 +1,2985 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\Black\.Rider2018.1\system\resharper-host\local\Transient\ReSharperHost\v12\SolutionCaches\_ouroboros_vs140.-1696923194.00" t="ExcludeRecursive" />
+    <e p="D:\Projects\Ouroboros-2.0p5\ouro\bin\server" t="ExcludeRecursive" />
+    <e p="D:\Projects\Ouroboros-2.0p5\ouro\src" t="IncludeFlat">
+      <e p="_objs\_ctypes_d" t="ExcludeRecursive" />
+      <e p="_objs\_elementtree_d" t="ExcludeRecursive" />
+      <e p="_objs\_hashlib_d" t="ExcludeRecursive" />
+      <e p="_objs\_socket_d" t="ExcludeRecursive" />
+      <e p="_objs\_ssl_d" t="ExcludeRecursive" />
+      <e p="_objs\apr_d" t="ExcludeRecursive" />
+      <e p="_objs\aprutil_d" t="ExcludeRecursive" />
+      <e p="_objs\baseapp_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\baseappmgr_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\bots_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\cellapp_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\cellappmgr_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\client_lib_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\common_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\db_interface_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\db_mysql_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\db_redis_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\dbmgr_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\entitydef_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\expat_d" t="ExcludeRecursive" />
+      <e p="_objs\guiconsole_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\helper_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\hiredis_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\interfaces_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\jwsmtp_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\libeay32_d" t="ExcludeRecursive" />
+      <e p="_objs\log4cxx_d" t="ExcludeRecursive" />
+      <e p="_objs\logger_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\loginapp_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\machine_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\math_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\navigation_d" t="ExcludeRecursive" />
+      <e p="_objs\network_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\obcmd_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\pyexpat_d" t="ExcludeRecursive" />
+      <e p="_objs\pyscript_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\pythoncore_d" t="ExcludeRecursive" />
+      <e p="_objs\resmgr_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\select_d" t="ExcludeRecursive" />
+      <e p="_objs\server_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\ssleay32_d" t="ExcludeRecursive" />
+      <e p="_objs\thread_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\tmxparser_d" t="ExcludeRecursive" />
+      <e p="_objs\unicodedata_d" t="ExcludeRecursive" />
+      <e p="_objs\xml_d\Debug" t="ExcludeRecursive" />
+      <e p="_objs\zip_d" t="ExcludeRecursive" />
+      <e p="dependencies" t="Include">
+        <e p="hiredis" t="Include" />
+        <e p="log4cxx" t="Include" />
+        <e p="openssl" t="Include" />
+        <e p="python" t="Include">
+          <e p="pyd" t="Include" />
+        </e>
+      </e>
+      <e p="lib\client_lib" t="IncludeRecursive">
+        <e p="client_interface.cpp" t="Include" />
+        <e p="client_interface.h" t="Include" />
+        <e p="client_interface_macros.h" t="Include" />
+        <e p="client_lib.vcxproj" t="IncludeRecursive" />
+        <e p="clientapp.cpp" t="Include" />
+        <e p="clientapp.h" t="Include" />
+        <e p="clientobjectbase.cpp" t="Include" />
+        <e p="clientobjectbase.h" t="Include" />
+        <e p="common.h" t="Include" />
+        <e p="config.cpp" t="Include" />
+        <e p="config.h" t="Include" />
+        <e p="entity.cpp" t="Include" />
+        <e p="entity.h" t="Include" />
+        <e p="entity.inl" t="Include" />
+        <e p="entity_aspect.cpp" t="Include" />
+        <e p="entity_aspect.h" t="Include" />
+        <e p="entity_component.cpp" t="Include" />
+        <e p="event.cpp" t="Include" />
+        <e p="event.h" t="Include" />
+        <e p="moveto_point_handler.cpp" t="Include" />
+        <e p="moveto_point_handler.h" t="Include" />
+        <e p="ouromain.h" t="Include" />
+        <e p="profile.cpp" t="Include" />
+        <e p="profile.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="script_callbacks.cpp" t="Include" />
+        <e p="script_callbacks.h" t="Include" />
+      </e>
+      <e p="lib\common" t="IncludeRecursive">
+        <e p="base64.cpp" t="Include" />
+        <e p="base64.h" t="Include" />
+        <e p="blowfish.cpp" t="Include" />
+        <e p="blowfish.h" t="Include" />
+        <e p="common.cpp" t="Include" />
+        <e p="common.h" t="Include" />
+        <e p="common.vcxproj" t="IncludeRecursive" />
+        <e p="deadline.h" t="Include" />
+        <e p="format.cpp" t="Include" />
+        <e p="format.h" t="Include" />
+        <e p="md5.cpp" t="Include" />
+        <e p="md5.h" t="Include" />
+        <e p="memorystream.cpp" t="Include" />
+        <e p="memorystream.h" t="Include" />
+        <e p="memorystream_converter.h" t="Include" />
+        <e p="objectpool.h" t="Include" />
+        <e p="ourokey.cpp" t="Include" />
+        <e p="ourokey.h" t="Include" />
+        <e p="ouromalloc.h" t="Include" />
+        <e p="ouroversion.cpp" t="Include" />
+        <e p="ouroversion.h" t="Include" />
+        <e p="platform.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="refcountable.h" t="Include" />
+        <e p="rsa.cpp" t="Include" />
+        <e p="rsa.h" t="Include" />
+        <e p="sha1.cpp" t="Include" />
+        <e p="sha1.h" t="Include" />
+        <e p="singleton.h" t="Include" />
+        <e p="smartpointer.h" t="Include" />
+        <e p="stdfindif_handers.h" t="Include" />
+        <e p="stringconv.h" t="Include" />
+        <e p="strutil.cpp" t="Include" />
+        <e p="strutil.h" t="Include" />
+        <e p="task.h" t="Include" />
+        <e p="tasks.cpp" t="Include" />
+        <e p="tasks.h" t="Include" />
+        <e p="timer.cpp" t="Include" />
+        <e p="timer.h" t="Include" />
+        <e p="timer.inl" t="Include" />
+        <e p="timestamp.cpp" t="Include" />
+        <e p="timestamp.h" t="Include" />
+      </e>
+      <e p="lib\db_interface" t="IncludeRecursive">
+        <e p="db_interface.cpp" t="Include" />
+        <e p="db_interface.h" t="Include" />
+        <e p="db_interface.vcxproj" t="IncludeRecursive" />
+        <e p="db_tasks.cpp" t="Include" />
+        <e p="db_tasks.h" t="Include" />
+        <e p="db_threadpool.cpp" t="Include" />
+        <e p="db_threadpool.h" t="Include" />
+        <e p="entity_table.cpp" t="Include" />
+        <e p="entity_table.h" t="Include" />
+        <e p="ouro_tables.cpp" t="Include" />
+        <e p="ouro_tables.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+      </e>
+      <e p="lib\db_mysql" t="IncludeRecursive">
+        <e p="common.cpp" t="Include" />
+        <e p="common.h" t="Include" />
+        <e p="db_context.h" t="Include" />
+        <e p="db_exception.cpp" t="Include" />
+        <e p="db_exception.h" t="Include" />
+        <e p="db_interface_mysql.cpp" t="Include" />
+        <e p="db_interface_mysql.h" t="Include" />
+        <e p="db_mysql.vcxproj" t="IncludeRecursive" />
+        <e p="db_transaction.cpp" t="Include" />
+        <e p="db_transaction.h" t="Include" />
+        <e p="entity_sqlstatement_mapping.cpp" t="Include" />
+        <e p="entity_sqlstatement_mapping.h" t="Include" />
+        <e p="entity_table_mysql.cpp" t="Include" />
+        <e p="entity_table_mysql.h" t="Include" />
+        <e p="entity_table_mysql.inl" t="Include" />
+        <e p="ouro_table_mysql.cpp" t="Include" />
+        <e p="ouro_table_mysql.h" t="Include" />
+        <e p="read_entity_helper.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="remove_entity_helper.h" t="Include" />
+        <e p="sqlstatement.h" t="Include" />
+        <e p="write_entity_helper.h" t="Include" />
+      </e>
+      <e p="lib\db_redis" t="IncludeRecursive">
+        <e p="common.cpp" t="Include" />
+        <e p="common.h" t="Include" />
+        <e p="db_context.h" t="Include" />
+        <e p="db_exception.cpp" t="Include" />
+        <e p="db_exception.h" t="Include" />
+        <e p="db_interface_redis.cpp" t="Include" />
+        <e p="db_interface_redis.h" t="Include" />
+        <e p="db_redis.vcxproj" t="IncludeRecursive" />
+        <e p="db_transaction.cpp" t="Include" />
+        <e p="db_transaction.h" t="Include" />
+        <e p="entity_table_redis.cpp" t="Include" />
+        <e p="entity_table_redis.h" t="Include" />
+        <e p="ouro_table_redis.cpp" t="Include" />
+        <e p="ouro_table_redis.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="redis_helper.h" t="Include" />
+        <e p="redis_watcher.cpp" t="Include" />
+        <e p="redis_watcher.h" t="Include" />
+      </e>
+      <e p="lib\dependencies\apr" t="IncludeRecursive">
+        <e p="apr" t="Include" />
+        <e p="apr.vcxproj" t="IncludeRecursive" />
+        <e p="atomic" t="Include">
+          <e p="win32" t="Include">
+            <e p="apr_atomic.c" t="Include" />
+          </e>
+        </e>
+        <e p="dso" t="Include">
+          <e p="win32" t="Include">
+            <e p="dso.c" t="Include" />
+          </e>
+        </e>
+        <e p="encoding" t="Include">
+          <e p="apr_escape.c" t="Include" />
+        </e>
+        <e p="file_io" t="Include">
+          <e p="unix" t="Include">
+            <e p="copy.c" t="Include" />
+            <e p="fileacc.c" t="Include" />
+            <e p="filepath_util.c" t="Include" />
+            <e p="fullrw.c" t="Include" />
+            <e p="mktemp.c" t="Include" />
+            <e p="tempdir.c" t="Include" />
+          </e>
+          <e p="win32" t="Include">
+            <e p="buffer.c" t="Include" />
+            <e p="dir.c" t="Include" />
+            <e p="filedup.c" t="Include" />
+            <e p="filepath.c" t="Include" />
+            <e p="filestat.c" t="Include" />
+            <e p="filesys.c" t="Include" />
+            <e p="flock.c" t="Include" />
+            <e p="open.c" t="Include" />
+            <e p="pipe.c" t="Include" />
+            <e p="readwrite.c" t="Include" />
+            <e p="seek.c" t="Include" />
+          </e>
+        </e>
+        <e p="include" t="Include">
+          <e p="apr.h.in" t="Include" />
+          <e p="apr.hnw" t="Include" />
+          <e p="apr.hw" t="Include" />
+          <e p="apr_allocator.h" t="Include" />
+          <e p="apr_atomic.h" t="Include" />
+          <e p="apr_dso.h" t="Include" />
+          <e p="apr_env.h" t="Include" />
+          <e p="apr_errno.h" t="Include" />
+          <e p="apr_escape.h" t="Include" />
+          <e p="apr_escape_test_char.h" t="Include" />
+          <e p="apr_file_info.h" t="Include" />
+          <e p="apr_file_io.h" t="Include" />
+          <e p="apr_fnmatch.h" t="Include" />
+          <e p="apr_general.h" t="Include" />
+          <e p="apr_getopt.h" t="Include" />
+          <e p="apr_global_mutex.h" t="Include" />
+          <e p="apr_hash.h" t="Include" />
+          <e p="apr_inherit.h" t="Include" />
+          <e p="apr_lib.h" t="Include" />
+          <e p="apr_mmap.h" t="Include" />
+          <e p="apr_network_io.h" t="Include" />
+          <e p="apr_poll.h" t="Include" />
+          <e p="apr_pools.h" t="Include" />
+          <e p="apr_portable.h" t="Include" />
+          <e p="apr_proc_mutex.h" t="Include" />
+          <e p="apr_random.h" t="Include" />
+          <e p="apr_ring.h" t="Include" />
+          <e p="apr_shm.h" t="Include" />
+          <e p="apr_signal.h" t="Include" />
+          <e p="apr_skiplist.h" t="Include" />
+          <e p="apr_strings.h" t="Include" />
+          <e p="apr_support.h" t="Include" />
+          <e p="apr_tables.h" t="Include" />
+          <e p="apr_thread_cond.h" t="Include" />
+          <e p="apr_thread_mutex.h" t="Include" />
+          <e p="apr_thread_proc.h" t="Include" />
+          <e p="apr_thread_rwlock.h" t="Include" />
+          <e p="apr_time.h" t="Include" />
+          <e p="apr_user.h" t="Include" />
+          <e p="apr_version.h" t="Include" />
+          <e p="apr_want.h" t="Include" />
+          <e p="arch" t="Include">
+            <e p="apr_private_common.h" t="Include" />
+            <e p="win32" t="Include">
+              <e p="apr_arch_atime.h" t="Include" />
+              <e p="apr_arch_dso.h" t="Include" />
+              <e p="apr_arch_file_io.h" t="Include" />
+              <e p="apr_arch_inherit.h" t="Include" />
+              <e p="apr_arch_misc.h" t="Include" />
+              <e p="apr_arch_networkio.h" t="Include" />
+              <e p="apr_arch_thread_mutex.h" t="Include" />
+              <e p="apr_arch_thread_rwlock.h" t="Include" />
+              <e p="apr_arch_threadproc.h" t="Include" />
+              <e p="apr_arch_utf8.h" t="Include" />
+              <e p="apr_private.h" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="locks" t="Include">
+          <e p="win32" t="Include">
+            <e p="proc_mutex.c" t="Include" />
+            <e p="thread_cond.c" t="Include" />
+            <e p="thread_mutex.c" t="Include" />
+            <e p="thread_rwlock.c" t="Include" />
+          </e>
+        </e>
+        <e p="memory" t="Include">
+          <e p="unix" t="Include">
+            <e p="apr_pools.c" t="Include" />
+          </e>
+        </e>
+        <e p="misc" t="Include">
+          <e p="unix" t="Include">
+            <e p="errorcodes.c" t="Include" />
+            <e p="getopt.c" t="Include" />
+            <e p="otherchild.c" t="Include" />
+            <e p="version.c" t="Include" />
+          </e>
+          <e p="win32" t="Include">
+            <e p="apr_app.c" t="Include" />
+            <e p="charset.c" t="Include" />
+            <e p="env.c" t="Include" />
+            <e p="internal.c" t="Include" />
+            <e p="misc.c" t="Include" />
+            <e p="rand.c" t="Include" />
+            <e p="start.c" t="Include" />
+            <e p="utf8.c" t="Include" />
+          </e>
+        </e>
+        <e p="mmap" t="Include">
+          <e p="unix" t="Include">
+            <e p="common.c" t="Include" />
+          </e>
+          <e p="win32" t="Include">
+            <e p="mmap.c" t="Include" />
+          </e>
+        </e>
+        <e p="network_io" t="Include">
+          <e p="unix" t="Include">
+            <e p="inet_ntop.c" t="Include" />
+            <e p="inet_pton.c" t="Include" />
+            <e p="multicast.c" t="Include" />
+            <e p="sockaddr.c" t="Include" />
+            <e p="socket_util.c" t="Include" />
+          </e>
+          <e p="win32" t="Include">
+            <e p="sendrecv.c" t="Include" />
+            <e p="sockets.c" t="Include" />
+            <e p="sockopt.c" t="Include" />
+          </e>
+        </e>
+        <e p="passwd" t="Include">
+          <e p="apr_getpass.c" t="Include" />
+        </e>
+        <e p="poll" t="Include">
+          <e p="unix" t="Include">
+            <e p="poll.c" t="Include" />
+            <e p="pollcb.c" t="Include" />
+            <e p="pollset.c" t="Include" />
+            <e p="select.c" t="Include" />
+          </e>
+        </e>
+        <e p="random" t="Include">
+          <e p="unix" t="Include">
+            <e p="apr_random.c" t="Include" />
+            <e p="sha2.c" t="Include" />
+            <e p="sha2_glue.c" t="Include" />
+          </e>
+        </e>
+        <e p="shmem" t="Include">
+          <e p="win32" t="Include">
+            <e p="shm.c" t="Include" />
+          </e>
+        </e>
+        <e p="strings" t="Include">
+          <e p="apr_cpystrn.c" t="Include" />
+          <e p="apr_fnmatch.c" t="Include" />
+          <e p="apr_snprintf.c" t="Include" />
+          <e p="apr_strings.c" t="Include" />
+          <e p="apr_strnatcmp.c" t="Include" />
+          <e p="apr_strtok.c" t="Include" />
+        </e>
+        <e p="tables" t="Include">
+          <e p="apr_hash.c" t="Include" />
+          <e p="apr_skiplist.c" t="Include" />
+          <e p="apr_tables.c" t="Include" />
+        </e>
+        <e p="threadproc" t="Include">
+          <e p="win32" t="Include">
+            <e p="proc.c" t="Include" />
+            <e p="signals.c" t="Include" />
+            <e p="thread.c" t="Include" />
+            <e p="threadpriv.c" t="Include" />
+          </e>
+        </e>
+        <e p="time" t="Include">
+          <e p="win32" t="Include">
+            <e p="time.c" t="Include" />
+            <e p="timestr.c" t="Include" />
+          </e>
+        </e>
+        <e p="user" t="Include">
+          <e p="win32" t="Include">
+            <e p="groupinfo.c" t="Include" />
+            <e p="userinfo.c" t="Include" />
+          </e>
+        </e>
+      </e>
+      <e p="lib\dependencies\apr-util" t="IncludeRecursive">
+        <e p="aprutil.vcxproj" t="IncludeRecursive" />
+        <e p="buckets" t="Include">
+          <e p="apr_brigade.c" t="Include" />
+          <e p="apr_buckets.c" t="Include" />
+          <e p="apr_buckets_alloc.c" t="Include" />
+          <e p="apr_buckets_eos.c" t="Include" />
+          <e p="apr_buckets_file.c" t="Include" />
+          <e p="apr_buckets_flush.c" t="Include" />
+          <e p="apr_buckets_heap.c" t="Include" />
+          <e p="apr_buckets_mmap.c" t="Include" />
+          <e p="apr_buckets_pipe.c" t="Include" />
+          <e p="apr_buckets_pool.c" t="Include" />
+          <e p="apr_buckets_refcount.c" t="Include" />
+          <e p="apr_buckets_simple.c" t="Include" />
+          <e p="apr_buckets_socket.c" t="Include" />
+        </e>
+        <e p="crypto" t="Include">
+          <e p="apr_crypto.c" t="Include" />
+          <e p="apr_md4.c" t="Include" />
+          <e p="apr_md5.c" t="Include" />
+          <e p="apr_passwd.c" t="Include" />
+          <e p="apr_sha1.c" t="Include" />
+          <e p="crypt_blowfish.c" t="Include" />
+          <e p="crypt_blowfish.h" t="Include" />
+          <e p="getuuid.c" t="Include" />
+          <e p="uuid.c" t="Include" />
+        </e>
+        <e p="dbd" t="Include">
+          <e p="apr_dbd.c" t="Include" />
+          <e p="apr_dbd_freetds.c" t="Include" />
+          <e p="apr_dbd_mysql.c" t="Include" />
+          <e p="apr_dbd_odbc.c" t="Include" />
+          <e p="apr_dbd_oracle.c" t="Include" />
+          <e p="apr_dbd_pgsql.c" t="Include" />
+          <e p="apr_dbd_sqlite2.c" t="Include" />
+          <e p="apr_dbd_sqlite3.c" t="Include" />
+        </e>
+        <e p="dbm" t="Include">
+          <e p="apr_dbm.c" t="Include" />
+          <e p="apr_dbm_berkeleydb.c" t="Include" />
+          <e p="apr_dbm_gdbm.c" t="Include" />
+          <e p="apr_dbm_sdbm.c" t="Include" />
+          <e p="sdbm" t="Include">
+            <e p="sdbm.c" t="Include" />
+            <e p="sdbm_hash.c" t="Include" />
+            <e p="sdbm_lock.c" t="Include" />
+            <e p="sdbm_pair.c" t="Include" />
+            <e p="sdbm_pair.h" t="Include" />
+            <e p="sdbm_private.h" t="Include" />
+            <e p="sdbm_tune.h" t="Include" />
+          </e>
+        </e>
+        <e p="encoding" t="Include">
+          <e p="apr_base64.c" t="Include" />
+        </e>
+        <e p="hooks" t="Include">
+          <e p="apr_hooks.c" t="Include" />
+        </e>
+        <e p="include" t="Include">
+          <e p="apr_anylock.h" t="Include" />
+          <e p="apr_base64.h" t="Include" />
+          <e p="apr_buckets.h" t="Include" />
+          <e p="apr_date.h" t="Include" />
+          <e p="apr_dbm.h" t="Include" />
+          <e p="apr_hooks.h" t="Include" />
+          <e p="apr_ldap.h.in" t="Include" />
+          <e p="apr_ldap.hnw" t="Include" />
+          <e p="apr_ldap.hw" t="Include" />
+          <e p="apr_ldap_url.h" t="Include" />
+          <e p="apr_md4.h" t="Include" />
+          <e p="apr_md5.h" t="Include" />
+          <e p="apr_memcache.h" t="Include" />
+          <e p="apr_optional.h" t="Include" />
+          <e p="apr_optional_hooks.h" t="Include" />
+          <e p="apr_queue.h" t="Include" />
+          <e p="apr_reslist.h" t="Include" />
+          <e p="apr_rmm.h" t="Include" />
+          <e p="apr_sdbm.h" t="Include" />
+          <e p="apr_sha1.h" t="Include" />
+          <e p="apr_strmatch.h" t="Include" />
+          <e p="apr_thread_pool.h" t="Include" />
+          <e p="apr_uri.h" t="Include" />
+          <e p="apr_uuid.h" t="Include" />
+          <e p="apr_xlate.h" t="Include" />
+          <e p="apr_xml.h" t="Include" />
+          <e p="apu.h.in" t="Include" />
+          <e p="apu.hnw" t="Include" />
+          <e p="apu.hw" t="Include" />
+          <e p="apu_version.h" t="Include" />
+          <e p="apu_want.h.in" t="Include" />
+          <e p="apu_want.hnw" t="Include" />
+          <e p="apu_want.hw" t="Include" />
+          <e p="private" t="Include">
+            <e p="apu_config.h.in" t="Include" />
+            <e p="apu_config.hw" t="Include" />
+            <e p="apu_select_dbm.h.in" t="Include" />
+            <e p="apu_select_dbm.hw" t="Include" />
+          </e>
+        </e>
+        <e p="ldap" t="Include">
+          <e p="apr_ldap_init.c" t="Include" />
+          <e p="apr_ldap_option.c" t="Include" />
+          <e p="apr_ldap_rebind.c" t="Include" />
+          <e p="apr_ldap_stub.c" t="Include" />
+          <e p="apr_ldap_url.c" t="Include" />
+        </e>
+        <e p="memcache" t="Include">
+          <e p="apr_memcache.c" t="Include" />
+        </e>
+        <e p="misc" t="Include">
+          <e p="apr_date.c" t="Include" />
+          <e p="apr_queue.c" t="Include" />
+          <e p="apr_reslist.c" t="Include" />
+          <e p="apr_rmm.c" t="Include" />
+          <e p="apr_thread_pool.c" t="Include" />
+          <e p="apu_dso.c" t="Include" />
+          <e p="apu_version.c" t="Include" />
+        </e>
+        <e p="strmatch" t="Include">
+          <e p="apr_strmatch.c" t="Include" />
+        </e>
+        <e p="uri" t="Include">
+          <e p="apr_uri.c" t="Include" />
+        </e>
+        <e p="xlate" t="Include">
+          <e p="xlate.c" t="Include" />
+        </e>
+        <e p="xml" t="Include">
+          <e p="apr_xml.c" t="Include" />
+        </e>
+      </e>
+      <e p="lib\dependencies\expat\lib" t="IncludeRecursive">
+        <e p="ascii.h" t="Include" />
+        <e p="asciitab.h" t="Include" />
+        <e p="expat.h" t="Include" />
+        <e p="expat_external.h" t="Include" />
+        <e p="expat_static.vcxproj" t="IncludeRecursive" />
+        <e p="iasciitab.h" t="Include" />
+        <e p="internal.h" t="Include" />
+        <e p="latin1tab.h" t="Include" />
+        <e p="nametab.h" t="Include" />
+        <e p="utf8tab.h" t="Include" />
+        <e p="xmlparse.c" t="Include" />
+        <e p="xmlrole.c" t="Include" />
+        <e p="xmlrole.h" t="Include" />
+        <e p="xmltok.c" t="Include" />
+        <e p="xmltok.h" t="Include" />
+        <e p="xmltok_impl.c" t="Include" />
+        <e p="xmltok_impl.h" t="Include" />
+        <e p="xmltok_ns.c" t="Include" />
+      </e>
+      <e p="lib\dependencies\g3dlite" t="Include">
+        <e p="AABox.cpp" t="Include" />
+        <e p="Box.cpp" t="Include" />
+        <e p="Crypto.cpp" t="Include" />
+        <e p="format.cpp" t="Include" />
+        <e p="G3D" t="Include">
+          <e p="AABox.h" t="Include" />
+          <e p="Array.h" t="Include" />
+          <e p="Box.h" t="Include" />
+          <e p="CollisionDetection.h" t="Include" />
+          <e p="CoordinateFrame.h" t="Include" />
+          <e p="Crypto.h" t="Include" />
+          <e p="debug.h" t="Include" />
+          <e p="format.h" t="Include" />
+          <e p="g3dmath.h" t="Include" />
+          <e p="g3dmath.inl" t="Include" />
+          <e p="GCamera.h" t="Include" />
+          <e p="Line.h" t="Include" />
+          <e p="Matrix3.h" t="Include" />
+          <e p="Plane.h" t="Include" />
+          <e p="platform.h" t="Include" />
+          <e p="Quat.h" t="Include" />
+          <e p="Quat.inl" t="Include" />
+          <e p="Ray.h" t="Include" />
+          <e p="RegistryUtil.h" t="Include" />
+          <e p="Sphere.h" t="Include" />
+          <e p="stringutils.h" t="Include" />
+          <e p="system.h" t="Include" />
+          <e p="Table.h" t="Include" />
+          <e p="Triangle.h" t="Include" />
+          <e p="Vector2.h" t="Include" />
+          <e p="Vector2.inl" t="Include" />
+          <e p="Vector2int16.h" t="Include" />
+          <e p="Vector3.h" t="Include" />
+          <e p="Vector3.inl" t="Include" />
+          <e p="Vector3int16.h" t="Include" />
+          <e p="Vector4.h" t="Include" />
+          <e p="Vector4.inl" t="Include" />
+        </e>
+        <e p="Matrix3.cpp" t="Include" />
+        <e p="Plane.cpp" t="Include" />
+        <e p="system.cpp" t="Include" />
+        <e p="Triangle.cpp" t="Include" />
+        <e p="Vector3.cpp" t="Include" />
+        <e p="Vector4.cpp" t="Include" />
+      </e>
+      <e p="lib\dependencies\hiredis\redis-win\deps\hiredis" t="Include">
+        <e p="async.c" t="Include" />
+        <e p="async.h" t="Include" />
+        <e p="dict.c" t="Include" />
+        <e p="dict.h" t="Include" />
+        <e p="fmacros.h" t="Include" />
+        <e p="hiredis.c" t="Include" />
+        <e p="hiredis.h" t="Include" />
+        <e p="net.c" t="Include" />
+        <e p="net.h" t="Include" />
+        <e p="sds.c" t="Include" />
+        <e p="sds.h" t="Include" />
+        <e p="test.c" t="Include" />
+      </e>
+      <e p="lib\dependencies\hiredis\redis-win\msvs\hiredis" t="IncludeRecursive">
+        <e p="hiredis.vcxproj" t="IncludeRecursive" />
+      </e>
+      <e p="lib\dependencies\jwsmtp" t="IncludeRecursive">
+        <e p="jwsmtp" t="Include">
+          <e p="jwsmtp" t="Include">
+            <e p="base64.cpp" t="Include" />
+            <e p="compat.cpp" t="Include" />
+            <e p="mailer.cpp" t="Include" />
+          </e>
+        </e>
+        <e p="jwsmtp.vcxproj" t="IncludeRecursive" />
+      </e>
+      <e p="lib\dependencies\log4cxx\Projects" t="IncludeRecursive">
+        <e p="log4cxx.vcxproj" t="IncludeRecursive" />
+      </e>
+      <e p="lib\dependencies\log4cxx\src\main\cpp" t="Include">
+        <e p="action.cpp" t="Include" />
+        <e p="appenderattachableimpl.cpp" t="Include" />
+        <e p="appenderskeleton.cpp" t="Include" />
+        <e p="aprinitializer.cpp" t="Include" />
+        <e p="asyncappender.cpp" t="Include" />
+        <e p="basicconfigurator.cpp" t="Include" />
+        <e p="bufferedwriter.cpp" t="Include" />
+        <e p="bytearrayinputstream.cpp" t="Include" />
+        <e p="bytearrayoutputstream.cpp" t="Include" />
+        <e p="bytebuffer.cpp" t="Include" />
+        <e p="cacheddateformat.cpp" t="Include" />
+        <e p="charsetdecoder.cpp" t="Include" />
+        <e p="charsetencoder.cpp" t="Include" />
+        <e p="class.cpp" t="Include" />
+        <e p="classnamepatternconverter.cpp" t="Include" />
+        <e p="classregistration.cpp" t="Include" />
+        <e p="condition.cpp" t="Include" />
+        <e p="configurator.cpp" t="Include" />
+        <e p="consoleappender.cpp" t="Include" />
+        <e p="cyclicbuffer.cpp" t="Include" />
+        <e p="dailyrollingfileappender.cpp" t="Include" />
+        <e p="datagrampacket.cpp" t="Include" />
+        <e p="datagramsocket.cpp" t="Include" />
+        <e p="date.cpp" t="Include" />
+        <e p="dateformat.cpp" t="Include" />
+        <e p="datelayout.cpp" t="Include" />
+        <e p="datepatternconverter.cpp" t="Include" />
+        <e p="defaultconfigurator.cpp" t="Include" />
+        <e p="defaultloggerfactory.cpp" t="Include" />
+        <e p="defaultrepositoryselector.cpp" t="Include" />
+        <e p="domconfigurator.cpp" t="Include" />
+        <e p="exception.cpp" t="Include" />
+        <e p="fallbackerrorhandler.cpp" t="Include" />
+        <e p="file.cpp" t="Include" />
+        <e p="fileappender.cpp" t="Include" />
+        <e p="filedatepatternconverter.cpp" t="Include" />
+        <e p="fileinputstream.cpp" t="Include" />
+        <e p="filelocationpatternconverter.cpp" t="Include" />
+        <e p="fileoutputstream.cpp" t="Include" />
+        <e p="filerenameaction.cpp" t="Include" />
+        <e p="filewatchdog.cpp" t="Include" />
+        <e p="filter.cpp" t="Include" />
+        <e p="filterbasedtriggeringpolicy.cpp" t="Include" />
+        <e p="fixedwindowrollingpolicy.cpp" t="Include" />
+        <e p="formattinginfo.cpp" t="Include" />
+        <e p="fulllocationpatternconverter.cpp" t="Include" />
+        <e p="gzcompressaction.cpp" t="Include" />
+        <e p="hierarchy.cpp" t="Include" />
+        <e p="htmllayout.cpp" t="Include" />
+        <e p="inetaddress.cpp" t="Include" />
+        <e p="inputstream.cpp" t="Include" />
+        <e p="inputstreamreader.cpp" t="Include" />
+        <e p="integer.cpp" t="Include" />
+        <e p="integerpatternconverter.cpp" t="Include" />
+        <e p="layout.cpp" t="Include" />
+        <e p="level.cpp" t="Include" />
+        <e p="levelmatchfilter.cpp" t="Include" />
+        <e p="levelpatternconverter.cpp" t="Include" />
+        <e p="levelrangefilter.cpp" t="Include" />
+        <e p="linelocationpatternconverter.cpp" t="Include" />
+        <e p="lineseparatorpatternconverter.cpp" t="Include" />
+        <e p="literalpatternconverter.cpp" t="Include" />
+        <e p="loader.cpp" t="Include" />
+        <e p="locale.cpp" t="Include" />
+        <e p="locationinfo.cpp" t="Include" />
+        <e p="logger.cpp" t="Include" />
+        <e p="loggerpatternconverter.cpp" t="Include" />
+        <e p="loggingevent.cpp" t="Include" />
+        <e p="loggingeventpatternconverter.cpp" t="Include" />
+        <e p="loglog.cpp" t="Include" />
+        <e p="logmanager.cpp" t="Include" />
+        <e p="logstream.cpp" t="Include" />
+        <e p="manualtriggeringpolicy.cpp" t="Include" />
+        <e p="mdc.cpp" t="Include" />
+        <e p="messagebuffer.cpp" t="Include" />
+        <e p="messagepatternconverter.cpp" t="Include" />
+        <e p="methodlocationpatternconverter.cpp" t="Include" />
+        <e p="mutex.cpp" t="Include" />
+        <e p="nameabbreviator.cpp" t="Include" />
+        <e p="namepatternconverter.cpp" t="Include" />
+        <e p="ndc.cpp" t="Include" />
+        <e p="ndcpatternconverter.cpp" t="Include" />
+        <e p="nteventlogappender.cpp" t="Include" />
+        <e p="objectimpl.cpp" t="Include" />
+        <e p="objectoutputstream.cpp" t="Include" />
+        <e p="objectptr.cpp" t="Include" />
+        <e p="obsoleterollingfileappender.cpp" t="Include" />
+        <e p="odbcappender.cpp" t="Include" />
+        <e p="onlyonceerrorhandler.cpp" t="Include" />
+        <e p="optionconverter.cpp" t="Include" />
+        <e p="outputdebugstringappender.cpp" t="Include" />
+        <e p="outputstream.cpp" t="Include" />
+        <e p="outputstreamwriter.cpp" t="Include" />
+        <e p="patternconverter.cpp" t="Include" />
+        <e p="patternlayout.cpp" t="Include" />
+        <e p="patternparser.cpp" t="Include" />
+        <e p="pool.cpp" t="Include" />
+        <e p="properties.cpp" t="Include" />
+        <e p="propertiespatternconverter.cpp" t="Include" />
+        <e p="propertyconfigurator.cpp" t="Include" />
+        <e p="propertyresourcebundle.cpp" t="Include" />
+        <e p="propertysetter.cpp" t="Include" />
+        <e p="reader.cpp" t="Include" />
+        <e p="relativetimedateformat.cpp" t="Include" />
+        <e p="relativetimepatternconverter.cpp" t="Include" />
+        <e p="resourcebundle.cpp" t="Include" />
+        <e p="rollingfileappender.cpp" t="Include" />
+        <e p="rollingpolicy.cpp" t="Include" />
+        <e p="rollingpolicybase.cpp" t="Include" />
+        <e p="rolloverdescription.cpp" t="Include" />
+        <e p="rootlogger.cpp" t="Include" />
+        <e p="serversocket.cpp" t="Include" />
+        <e p="simpledateformat.cpp" t="Include" />
+        <e p="simplelayout.cpp" t="Include" />
+        <e p="sizebasedtriggeringpolicy.cpp" t="Include" />
+        <e p="smtpappender.cpp" t="Include" />
+        <e p="socket.cpp" t="Include" />
+        <e p="socketappender.cpp" t="Include" />
+        <e p="socketappenderskeleton.cpp" t="Include" />
+        <e p="sockethubappender.cpp" t="Include" />
+        <e p="socketoutputstream.cpp" t="Include" />
+        <e p="strftimedateformat.cpp" t="Include" />
+        <e p="stringhelper.cpp" t="Include" />
+        <e p="stringmatchfilter.cpp" t="Include" />
+        <e p="stringtokenizer.cpp" t="Include" />
+        <e p="synchronized.cpp" t="Include" />
+        <e p="syslogappender.cpp" t="Include" />
+        <e p="syslogwriter.cpp" t="Include" />
+        <e p="system.cpp" t="Include" />
+        <e p="systemerrwriter.cpp" t="Include" />
+        <e p="systemoutwriter.cpp" t="Include" />
+        <e p="telnetappender.cpp" t="Include" />
+        <e p="threadcxx.cpp" t="Include" />
+        <e p="threadlocal.cpp" t="Include" />
+        <e p="threadpatternconverter.cpp" t="Include" />
+        <e p="threadspecificdata.cpp" t="Include" />
+        <e p="throwableinformationpatternconverter.cpp" t="Include" />
+        <e p="timebasedrollingpolicy.cpp" t="Include" />
+        <e p="timezone.cpp" t="Include" />
+        <e p="transcoder.cpp" t="Include" />
+        <e p="transform.cpp" t="Include" />
+        <e p="triggeringpolicy.cpp" t="Include" />
+        <e p="ttcclayout.cpp" t="Include" />
+        <e p="writer.cpp" t="Include" />
+        <e p="writerappender.cpp" t="Include" />
+        <e p="xmllayout.cpp" t="Include" />
+        <e p="xmlsocketappender.cpp" t="Include" />
+        <e p="zipcompressaction.cpp" t="Include" />
+      </e>
+      <e p="lib\dependencies\log4cxx\src\main\include\log4cxx" t="Include">
+        <e p="appender.h" t="Include" />
+        <e p="appenderskeleton.h" t="Include" />
+        <e p="asyncappender.h" t="Include" />
+        <e p="basicconfigurator.h" t="Include" />
+        <e p="config" t="Include">
+          <e p="propertysetter.h" t="Include" />
+        </e>
+        <e p="consoleappender.h" t="Include" />
+        <e p="dailyrollingfileappender.h" t="Include" />
+        <e p="db" t="Include">
+          <e p="odbcappender.h" t="Include" />
+        </e>
+        <e p="defaultconfigurator.h" t="Include" />
+        <e p="defaultloggerfactory.h" t="Include" />
+        <e p="file.h" t="Include" />
+        <e p="fileappender.h" t="Include" />
+        <e p="filter" t="Include">
+          <e p="andfilter.h" t="Include" />
+          <e p="denyallfilter.h" t="Include" />
+          <e p="expressionfilter.h" t="Include" />
+          <e p="levelmatchfilter.h" t="Include" />
+          <e p="levelrangefilter.h" t="Include" />
+          <e p="locationinfofilter.h" t="Include" />
+          <e p="mapfilter.h" t="Include" />
+          <e p="propertyfilter.h" t="Include" />
+          <e p="stringmatchfilter.h" t="Include" />
+        </e>
+        <e p="helpers" t="Include">
+          <e p="absolutetimedateformat.h" t="Include" />
+          <e p="appenderattachableimpl.h" t="Include" />
+          <e p="aprinitializer.h" t="Include" />
+          <e p="bufferedoutputstream.h" t="Include" />
+          <e p="bufferedwriter.h" t="Include" />
+          <e p="bytearrayinputstream.h" t="Include" />
+          <e p="bytearrayoutputstream.h" t="Include" />
+          <e p="bytebuffer.h" t="Include" />
+          <e p="cacheddateformat.h" t="Include" />
+          <e p="charsetdecoder.h" t="Include" />
+          <e p="charsetencoder.h" t="Include" />
+          <e p="class.h" t="Include" />
+          <e p="classregistration.h" t="Include" />
+          <e p="condition.h" t="Include" />
+          <e p="cyclicbuffer.h" t="Include" />
+          <e p="datagrampacket.h" t="Include" />
+          <e p="datagramsocket.h" t="Include" />
+          <e p="date.h" t="Include" />
+          <e p="dateformat.h" t="Include" />
+          <e p="datelayout.h" t="Include" />
+          <e p="datetimedateformat.h" t="Include" />
+          <e p="exception.h" t="Include" />
+          <e p="fileinputstream.h" t="Include" />
+          <e p="fileoutputstream.h" t="Include" />
+          <e p="filewatchdog.h" t="Include" />
+          <e p="inetaddress.h" t="Include" />
+          <e p="inputstream.h" t="Include" />
+          <e p="inputstreamreader.h" t="Include" />
+          <e p="integer.h" t="Include" />
+          <e p="iso8601dateformat.h" t="Include" />
+          <e p="loader.h" t="Include" />
+          <e p="locale.h" t="Include" />
+          <e p="loglog.h" t="Include" />
+          <e p="messagebuffer.h" t="Include" />
+          <e p="mutex.h" t="Include" />
+          <e p="object.h" t="Include" />
+          <e p="objectimpl.h" t="Include" />
+          <e p="objectoutputstream.h" t="Include" />
+          <e p="objectptr.h" t="Include" />
+          <e p="onlyonceerrorhandler.h" t="Include" />
+          <e p="optionconverter.h" t="Include" />
+          <e p="outputstream.h" t="Include" />
+          <e p="outputstreamwriter.h" t="Include" />
+          <e p="pool.h" t="Include" />
+          <e p="properties.h" t="Include" />
+          <e p="propertyresourcebundle.h" t="Include" />
+          <e p="reader.h" t="Include" />
+          <e p="relativetimedateformat.h" t="Include" />
+          <e p="resourcebundle.h" t="Include" />
+          <e p="serversocket.h" t="Include" />
+          <e p="simpledateformat.h" t="Include" />
+          <e p="socket.h" t="Include" />
+          <e p="socketoutputstream.h" t="Include" />
+          <e p="strftimedateformat.h" t="Include" />
+          <e p="strictmath.h" t="Include" />
+          <e p="stringhelper.h" t="Include" />
+          <e p="stringtokenizer.h" t="Include" />
+          <e p="synchronized.h" t="Include" />
+          <e p="syslogwriter.h" t="Include" />
+          <e p="system.h" t="Include" />
+          <e p="systemerrwriter.h" t="Include" />
+          <e p="systemoutwriter.h" t="Include" />
+          <e p="tchar.h" t="Include" />
+          <e p="thread.h" t="Include" />
+          <e p="threadlocal.h" t="Include" />
+          <e p="threadspecificdata.h" t="Include" />
+          <e p="timezone.h" t="Include" />
+          <e p="transcoder.h" t="Include" />
+          <e p="transform.h" t="Include" />
+          <e p="writer.h" t="Include" />
+          <e p="xml.h" t="Include" />
+        </e>
+        <e p="hierarchy.h" t="Include" />
+        <e p="htmllayout.h" t="Include" />
+        <e p="layout.h" t="Include" />
+        <e p="level.h" t="Include" />
+        <e p="log4cxx.h" t="Include" />
+        <e p="logger.h" t="Include" />
+        <e p="logmanager.h" t="Include" />
+        <e p="logstring.h" t="Include" />
+        <e p="mdc.h" t="Include" />
+        <e p="ndc.h" t="Include" />
+        <e p="net" t="Include">
+          <e p="smtpappender.h" t="Include" />
+          <e p="socketappender.h" t="Include" />
+          <e p="socketappenderskeleton.h" t="Include" />
+          <e p="sockethubappender.h" t="Include" />
+          <e p="syslogappender.h" t="Include" />
+          <e p="telnetappender.h" t="Include" />
+          <e p="xmlsocketappender.h" t="Include" />
+        </e>
+        <e p="nt" t="Include">
+          <e p="nteventlogappender.h" t="Include" />
+          <e p="outputdebugstringappender.h" t="Include" />
+        </e>
+        <e p="pattern" t="Include">
+          <e p="classnamepatternconverter.h" t="Include" />
+          <e p="datepatternconverter.h" t="Include" />
+          <e p="filedatepatternconverter.h" t="Include" />
+          <e p="filelocationpatternconverter.h" t="Include" />
+          <e p="formattinginfo.h" t="Include" />
+          <e p="fulllocationpatternconverter.h" t="Include" />
+          <e p="integerpatternconverter.h" t="Include" />
+          <e p="levelpatternconverter.h" t="Include" />
+          <e p="linelocationpatternconverter.h" t="Include" />
+          <e p="lineseparatorpatternconverter.h" t="Include" />
+          <e p="literalpatternconverter.h" t="Include" />
+          <e p="loggerpatternconverter.h" t="Include" />
+          <e p="loggingeventpatternconverter.h" t="Include" />
+          <e p="messagepatternconverter.h" t="Include" />
+          <e p="methodlocationpatternconverter.h" t="Include" />
+          <e p="nameabbreviator.h" t="Include" />
+          <e p="namepatternconverter.h" t="Include" />
+          <e p="ndcpatternconverter.h" t="Include" />
+          <e p="patternconverter.h" t="Include" />
+          <e p="patternparser.h" t="Include" />
+          <e p="propertiespatternconverter.h" t="Include" />
+          <e p="relativetimepatternconverter.h" t="Include" />
+          <e p="threadpatternconverter.h" t="Include" />
+          <e p="throwableinformationpatternconverter.h" t="Include" />
+        </e>
+        <e p="patternlayout.h" t="Include" />
+        <e p="portability.h" t="Include" />
+        <e p="private" t="Include">
+          <e p="log4cxx_private.h" t="Include" />
+        </e>
+        <e p="propertyconfigurator.h" t="Include" />
+        <e p="provisionnode.h" t="Include" />
+        <e p="rolling" t="Include">
+          <e p="action.h" t="Include" />
+          <e p="filerenameaction.h" t="Include" />
+          <e p="filterbasedtriggeringpolicy.h" t="Include" />
+          <e p="fixedwindowrollingpolicy.h" t="Include" />
+          <e p="gzcompressaction.h" t="Include" />
+          <e p="manualtriggeringpolicy.h" t="Include" />
+          <e p="rollingfileappender.h" t="Include" />
+          <e p="rollingfileappenderskeleton.h" t="Include" />
+          <e p="rollingpolicy.h" t="Include" />
+          <e p="rollingpolicybase.h" t="Include" />
+          <e p="rolloverdescription.h" t="Include" />
+          <e p="sizebasedtriggeringpolicy.h" t="Include" />
+          <e p="timebasedrollingpolicy.h" t="Include" />
+          <e p="triggeringpolicy.h" t="Include" />
+          <e p="zipcompressaction.h" t="Include" />
+        </e>
+        <e p="rollingfileappender.h" t="Include" />
+        <e p="simplelayout.h" t="Include" />
+        <e p="spi" t="Include">
+          <e p="appenderattachable.h" t="Include" />
+          <e p="configurator.h" t="Include" />
+          <e p="defaultrepositoryselector.h" t="Include" />
+          <e p="errorhandler.h" t="Include" />
+          <e p="filter.h" t="Include" />
+          <e p="hierarchyeventlistener.h" t="Include" />
+          <e p="location" t="Include">
+            <e p="locationinfo.h" t="Include" />
+          </e>
+          <e p="loggerfactory.h" t="Include" />
+          <e p="loggerrepository.h" t="Include" />
+          <e p="loggingevent.h" t="Include" />
+          <e p="optionhandler.h" t="Include" />
+          <e p="repositoryselector.h" t="Include" />
+          <e p="rootlogger.h" t="Include" />
+          <e p="triggeringeventevaluator.h" t="Include" />
+        </e>
+        <e p="stream.h" t="Include" />
+        <e p="ttcclayout.h" t="Include" />
+        <e p="varia" t="Include">
+          <e p="fallbackerrorhandler.h" t="Include" />
+        </e>
+        <e p="writerappender.h" t="Include" />
+        <e p="xml" t="Include">
+          <e p="domconfigurator.h" t="Include" />
+          <e p="xmllayout.h" t="Include" />
+        </e>
+      </e>
+      <e p="lib\dependencies\log4cxx\src\main\resources" t="Include">
+        <e p="resource.h" t="Include" />
+      </e>
+      <e p="lib\dependencies\openssl\apps" t="Include">
+        <e p="app_rand.c" t="Include" />
+        <e p="apps.c" t="Include" />
+      </e>
+      <e p="lib\dependencies\openssl\crypto" t="Include">
+        <e p="aes" t="Include">
+          <e p="aes_cbc.c" t="Include" />
+          <e p="aes_cfb.c" t="Include" />
+          <e p="aes_core.c" t="Include" />
+          <e p="aes_ctr.c" t="Include" />
+          <e p="aes_ecb.c" t="Include" />
+          <e p="aes_ige.c" t="Include" />
+          <e p="aes_misc.c" t="Include" />
+          <e p="aes_ofb.c" t="Include" />
+          <e p="aes_wrap.c" t="Include" />
+        </e>
+        <e p="asn1" t="Include">
+          <e p="a_bitstr.c" t="Include" />
+          <e p="a_bool.c" t="Include" />
+          <e p="a_bytes.c" t="Include" />
+          <e p="a_d2i_fp.c" t="Include" />
+          <e p="a_digest.c" t="Include" />
+          <e p="a_dup.c" t="Include" />
+          <e p="a_enum.c" t="Include" />
+          <e p="a_gentm.c" t="Include" />
+          <e p="a_i2d_fp.c" t="Include" />
+          <e p="a_int.c" t="Include" />
+          <e p="a_mbstr.c" t="Include" />
+          <e p="a_object.c" t="Include" />
+          <e p="a_octet.c" t="Include" />
+          <e p="a_print.c" t="Include" />
+          <e p="a_set.c" t="Include" />
+          <e p="a_sign.c" t="Include" />
+          <e p="a_strex.c" t="Include" />
+          <e p="a_strnid.c" t="Include" />
+          <e p="a_time.c" t="Include" />
+          <e p="a_type.c" t="Include" />
+          <e p="a_utctm.c" t="Include" />
+          <e p="a_utf8.c" t="Include" />
+          <e p="a_verify.c" t="Include" />
+          <e p="ameth_lib.c" t="Include" />
+          <e p="asn1_err.c" t="Include" />
+          <e p="asn1_gen.c" t="Include" />
+          <e p="asn1_lib.c" t="Include" />
+          <e p="asn1_par.c" t="Include" />
+          <e p="asn_mime.c" t="Include" />
+          <e p="asn_moid.c" t="Include" />
+          <e p="asn_pack.c" t="Include" />
+          <e p="bio_asn1.c" t="Include" />
+          <e p="bio_ndef.c" t="Include" />
+          <e p="d2i_pr.c" t="Include" />
+          <e p="d2i_pu.c" t="Include" />
+          <e p="evp_asn1.c" t="Include" />
+          <e p="f_enum.c" t="Include" />
+          <e p="f_int.c" t="Include" />
+          <e p="f_string.c" t="Include" />
+          <e p="i2d_pr.c" t="Include" />
+          <e p="i2d_pu.c" t="Include" />
+          <e p="n_pkey.c" t="Include" />
+          <e p="nsseq.c" t="Include" />
+          <e p="p5_pbe.c" t="Include" />
+          <e p="p5_pbev2.c" t="Include" />
+          <e p="p8_pkey.c" t="Include" />
+          <e p="t_bitst.c" t="Include" />
+          <e p="t_crl.c" t="Include" />
+          <e p="t_pkey.c" t="Include" />
+          <e p="t_req.c" t="Include" />
+          <e p="t_spki.c" t="Include" />
+          <e p="t_x509.c" t="Include" />
+          <e p="t_x509a.c" t="Include" />
+          <e p="tasn_dec.c" t="Include" />
+          <e p="tasn_enc.c" t="Include" />
+          <e p="tasn_fre.c" t="Include" />
+          <e p="tasn_new.c" t="Include" />
+          <e p="tasn_prn.c" t="Include" />
+          <e p="tasn_typ.c" t="Include" />
+          <e p="tasn_utl.c" t="Include" />
+          <e p="x_algor.c" t="Include" />
+          <e p="x_attrib.c" t="Include" />
+          <e p="x_bignum.c" t="Include" />
+          <e p="x_crl.c" t="Include" />
+          <e p="x_exten.c" t="Include" />
+          <e p="x_info.c" t="Include" />
+          <e p="x_long.c" t="Include" />
+          <e p="x_name.c" t="Include" />
+          <e p="x_nx509.c" t="Include" />
+          <e p="x_pkey.c" t="Include" />
+          <e p="x_pubkey.c" t="Include" />
+          <e p="x_req.c" t="Include" />
+          <e p="x_sig.c" t="Include" />
+          <e p="x_spki.c" t="Include" />
+          <e p="x_val.c" t="Include" />
+          <e p="x_x509.c" t="Include" />
+          <e p="x_x509a.c" t="Include" />
+        </e>
+        <e p="bf" t="Include">
+          <e p="bf_cfb64.c" t="Include" />
+          <e p="bf_ecb.c" t="Include" />
+          <e p="bf_enc.c" t="Include" />
+          <e p="bf_ofb64.c" t="Include" />
+          <e p="bf_skey.c" t="Include" />
+        </e>
+        <e p="bio" t="Include">
+          <e p="b_dump.c" t="Include" />
+          <e p="b_print.c" t="Include" />
+          <e p="b_sock.c" t="Include" />
+          <e p="bf_buff.c" t="Include" />
+          <e p="bf_nbio.c" t="Include" />
+          <e p="bf_null.c" t="Include" />
+          <e p="bio_cb.c" t="Include" />
+          <e p="bio_err.c" t="Include" />
+          <e p="bio_lib.c" t="Include" />
+          <e p="bss_acpt.c" t="Include" />
+          <e p="bss_bio.c" t="Include" />
+          <e p="bss_conn.c" t="Include" />
+          <e p="bss_dgram.c" t="Include" />
+          <e p="bss_fd.c" t="Include" />
+          <e p="bss_file.c" t="Include" />
+          <e p="bss_log.c" t="Include" />
+          <e p="bss_mem.c" t="Include" />
+          <e p="bss_null.c" t="Include" />
+          <e p="bss_sock.c" t="Include" />
+        </e>
+        <e p="bn" t="Include">
+          <e p="bn_add.c" t="Include" />
+          <e p="bn_asm.c" t="Include" />
+          <e p="bn_blind.c" t="Include" />
+          <e p="bn_const.c" t="Include" />
+          <e p="bn_ctx.c" t="Include" />
+          <e p="bn_depr.c" t="Include" />
+          <e p="bn_div.c" t="Include" />
+          <e p="bn_err.c" t="Include" />
+          <e p="bn_exp.c" t="Include" />
+          <e p="bn_exp2.c" t="Include" />
+          <e p="bn_gcd.c" t="Include" />
+          <e p="bn_gf2m.c" t="Include" />
+          <e p="bn_kron.c" t="Include" />
+          <e p="bn_lib.c" t="Include" />
+          <e p="bn_mod.c" t="Include" />
+          <e p="bn_mont.c" t="Include" />
+          <e p="bn_mpi.c" t="Include" />
+          <e p="bn_mul.c" t="Include" />
+          <e p="bn_nist.c" t="Include" />
+          <e p="bn_prime.c" t="Include" />
+          <e p="bn_print.c" t="Include" />
+          <e p="bn_rand.c" t="Include" />
+          <e p="bn_recp.c" t="Include" />
+          <e p="bn_shift.c" t="Include" />
+          <e p="bn_sqr.c" t="Include" />
+          <e p="bn_sqrt.c" t="Include" />
+          <e p="bn_word.c" t="Include" />
+          <e p="bn_x931p.c" t="Include" />
+        </e>
+        <e p="buffer" t="Include">
+          <e p="buf_err.c" t="Include" />
+          <e p="buf_str.c" t="Include" />
+          <e p="buffer.c" t="Include" />
+        </e>
+        <e p="camellia" t="Include">
+          <e p="camellia.c" t="Include" />
+          <e p="cmll_cbc.c" t="Include" />
+          <e p="cmll_cfb.c" t="Include" />
+          <e p="cmll_ctr.c" t="Include" />
+          <e p="cmll_ecb.c" t="Include" />
+          <e p="cmll_misc.c" t="Include" />
+          <e p="cmll_ofb.c" t="Include" />
+          <e p="cmll_utl.c" t="Include" />
+        </e>
+        <e p="cast" t="Include">
+          <e p="c_cfb64.c" t="Include" />
+          <e p="c_ecb.c" t="Include" />
+          <e p="c_enc.c" t="Include" />
+          <e p="c_ofb64.c" t="Include" />
+          <e p="c_skey.c" t="Include" />
+        </e>
+        <e p="cmac" t="Include">
+          <e p="cm_ameth.c" t="Include" />
+          <e p="cm_pmeth.c" t="Include" />
+          <e p="cmac.c" t="Include" />
+        </e>
+        <e p="cms" t="Include">
+          <e p="cms_asn1.c" t="Include" />
+          <e p="cms_att.c" t="Include" />
+          <e p="cms_cd.c" t="Include" />
+          <e p="cms_dd.c" t="Include" />
+          <e p="cms_enc.c" t="Include" />
+          <e p="cms_env.c" t="Include" />
+          <e p="cms_err.c" t="Include" />
+          <e p="cms_ess.c" t="Include" />
+          <e p="cms_io.c" t="Include" />
+          <e p="cms_kari.c" t="Include" />
+          <e p="cms_lib.c" t="Include" />
+          <e p="cms_pwri.c" t="Include" />
+          <e p="cms_sd.c" t="Include" />
+          <e p="cms_smime.c" t="Include" />
+        </e>
+        <e p="comp" t="Include">
+          <e p="c_rle.c" t="Include" />
+          <e p="c_zlib.c" t="Include" />
+          <e p="comp_err.c" t="Include" />
+          <e p="comp_lib.c" t="Include" />
+        </e>
+        <e p="conf" t="Include">
+          <e p="conf_api.c" t="Include" />
+          <e p="conf_def.c" t="Include" />
+          <e p="conf_err.c" t="Include" />
+          <e p="conf_lib.c" t="Include" />
+          <e p="conf_mall.c" t="Include" />
+          <e p="conf_mod.c" t="Include" />
+          <e p="conf_sap.c" t="Include" />
+        </e>
+        <e p="cpt_err.c" t="Include" />
+        <e p="cryptlib.c" t="Include" />
+        <e p="cversion.c" t="Include" />
+        <e p="des" t="Include">
+          <e p="cbc_cksm.c" t="Include" />
+          <e p="cbc_enc.c" t="Include" />
+          <e p="cfb64ede.c" t="Include" />
+          <e p="cfb64enc.c" t="Include" />
+          <e p="cfb_enc.c" t="Include" />
+          <e p="des_enc.c" t="Include" />
+          <e p="des_old.c" t="Include" />
+          <e p="des_old2.c" t="Include" />
+          <e p="ecb3_enc.c" t="Include" />
+          <e p="ecb_enc.c" t="Include" />
+          <e p="ede_cbcm_enc.c" t="Include" />
+          <e p="enc_read.c" t="Include" />
+          <e p="enc_writ.c" t="Include" />
+          <e p="fcrypt.c" t="Include" />
+          <e p="fcrypt_b.c" t="Include" />
+          <e p="ofb64ede.c" t="Include" />
+          <e p="ofb64enc.c" t="Include" />
+          <e p="ofb_enc.c" t="Include" />
+          <e p="pcbc_enc.c" t="Include" />
+          <e p="qud_cksm.c" t="Include" />
+          <e p="rand_key.c" t="Include" />
+          <e p="read2pwd.c" t="Include" />
+          <e p="rpc_enc.c" t="Include" />
+          <e p="set_key.c" t="Include" />
+          <e p="str2key.c" t="Include" />
+          <e p="xcbc_enc.c" t="Include" />
+        </e>
+        <e p="dh" t="Include">
+          <e p="dh_ameth.c" t="Include" />
+          <e p="dh_asn1.c" t="Include" />
+          <e p="dh_check.c" t="Include" />
+          <e p="dh_depr.c" t="Include" />
+          <e p="dh_err.c" t="Include" />
+          <e p="dh_gen.c" t="Include" />
+          <e p="dh_kdf.c" t="Include" />
+          <e p="dh_key.c" t="Include" />
+          <e p="dh_lib.c" t="Include" />
+          <e p="dh_pmeth.c" t="Include" />
+          <e p="dh_prn.c" t="Include" />
+          <e p="dh_rfc5114.c" t="Include" />
+        </e>
+        <e p="dsa" t="Include">
+          <e p="dsa_ameth.c" t="Include" />
+          <e p="dsa_asn1.c" t="Include" />
+          <e p="dsa_depr.c" t="Include" />
+          <e p="dsa_err.c" t="Include" />
+          <e p="dsa_gen.c" t="Include" />
+          <e p="dsa_key.c" t="Include" />
+          <e p="dsa_lib.c" t="Include" />
+          <e p="dsa_ossl.c" t="Include" />
+          <e p="dsa_pmeth.c" t="Include" />
+          <e p="dsa_prn.c" t="Include" />
+          <e p="dsa_sign.c" t="Include" />
+          <e p="dsa_vrf.c" t="Include" />
+        </e>
+        <e p="dso" t="Include">
+          <e p="dso_beos.c" t="Include" />
+          <e p="dso_dl.c" t="Include" />
+          <e p="dso_dlfcn.c" t="Include" />
+          <e p="dso_err.c" t="Include" />
+          <e p="dso_lib.c" t="Include" />
+          <e p="dso_null.c" t="Include" />
+          <e p="dso_openssl.c" t="Include" />
+          <e p="dso_vms.c" t="Include" />
+          <e p="dso_win32.c" t="Include" />
+        </e>
+        <e p="ebcdic.c" t="Include" />
+        <e p="ec" t="Include">
+          <e p="ec2_mult.c" t="Include" />
+          <e p="ec2_oct.c" t="Include" />
+          <e p="ec2_smpl.c" t="Include" />
+          <e p="ec_ameth.c" t="Include" />
+          <e p="ec_asn1.c" t="Include" />
+          <e p="ec_check.c" t="Include" />
+          <e p="ec_curve.c" t="Include" />
+          <e p="ec_cvt.c" t="Include" />
+          <e p="ec_err.c" t="Include" />
+          <e p="ec_key.c" t="Include" />
+          <e p="ec_lib.c" t="Include" />
+          <e p="ec_mult.c" t="Include" />
+          <e p="ec_oct.c" t="Include" />
+          <e p="ec_pmeth.c" t="Include" />
+          <e p="ec_print.c" t="Include" />
+          <e p="eck_prn.c" t="Include" />
+          <e p="ecp_mont.c" t="Include" />
+          <e p="ecp_nist.c" t="Include" />
+          <e p="ecp_oct.c" t="Include" />
+          <e p="ecp_smpl.c" t="Include" />
+        </e>
+        <e p="ecdh" t="Include">
+          <e p="ech_err.c" t="Include" />
+          <e p="ech_kdf.c" t="Include" />
+          <e p="ech_key.c" t="Include" />
+          <e p="ech_lib.c" t="Include" />
+          <e p="ech_ossl.c" t="Include" />
+        </e>
+        <e p="ecdsa" t="Include">
+          <e p="ecs_asn1.c" t="Include" />
+          <e p="ecs_err.c" t="Include" />
+          <e p="ecs_lib.c" t="Include" />
+          <e p="ecs_ossl.c" t="Include" />
+          <e p="ecs_sign.c" t="Include" />
+          <e p="ecs_vrf.c" t="Include" />
+        </e>
+        <e p="engine" t="Include">
+          <e p="eng_all.c" t="Include" />
+          <e p="eng_cnf.c" t="Include" />
+          <e p="eng_cryptodev.c" t="Include" />
+          <e p="eng_ctrl.c" t="Include" />
+          <e p="eng_dyn.c" t="Include" />
+          <e p="eng_err.c" t="Include" />
+          <e p="eng_fat.c" t="Include" />
+          <e p="eng_init.c" t="Include" />
+          <e p="eng_lib.c" t="Include" />
+          <e p="eng_list.c" t="Include" />
+          <e p="eng_openssl.c" t="Include" />
+          <e p="eng_pkey.c" t="Include" />
+          <e p="eng_rdrand.c" t="Include" />
+          <e p="eng_table.c" t="Include" />
+          <e p="tb_asnmth.c" t="Include" />
+          <e p="tb_cipher.c" t="Include" />
+          <e p="tb_dh.c" t="Include" />
+          <e p="tb_digest.c" t="Include" />
+          <e p="tb_dsa.c" t="Include" />
+          <e p="tb_ecdh.c" t="Include" />
+          <e p="tb_ecdsa.c" t="Include" />
+          <e p="tb_pkmeth.c" t="Include" />
+          <e p="tb_rand.c" t="Include" />
+          <e p="tb_rsa.c" t="Include" />
+          <e p="tb_store.c" t="Include" />
+        </e>
+        <e p="err" t="Include">
+          <e p="err.c" t="Include" />
+          <e p="err_all.c" t="Include" />
+          <e p="err_prn.c" t="Include" />
+        </e>
+        <e p="evp" t="Include">
+          <e p="bio_b64.c" t="Include" />
+          <e p="bio_enc.c" t="Include" />
+          <e p="bio_md.c" t="Include" />
+          <e p="bio_ok.c" t="Include" />
+          <e p="c_all.c" t="Include" />
+          <e p="c_allc.c" t="Include" />
+          <e p="c_alld.c" t="Include" />
+          <e p="digest.c" t="Include" />
+          <e p="e_aes.c" t="Include" />
+          <e p="e_aes_cbc_hmac_sha1.c" t="Include" />
+          <e p="e_aes_cbc_hmac_sha256.c" t="Include" />
+          <e p="e_bf.c" t="Include" />
+          <e p="e_camellia.c" t="Include" />
+          <e p="e_cast.c" t="Include" />
+          <e p="e_des.c" t="Include" />
+          <e p="e_des3.c" t="Include" />
+          <e p="e_idea.c" t="Include" />
+          <e p="e_null.c" t="Include" />
+          <e p="e_old.c" t="Include" />
+          <e p="e_rc2.c" t="Include" />
+          <e p="e_rc4.c" t="Include" />
+          <e p="e_rc4_hmac_md5.c" t="Include" />
+          <e p="e_rc5.c" t="Include" />
+          <e p="e_seed.c" t="Include" />
+          <e p="e_xcbc_d.c" t="Include" />
+          <e p="encode.c" t="Include" />
+          <e p="evp_acnf.c" t="Include" />
+          <e p="evp_cnf.c" t="Include" />
+          <e p="evp_enc.c" t="Include" />
+          <e p="evp_err.c" t="Include" />
+          <e p="evp_key.c" t="Include" />
+          <e p="evp_lib.c" t="Include" />
+          <e p="evp_pbe.c" t="Include" />
+          <e p="evp_pkey.c" t="Include" />
+          <e p="m_dss.c" t="Include" />
+          <e p="m_dss1.c" t="Include" />
+          <e p="m_ecdsa.c" t="Include" />
+          <e p="m_md2.c" t="Include" />
+          <e p="m_md4.c" t="Include" />
+          <e p="m_md5.c" t="Include" />
+          <e p="m_mdc2.c" t="Include" />
+          <e p="m_null.c" t="Include" />
+          <e p="m_ripemd.c" t="Include" />
+          <e p="m_sha.c" t="Include" />
+          <e p="m_sha1.c" t="Include" />
+          <e p="m_sigver.c" t="Include" />
+          <e p="m_wp.c" t="Include" />
+          <e p="names.c" t="Include" />
+          <e p="p5_crpt.c" t="Include" />
+          <e p="p5_crpt2.c" t="Include" />
+          <e p="p_dec.c" t="Include" />
+          <e p="p_enc.c" t="Include" />
+          <e p="p_lib.c" t="Include" />
+          <e p="p_open.c" t="Include" />
+          <e p="p_seal.c" t="Include" />
+          <e p="p_sign.c" t="Include" />
+          <e p="p_verify.c" t="Include" />
+          <e p="pmeth_fn.c" t="Include" />
+          <e p="pmeth_gn.c" t="Include" />
+          <e p="pmeth_lib.c" t="Include" />
+        </e>
+        <e p="ex_data.c" t="Include" />
+        <e p="hmac" t="Include">
+          <e p="hm_ameth.c" t="Include" />
+          <e p="hm_pmeth.c" t="Include" />
+          <e p="hmac.c" t="Include" />
+        </e>
+        <e p="idea" t="Include">
+          <e p="i_cbc.c" t="Include" />
+          <e p="i_cfb64.c" t="Include" />
+          <e p="i_ecb.c" t="Include" />
+          <e p="i_ofb64.c" t="Include" />
+          <e p="i_skey.c" t="Include" />
+        </e>
+        <e p="krb5" t="Include">
+          <e p="krb5_asn.c" t="Include" />
+        </e>
+        <e p="lhash" t="Include">
+          <e p="lh_stats.c" t="Include" />
+          <e p="lhash.c" t="Include" />
+        </e>
+        <e p="md2" t="Include">
+          <e p="md2_dgst.c" t="Include" />
+          <e p="md2_one.c" t="Include" />
+        </e>
+        <e p="md4" t="Include">
+          <e p="md4_dgst.c" t="Include" />
+          <e p="md4_locl.h" t="Include" />
+          <e p="md4_one.c" t="Include" />
+        </e>
+        <e p="md5" t="Include">
+          <e p="md5_dgst.c" t="Include" />
+          <e p="md5_one.c" t="Include" />
+        </e>
+        <e p="mdc2" t="Include">
+          <e p="mdc2_one.c" t="Include" />
+          <e p="mdc2dgst.c" t="Include" />
+        </e>
+        <e p="mem.c" t="Include" />
+        <e p="mem_clr.c" t="Include" />
+        <e p="mem_dbg.c" t="Include" />
+        <e p="modes" t="Include">
+          <e p="cbc128.c" t="Include" />
+          <e p="ccm128.c" t="Include" />
+          <e p="cfb128.c" t="Include" />
+          <e p="ctr128.c" t="Include" />
+          <e p="cts128.c" t="Include" />
+          <e p="gcm128.c" t="Include" />
+          <e p="ofb128.c" t="Include" />
+          <e p="wrap128.c" t="Include" />
+          <e p="xts128.c" t="Include" />
+        </e>
+        <e p="o_dir.c" t="Include" />
+        <e p="o_fips.c" t="Include" />
+        <e p="o_init.c" t="Include" />
+        <e p="o_str.c" t="Include" />
+        <e p="o_time.c" t="Include" />
+        <e p="objects" t="Include">
+          <e p="o_names.c" t="Include" />
+          <e p="obj_dat.c" t="Include" />
+          <e p="obj_err.c" t="Include" />
+          <e p="obj_lib.c" t="Include" />
+          <e p="obj_xref.c" t="Include" />
+        </e>
+        <e p="ocsp" t="Include">
+          <e p="ocsp_asn.c" t="Include" />
+          <e p="ocsp_cl.c" t="Include" />
+          <e p="ocsp_err.c" t="Include" />
+          <e p="ocsp_ext.c" t="Include" />
+          <e p="ocsp_ht.c" t="Include" />
+          <e p="ocsp_lib.c" t="Include" />
+          <e p="ocsp_prn.c" t="Include" />
+          <e p="ocsp_srv.c" t="Include" />
+          <e p="ocsp_vfy.c" t="Include" />
+        </e>
+        <e p="pem" t="Include">
+          <e p="pem_all.c" t="Include" />
+          <e p="pem_err.c" t="Include" />
+          <e p="pem_info.c" t="Include" />
+          <e p="pem_lib.c" t="Include" />
+          <e p="pem_oth.c" t="Include" />
+          <e p="pem_pk8.c" t="Include" />
+          <e p="pem_pkey.c" t="Include" />
+          <e p="pem_seal.c" t="Include" />
+          <e p="pem_sign.c" t="Include" />
+          <e p="pem_x509.c" t="Include" />
+          <e p="pem_xaux.c" t="Include" />
+          <e p="pvkfmt.c" t="Include" />
+        </e>
+        <e p="pkcs12" t="Include">
+          <e p="p12_add.c" t="Include" />
+          <e p="p12_asn.c" t="Include" />
+          <e p="p12_attr.c" t="Include" />
+          <e p="p12_crpt.c" t="Include" />
+          <e p="p12_crt.c" t="Include" />
+          <e p="p12_decr.c" t="Include" />
+          <e p="p12_init.c" t="Include" />
+          <e p="p12_key.c" t="Include" />
+          <e p="p12_kiss.c" t="Include" />
+          <e p="p12_mutl.c" t="Include" />
+          <e p="p12_npas.c" t="Include" />
+          <e p="p12_p8d.c" t="Include" />
+          <e p="p12_p8e.c" t="Include" />
+          <e p="p12_utl.c" t="Include" />
+          <e p="pk12err.c" t="Include" />
+        </e>
+        <e p="pkcs7" t="Include">
+          <e p="bio_pk7.c" t="Include" />
+          <e p="pk7_asn1.c" t="Include" />
+          <e p="pk7_attr.c" t="Include" />
+          <e p="pk7_doit.c" t="Include" />
+          <e p="pk7_lib.c" t="Include" />
+          <e p="pk7_mime.c" t="Include" />
+          <e p="pk7_smime.c" t="Include" />
+          <e p="pkcs7err.c" t="Include" />
+        </e>
+        <e p="pqueue" t="Include">
+          <e p="pqueue.c" t="Include" />
+        </e>
+        <e p="rand" t="Include">
+          <e p="md_rand.c" t="Include" />
+          <e p="rand_egd.c" t="Include" />
+          <e p="rand_err.c" t="Include" />
+          <e p="rand_lib.c" t="Include" />
+          <e p="rand_nw.c" t="Include" />
+          <e p="rand_os2.c" t="Include" />
+          <e p="rand_unix.c" t="Include" />
+          <e p="rand_win.c" t="Include" />
+          <e p="randfile.c" t="Include" />
+        </e>
+        <e p="rc2" t="Include">
+          <e p="rc2_cbc.c" t="Include" />
+          <e p="rc2_ecb.c" t="Include" />
+          <e p="rc2_skey.c" t="Include" />
+          <e p="rc2cfb64.c" t="Include" />
+          <e p="rc2ofb64.c" t="Include" />
+        </e>
+        <e p="rc4" t="Include">
+          <e p="rc4_enc.c" t="Include" />
+          <e p="rc4_skey.c" t="Include" />
+          <e p="rc4_utl.c" t="Include" />
+        </e>
+        <e p="rc5" t="Include">
+          <e p="rc5_ecb.c" t="Include" />
+          <e p="rc5_enc.c" t="Include" />
+          <e p="rc5_skey.c" t="Include" />
+          <e p="rc5cfb64.c" t="Include" />
+          <e p="rc5ofb64.c" t="Include" />
+        </e>
+        <e p="ripemd" t="Include">
+          <e p="rmd_dgst.c" t="Include" />
+          <e p="rmd_one.c" t="Include" />
+        </e>
+        <e p="rsa" t="Include">
+          <e p="rsa_ameth.c" t="Include" />
+          <e p="rsa_asn1.c" t="Include" />
+          <e p="rsa_chk.c" t="Include" />
+          <e p="rsa_crpt.c" t="Include" />
+          <e p="rsa_depr.c" t="Include" />
+          <e p="rsa_eay.c" t="Include" />
+          <e p="rsa_err.c" t="Include" />
+          <e p="rsa_gen.c" t="Include" />
+          <e p="rsa_lib.c" t="Include" />
+          <e p="rsa_none.c" t="Include" />
+          <e p="rsa_null.c" t="Include" />
+          <e p="rsa_oaep.c" t="Include" />
+          <e p="rsa_pk1.c" t="Include" />
+          <e p="rsa_pmeth.c" t="Include" />
+          <e p="rsa_prn.c" t="Include" />
+          <e p="rsa_pss.c" t="Include" />
+          <e p="rsa_saos.c" t="Include" />
+          <e p="rsa_sign.c" t="Include" />
+          <e p="rsa_ssl.c" t="Include" />
+          <e p="rsa_x931.c" t="Include" />
+        </e>
+        <e p="seed" t="Include">
+          <e p="seed.c" t="Include" />
+          <e p="seed_cbc.c" t="Include" />
+          <e p="seed_cfb.c" t="Include" />
+          <e p="seed_ecb.c" t="Include" />
+          <e p="seed_ofb.c" t="Include" />
+        </e>
+        <e p="sha" t="Include">
+          <e p="sha1_one.c" t="Include" />
+          <e p="sha1dgst.c" t="Include" />
+          <e p="sha256.c" t="Include" />
+          <e p="sha512.c" t="Include" />
+          <e p="sha_dgst.c" t="Include" />
+          <e p="sha_one.c" t="Include" />
+        </e>
+        <e p="srp" t="Include">
+          <e p="srp_lib.c" t="Include" />
+          <e p="srp_vfy.c" t="Include" />
+        </e>
+        <e p="stack" t="Include">
+          <e p="stack.c" t="Include" />
+        </e>
+        <e p="ts" t="Include">
+          <e p="ts_asn1.c" t="Include" />
+          <e p="ts_conf.c" t="Include" />
+          <e p="ts_err.c" t="Include" />
+          <e p="ts_lib.c" t="Include" />
+          <e p="ts_req_print.c" t="Include" />
+          <e p="ts_req_utils.c" t="Include" />
+          <e p="ts_rsp_print.c" t="Include" />
+          <e p="ts_rsp_sign.c" t="Include" />
+          <e p="ts_rsp_utils.c" t="Include" />
+          <e p="ts_rsp_verify.c" t="Include" />
+          <e p="ts_verify_ctx.c" t="Include" />
+        </e>
+        <e p="txt_db" t="Include">
+          <e p="txt_db.c" t="Include" />
+        </e>
+        <e p="ui" t="Include">
+          <e p="ui_compat.c" t="Include" />
+          <e p="ui_err.c" t="Include" />
+          <e p="ui_lib.c" t="Include" />
+          <e p="ui_openssl.c" t="Include" />
+          <e p="ui_util.c" t="Include" />
+        </e>
+        <e p="uid.c" t="Include" />
+        <e p="whrlpool" t="Include">
+          <e p="wp_block.c" t="Include" />
+          <e p="wp_dgst.c" t="Include" />
+        </e>
+        <e p="x509" t="Include">
+          <e p="by_dir.c" t="Include" />
+          <e p="by_file.c" t="Include" />
+          <e p="x509_att.c" t="Include" />
+          <e p="x509_cmp.c" t="Include" />
+          <e p="x509_d2.c" t="Include" />
+          <e p="x509_def.c" t="Include" />
+          <e p="x509_err.c" t="Include" />
+          <e p="x509_ext.c" t="Include" />
+          <e p="x509_lu.c" t="Include" />
+          <e p="x509_obj.c" t="Include" />
+          <e p="x509_r2x.c" t="Include" />
+          <e p="x509_req.c" t="Include" />
+          <e p="x509_set.c" t="Include" />
+          <e p="x509_trs.c" t="Include" />
+          <e p="x509_txt.c" t="Include" />
+          <e p="x509_v3.c" t="Include" />
+          <e p="x509_vfy.c" t="Include" />
+          <e p="x509_vpm.c" t="Include" />
+          <e p="x509cset.c" t="Include" />
+          <e p="x509name.c" t="Include" />
+          <e p="x509rset.c" t="Include" />
+          <e p="x509spki.c" t="Include" />
+          <e p="x509type.c" t="Include" />
+          <e p="x_all.c" t="Include" />
+        </e>
+        <e p="x509v3" t="Include">
+          <e p="pcy_cache.c" t="Include" />
+          <e p="pcy_data.c" t="Include" />
+          <e p="pcy_lib.c" t="Include" />
+          <e p="pcy_map.c" t="Include" />
+          <e p="pcy_node.c" t="Include" />
+          <e p="pcy_tree.c" t="Include" />
+          <e p="v3_addr.c" t="Include" />
+          <e p="v3_akey.c" t="Include" />
+          <e p="v3_akeya.c" t="Include" />
+          <e p="v3_alt.c" t="Include" />
+          <e p="v3_asid.c" t="Include" />
+          <e p="v3_bcons.c" t="Include" />
+          <e p="v3_bitst.c" t="Include" />
+          <e p="v3_conf.c" t="Include" />
+          <e p="v3_cpols.c" t="Include" />
+          <e p="v3_crld.c" t="Include" />
+          <e p="v3_enum.c" t="Include" />
+          <e p="v3_extku.c" t="Include" />
+          <e p="v3_genn.c" t="Include" />
+          <e p="v3_ia5.c" t="Include" />
+          <e p="v3_info.c" t="Include" />
+          <e p="v3_int.c" t="Include" />
+          <e p="v3_lib.c" t="Include" />
+          <e p="v3_ncons.c" t="Include" />
+          <e p="v3_ocsp.c" t="Include" />
+          <e p="v3_pci.c" t="Include" />
+          <e p="v3_pcia.c" t="Include" />
+          <e p="v3_pcons.c" t="Include" />
+          <e p="v3_pku.c" t="Include" />
+          <e p="v3_pmaps.c" t="Include" />
+          <e p="v3_prn.c" t="Include" />
+          <e p="v3_purp.c" t="Include" />
+          <e p="v3_scts.c" t="Include" />
+          <e p="v3_skey.c" t="Include" />
+          <e p="v3_sxnet.c" t="Include" />
+          <e p="v3_utl.c" t="Include" />
+          <e p="v3err.c" t="Include" />
+        </e>
+      </e>
+      <e p="lib\dependencies\openssl\include\openssl" t="Include">
+        <e p="applink.c" t="Include" />
+      </e>
+      <e p="lib\dependencies\openssl\ms" t="Include">
+        <e p="libeay32.def" t="Include" />
+        <e p="ssleay32.def" t="Include" />
+        <e p="uplink.c" t="Include" />
+      </e>
+      <e p="lib\dependencies\openssl\ssl" t="Include">
+        <e p="bio_ssl.c" t="Include" />
+        <e p="d1_both.c" t="Include" />
+        <e p="d1_clnt.c" t="Include" />
+        <e p="d1_lib.c" t="Include" />
+        <e p="d1_meth.c" t="Include" />
+        <e p="d1_pkt.c" t="Include" />
+        <e p="d1_srtp.c" t="Include" />
+        <e p="d1_srvr.c" t="Include" />
+        <e p="kssl.c" t="Include" />
+        <e p="s23_clnt.c" t="Include" />
+        <e p="s23_lib.c" t="Include" />
+        <e p="s23_meth.c" t="Include" />
+        <e p="s23_pkt.c" t="Include" />
+        <e p="s23_srvr.c" t="Include" />
+        <e p="s2_clnt.c" t="Include" />
+        <e p="s2_enc.c" t="Include" />
+        <e p="s2_lib.c" t="Include" />
+        <e p="s2_meth.c" t="Include" />
+        <e p="s2_pkt.c" t="Include" />
+        <e p="s2_srvr.c" t="Include" />
+        <e p="s3_both.c" t="Include" />
+        <e p="s3_cbc.c" t="Include" />
+        <e p="s3_clnt.c" t="Include" />
+        <e p="s3_enc.c" t="Include" />
+        <e p="s3_lib.c" t="Include" />
+        <e p="s3_meth.c" t="Include" />
+        <e p="s3_pkt.c" t="Include" />
+        <e p="s3_srvr.c" t="Include" />
+        <e p="ssl_algs.c" t="Include" />
+        <e p="ssl_asn1.c" t="Include" />
+        <e p="ssl_cert.c" t="Include" />
+        <e p="ssl_ciph.c" t="Include" />
+        <e p="ssl_err.c" t="Include" />
+        <e p="ssl_err2.c" t="Include" />
+        <e p="ssl_lib.c" t="Include" />
+        <e p="ssl_rsa.c" t="Include" />
+        <e p="ssl_sess.c" t="Include" />
+        <e p="ssl_stat.c" t="Include" />
+        <e p="ssl_txt.c" t="Include" />
+        <e p="t1_clnt.c" t="Include" />
+        <e p="t1_enc.c" t="Include" />
+        <e p="t1_ext.c" t="Include" />
+        <e p="t1_lib.c" t="Include" />
+        <e p="t1_meth.c" t="Include" />
+        <e p="t1_reneg.c" t="Include" />
+        <e p="t1_srvr.c" t="Include" />
+        <e p="tls_srp.c" t="Include" />
+      </e>
+      <e p="lib\dependencies\openssl\vcbuild\libeay32" t="IncludeRecursive">
+        <e p="libeay32.vcxproj" t="IncludeRecursive" />
+      </e>
+      <e p="lib\dependencies\openssl\vcbuild\ssleay32" t="IncludeRecursive">
+        <e p="ssleay32.vcxproj" t="IncludeRecursive" />
+      </e>
+      <e p="lib\dependencies\sigar\win32" t="Include">
+        <e p="peb.c" t="Include" />
+        <e p="sigar.c" t="Include" />
+        <e p="sigar.h" t="Include" />
+        <e p="sigar.rc.in" t="Include" />
+        <e p="sigar_cache.c" t="Include" />
+        <e p="sigar_fileinfo.c" t="Include" />
+        <e p="sigar_fileinfo.h" t="Include" />
+        <e p="sigar_format.c" t="Include" />
+        <e p="sigar_format.h" t="Include" />
+        <e p="sigar_getline.c" t="Include" />
+        <e p="sigar_getline.h" t="Include" />
+        <e p="sigar_log.h" t="Include" />
+        <e p="sigar_os.h" t="Include" />
+        <e p="sigar_pdh.h" t="Include" />
+        <e p="sigar_private.h" t="Include" />
+        <e p="sigar_ptql.c" t="Include" />
+        <e p="sigar_ptql.h" t="Include" />
+        <e p="sigar_signal.c" t="Include" />
+        <e p="sigar_util.c" t="Include" />
+        <e p="sigar_util.h" t="Include" />
+        <e p="sigar_version.c.in" t="Include" />
+        <e p="win32_sigar.c" t="Include" />
+        <e p="wmi.cpp" t="Include" />
+      </e>
+      <e p="lib\dependencies\tinyxml" t="Include">
+        <e p="tinystr.cpp" t="Include" />
+        <e p="tinystr.h" t="Include" />
+        <e p="tinyxml.cpp" t="Include" />
+        <e p="tinyxml.h" t="Include" />
+        <e p="tinyxmlerror.cpp" t="Include" />
+        <e p="tinyxmlparser.cpp" t="Include" />
+      </e>
+      <e p="lib\dependencies\tmxparser" t="Include">
+        <e p="Tmx.h" t="Include" />
+        <e p="TmxEllipse.cpp" t="Include" />
+        <e p="TmxEllipse.h" t="Include" />
+        <e p="TmxImage.cpp" t="Include" />
+        <e p="TmxImage.h" t="Include" />
+        <e p="TmxImageLayer.cpp" t="Include" />
+        <e p="TmxImageLayer.h" t="Include" />
+        <e p="TmxLayer.cpp" t="Include" />
+        <e p="TmxLayer.h" t="Include" />
+        <e p="TmxMap.cpp" t="Include" />
+        <e p="TmxMap.h" t="Include" />
+        <e p="TmxMapTile.h" t="Include" />
+        <e p="TmxObject.cpp" t="Include" />
+        <e p="TmxObject.h" t="Include" />
+        <e p="TmxObjectGroup.cpp" t="Include" />
+        <e p="TmxObjectGroup.h" t="Include" />
+        <e p="tmxparser" t="IncludeRecursive">
+          <e p="ReadMe.txt" t="Include" />
+          <e p="tmxparser.vcxproj" t="IncludeRecursive" />
+        </e>
+        <e p="TmxPoint.h" t="Include" />
+        <e p="TmxPolygon.cpp" t="Include" />
+        <e p="TmxPolygon.h" t="Include" />
+        <e p="TmxPolyline.cpp" t="Include" />
+        <e p="TmxPolyline.h" t="Include" />
+        <e p="TmxPropertySet.cpp" t="Include" />
+        <e p="TmxPropertySet.h" t="Include" />
+        <e p="TmxTile.cpp" t="Include" />
+        <e p="TmxTile.h" t="Include" />
+        <e p="TmxTileset.cpp" t="Include" />
+        <e p="TmxTileset.h" t="Include" />
+        <e p="TmxUtil.cpp" t="Include" />
+        <e p="TmxUtil.h" t="Include" />
+      </e>
+      <e p="lib\dependencies\zip" t="IncludeRecursive">
+        <e p="adler32.c" t="Include" />
+        <e p="compress.c" t="Include" />
+        <e p="crc32.c" t="Include" />
+        <e p="deflate.c" t="Include" />
+        <e p="deflate.h" t="Include" />
+        <e p="example.c" t="Include" />
+        <e p="infback.c" t="Include" />
+        <e p="inffast.c" t="Include" />
+        <e p="inffast.h" t="Include" />
+        <e p="inffixed.h" t="Include" />
+        <e p="inflate.c" t="Include" />
+        <e p="inftrees.c" t="Include" />
+        <e p="inftrees.h" t="Include" />
+        <e p="trees.c" t="Include" />
+        <e p="trees.h" t="Include" />
+        <e p="uncompr.c" t="Include" />
+        <e p="zconf.h" t="Include" />
+        <e p="zip2008.vcxproj" t="IncludeRecursive" />
+        <e p="zlib.h" t="Include" />
+        <e p="zutil.c" t="Include" />
+        <e p="zutil.h" t="Include" />
+      </e>
+      <e p="lib\entitydef" t="IncludeRecursive">
+        <e p="common.cpp" t="Include" />
+        <e p="common.h" t="Include" />
+        <e p="datatype.cpp" t="Include" />
+        <e p="datatype.h" t="Include" />
+        <e p="datatype.inl" t="Include" />
+        <e p="datatypes.cpp" t="Include" />
+        <e p="datatypes.h" t="Include" />
+        <e p="detaillevel.cpp" t="Include" />
+        <e p="detaillevel.h" t="Include" />
+        <e p="entities.h" t="Include" />
+        <e p="entity_call.cpp" t="Include" />
+        <e p="entity_call.h" t="Include" />
+        <e p="entity_component.cpp" t="Include" />
+        <e p="entity_component.h" t="Include" />
+        <e p="entity_component.inl" t="Include" />
+        <e p="entity_component_call.cpp" t="Include" />
+        <e p="entity_component_call.h" t="Include" />
+        <e p="entity_component_call.inl" t="Include" />
+        <e p="entity_garbages.h" t="Include" />
+        <e p="entity_macro.h" t="Include" />
+        <e p="entitycallabstract.cpp" t="Include" />
+        <e p="entitycallabstract.h" t="Include" />
+        <e p="entitycallabstract.inl" t="Include" />
+        <e p="entitydef.cpp" t="Include" />
+        <e p="entitydef.h" t="Include" />
+        <e p="entitydef.inl" t="Include" />
+        <e p="entitydef.vcxproj" t="IncludeRecursive" />
+        <e p="fixedarray.cpp" t="Include" />
+        <e p="fixedarray.h" t="Include" />
+        <e p="fixeddict.cpp" t="Include" />
+        <e p="fixeddict.h" t="Include" />
+        <e p="method.cpp" t="Include" />
+        <e p="method.h" t="Include" />
+        <e p="method.inl" t="Include" />
+        <e p="property.cpp" t="Include" />
+        <e p="property.h" t="Include" />
+        <e p="property.inl" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="remote_entity_method.cpp" t="Include" />
+        <e p="remote_entity_method.h" t="Include" />
+        <e p="scriptdef_module.cpp" t="Include" />
+        <e p="scriptdef_module.h" t="Include" />
+        <e p="scriptdef_module.inl" t="Include" />
+        <e p="volatileinfo.cpp" t="Include" />
+        <e p="volatileinfo.h" t="Include" />
+      </e>
+      <e p="lib\helper" t="IncludeRecursive">
+        <e p="console_helper.h" t="Include" />
+        <e p="crashhandler.cpp" t="Include" />
+        <e p="crashhandler.h" t="Include" />
+        <e p="debug_helper.cpp" t="Include" />
+        <e p="debug_helper.h" t="Include" />
+        <e p="debug_option.cpp" t="Include" />
+        <e p="debug_option.h" t="Include" />
+        <e p="eventhistory_stats.cpp" t="Include" />
+        <e p="eventhistory_stats.h" t="Include" />
+        <e p="helper.vcxproj" t="IncludeRecursive" />
+        <e p="memory_helper.h" t="Include" />
+        <e p="profile.cpp" t="Include" />
+        <e p="profile.h" t="Include" />
+        <e p="profile.inl" t="Include" />
+        <e p="profile_handler.cpp" t="Include" />
+        <e p="profile_handler.h" t="Include" />
+        <e p="profiler.cpp" t="Include" />
+        <e p="profiler.h" t="Include" />
+        <e p="profiler.inl" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="script_loglevel.cpp" t="Include" />
+        <e p="script_loglevel.h" t="Include" />
+        <e p="sys_info.cpp" t="Include" />
+        <e p="sys_info.h" t="Include" />
+        <e p="sys_info.inl" t="Include" />
+        <e p="watch_pools.cpp" t="Include" />
+        <e p="watch_pools.h" t="Include" />
+        <e p="watcher.cpp" t="Include" />
+        <e p="watcher.h" t="Include" />
+      </e>
+      <e p="lib\math" t="IncludeRecursive">
+        <e p="math.cpp" t="Include" />
+        <e p="math.h" t="Include" />
+        <e p="math.vcxproj" t="IncludeRecursive" />
+        <e p="ReadMe.txt" t="Include" />
+      </e>
+      <e p="lib\navigation" t="IncludeRecursive">
+        <e p="DetourAlloc.cpp" t="Include" />
+        <e p="DetourAlloc.h" t="Include" />
+        <e p="DetourAssert.h" t="Include" />
+        <e p="DetourCommon.cpp" t="Include" />
+        <e p="DetourCommon.h" t="Include" />
+        <e p="DetourCrowd.cpp" t="Include" />
+        <e p="DetourCrowd.h" t="Include" />
+        <e p="DetourLocalBoundary.cpp" t="Include" />
+        <e p="DetourLocalBoundary.h" t="Include" />
+        <e p="DetourMath.h" t="Include" />
+        <e p="DetourNavMesh.cpp" t="Include" />
+        <e p="DetourNavMesh.h" t="Include" />
+        <e p="DetourNavMeshBuilder.cpp" t="Include" />
+        <e p="DetourNavMeshBuilder.h" t="Include" />
+        <e p="DetourNavMeshQuery.cpp" t="Include" />
+        <e p="DetourNavMeshQuery.h" t="Include" />
+        <e p="DetourNode.cpp" t="Include" />
+        <e p="DetourNode.h" t="Include" />
+        <e p="DetourObstacleAvoidance.cpp" t="Include" />
+        <e p="DetourObstacleAvoidance.h" t="Include" />
+        <e p="DetourPathCorridor.cpp" t="Include" />
+        <e p="DetourPathCorridor.h" t="Include" />
+        <e p="DetourPathQueue.cpp" t="Include" />
+        <e p="DetourPathQueue.h" t="Include" />
+        <e p="DetourProximityGrid.cpp" t="Include" />
+        <e p="DetourProximityGrid.h" t="Include" />
+        <e p="DetourStatus.h" t="Include" />
+        <e p="DetourTileCache.cpp" t="Include" />
+        <e p="DetourTileCache.h" t="Include" />
+        <e p="DetourTileCacheBuilder.cpp" t="Include" />
+        <e p="DetourTileCacheBuilder.h" t="Include" />
+        <e p="navigation.cpp" t="Include" />
+        <e p="navigation.h" t="Include" />
+        <e p="navigation.vcxproj" t="IncludeRecursive" />
+        <e p="navigation_handle.cpp" t="Include" />
+        <e p="navigation_handle.h" t="Include" />
+        <e p="navigation_mesh_handle.cpp" t="Include" />
+        <e p="navigation_mesh_handle.h" t="Include" />
+        <e p="navigation_tile_handle.cpp" t="Include" />
+        <e p="navigation_tile_handle.h" t="Include" />
+        <e p="Recast.cpp" t="Include" />
+        <e p="Recast.h" t="Include" />
+        <e p="RecastAlloc.cpp" t="Include" />
+        <e p="RecastAlloc.h" t="Include" />
+        <e p="RecastArea.cpp" t="Include" />
+        <e p="RecastAssert.h" t="Include" />
+        <e p="RecastContour.cpp" t="Include" />
+        <e p="RecastFilter.cpp" t="Include" />
+        <e p="RecastLayers.cpp" t="Include" />
+        <e p="RecastMesh.cpp" t="Include" />
+        <e p="RecastMeshDetail.cpp" t="Include" />
+        <e p="RecastRasterization.cpp" t="Include" />
+        <e p="RecastRegion.cpp" t="Include" />
+        <e p="stlastar.h" t="Include" />
+        <e p="stlstarfsa.h" t="Include" />
+      </e>
+      <e p="lib\network" t="IncludeRecursive">
+        <e p="address.cpp" t="Include" />
+        <e p="address.h" t="Include" />
+        <e p="bundle.cpp" t="Include" />
+        <e p="bundle.h" t="Include" />
+        <e p="bundle.inl" t="Include" />
+        <e p="bundle_broadcast.cpp" t="Include" />
+        <e p="bundle_broadcast.h" t="Include" />
+        <e p="bundle_broadcast.inl" t="Include" />
+        <e p="channel.cpp" t="Include" />
+        <e p="channel.h" t="Include" />
+        <e p="channel.inl" t="Include" />
+        <e p="common.cpp" t="Include" />
+        <e p="common.h" t="Include" />
+        <e p="delayed_channels.cpp" t="Include" />
+        <e p="delayed_channels.h" t="Include" />
+        <e p="encryption_filter.cpp" t="Include" />
+        <e p="encryption_filter.h" t="Include" />
+        <e p="endpoint.cpp" t="Include" />
+        <e p="endpoint.h" t="Include" />
+        <e p="endpoint.inl" t="Include" />
+        <e p="error_reporter.cpp" t="Include" />
+        <e p="error_reporter.h" t="Include" />
+        <e p="error_reporter.inl" t="Include" />
+        <e p="event_dispatcher.cpp" t="Include" />
+        <e p="event_dispatcher.h" t="Include" />
+        <e p="event_dispatcher.inl" t="Include" />
+        <e p="event_poller.cpp" t="Include" />
+        <e p="event_poller.h" t="Include" />
+        <e p="fixed_messages.cpp" t="Include" />
+        <e p="fixed_messages.h" t="Include" />
+        <e p="http_utility.h" t="Include" />
+        <e p="ikcp.c" t="Include" />
+        <e p="ikcp.h" t="Include" />
+        <e p="interface_defs.cpp" t="Include" />
+        <e p="interface_defs.h" t="Include" />
+        <e p="interfaces.h" t="Include" />
+        <e p="kcp_packet_reader.cpp" t="Include" />
+        <e p="kcp_packet_reader.h" t="Include" />
+        <e p="kcp_packet_receiver.cpp" t="Include" />
+        <e p="kcp_packet_receiver.h" t="Include" />
+        <e p="kcp_packet_receiver.inl" t="Include" />
+        <e p="kcp_packet_sender.cpp" t="Include" />
+        <e p="kcp_packet_sender.h" t="Include" />
+        <e p="kcp_packet_sender.inl" t="Include" />
+        <e p="listener_receiver.cpp" t="Include" />
+        <e p="listener_receiver.h" t="Include" />
+        <e p="listener_receiver.inl" t="Include" />
+        <e p="listener_tcp_receiver.cpp" t="Include" />
+        <e p="listener_tcp_receiver.h" t="Include" />
+        <e p="listener_tcp_receiver.inl" t="Include" />
+        <e p="listener_udp_receiver.cpp" t="Include" />
+        <e p="listener_udp_receiver.h" t="Include" />
+        <e p="listener_udp_receiver.inl" t="Include" />
+        <e p="message_handler.cpp" t="Include" />
+        <e p="message_handler.h" t="Include" />
+        <e p="network.vcxproj" t="IncludeRecursive" />
+        <e p="network_exception.h" t="Include" />
+        <e p="network_interface.cpp" t="Include" />
+        <e p="network_interface.h" t="Include" />
+        <e p="network_interface.inl" t="Include" />
+        <e p="network_stats.cpp" t="Include" />
+        <e p="network_stats.h" t="Include" />
+        <e p="packet.h" t="Include" />
+        <e p="packet_filter.cpp" t="Include" />
+        <e p="packet_filter.h" t="Include" />
+        <e p="packet_filter.inl" t="Include" />
+        <e p="packet_reader.cpp" t="Include" />
+        <e p="packet_reader.h" t="Include" />
+        <e p="packet_receiver.cpp" t="Include" />
+        <e p="packet_receiver.h" t="Include" />
+        <e p="packet_receiver.inl" t="Include" />
+        <e p="packet_sender.cpp" t="Include" />
+        <e p="packet_sender.h" t="Include" />
+        <e p="packet_sender.inl" t="Include" />
+        <e p="poller_epoll.cpp" t="Include" />
+        <e p="poller_epoll.h" t="Include" />
+        <e p="poller_select.cpp" t="Include" />
+        <e p="poller_select.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="tcp_packet.cpp" t="Include" />
+        <e p="tcp_packet.h" t="Include" />
+        <e p="tcp_packet.inl" t="Include" />
+        <e p="tcp_packet_receiver.cpp" t="Include" />
+        <e p="tcp_packet_receiver.h" t="Include" />
+        <e p="tcp_packet_receiver.inl" t="Include" />
+        <e p="tcp_packet_sender.cpp" t="Include" />
+        <e p="tcp_packet_sender.h" t="Include" />
+        <e p="tcp_packet_sender.inl" t="Include" />
+        <e p="udp_packet.cpp" t="Include" />
+        <e p="udp_packet.h" t="Include" />
+        <e p="udp_packet.inl" t="Include" />
+        <e p="udp_packet_receiver.cpp" t="Include" />
+        <e p="udp_packet_receiver.h" t="Include" />
+        <e p="udp_packet_receiver.inl" t="Include" />
+        <e p="udp_packet_sender.cpp" t="Include" />
+        <e p="udp_packet_sender.h" t="Include" />
+        <e p="udp_packet_sender.inl" t="Include" />
+        <e p="websocket_packet_filter.cpp" t="Include" />
+        <e p="websocket_packet_filter.h" t="Include" />
+        <e p="websocket_packet_reader.cpp" t="Include" />
+        <e p="websocket_packet_reader.h" t="Include" />
+        <e p="websocket_protocol.cpp" t="Include" />
+        <e p="websocket_protocol.h" t="Include" />
+      </e>
+      <e p="lib\pyscript" t="IncludeRecursive">
+        <e p="copy.cpp" t="Include" />
+        <e p="copy.h" t="Include" />
+        <e p="install_py_dlls.cpp" t="Include" />
+        <e p="install_py_dlls.h" t="Include" />
+        <e p="map.cpp" t="Include" />
+        <e p="map.h" t="Include" />
+        <e p="map.inl" t="Include" />
+        <e p="math.cpp" t="Include" />
+        <e p="math.h" t="Include" />
+        <e p="pickler.cpp" t="Include" />
+        <e p="pickler.h" t="Include" />
+        <e p="py_gc.cpp" t="Include" />
+        <e p="py_gc.h" t="Include" />
+        <e p="py_macros.h" t="Include" />
+        <e p="py_memorystream.cpp" t="Include" />
+        <e p="py_memorystream.h" t="Include" />
+        <e p="py_memorystream.inl" t="Include" />
+        <e p="pyobject_pointer.h" t="Include" />
+        <e p="pyprofile.cpp" t="Include" />
+        <e p="pyprofile.h" t="Include" />
+        <e p="pyprofile_handler.cpp" t="Include" />
+        <e p="pyprofile_handler.h" t="Include" />
+        <e p="pyscript.vcxproj" t="IncludeRecursive" />
+        <e p="pystruct.cpp" t="Include" />
+        <e p="pystruct.h" t="Include" />
+        <e p="pythread_lock.h" t="Include" />
+        <e p="pywatcher.cpp" t="Include" />
+        <e p="pywatcher.h" t="Include" />
+        <e p="pywatcher.inl" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="script.cpp" t="Include" />
+        <e p="script.h" t="Include" />
+        <e p="script.inl" t="Include" />
+        <e p="scriptobject.cpp" t="Include" />
+        <e p="scriptobject.h" t="Include" />
+        <e p="scriptobject.inl" t="Include" />
+        <e p="scriptstderr.cpp" t="Include" />
+        <e p="scriptstderr.h" t="Include" />
+        <e p="scriptstderr.inl" t="Include" />
+        <e p="scriptstdout.cpp" t="Include" />
+        <e p="scriptstdout.h" t="Include" />
+        <e p="scriptstdout.inl" t="Include" />
+        <e p="scriptstdouterr.cpp" t="Include" />
+        <e p="scriptstdouterr.h" t="Include" />
+        <e p="scriptstdouterr.inl" t="Include" />
+        <e p="scriptstdouterrhook.cpp" t="Include" />
+        <e p="scriptstdouterrhook.h" t="Include" />
+        <e p="scriptstdouterrhook.inl" t="Include" />
+        <e p="sequence.cpp" t="Include" />
+        <e p="sequence.h" t="Include" />
+        <e p="sequence.inl" t="Include" />
+        <e p="vector2.cpp" t="Include" />
+        <e p="Vector2.h" t="Include" />
+        <e p="Vector3.cpp" t="Include" />
+        <e p="Vector3.h" t="Include" />
+        <e p="Vector4.cpp" t="Include" />
+        <e p="Vector4.h" t="Include" />
+      </e>
+      <e p="lib\python\include" t="Include">
+        <e p="abstract.h" t="Include" />
+        <e p="accu.h" t="Include" />
+        <e p="asdl.h" t="Include" />
+        <e p="ast.h" t="Include" />
+        <e p="bitset.h" t="Include" />
+        <e p="boolobject.h" t="Include" />
+        <e p="bytearrayobject.h" t="Include" />
+        <e p="bytes_methods.h" t="Include" />
+        <e p="bytesobject.h" t="Include" />
+        <e p="cellobject.h" t="Include" />
+        <e p="ceval.h" t="Include" />
+        <e p="classobject.h" t="Include" />
+        <e p="code.h" t="Include" />
+        <e p="codecs.h" t="Include" />
+        <e p="compile.h" t="Include" />
+        <e p="complexobject.h" t="Include" />
+        <e p="datetime.h" t="Include" />
+        <e p="descrobject.h" t="Include" />
+        <e p="dictobject.h" t="Include" />
+        <e p="dtoa.h" t="Include" />
+        <e p="dynamic_annotations.h" t="Include" />
+        <e p="enumobject.h" t="Include" />
+        <e p="errcode.h" t="Include" />
+        <e p="eval.h" t="Include" />
+        <e p="fileobject.h" t="Include" />
+        <e p="fileutils.h" t="Include" />
+        <e p="floatobject.h" t="Include" />
+        <e p="frameobject.h" t="Include" />
+        <e p="funcobject.h" t="Include" />
+        <e p="genobject.h" t="Include" />
+        <e p="graminit.h" t="Include" />
+        <e p="grammar.h" t="Include" />
+        <e p="import.h" t="Include" />
+        <e p="intrcheck.h" t="Include" />
+        <e p="iterobject.h" t="Include" />
+        <e p="listobject.h" t="Include" />
+        <e p="longintrepr.h" t="Include" />
+        <e p="longobject.h" t="Include" />
+        <e p="marshal.h" t="Include" />
+        <e p="memoryobject.h" t="Include" />
+        <e p="metagrammar.h" t="Include" />
+        <e p="methodobject.h" t="Include" />
+        <e p="modsupport.h" t="Include" />
+        <e p="moduleobject.h" t="Include" />
+        <e p="namespaceobject.h" t="Include" />
+        <e p="node.h" t="Include" />
+        <e p="object.h" t="Include" />
+        <e p="objimpl.h" t="Include" />
+        <e p="opcode.h" t="Include" />
+        <e p="osdefs.h" t="Include" />
+        <e p="parsetok.h" t="Include" />
+        <e p="patchlevel.h" t="Include" />
+        <e p="pgen.h" t="Include" />
+        <e p="pgenheaders.h" t="Include" />
+        <e p="py_curses.h" t="Include" />
+        <e p="pyarena.h" t="Include" />
+        <e p="pycapsule.h" t="Include" />
+        <e p="pyctype.h" t="Include" />
+        <e p="pydebug.h" t="Include" />
+        <e p="pyerrors.h" t="Include" />
+        <e p="pyexpat.h" t="Include" />
+        <e p="pyfpe.h" t="Include" />
+        <e p="pygetopt.h" t="Include" />
+        <e p="pyhash.h" t="Include" />
+        <e p="pymacro.h" t="Include" />
+        <e p="pymath.h" t="Include" />
+        <e p="pymem.h" t="Include" />
+        <e p="pyport.h" t="Include" />
+        <e p="pystate.h" t="Include" />
+        <e p="pystrcmp.h" t="Include" />
+        <e p="pystrtod.h" t="Include" />
+        <e p="Python-ast.h" t="Include" />
+        <e p="Python.h" t="Include" />
+        <e p="pythonrun.h" t="Include" />
+        <e p="pythread.h" t="Include" />
+        <e p="pytime.h" t="Include" />
+        <e p="rangeobject.h" t="Include" />
+        <e p="setobject.h" t="Include" />
+        <e p="sliceobject.h" t="Include" />
+        <e p="structmember.h" t="Include" />
+        <e p="structseq.h" t="Include" />
+        <e p="symtable.h" t="Include" />
+        <e p="sysmodule.h" t="Include" />
+        <e p="token.h" t="Include" />
+        <e p="traceback.h" t="Include" />
+        <e p="tupleobject.h" t="Include" />
+        <e p="ucnhash.h" t="Include" />
+        <e p="unicodeobject.h" t="Include" />
+        <e p="weakrefobject.h" t="Include" />
+      </e>
+      <e p="lib\python\Modules" t="Include">
+        <e p="_bisectmodule.c" t="Include" />
+        <e p="_codecsmodule.c" t="Include" />
+        <e p="_collectionsmodule.c" t="Include" />
+        <e p="_csv.c" t="Include" />
+        <e p="_ctypes" t="Include">
+          <e p="_ctypes.c" t="Include" />
+          <e p="callbacks.c" t="Include" />
+          <e p="callproc.c" t="Include" />
+          <e p="cfield.c" t="Include" />
+          <e p="ctypes.h" t="Include" />
+          <e p="ctypes_dlfcn.h" t="Include" />
+          <e p="libffi_msvc" t="Include">
+            <e p="ffi.c" t="Include" />
+            <e p="ffi.h" t="Include" />
+            <e p="ffi_common.h" t="Include" />
+            <e p="fficonfig.h" t="Include" />
+            <e p="ffitarget.h" t="Include" />
+            <e p="prep_cif.c" t="Include" />
+            <e p="win32.c" t="Include" />
+            <e p="win64.asm" t="Include" />
+          </e>
+          <e p="malloc_closure.c" t="Include" />
+          <e p="stgdict.c" t="Include" />
+        </e>
+        <e p="_datetimemodule.c" t="Include" />
+        <e p="_elementtree.c" t="Include" />
+        <e p="_functoolsmodule.c" t="Include" />
+        <e p="_hashopenssl.c" t="Include" />
+        <e p="_heapqmodule.c" t="Include" />
+        <e p="_io" t="Include">
+          <e p="_iomodule.c" t="Include" />
+          <e p="_iomodule.h" t="Include" />
+          <e p="bufferedio.c" t="Include" />
+          <e p="bytesio.c" t="Include" />
+          <e p="fileio.c" t="Include" />
+          <e p="iobase.c" t="Include" />
+          <e p="stringio.c" t="Include" />
+          <e p="textio.c" t="Include" />
+        </e>
+        <e p="_json.c" t="Include" />
+        <e p="_localemodule.c" t="Include" />
+        <e p="_lsprof.c" t="Include" />
+        <e p="_math.c" t="Include" />
+        <e p="_math.h" t="Include" />
+        <e p="_opcode.c" t="Include" />
+        <e p="_operator.c" t="Include" />
+        <e p="_pickle.c" t="Include" />
+        <e p="_randommodule.c" t="Include" />
+        <e p="_sre.c" t="Include" />
+        <e p="_ssl.c" t="Include" />
+        <e p="_stat.c" t="Include" />
+        <e p="_struct.c" t="Include" />
+        <e p="_threadmodule.c" t="Include" />
+        <e p="_tracemalloc.c" t="Include" />
+        <e p="_weakref.c" t="Include" />
+        <e p="_winapi.c" t="Include" />
+        <e p="arraymodule.c" t="Include" />
+        <e p="atexitmodule.c" t="Include" />
+        <e p="audioop.c" t="Include" />
+        <e p="binascii.c" t="Include" />
+        <e p="cjkcodecs" t="Include">
+          <e p="_codecs_cn.c" t="Include" />
+          <e p="_codecs_hk.c" t="Include" />
+          <e p="_codecs_iso2022.c" t="Include" />
+          <e p="_codecs_jp.c" t="Include" />
+          <e p="_codecs_kr.c" t="Include" />
+          <e p="_codecs_tw.c" t="Include" />
+          <e p="alg_jisx0201.h" t="Include" />
+          <e p="cjkcodecs.h" t="Include" />
+          <e p="emu_jisx0213_2000.h" t="Include" />
+          <e p="mappings_cn.h" t="Include" />
+          <e p="mappings_hk.h" t="Include" />
+          <e p="mappings_jisx0213_pair.h" t="Include" />
+          <e p="mappings_jp.h" t="Include" />
+          <e p="mappings_kr.h" t="Include" />
+          <e p="mappings_tw.h" t="Include" />
+          <e p="multibytecodec.c" t="Include" />
+          <e p="multibytecodec.h" t="Include" />
+        </e>
+        <e p="cmathmodule.c" t="Include" />
+        <e p="errnomodule.c" t="Include" />
+        <e p="expat" t="Include">
+          <e p="ascii.h" t="Include" />
+          <e p="asciitab.h" t="Include" />
+          <e p="expat.h" t="Include" />
+          <e p="expat_config.h" t="Include" />
+          <e p="expat_external.h" t="Include" />
+          <e p="iasciitab.h" t="Include" />
+          <e p="internal.h" t="Include" />
+          <e p="latin1tab.h" t="Include" />
+          <e p="macconfig.h" t="Include" />
+          <e p="nametab.h" t="Include" />
+          <e p="pyexpatns.h" t="Include" />
+          <e p="utf8tab.h" t="Include" />
+          <e p="winconfig.h" t="Include" />
+          <e p="xmlparse.c" t="Include" />
+          <e p="xmlrole.c" t="Include" />
+          <e p="xmlrole.h" t="Include" />
+          <e p="xmltok.c" t="Include" />
+          <e p="xmltok.h" t="Include" />
+        </e>
+        <e p="faulthandler.c" t="Include" />
+        <e p="gcmodule.c" t="Include" />
+        <e p="getbuildinfo.c" t="Include" />
+        <e p="hashtable.c" t="Include" />
+        <e p="hashtable.h" t="Include" />
+        <e p="itertoolsmodule.c" t="Include" />
+        <e p="main.c" t="Include" />
+        <e p="mathmodule.c" t="Include" />
+        <e p="md5module.c" t="Include" />
+        <e p="mmapmodule.c" t="Include" />
+        <e p="parsermodule.c" t="Include" />
+        <e p="posixmodule.c" t="Include" />
+        <e p="pyexpat.c" t="Include" />
+        <e p="rotatingtree.c" t="Include" />
+        <e p="rotatingtree.h" t="Include" />
+        <e p="selectmodule.c" t="Include" />
+        <e p="sha1module.c" t="Include" />
+        <e p="sha256module.c" t="Include" />
+        <e p="sha512module.c" t="Include" />
+        <e p="signalmodule.c" t="Include" />
+        <e p="socketmodule.c" t="Include" />
+        <e p="socketmodule.h" t="Include" />
+        <e p="sre.h" t="Include" />
+        <e p="sre_constants.h" t="Include" />
+        <e p="sre_lib.h" t="Include" />
+        <e p="symtablemodule.c" t="Include" />
+        <e p="timemodule.c" t="Include" />
+        <e p="unicodedata.c" t="Include" />
+        <e p="unicodedata_db.h" t="Include" />
+        <e p="unicodename_db.h" t="Include" />
+        <e p="xxsubtype.c" t="Include" />
+        <e p="zipimport.c" t="Include" />
+        <e p="zlib" t="Include">
+          <e p="adler32.c" t="Include" />
+          <e p="compress.c" t="Include" />
+          <e p="crc32.c" t="Include" />
+          <e p="crc32.h" t="Include" />
+          <e p="deflate.c" t="Include" />
+          <e p="deflate.h" t="Include" />
+          <e p="infback.c" t="Include" />
+          <e p="inffast.c" t="Include" />
+          <e p="inffast.h" t="Include" />
+          <e p="inffixed.h" t="Include" />
+          <e p="inflate.c" t="Include" />
+          <e p="inflate.h" t="Include" />
+          <e p="inftrees.c" t="Include" />
+          <e p="inftrees.h" t="Include" />
+          <e p="trees.c" t="Include" />
+          <e p="trees.h" t="Include" />
+          <e p="uncompr.c" t="Include" />
+          <e p="zconf.h" t="Include" />
+          <e p="zconf.in.h" t="Include" />
+          <e p="zlib.h" t="Include" />
+          <e p="zutil.c" t="Include" />
+          <e p="zutil.h" t="Include" />
+        </e>
+        <e p="zlibmodule.c" t="Include" />
+      </e>
+      <e p="lib\python\objects" t="Include">
+        <e p="abstract.c" t="Include" />
+        <e p="accu.c" t="Include" />
+        <e p="boolobject.c" t="Include" />
+        <e p="bytearrayobject.c" t="Include" />
+        <e p="bytes_methods.c" t="Include" />
+        <e p="bytesobject.c" t="Include" />
+        <e p="capsule.c" t="Include" />
+        <e p="cellobject.c" t="Include" />
+        <e p="classobject.c" t="Include" />
+        <e p="codeobject.c" t="Include" />
+        <e p="complexobject.c" t="Include" />
+        <e p="descrobject.c" t="Include" />
+        <e p="dictobject.c" t="Include" />
+        <e p="enumobject.c" t="Include" />
+        <e p="exceptions.c" t="Include" />
+        <e p="fileobject.c" t="Include" />
+        <e p="floatobject.c" t="Include" />
+        <e p="frameobject.c" t="Include" />
+        <e p="funcobject.c" t="Include" />
+        <e p="genobject.c" t="Include" />
+        <e p="iterobject.c" t="Include" />
+        <e p="listobject.c" t="Include" />
+        <e p="longobject.c" t="Include" />
+        <e p="memoryobject.c" t="Include" />
+        <e p="methodobject.c" t="Include" />
+        <e p="moduleobject.c" t="Include" />
+        <e p="namespaceobject.c" t="Include" />
+        <e p="object.c" t="Include" />
+        <e p="obmalloc.c" t="Include" />
+        <e p="rangeobject.c" t="Include" />
+        <e p="setobject.c" t="Include" />
+        <e p="sliceobject.c" t="Include" />
+        <e p="stringlib" t="Include">
+          <e p="count.h" t="Include" />
+          <e p="fastsearch.h" t="Include" />
+          <e p="find.h" t="Include" />
+          <e p="partition.h" t="Include" />
+          <e p="replace.h" t="Include" />
+          <e p="split.h" t="Include" />
+        </e>
+        <e p="structseq.c" t="Include" />
+        <e p="tupleobject.c" t="Include" />
+        <e p="typeobject.c" t="Include" />
+        <e p="unicodectype.c" t="Include" />
+        <e p="unicodeobject.c" t="Include" />
+        <e p="unicodetype_db.h" t="Include" />
+        <e p="weakrefobject.c" t="Include" />
+      </e>
+      <e p="lib\python\Parser" t="Include">
+        <e p="acceler.c" t="Include" />
+        <e p="bitset.c" t="Include" />
+        <e p="firstsets.c" t="Include" />
+        <e p="grammar.c" t="Include" />
+        <e p="grammar1.c" t="Include" />
+        <e p="listnode.c" t="Include" />
+        <e p="metagrammar.c" t="Include" />
+        <e p="myreadline.c" t="Include" />
+        <e p="node.c" t="Include" />
+        <e p="parser.c" t="Include" />
+        <e p="parser.h" t="Include" />
+        <e p="parsetok.c" t="Include" />
+        <e p="tokenizer.c" t="Include" />
+        <e p="tokenizer.h" t="Include" />
+      </e>
+      <e p="lib\python\PC" t="Include">
+        <e p="config.c" t="Include" />
+        <e p="dl_nt.c" t="Include" />
+        <e p="errmap.h" t="Include" />
+        <e p="getpathp.c" t="Include" />
+        <e p="msvcrtmodule.c" t="Include" />
+        <e p="pyconfig.h" t="Include" />
+        <e p="winreg.c" t="Include" />
+      </e>
+      <e p="lib\python\PCbuild" t="IncludeRecursive">
+        <e p="_ctypes.vcxproj" t="IncludeRecursive" />
+        <e p="_elementtree.vcxproj" t="IncludeRecursive" />
+        <e p="_hashlib.vcxproj" t="IncludeRecursive" />
+        <e p="_socket.vcxproj" t="IncludeRecursive" />
+        <e p="_ssl.vcxproj" t="IncludeRecursive" />
+        <e p="pyexpat.vcxproj" t="IncludeRecursive" />
+        <e p="pythoncore.vcxproj" t="IncludeRecursive" />
+        <e p="select.vcxproj" t="IncludeRecursive" />
+        <e p="unicodedata.vcxproj" t="IncludeRecursive" />
+      </e>
+      <e p="lib\python\python" t="Include">
+        <e p="_warnings.c" t="Include" />
+        <e p="asdl.c" t="Include" />
+        <e p="ast.c" t="Include" />
+        <e p="bltinmodule.c" t="Include" />
+        <e p="ceval.c" t="Include" />
+        <e p="ceval_gil.h" t="Include" />
+        <e p="codecs.c" t="Include" />
+        <e p="compile.c" t="Include" />
+        <e p="condvar.h" t="Include" />
+        <e p="dtoa.c" t="Include" />
+        <e p="dynamic_annotations.c" t="Include" />
+        <e p="dynload_win.c" t="Include" />
+        <e p="errors.c" t="Include" />
+        <e p="fileutils.c" t="Include" />
+        <e p="formatter_unicode.c" t="Include" />
+        <e p="frozen.c" t="Include" />
+        <e p="future.c" t="Include" />
+        <e p="getargs.c" t="Include" />
+        <e p="getcompiler.c" t="Include" />
+        <e p="getcopyright.c" t="Include" />
+        <e p="getopt.c" t="Include" />
+        <e p="getplatform.c" t="Include" />
+        <e p="getversion.c" t="Include" />
+        <e p="graminit.c" t="Include" />
+        <e p="import.c" t="Include" />
+        <e p="importdl.c" t="Include" />
+        <e p="importdl.h" t="Include" />
+        <e p="marshal.c" t="Include" />
+        <e p="modsupport.c" t="Include" />
+        <e p="mysnprintf.c" t="Include" />
+        <e p="mystrtoul.c" t="Include" />
+        <e p="peephole.c" t="Include" />
+        <e p="pyarena.c" t="Include" />
+        <e p="pyctype.c" t="Include" />
+        <e p="pyfpe.c" t="Include" />
+        <e p="pyhash.c" t="Include" />
+        <e p="pymath.c" t="Include" />
+        <e p="pystate.c" t="Include" />
+        <e p="pystrcmp.c" t="Include" />
+        <e p="pystrtod.c" t="Include" />
+        <e p="Python-ast.c" t="Include" />
+        <e p="pythonrun.c" t="Include" />
+        <e p="pytime.c" t="Include" />
+        <e p="random.c" t="Include" />
+        <e p="structmember.c" t="Include" />
+        <e p="symtable.c" t="Include" />
+        <e p="sysmodule.c" t="Include" />
+        <e p="thread.c" t="Include" />
+        <e p="thread_nt.h" t="Include" />
+        <e p="traceback.c" t="Include" />
+      </e>
+      <e p="lib\resmgr" t="IncludeRecursive">
+        <e p="ReadMe.txt" t="Include" />
+        <e p="resmgr.cpp" t="Include" />
+        <e p="resmgr.h" t="Include" />
+        <e p="resmgr.vcxproj" t="IncludeRecursive" />
+        <e p="resourceobject.cpp" t="Include" />
+        <e p="resourceobject.h" t="Include" />
+      </e>
+      <e p="lib\server" t="IncludeRecursive">
+        <e p="callbackmgr.h" t="Include" />
+        <e p="common.cpp" t="Include" />
+        <e p="common.h" t="Include" />
+        <e p="component_active_report_handler.cpp" t="Include" />
+        <e p="component_active_report_handler.h" t="Include" />
+        <e p="components.cpp" t="Include" />
+        <e p="components.h" t="Include" />
+        <e p="entity_app.cpp" t="Include" />
+        <e p="entity_app.h" t="Include" />
+        <e p="forward_messagebuffer.cpp" t="Include" />
+        <e p="forward_messagebuffer.h" t="Include" />
+        <e p="globaldata_client.cpp" t="Include" />
+        <e p="globaldata_client.h" t="Include" />
+        <e p="globaldata_server.cpp" t="Include" />
+        <e p="globaldata_server.h" t="Include" />
+        <e p="idallocate.cpp" t="Include" />
+        <e p="idallocate.h" t="Include" />
+        <e p="machine_infos.cpp" t="Include" />
+        <e p="machine_infos.h" t="Include" />
+        <e p="ouromain.h" t="Include" />
+        <e p="pendingLoginmgr.cpp" t="Include" />
+        <e p="pendingLoginmgr.h" t="Include" />
+        <e p="py_file_descriptor.cpp" t="Include" />
+        <e p="py_file_descriptor.h" t="Include" />
+        <e p="python_app.cpp" t="Include" />
+        <e p="python_app.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="script_timers.cpp" t="Include" />
+        <e p="script_timers.h" t="Include" />
+        <e p="sendmail_threadtasks.cpp" t="Include" />
+        <e p="sendmail_threadtasks.h" t="Include" />
+        <e p="server.vcxproj" t="IncludeRecursive" />
+        <e p="server_errors.h" t="Include" />
+        <e p="serverapp.cpp" t="Include" />
+        <e p="serverapp.h" t="Include" />
+        <e p="serverconfig.cpp" t="Include" />
+        <e p="serverconfig.h" t="Include" />
+        <e p="serverconfig.inl" t="Include" />
+        <e p="shutdown_handler.h" t="Include" />
+        <e p="shutdowner.cpp" t="Include" />
+        <e p="shutdowner.h" t="Include" />
+        <e p="signal_handler.cpp" t="Include" />
+        <e p="signal_handler.h" t="Include" />
+        <e p="telnet_handler.cpp" t="Include" />
+        <e p="telnet_handler.h" t="Include" />
+        <e p="telnet_handler.inl" t="Include" />
+        <e p="telnet_server.cpp" t="Include" />
+        <e p="telnet_server.h" t="Include" />
+        <e p="telnet_server.inl" t="Include" />
+      </e>
+      <e p="lib\thread" t="IncludeRecursive">
+        <e p="concurrency.cpp" t="Include" />
+        <e p="concurrency.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="thread.vcxproj" t="IncludeRecursive" />
+        <e p="threadguard.h" t="Include" />
+        <e p="threadmutex.h" t="Include" />
+        <e p="threadpool.cpp" t="Include" />
+        <e p="threadpool.h" t="Include" />
+        <e p="threadpool.inl" t="Include" />
+        <e p="threadtask.h" t="Include" />
+      </e>
+      <e p="lib\xml" t="IncludeRecursive">
+        <e p="ReadMe.txt" t="Include" />
+        <e p="xml.cpp" t="Include" />
+        <e p="xml.h" t="Include" />
+        <e p="xml.vcxproj" t="IncludeRecursive" />
+      </e>
+      <e p="libs" t="ExcludeRecursive" />
+      <e p="ouroboros_vs140.sln" t="IncludeFlat" />
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="server\baseapp" t="IncludeRecursive">
+        <e p="archiver.cpp" t="Include" />
+        <e p="archiver.h" t="Include" />
+        <e p="backuper.cpp" t="Include" />
+        <e p="backuper.h" t="Include" />
+        <e p="baseapp.cpp" t="Include" />
+        <e p="baseapp.h" t="Include" />
+        <e p="baseapp.vcxproj" t="IncludeRecursive" />
+        <e p="baseapp_interface.cpp" t="Include" />
+        <e p="baseapp_interface.h" t="Include" />
+        <e p="baseapp_interface_macros.h" t="Include" />
+        <e p="data_download.cpp" t="Include" />
+        <e p="data_download.h" t="Include" />
+        <e p="data_downloads.cpp" t="Include" />
+        <e p="data_downloads.h" t="Include" />
+        <e p="entity.cpp" t="Include" />
+        <e p="entity.h" t="Include" />
+        <e p="entity.inl" t="Include" />
+        <e p="entity_autoloader.cpp" t="Include" />
+        <e p="entity_autoloader.h" t="Include" />
+        <e p="entity_component.cpp" t="Include" />
+        <e p="entity_interface_macros.h" t="Include" />
+        <e p="entity_messages_forward_handler.cpp" t="Include" />
+        <e p="entity_messages_forward_handler.h" t="Include" />
+        <e p="entity_remotemethod.cpp" t="Include" />
+        <e p="entity_remotemethod.h" t="Include" />
+        <e p="forward_message_over_handler.cpp" t="Include" />
+        <e p="forward_message_over_handler.h" t="Include" />
+        <e p="initprogress_handler.cpp" t="Include" />
+        <e p="initprogress_handler.h" t="Include" />
+        <e p="main.cpp" t="Include" />
+        <e p="profile.cpp" t="Include" />
+        <e p="profile.h" t="Include" />
+        <e p="proxy.cpp" t="Include" />
+        <e p="proxy.h" t="Include" />
+        <e p="proxy.inl" t="Include" />
+        <e p="proxy_forwarder.cpp" t="Include" />
+        <e p="proxy_forwarder.h" t="Include" />
+        <e p="proxy_interface_macros.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="restore_entity_handler.cpp" t="Include" />
+        <e p="restore_entity_handler.h" t="Include" />
+        <e p="space.cpp" t="Include" />
+        <e p="space.h" t="Include" />
+        <e p="space.inl" t="Include" />
+        <e p="sync_entitystreamtemplate_handler.cpp" t="Include" />
+        <e p="sync_entitystreamtemplate_handler.h" t="Include" />
+      </e>
+      <e p="server\baseappmgr" t="IncludeRecursive">
+        <e p="baseapp.cpp" t="Include" />
+        <e p="baseapp.h" t="Include" />
+        <e p="baseappmgr.cpp" t="Include" />
+        <e p="baseappmgr.h" t="Include" />
+        <e p="baseappmgr.vcxproj" t="IncludeRecursive" />
+        <e p="baseappmgr_interface.cpp" t="Include" />
+        <e p="baseappmgr_interface.h" t="Include" />
+        <e p="baseappmgr_interface_macros.h" t="Include" />
+        <e p="main.cpp" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+      </e>
+      <e p="server\cellapp" t="IncludeRecursive">
+        <e p="all_clients.cpp" t="Include" />
+        <e p="all_clients.h" t="Include" />
+        <e p="cell.cpp" t="Include" />
+        <e p="cell.h" t="Include" />
+        <e p="cellapp.cpp" t="Include" />
+        <e p="cellapp.h" t="Include" />
+        <e p="cellapp.vcxproj" t="IncludeRecursive" />
+        <e p="cellapp_interface.cpp" t="Include" />
+        <e p="cellapp_interface.h" t="Include" />
+        <e p="cellapp_interface_macros.h" t="Include" />
+        <e p="cells.cpp" t="Include" />
+        <e p="cells.h" t="Include" />
+        <e p="client_entity.cpp" t="Include" />
+        <e p="client_entity.h" t="Include" />
+        <e p="client_entity_method.cpp" t="Include" />
+        <e p="client_entity_method.h" t="Include" />
+        <e p="clients_remote_entity_method.cpp" t="Include" />
+        <e p="clients_remote_entity_method.h" t="Include" />
+        <e p="controller.cpp" t="Include" />
+        <e p="controller.h" t="Include" />
+        <e p="controllers.cpp" t="Include" />
+        <e p="controllers.h" t="Include" />
+        <e p="coordinate_node.cpp" t="Include" />
+        <e p="coordinate_node.h" t="Include" />
+        <e p="coordinate_node.inl" t="Include" />
+        <e p="coordinate_system.cpp" t="Include" />
+        <e p="coordinate_system.h" t="Include" />
+        <e p="coordinate_system.inl" t="Include" />
+        <e p="entity.cpp" t="Include" />
+        <e p="entity.h" t="Include" />
+        <e p="entity.inl" t="Include" />
+        <e p="entity_component.cpp" t="Include" />
+        <e p="entity_coordinate_node.cpp" t="Include" />
+        <e p="entity_coordinate_node.h" t="Include" />
+        <e p="entity_interface_macros.h" t="Include" />
+        <e p="entity_remotemethod.cpp" t="Include" />
+        <e p="entity_remotemethod.h" t="Include" />
+        <e p="entityref.cpp" t="Include" />
+        <e p="entityref.h" t="Include" />
+        <e p="forward_message_over_handler.cpp" t="Include" />
+        <e p="forward_message_over_handler.h" t="Include" />
+        <e p="ghost_manager.cpp" t="Include" />
+        <e p="ghost_manager.h" t="Include" />
+        <e p="history_event.cpp" t="Include" />
+        <e p="history_event.h" t="Include" />
+        <e p="initprogress_handler.cpp" t="Include" />
+        <e p="initprogress_handler.h" t="Include" />
+        <e p="loadnavmesh_threadtasks.cpp" t="Include" />
+        <e p="loadnavmesh_threadtasks.h" t="Include" />
+        <e p="main.cpp" t="Include" />
+        <e p="move_controller.cpp" t="Include" />
+        <e p="move_controller.h" t="Include" />
+        <e p="moveto_entity_handler.cpp" t="Include" />
+        <e p="moveto_entity_handler.h" t="Include" />
+        <e p="moveto_point_handler.cpp" t="Include" />
+        <e p="moveto_point_handler.h" t="Include" />
+        <e p="navigate_handler.cpp" t="Include" />
+        <e p="navigate_handler.h" t="Include" />
+        <e p="profile.cpp" t="Include" />
+        <e p="profile.h" t="Include" />
+        <e p="proximity_controller.cpp" t="Include" />
+        <e p="proximity_controller.h" t="Include" />
+        <e p="range_trigger.cpp" t="Include" />
+        <e p="range_trigger.h" t="Include" />
+        <e p="range_trigger.inl" t="Include" />
+        <e p="range_trigger_node.cpp" t="Include" />
+        <e p="range_trigger_node.h" t="Include" />
+        <e p="range_trigger_node.inl" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="real_entity_method.cpp" t="Include" />
+        <e p="real_entity_method.h" t="Include" />
+        <e p="rotator_handler.cpp" t="Include" />
+        <e p="rotator_handler.h" t="Include" />
+        <e p="space.cpp" t="Include" />
+        <e p="space.h" t="Include" />
+        <e p="space.inl" t="Include" />
+        <e p="space_viewer.cpp" t="Include" />
+        <e p="space_viewer.h" t="Include" />
+        <e p="spacememory.cpp" t="Include" />
+        <e p="spacememory.h" t="Include" />
+        <e p="spacememorys.cpp" t="Include" />
+        <e p="spacememorys.h" t="Include" />
+        <e p="trap_trigger.cpp" t="Include" />
+        <e p="trap_trigger.h" t="Include" />
+        <e p="trap_trigger.inl" t="Include" />
+        <e p="turn_controller.cpp" t="Include" />
+        <e p="turn_controller.h" t="Include" />
+        <e p="updatable.cpp" t="Include" />
+        <e p="updatable.h" t="Include" />
+        <e p="updatables.cpp" t="Include" />
+        <e p="updatables.h" t="Include" />
+        <e p="view_trigger.cpp" t="Include" />
+        <e p="view_trigger.h" t="Include" />
+        <e p="view_trigger.inl" t="Include" />
+        <e p="watch_obj_pools.cpp" t="Include" />
+        <e p="watch_obj_pools.h" t="Include" />
+        <e p="witness.cpp" t="Include" />
+        <e p="witness.h" t="Include" />
+        <e p="witness.inl" t="Include" />
+        <e p="witnessed_timeout_handler.cpp" t="Include" />
+        <e p="witnessed_timeout_handler.h" t="Include" />
+      </e>
+      <e p="server\cellappmgr" t="IncludeRecursive">
+        <e p="cell.cpp" t="Include" />
+        <e p="cell.h" t="Include" />
+        <e p="cellapp.cpp" t="Include" />
+        <e p="cellapp.h" t="Include" />
+        <e p="cellappmgr.cpp" t="Include" />
+        <e p="cellappmgr.h" t="Include" />
+        <e p="cellappmgr.vcxproj" t="IncludeRecursive" />
+        <e p="cellappmgr_interface.cpp" t="Include" />
+        <e p="cellappmgr_interface.h" t="Include" />
+        <e p="cellappmgr_interface_macros.h" t="Include" />
+        <e p="cells.cpp" t="Include" />
+        <e p="cells.h" t="Include" />
+        <e p="main.cpp" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="space.cpp" t="Include" />
+        <e p="space.h" t="Include" />
+        <e p="space_viewer.cpp" t="Include" />
+        <e p="space_viewer.h" t="Include" />
+        <e p="spaces.cpp" t="Include" />
+        <e p="spaces.h" t="Include" />
+      </e>
+      <e p="server\dbmgr" t="IncludeRecursive">
+        <e p="buffered_dbtasks.cpp" t="Include" />
+        <e p="buffered_dbtasks.h" t="Include" />
+        <e p="dbmgr.cpp" t="Include" />
+        <e p="dbmgr.h" t="Include" />
+        <e p="dbmgr.vcxproj" t="IncludeRecursive" />
+        <e p="dbmgr_interface.cpp" t="Include" />
+        <e p="dbmgr_interface.h" t="Include" />
+        <e p="dbmgr_interface_macros.h" t="Include" />
+        <e p="dbtasks.cpp" t="Include" />
+        <e p="dbtasks.h" t="Include" />
+        <e p="entity_component.cpp" t="Include" />
+        <e p="interfaces_handler.cpp" t="Include" />
+        <e p="interfaces_handler.h" t="Include" />
+        <e p="main.cpp" t="Include" />
+        <e p="profile.cpp" t="Include" />
+        <e p="profile.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="sync_app_datas_handler.cpp" t="Include" />
+        <e p="sync_app_datas_handler.h" t="Include" />
+        <e p="update_dblog_handler.cpp" t="Include" />
+        <e p="update_dblog_handler.h" t="Include" />
+      </e>
+      <e p="server\loginapp" t="IncludeRecursive">
+        <e p="http_cb_handler.cpp" t="Include" />
+        <e p="http_cb_handler.h" t="Include" />
+        <e p="loginapp.cpp" t="Include" />
+        <e p="loginapp.h" t="Include" />
+        <e p="loginapp.vcxproj" t="IncludeRecursive" />
+        <e p="loginapp_interface.cpp" t="Include" />
+        <e p="loginapp_interface.h" t="Include" />
+        <e p="loginapp_interface_macros.h" t="Include" />
+        <e p="main.cpp" t="Include" />
+        <e p="profile.cpp" t="Include" />
+        <e p="profile.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+      </e>
+      <e p="server\machine" t="IncludeRecursive">
+        <e p="machine.cpp" t="Include" />
+        <e p="machine.h" t="Include" />
+        <e p="machine.vcxproj" t="IncludeRecursive" />
+        <e p="machine_interface.cpp" t="Include" />
+        <e p="machine_interface.h" t="Include" />
+        <e p="machine_interface_macros.h" t="Include" />
+        <e p="main.cpp" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+      </e>
+      <e p="server\tools\bots" t="IncludeRecursive">
+        <e p="bots.cpp" t="Include" />
+        <e p="bots.h" t="Include" />
+        <e p="bots.vcxproj" t="IncludeRecursive" />
+        <e p="bots_interface.cpp" t="Include" />
+        <e p="bots_interface.h" t="Include" />
+        <e p="bots_interface_macros.h" t="Include" />
+        <e p="clientobject.cpp" t="Include" />
+        <e p="clientobject.h" t="Include" />
+        <e p="create_and_login_handler.cpp" t="Include" />
+        <e p="create_and_login_handler.h" t="Include" />
+        <e p="kcp_packet_receiver_ex.cpp" t="Include" />
+        <e p="kcp_packet_receiver_ex.h" t="Include" />
+        <e p="kcp_packet_sender_ex.cpp" t="Include" />
+        <e p="kcp_packet_sender_ex.h" t="Include" />
+        <e p="main.cpp" t="Include" />
+        <e p="profile.cpp" t="Include" />
+        <e p="profile.h" t="Include" />
+        <e p="pybots.cpp" t="Include" />
+        <e p="pybots.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="tcp_packet_receiver_ex.cpp" t="Include" />
+        <e p="tcp_packet_receiver_ex.h" t="Include" />
+        <e p="tcp_packet_sender_ex.cpp" t="Include" />
+        <e p="tcp_packet_sender_ex.h" t="Include" />
+      </e>
+      <e p="server\tools\guiconsole" t="IncludeRecursive">
+        <e p="ColorListBox.cpp" t="Include" />
+        <e p="ColorListBox.h" t="Include" />
+        <e p="ConnectRemoteMachineWindow.cpp" t="Include" />
+        <e p="ConnectRemoteMachineWindow.h" t="Include" />
+        <e p="DebugWindow.cpp" t="Include" />
+        <e p="DebugWindow.h" t="Include" />
+        <e p="EditSendbuffer.cpp" t="Include" />
+        <e p="EditSendbuffer.h" t="Include" />
+        <e p="GraphsWindow.cpp" t="Include" />
+        <e p="GraphsWindow.h" t="Include" />
+        <e p="guiconsole.cpp" t="Include" />
+        <e p="guiconsole.h" t="Include" />
+        <e p="guiconsole.rc" t="Include" />
+        <e p="guiconsole.vcxproj" t="IncludeRecursive" />
+        <e p="guiconsoleDlg.cpp" t="Include" />
+        <e p="guiconsoleDlg.h" t="Include" />
+        <e p="LineChartCtrl.cpp" t="Include" />
+        <e p="LineChartCtrl.h" t="Include" />
+        <e p="LogWindow.cpp" t="Include" />
+        <e p="LogWindow.h" t="Include" />
+        <e p="MemDC.h" t="Include" />
+        <e p="MultiLineListBox.cpp" t="Include" />
+        <e p="MultiLineListBox.h" t="Include" />
+        <e p="ProfileWindow.cpp" t="Include" />
+        <e p="ProfileWindow.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+        <e p="res" t="Include">
+          <e p="error.bmp" t="Include" />
+          <e p="error1.bmp" t="Include" />
+          <e p="guiconsole.ico" t="Include" />
+          <e p="guiconsole.rc2" t="Include" />
+          <e p="info.bmp" t="Include" />
+          <e p="info1.bmp" t="Include" />
+          <e p="toolbar1.bmp" t="Include" />
+          <e p="warn.bmp" t="Include" />
+          <e p="warn1.bmp" t="Include" />
+        </e>
+        <e p="resource.h" t="Include" />
+        <e p="SetLayoutNameWindow.cpp" t="Include" />
+        <e p="SetLayoutNameWindow.h" t="Include" />
+        <e p="SpaceViewWindow.cpp" t="Include" />
+        <e p="SpaceViewWindow.h" t="Include" />
+        <e p="StartServerLayoutWindow.cpp" t="Include" />
+        <e p="StartServerLayoutWindow.h" t="Include" />
+        <e p="StartServerWindow.cpp" t="Include" />
+        <e p="StartServerWindow.h" t="Include" />
+        <e p="StatusWindow.cpp" t="Include" />
+        <e p="StatusWindow.h" t="Include" />
+        <e p="stdafx.cpp" t="Include" />
+        <e p="stdafx.h" t="Include" />
+        <e p="targetver.h" t="Include" />
+        <e p="TimingLengthWindow.cpp" t="Include" />
+        <e p="TimingLengthWindow.h" t="Include" />
+        <e p="WatcherWindow.cpp" t="Include" />
+        <e p="WatcherWindow.h" t="Include" />
+      </e>
+      <e p="server\tools\interfaces" t="IncludeRecursive">
+        <e p="interfaces.cpp" t="Include" />
+        <e p="interfaces.h" t="Include" />
+        <e p="interfaces.vcxproj" t="IncludeRecursive" />
+        <e p="interfaces_interface.cpp" t="Include" />
+        <e p="interfaces_interface.h" t="Include" />
+        <e p="interfaces_interface_macros.h" t="Include" />
+        <e p="interfaces_tasks.cpp" t="Include" />
+        <e p="interfaces_tasks.h" t="Include" />
+        <e p="main.cpp" t="Include" />
+        <e p="orders.cpp" t="Include" />
+        <e p="orders.h" t="Include" />
+        <e p="profile.cpp" t="Include" />
+        <e p="profile.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+      </e>
+      <e p="server\tools\logger" t="IncludeRecursive">
+        <e p="logger.cpp" t="Include" />
+        <e p="logger.h" t="Include" />
+        <e p="logger.vcxproj" t="IncludeRecursive" />
+        <e p="logger_interface.cpp" t="Include" />
+        <e p="logger_interface.h" t="Include" />
+        <e p="logger_interface_macros.h" t="Include" />
+        <e p="logwatcher.cpp" t="Include" />
+        <e p="logwatcher.h" t="Include" />
+        <e p="main.cpp" t="Include" />
+        <e p="profile.cpp" t="Include" />
+        <e p="profile.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+      </e>
+      <e p="server\tools\obcmd" t="IncludeRecursive">
+        <e p="client_sdk.cpp" t="Include" />
+        <e p="client_sdk.h" t="Include" />
+        <e p="client_sdk_ue4.cpp" t="Include" />
+        <e p="client_sdk_ue4.h" t="Include" />
+        <e p="client_sdk_unity.cpp" t="Include" />
+        <e p="client_sdk_unity.h" t="Include" />
+        <e p="entity_component.cpp" t="Include" />
+        <e p="main.cpp" t="Include" />
+        <e p="obcmd.cpp" t="Include" />
+        <e p="obcmd.h" t="Include" />
+        <e p="obcmd.vcxproj" t="IncludeRecursive" />
+        <e p="obcmd_interface.cpp" t="Include" />
+        <e p="obcmd_interface.h" t="Include" />
+        <e p="obcmd_interface_macros.h" t="Include" />
+        <e p="profile.cpp" t="Include" />
+        <e p="profile.h" t="Include" />
+        <e p="ReadMe.txt" t="Include" />
+      </e>
+      <e p="srv-apps" t="Include" />
+      <e p="srv-tools" t="Include" />
+    </e>
+    <e p="D:\Projects\Ouroboros-2.0p5\ouro\tools\server\guiconsole" t="ExcludeRecursive" />
+  </component>
+</project>

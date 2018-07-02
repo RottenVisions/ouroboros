@@ -1,0 +1,46 @@
+/*
+ * login style
+ */
+
+body {
+
+/* Background image vertical, horizontal are centered */
+background-position: center center;
+
+/* Background uneven pavement */
+background-repeat: no-repeat;
+
+/* When the content height is greater than image height, background position of the image relative to the viewport fixed */
+background-attachment: fixed;
+
+/* Let the background figure based on the size of the container telescopic */
+background-size: cover;
+}
+
+.login-block-background{
+  margin-top:15%;
+	width: 100%;
+	height:100%;
+	background-color: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 1295px) {
+ .form-group .control-label{
+    font-size:0.8em;
+
+  }
+}
+
+@media (max-width: 1069px) {
+ .form-group .control-label{
+    font-size:0.5em;
+
+  }
+}
+
+@media (max-width: 1139px) {
+ .form-group .control-label{
+    font-size:0.7em;
+
+  }
+}

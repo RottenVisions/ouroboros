@@ -1,0 +1,8 @@
+<root>
+	<!--
+		Entity registration file(<your asset library>/scripts/entities.xml)
+	-->
+
+	<!-- <Avatar/> -->
+	<Account hasClient="true"></Account><!-- <Account hasCell="true" hasBase="true" hasClient="true"></Account> -->
+</root>

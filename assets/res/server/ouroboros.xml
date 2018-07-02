@@ -1,0 +1,70 @@
+<root>
+	<!--
+	Personalized service-side configuration({assets}/res/server/ouroboros.xml)
+
+	If you need to change engine settings, please in the({assets}/res/server/ouroboros.xml)cover the ouro/res/server/ouroboros_defaults. the xml corresponding to the parameter to modify,
+	This benefit is not to destroy the engine of the default settings, when you update the engine when it does not produce a conflict, as well as in plurality of logical items does not affect to other project settings.
+	For details, please refer to: http://ouroboros.org/cn/docs/configuration/ouroboros.html
+		-->
+
+	<trace_packet>
+		<debug_type> 0 </debug_type>
+	</trace_packet>
+
+	<publish>
+		<!-- Released state, can be used in scripts to get the value. Ouroboros.publish()
+			(apps released state, This value can be obtained in the script. Ouroboros.publish())
+			Type: Integer8
+			0 : debug
+			1 : release
+			Other custom(Other custom)
+		-->
+		<state> 0 </state>
+
+		<!-- The script layer is the release version number
+			(Script layer released version number)
+		 -->
+		<script_version> 0.1.0 </script_version>
+	</publish>
+
+	<!-- defined => ouro/res/server/ouroboros_defs.xml -->
+	<dbmgr>
+		<account_system>
+			<!-- Account retrieve password related
+				(Account reset password)
+			-->
+			<account_resetPassword>
+				<!-- Whether to open the reset password
+					(Whether open reset password)
+				-->
+				<enable>	true	</enable>
+			</account_resetPassword>
+
+			<!-- Account registration related
+				(Account registration)
+			-->
+			<account_registration>
+				<!-- Whether open enrollment
+					(Whether open registration)
+				-->
+				<enable>	true	</enable>
+
+				<!-- Login legitimate game database can not find the game account is automatically created 
+					(When logged in, the game database can not find the game account is automatically created)
+				-->
+				<loginAutoCreate> true </loginAutoCreate>
+			</account_registration>
+		</account_system>
+
+		<databaseInterfaces>
+			<default>
+				<!-- <host> localhost </host> -->
+				<!-- <databaseName> ouro </databaseName> -->
+			</default>
+		</databaseInterfaces>
+	</dbmgr>
+
+	<baseapp>
+		<backupPeriod> 500 </backupPeriod>
+	</baseapp>
+</root>

@@ -1,0 +1,172 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags*must*be placed in the front, any other content*must*follow it! -->
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" href="/favicon.ico">
+
+        <title>{% block title %}Ouroboros Web Console{% endblock %}</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="/static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Custom styles for this template -->
+        <link href="/static/custom_styles.css" rel="stylesheet">
+    </head>
+<body>
+    <div class="placeholders">
+        <div class="form-group">
+          {# <label for="textarea">Start the server</label> #}
+        <!--   <textarea name="textarea" rows="30" readonly class="form-control" id="textarea">
+          </textarea> -->
+        </div>
+        {% if error %}
+        <div>
+          <p class="text-danger">{{ error }}</p>
+        </div>
+        {% endif %}
+        <table id="ct-load-data" class="data-table table table-striped table-condensed">
+            <thead>
+              <tr>
+                <th>The name of the component</th>
+                <th>Has been running</th>
+                <th>Need to run</th>
+                <th>Component Type</th>
+                <th>cid</th>
+                <th>gus</th>
+                <th>ip</th>
+                <th>State</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+      </table>
+        <div class="shutdown-finish form-group sr-only">
+          <input type="button" class="form-control btn btn-default" name="button" id="button" value="Complete" onClick="close_layer()">
+
+        </div>
+    </div>
+</body>
+
+<script src="/static/js/pytools.js"></script>
+<script src="/static/js/ouroboros.js"></script>
+<script src="/static/js/jquery-1.11.3.min.js"></script>
+<script src="/static/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script>$(".config").addClass("active");</script>
+<script>
+  $(".ouro-list .dd").hide();
+  $(".ouro-list .components .dd").show();
+  $(".ouro-list .components ").css({"background-color":"#317eb4"});
+  $(".ouro-list .components").find('li').addClass("menu_chioce");
+
+    //{% comment %}
+    // The following comments are not really comments, just to let the following code in javascript the following explanation is not error only,
+    // Actually the following code in django will be executed, and so cannot be deleted
+    //{% endcomment %}
+    //{% if not error %}
+    $("document").ready(queryComponents);
+    // This line in the editor will appear on syntax errors, the actual running time will not be a problem
+    g_run_counter  = {{ run_counter }};
+    components_ct  = {{ components_ct }};
+    components_cid = {{ components_cid }};
+    components_gus = {{ components_gus }};
+    components_ip  = "{{ components_ip }}";
+    //{% endif %}
+    g_queryCount = 0;
+    g_queryMsg = ""
+
+    function queryComponents()
+    {
+        $.ajax({
+                url : "/wc/components/query",
+                dataType : "json",
+                data : { timestap : (new Date()).valueOf() }
+            }).done(function(data, textStatus, jqXHR){
+                    onReceiveComponents( data );
+                });
+    }
+
+    function onReceiveComponents( components )
+    {
+        g_queryCount++;
+
+        var currentCount = pytools.array( Ouroboros.COMPONENT_TYPE.COMPONENT_END_TYPE, 0 );
+
+        // var str = "";
+        // str += "Query count: " + g_queryCount + "\n\n";
+        var counter = 0;
+        for (var i = 0; i < components.length; i++)
+        {
+            var comps = components[i];
+            // 从1开始，忽略machine
+            for (var ii = 1; ii < comps.length; ii++)
+            {
+                counter++;
+                var comp = comps[ii];
+                currentCount[comp.componentType] += 1;
+            }
+        }
+        var res = "";
+        var res1 = '<tr style="text-align: left;"><td>'+"第 "+g_queryCount+" Time to start the process"+'</td></tr>';
+        for (var gi = 0; gi < currentCount.length; gi++)
+        {
+
+            if (g_run_counter[gi] > 0)
+            {
+                status = '<p style="color:red">'+"Not started"+'</p>';
+                if(currentCount[gi] == g_run_counter[gi])
+                    status = "Started";
+                res += '<tr>'+'<td>'+Ouroboros.COMPONENT_NAME[gi] + '</td>' + '<td>'+currentCount[gi] + '</td>' + '<td>'+ g_run_counter[gi] + '</td>' + '<td>'+components_ct[gi]+ '</td>' + '<td>'+components_cid[gi]+ '</td>' + '<td>'+components_gus[gi]+ '</td>' + '<td>'+components_ip+ '</td>' + '<td>'+status+'</td></tr>';
+            }
+        }
+
+        $('#ct-load-data tbody').append(res1+res);
+
+        // for (var gi = 0; gi < currentCount.length; gi++)
+        // {
+        //     if (g_run_counter[gi] > 0)
+        //         str += Ouroboros.COMPONENT_NAME[gi] + ": " + currentCount[gi] + "/" + g_run_counter[gi] + "  ct :"+components_ct[gi]+"  cid :"+components_cid[gi]+"  gus :"+components_gus[gi]+"  ip :"+components_ip+"\n";
+        // }
+
+        // g_queryMsg += str + "\n\n";
+        // $("#textarea").text( g_queryMsg );
+        // $("#textarea").scrollTop($("#textarea")[0].scrollHeight);
+
+        var isSame = true;
+        for (var i = 0; i < currentCount.length; i++)
+        {
+            if (currentCount[i] != g_run_counter[i])
+            {
+                isSame = false;
+                break;
+            }
+        }
+
+        if (isSame || g_queryCount >= 20)
+        {
+            if (g_queryCount >= 20)
+            {
+                res1 = '<tr style="text-align: left;color:red"><td>'+"Server Start exception!"+'</td></tr>';
+                 $('#ct-load-data tbody').append(res1);
+                // $("#textarea").text( g_queryMsg );
+                // $("#textarea").scrollTop($("#textarea")[0].scrollHeight);
+            }
+            g_queryCount = 0;
+            // g_queryMsg = "";
+            $(".shutdown-finish").removeClass("sr-only");
+        }
+        else
+            setTimeout(queryComponents, 1000);
+    }
+
+    function close_layer(){
+        var index = parent.layer.getFrameIndex(window.name); //First get the current iframe layer index
+        parent.layer.close(index);
+
+    }
+</script>
+</html>

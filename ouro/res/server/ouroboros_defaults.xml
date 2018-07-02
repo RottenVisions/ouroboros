@@ -1,0 +1,856 @@
+<root>
+	<!-- The game logic processing frequency HZ
+		(Update frequency process, HZ)
+	-->
+	<gameUpdateHertz> 10 </gameUpdateHertz>
+
+	<!-- Per second sent to client bandwidth limit(bit)
+		(The data sent to the client, the second bandwidth limit (bit))
+	-->
+	<bitsPerSecondToClient> 20000 </bitsPerSecondToClient>				<!-- Type: Integer -->
+
+	<!-- Non-0 is not optimized, without the packet length information of the packet forced to carry the length information, in some cases below from the some of the front end of the docking Protocol
+	What packet without the length information? All can be pre-calculated out the size and always the same packet without the length information,
+	If there is a variable string parameter is a certain need with the length information
+	(Non-0 is not optimized, Force all packets contain length information, Some convenient docking protocol client.
+	What of data packet length information does not? All packages can be calculated in advance
+	and never change the size of the package with no length information.)
+	-->
+	<packetAlwaysContainLength> 0 </packetAlwaysContainLength>
+
+	<!-- Whether you will need any of the received and sent packet with text output to the log provided in the Debug
+		(Whether the contents of the log output packet)
+
+		debug_type:
+			0: No output(Not output)
+			1: 16-ary output(16 hexadecimal output)
+			2: The character stream output(Stringstream output)
+			3: 10 binary output(10 hexadecimal output)
+		use_logfile:
+			Whether to separate a log file to record the contents of the packet, the file name is usually
+			(Whether the use of other log files ? such as:)
+			appname_packetlogs.log
+		disable_msgs:
+			Turn off some of the output of a package
+			(Some messages are not output)
+	-->
+	<trace_packet>
+		<debug_type> 0 </debug_type>
+		<use_logfile> false </use_logfile>
+		<disables>
+			<item>Encrypted::packets</item>
+			<item>Baseappmgr::updateBaseapp</item>
+			<item>Baseappmgr::onBaseappInitProgress</item>
+			<item>Cellappmgr::updateCellapp</item>
+			<item>Cellappmgr::onCellappInitProgress</item>
+			<item>Loginapp::onBaseappInitProgress</item>
+			<item>Cellapp::onUpdateDataFromClient</item>
+			<item>Baseapp::onUpdateDataFromClient</item>
+			<item>Baseapp::forwardMessageToClientFromCellapp</item>
+			<item>Client::onUpdateVolatileData</item>
+			<item>Client::onUpdateData</item>
+			<item>Client::onUpdateBasePos</item>
+			<item>Client::onUpdateData_xz</item>
+			<item>Client::onUpdateData_xyz</item>
+			<item>Client::onUpdateData_y</item>
+			<item>Client::onUpdateData_r</item>
+			<item>Client::onUpdateData_p</item>
+			<item>Client::onUpdateData_ypr</item>
+			<item>Client::onUpdateData_yp</item>
+			<item>Client::onUpdateData_yr</item>
+			<item>Client::onUpdateData_pr</item>
+			<item>Client::onUpdateData_xz_y</item>
+			<item>Client::onUpdateData_xz_p</item>
+			<item>Client::onUpdateData_xz_r</item>
+			<item>Client::onUpdateData_xz_yr</item>
+			<item>Client::onUpdateData_xz_yp</item>
+			<item>Client::onUpdateData_xz_pr</item>
+			<item>Client::onUpdateData_xz_ypr</item>
+			<item>Client::onUpdateData_xyz_y</item>
+			<item>Client::onUpdateData_xyz_p</item>
+			<item>Client::onUpdateData_xyz_r</item>
+			<item>Client::onUpdateData_xyz_yr</item>
+			<item>Client::onUpdateData_xyz_yp</item>
+			<item>Client::onUpdateData_xyz_pr</item>
+			<item>Client::onUpdateData_xyz_ypr</item>
+		</disables>
+	</trace_packet>
+
+	<!-- If the output entity was created, the script to get the properties, the initialization of the property and other debug information, and def information
+		(Whether the output the logs: create the entity, Script get attributes,
+			Initialization attributes information, Def information.)
+	-->
+	<debugEntity> 0 </debugEntity>
+
+	<publish>
+		<!-- Released state, can be used in scripts to get the value。 Ouroboros.publish()
+			(apps released state, This value can be obtained in the script. Ouroboros.publish())
+			Type: Integer8
+			0 : debug
+			1 : release
+			Other custom(Other custom)
+		-->
+		<state> 0 </state>
+
+		<!-- The script layer is the release version number
+			(Script layer released version number)
+		 -->
+		<script_version> 0.1.0 </script_version>
+	</publish>
+
+	<channelCommon>
+		<!-- The last time the communication time exceeds this time it was identified as a timeout channel, the server will be kicked out of the channel
+			(If long (configurable value) no communication, channel will be kicked out of the server.)
+		-->
+		<timeout>
+			<internal> 60.0 </internal>
+			<external> 60.0 </external>
+		</timeout>
+
+		<!-- socket read and write buffer size
+			(socket send/recv buffer size)
+		-->
+		<readBufferSize>
+			<internal>	16777216	</internal> 			<!-- 16M -->
+			<external>	0			</external>				<!-- The system default(system default) -->
+		</readBufferSize>
+		<writeBufferSize>
+			<internal>	16777216	</internal>				<!-- 16M -->
+			<external>	0			</external>				<!-- The system default(system default) -->
+		</writeBufferSize>
+
+		<!-- Send and receive window overflow value, 0 for unlimited
+			(the value of the send/receive window overflow, 0 is unlimited)
+		-->
+		<windowOverflow>
+			<send>
+				<!-- A tick transmits the number of bytes of overflow limit
+					(A tick, the value of the sent window overflow, 0 is unlimited)
+				-->
+				<tickSentBytes>
+					<internal>	0			</internal>
+					<external>	0			</external>
+				</tickSentBytes>
+				<messages>
+					<critical>	1024		</critical>
+					<internal>	65535		</internal>
+					<external>	512		</external>
+				</messages>
+				<bytes>
+					<internal>	0			</internal>
+					<external>	1048576	</external>
+				</bytes>
+			</send>
+
+			<receive>
+				<messages>
+					<critical>	24			</critical>
+					<internal>	65535		</internal>
+					<external>	32			</external>
+				</messages>
+				<bytes>
+					<internal>	0			</internal>
+					<external>	2048		</external>
+				</bytes>
+			</receive>
+		</windowOverflow>
+
+		<!-- Encrypted communication, only the external portion of the channel
+			(Encrypted communication, channel-external only)
+
+			Optional encryption(Optional encryption):
+				0: No encryption(No Encryption)
+				1: Blowfish
+				2: RSA (res\key\ouroboros_private.key)
+		 -->
+		<encrypt_type> 1 </encrypt_type>
+	</channelCommon>
+
+	<!-- Off clothing countdown(秒)
+		(Countdown to shutdown the server(seconds))
+	-->
+	<shutdown_time> 30.0 </shutdown_time>
+
+	<!-- Shut down the server, if there are unfinished tasks, the server needs to wait for the end of the task.
+		Per Tick seconds to check the time
+	(Shutdown the server, if you have not completed the task, the server needs to wait for the end of the mission.
+		Time(seconds) for each waiting.)
+	-->
+	<shutdown_waittick> 1.0 </shutdown_waittick>
+
+	<!-- callback the default timeout time(秒)
+		(The callback: default timeout(seconds))
+	-->
+	<callback_timeout> 300.0 </callback_timeout>
+
+	<thread_pool>
+		<!-- The default timeout time(秒)
+			(default timeout(seconds))
+		-->
+		<timeout> 300.0 </timeout>
+
+		<init_create> 1 </init_create>
+		<pre_create> 2 </pre_create>
+		<max_create> 8 </max_create>
+	</thread_pool>
+
+	<!-- Email services, providing the account verification, password recover and so on.
+		(Email services, providing the account verification, password recovery, etc.)
+	-->
+	<email_service_config>server/email_service_defaults.xml</email_service_config>
+
+	<interfaces>
+		<!-- Script entry module, the equivalent of the main function
+			(Entry module, like the main-function)
+		-->
+		<entryScriptFile> ouromain </entryScriptFile>
+
+		<!-- interfaces address, multiple sets of game server can be shared by one of the interfaces
+			(interfaces address, multiple gameserver can share a interfaces)
+		-->
+		<host> localhost </host>
+		<port> 30099 	</port>
+
+		<!-- Order timeout(seconds)
+			(Orders timeout(seconds))
+		-->
+		<orders_timeout> 3600 	</orders_timeout>
+
+
+		<!-- listen the listen queue the maximum value of the
+		    (listen: Maximum listen queue)
+		 -->
+		<SOMAXCONN> 128 </SOMAXCONN>
+
+		<!-- Telnet service, if the port is occupied backwards to try 33001..
+			(Telnet service, if the port is occupied backwards to try 33001)
+		-->
+		<telnet_service>
+			<port> 33000 </port>
+			<password> pwd123456 </password>
+			<!-- Command Default layer
+				(layer of default the command)
+			-->
+			<default_layer> python </default_layer>
+		</telnet_service>
+	</interfaces>
+
+	<dbmgr>
+		<!-- Script entry module, the equivalent of the main function
+			(Entry module, like the main-function)
+		-->
+		<entryScriptFile> ouromain </entryScriptFile>
+
+		<!-- debug mode can output the read and write operation information
+		    (Debug mode can output the read and write informations)
+		 -->
+		<debug> false </debug>
+
+		<!-- Whether to check for defs-MD5
+			(Check whether the defs-MD5)
+		-->
+		<allowEmptyDigest> false </allowEmptyDigest>					<!-- Type: Boolean -->
+
+		<!-- Specify the interface address, you can configure the network card name, MAC, IP
+			（Interface address specified, configurable NIC/MAC/IP）
+		-->
+		<internalInterface>  </internalInterface>
+
+		<!-- The Interfaces process address reference interfaces address configuration
+			(Address of Interfaces process)
+		-->
+		<InterfacesServiceAddr>
+			<!-- If enable is false, then the associated data is not forwarded to Interfaces in the process
+				Note: If true, dbmgr that the data will be provided by interfaces to third-party processing platform
+			-->
+			<enable> true		</enable>
+			<host>	 localhost	</host>
+			<port>	 30099		</port>
+		</InterfacesServiceAddr>
+
+		<!-- The database interface
+			(database interfaces)
+		-->
+		<databaseInterfaces>
+			<!-- The database interface name can be defined multiple different interfaces, but there is at least one default）
+				（Database interface name)
+			-->
+			<default>
+				<!-- If true, it is a pure Database Engine does not create the entity table
+					（If true is pure database, engine does not create the entity table)
+				-->
+				<pure> false </pure>
+
+				<!-- Database type （mysql、redis）
+					（Database type(mysql, redis))
+				-->
+				<type> mysql </type>											<!-- Type: String -->
+
+				<!-- Database address
+					（Database address)
+				-->
+				<host> localhost </host>										<!-- Type: String -->
+				<port> 0 </port>												<!-- Type: Integer -->
+
+				<!-- Database account authentication
+					（Database auth)
+				-->
+				<auth>
+					<username> ouro </username>									<!-- Type: String -->
+					<password> pwd123456 </password>							<!-- Type: String -->
+
+					<!-- True indicates the password is encrypted(rsa), may prevent the clear text configuration
+						(is true, password is RSA)
+					-->
+					<encrypt> true </encrypt>
+				</auth>
+
+				<!-- The name of the database
+					(Database name)
+				-->
+				<databaseName> ouro </databaseName> 								<!-- Type: String -->
+
+				<!-- The database allows the number of connections
+					(Number of connections allowed by the database)
+				-->
+				<numConnections> 5 </numConnections>							<!-- Type: Integer -->
+
+				<!-- Character encoding type
+					(Character encoding type)
+				-->
+				<unicodeString>
+					<characterSet> utf8 </characterSet> 						<!-- Type: String -->
+					<collation> utf8_bin </collation> 							<!-- Type: String -->
+				</unicodeString>
+			</default>
+		</databaseInterfaces>
+
+		<!-- Account system
+			(Account system)
+		-->
+		<account_system>
+			<!-- Account Entity name
+			    (Name of AccountEntity)
+			 -->
+			<accountEntityScriptType>	Account	</accountEntityScriptType>
+
+			<!-- The new account default tags(can be combined, fill in the According decimal format)
+				(Default flags a new account, Can be combined, Fill in decimal format when)
+				Conventional markers(normal flag)	= 0x00000000
+				The lock flag(lock flag)	= 0x000000001
+				Does not activate mark(normal flag)	= 0x000000002
+			-->
+			<accountDefaultFlags> 0 </accountDefaultFlags>							<!-- Type: Integer -->
+
+			<!-- The new account default expiration time(in seconds, the engine will be the current time plus)
+				(New account default expiration time (seconds, the engine will add the current time))
+			-->
+			<accountDefaultDeadline> 0 </accountDefaultDeadline>						<!-- Type: Integer -->
+
+			<!-- Account retrieve password related
+				(Account reset password)
+			-->
+			<account_resetPassword>
+				<!-- Whether to open the reset password
+					(Whether open reset password)
+				-->
+				<enable>	false	</enable>
+			</account_resetPassword>
+
+			<!-- Account registration related
+				(Account registration)
+			-->
+			<account_registration>
+				<!-- Whether open enrollment
+					(Whether open registration)
+				-->
+				<enable>	false	</enable>
+
+				<!-- Login legitimate game database can not find the game account is automatically created
+					(When logged in, the game database can not find the game account is automatically created)
+				-->
+				<loginAutoCreate> false </loginAutoCreate>
+			</account_registration>
+		</account_system>
+
+		<!-- Telnet service, if the port is occupied backwards to try 32001..
+			(Telnet service, if the port is occupied backwards to try 32001)
+		-->
+		<telnet_service>
+			<port> 32000 </port>
+			<password> pwd123456 </password>
+			<!-- Command Default layer
+				(layer of default the command)
+			-->
+			<default_layer> python </default_layer>
+		</telnet_service>
+
+		<!-- entityID of the dispenser into the overflow range then the request to obtain the new ID resources
+			(The entityID allocator, enter the overflow area will get the new ID's)
+		-->
+		<ids>
+			<increasing_range> 2000 </increasing_range>				<!-- Type: Integer -->
+		</ids>
+	</dbmgr>
+
+	<cellapp>
+		<!-- Script entry module, the equivalent of the main function
+			(Entry module, like the main-function)
+		-->
+		<entryScriptFile> ouromain </entryScriptFile>
+
+		<!-- The default View radius, the script can change it
+			(Default View radius, the script can change it)
+		-->
+		<defaultViewRadius>
+			<radius> 80.0 </radius>
+			<hysteresisArea> 5.0 </hysteresisArea>
+		</defaultViewRadius>
+
+		<!-- Optimization of the EntityID, the View within the scope of the entity is less than the number 255, EntityID transmitted to the client when using the 1-byte alias ID
+			（Optimization EntityID，View the Entity is less than 255,
+			use an aliasID(1byte) transmitted to the client)
+		-->
+		<aliasEntityID> true </aliasEntityID>
+
+		<!-- Optimized Entity attribute and method in the broadcast when the consumption of bandwidth, the Entity of the client attributes or client the method is not more than 255,
+				Method the uid and the properties of the uid transmitted to the client when using the 1-byte alias ID
+			(Entity client (property or a method) is less than 256, using 1 byte transmission.)
+		-->
+		<entitydefAliasID>true</entitydefAliasID>
+
+		<!-- Specify the interface address, you can configure the network card name, MAC, IP
+			（Interface address specified, configurable NIC/MAC/IP）
+		-->
+		<internalInterface>  </internalInterface>
+
+		<!-- entityID of the dispenser into the overflow range then the request to obtain the new ID resources
+			(The entityID allocator, enter the overflow area will get the new ID's)
+		-->
+		<ids>
+			<criticallyLowSize> 1000 </criticallyLowSize>				<!-- Type: Integer -->
+		</ids>
+
+		<!-- Program performance analysis
+			（Analysis of program performance）
+		-->
+		<profiles>
+			<!-- If set to true, the engine is started it will start recording the associated profile information, the process exits after the export of a report
+				(if is true, Engine start is completed, start to record profile information,
+				Process exit will export a report.)
+			-->
+			<cprofile> false </cprofile>
+			<pyprofile> false </pyprofile>
+			<eventprofile> false </eventprofile>
+			<networkprofile> false </networkprofile>
+		</profiles>
+
+		<!-- Load balancing filter index value
+			（Load balancing Smoothing Bias value）
+		-->
+		<loadSmoothingBias> 0.01 </loadSmoothingBias>
+
+		<ghostDistance> 500.0 </ghostDistance>
+		<ghostingMaxPerCheck> 64 </ghostingMaxPerCheck> <!-- Type: Integer -->
+
+		<!-- ghost update frequency
+			(Update frequency process)
+		-->
+		<ghostUpdateHertz> 30 </ghostUpdateHertz>		<!-- Type: Integer -->
+
+		<!-- Whether to use the coordinate system, if set to false, then the View, Trap, Move and other functions will be unavailable
+			(Whether the use of coordinate-system, if is false,
+			View, Trap, Move and other functions will not be available)
+		-->
+		<coordinate_system>
+			<enable> true </enable>
+
+			<!-- Whether the management of the y-axis? Note: the management of the y-axis, the View, Trap functions with height, when the space within the entity is less when compared to use,
+				Otherwise the y-axis the management will bring in some consumption
+				(is maintenance Y axis? Note: Management y axis, View、Trap and other functions with the height,
+				When the entity space within little more useful when, Otherwise,
+				the management of the y-axis will produce some consumption
+				-->
+			<rangemgr_y> false </rangemgr_y>
+
+			<!-- Entity position of the stop is changed, the engine continued to the client to update the tick time of the position information, 0 is always updated.
+				(After stopping to change the position/direction,
+				the engine continued to update client information(position/direction) ticks
+				If 0, then always update)
+			-->
+			<entity_posdir_additional_updates> 2 </entity_posdir_additional_updates>
+		</coordinate_system>
+
+		<!-- Telnet service, if the port is occupied backwards to try to 50001..
+			(Telnet service, if the port is occupied backwards to try 50001)
+		-->
+		<telnet_service>
+			<port> 50000 </port>
+			<password> pwd123456 </password>
+			<!-- Command Default layer
+				(layer of default the command)
+			-->
+			<default_layer> python </default_layer>
+		</telnet_service>
+
+		<!-- Services end closing process parameters
+			(Parameter server shutdown process)
+		-->
+		<shutdown>
+			<!-- Per second the destruction of a base portion of the entity the number of
+				(In per-seconds, The destruction of the number of entity's(has base))
+			-->
+			<perSecsDestroyEntitySize> 100 </perSecsDestroyEntitySize>
+		</shutdown>
+
+		<!-- Who is the observer? The player is the observer, the observed information will be synchronized to the client.
+Developers can design for the NPC/Monster in the is observed only when the activation AI, which can reduce the service side of the CPU consumption. Of the reference Entity. onWitnessed
+			(Who is witness? Player is witness, The observed information will be synchronized to the client.
+			Developers can be designed to: Activation (NPC / Monster) AI was observed when, This can reduce server CPU consumption.
+			see also: Entity.onWitnessed.
+			)
+		-->
+		<witness>
+			<!-- When an entity is no longer being viewed by an observer after, the entity will not immediately Restore is not the observation state,
+					in the timeout(seconds)the time range is not again observed then reset the state
+				(When the observer to stop observing entity, Entity does not recovery immediately to the initial-state,
+				Not observed before timeout again, the recovery state.)
+			-->
+			<timeout> 15 </timeout>										<!-- Type: Integer -->
+		</witness>
+	</cellapp>
+
+	<baseapp>
+		<!-- Script entry module, the equivalent of the main function
+			(Entry module, like the main-function)
+		-->
+		<entryScriptFile> ouromain </entryScriptFile>
+
+		<!-- Specify the interface address, you can configure the network card name, MAC, IP
+			（Interface address specified, configurable NIC/MAC/IP）
+		-->
+		<internalInterface>  </internalInterface>
+		<externalInterface>  </externalInterface>						<!-- Type: String -->
+
+		<!-- Mandatory to specify the external IP address or domain name, in some network environments, you may use port mapping the way to access the internal LAN of the OURO server, so OURO on current
+			On the machine to get the external address is the LAN address, in this case some functions will not normal. For example: account activation message given in the callback address, login baseapp it.
+			Note: the server does not check the address availability because of the inability to check.
+			(Forced to specify an external IP-address or Domain-name, In some server environment, May use the port mapping to access OURO,
+			So OURO on current machines on the external IP address may be a LAN IP address, Then some functions will not normal.
+			For example: account activation email address given callback.
+			Note: the availability of server does not check the address, because cannot check)
+		-->
+		<externalAddress>  </externalAddress>							<!-- Type: String -->
+
+		<!-- Exposed to the client port range
+			（Exposed to the client port range）
+		-->
+		<externalPorts_min> 20015 </externalPorts_min>					<!-- Type: Integer -->
+		<externalPorts_max> 20019 </externalPorts_max>					<!-- Type: Integer -->
+
+		<!-- Auto-archive time period(in seconds)
+			（Automatic archiving time period(secs)）
+		-->
+		<archivePeriod> 300 </archivePeriod> 							<!-- Type: Float -->
+
+		<!-- Automatic backup of the time(in seconds)
+			（Automatic backup time period(secs)）
+		-->
+		<backupPeriod> 300 </backupPeriod>								<!-- Type: Float -->
+
+		<!-- Whether the backup is an Undefined property
+			（Whether backup undefined property）
+		-->
+		<backUpUndefinedProperties> 0 </backUpUndefinedProperties>		<!-- Type: Boolean -->
+
+		<!-- Load balancing filter index value
+			（Load balancing Smoothing Bias value）
+		-->
+		<loadSmoothingBias> 0.01 </loadSmoothingBias>
+
+		<!-- Resources download bandwidth limit
+			（Download bandwidth limits）
+		-->
+		<downloadStreaming>
+			<bitsPerSecondTotal> 1000000 </bitsPerSecondTotal>			<!-- Type: Int -->
+			<bitsPerSecondPerClient> 100000 </bitsPerSecondPerClient>	<!-- Type: Int -->
+		</downloadStreaming>
+
+		<!-- entityID of the dispenser into the overflow range then the request to obtain the new ID resources
+			(The entityID allocator, enter the overflow area will get the new ID's)
+		-->
+		<ids>
+			<criticallyLowSize> 1000 </criticallyLowSize>				<!-- Type: Integer -->
+		</ids>
+
+		<!-- When a disaster occurs, the baseapp for disaster recovery, each recovery entity number
+			(When after the disaster, When baseapp recovery, Each time the number of recovery entity's)
+		-->
+		<entityRestoreSize> 32 </entityRestoreSize>
+
+		<!-- Program performance analysis
+			（Analysis of program performance）
+		-->
+		<profiles>
+			<!-- If set to true, the engine is started it will start recording the associated profile information, the process exits after the export of a report
+				(if is true, Engine start is completed, start to record profile information,
+				Process exit will export a report.)
+			-->
+			<cprofile> false </cprofile>
+			<pyprofile> false </pyprofile>
+			<eventprofile> false </eventprofile>
+			<networkprofile> false </networkprofile>
+		</profiles>
+
+		<!-- listen the listen queue the maximum value of the
+		    (listen: Maximum listen queue)
+		 -->
+		<SOMAXCONN> 128 </SOMAXCONN>
+
+		<!-- Telnet service, if the port is occupied backwards to try 40001..
+			(Telnet service, if the port is occupied backwards to try 40001)
+		-->
+		<telnet_service>
+			<port> 40000 </port>
+			<password> pwd123456 </password>
+			<!-- Command Default layer
+				(layer of default the command)
+			-->
+			<default_layer> python </default_layer>
+		</telnet_service>
+
+		<!-- Services end closing process parameters
+			(Parameter server shutdown process)
+		-->
+		<shutdown>
+			<!-- Per second the destruction of the base of the number
+				(The destroy of the per-seconds base's)
+			-->
+			<perSecsDestroyEntitySize> 100 </perSecsDestroyEntitySize>
+		</shutdown>
+
+		<respool>
+			<!-- The buffer size is also equal to the size of the resource in the KB size range within the resources we can into the resource pool
+				(Buffer size is equal to the size of resources,
+				Less than the buffer resources before they can enter the resource pool)
+			-->
+			<buffer_size> 1024 </buffer_size>
+
+			<!-- The resource pool in the resource over this time have not been accessed then destroyed(in seconds)
+			(Resources have not been accessed overtime will be destroyed (s))
+			-->
+			<timeout> 600 </timeout>
+
+			<!-- Resource pool check the tick(in seconds)
+				(Resource pool check tick (secs))
+			-->
+			<checktick>60</checktick>
+		</respool>
+	</baseapp>
+
+	<cellappmgr>
+		<!-- Specify the interface address, you can configure the network card name, MAC, IP
+			（Interface address specified, configurable NIC/MAC/IP）
+		-->
+		<internalInterface>  </internalInterface>
+	</cellappmgr>
+
+	<baseappmgr>
+		<!-- Specify the interface address, you can configure the network card name, MAC, IP
+			（Interface address specified, configurable NIC/MAC/IP）
+		-->
+		<internalInterface>  </internalInterface>
+	</baseappmgr>
+
+	<loginapp>
+		<!-- Script entry module, the equivalent of the main function
+			(Entry module, like the main-function)
+		-->
+		<entryScriptFile> ouromain </entryScriptFile>
+
+		<!-- Specify the interface address, you can configure the network card name, MAC, IP
+			（Interface address specified, configurable NIC/MAC/IP）
+		-->
+		<internalInterface>  </internalInterface>
+		<externalInterface>  </externalInterface>						<!-- Type: String -->
+
+		<!-- Mandatory to specify the external IP address or domain name, in some network environments, you may use port mapping the way to access the internal LAN of the OURO server, so OURO on current
+				On the machine to get the external address is the LAN address, in this case some functions will not normal. For example: account activation message given in the callback address, login baseapp it.
+				Note: the server does not check the address availability because of the inability to check.
+			(Forced to specify an external IP-address or Domain-name, In some server environment, May use the port mapping to access OURO,
+			So OURO on current machines on the external IP address may be a LAN IP address, Then some functions will not normal.
+			For example: account activation email address given callback.
+			Note: the availability of server does not check the address, because cannot check)
+		-->
+		<externalAddress>  </externalAddress>							<!-- Type: String -->
+
+		<!-- Exposed to the client port range
+			（Exposed to the client port range）
+		-->
+		<externalPorts_min> 20013 </externalPorts_min>					<!-- Type: Integer -->
+		<externalPorts_max> 0 </externalPorts_max>						<!-- Type: Integer -->
+
+		<!-- The encrypted login information
+			(The encrypted user login information)
+
+			Optional encryption(Optional encryption):
+				0: No encryption (No Encryption)
+				1: Blowfish
+				2: RSA (res\key\ouroboros_private.key)
+		 -->
+		<encrypt_login> 2 </encrypt_login>
+
+		<!-- listen监听队列最大值
+		    (listen: Maximum listen queue)
+		 -->
+		<SOMAXCONN> 128 </SOMAXCONN>
+
+		<!-- Account type								(Account types)
+			1: Ordinary account								(Normal Account)
+			2: email account(need activation) 				(Email Account, Note: activation required.)
+			3: Smart account(自动识别Email， 普通号码等)	(Smart Account (Email or Normal, etc.))
+		-->
+		<account_type> 3 </account_type>
+
+		<!-- the http callback interface that handles authentication, password reset, etc.
+			Note: http_cbhost will generally be engine replaced with externalInterface or externalAddress, only the first loginapp will only open this service
+			(Http-callback interface, handling authentication, password reset, etc.)
+		-->
+		<http_cbhost> localhost </http_cbhost>
+		<http_cbport> 21103 </http_cbport>
+
+		<!-- Telnet service, if the port is occupied backwards to try 31001..
+			(Telnet service, if the port is occupied backwards to try 31001)
+		-->
+		<telnet_service>
+			<port> 31000 </port>
+			<password> pwd123456 </password>
+			<!-- Command Default layer
+				(layer of default the command)
+			-->
+			<default_layer> python </default_layer>
+		</telnet_service>
+	</loginapp>
+
+	<machine>
+		<!-- Exposed to the client port range
+			（Exposed to the tools port range）
+		-->
+		<externalPorts_min> 20099 </externalPorts_min>					<!-- Type: Integer -->
+		<externalPorts_max> 0 </externalPorts_max>						<!-- Type: Integer -->
+
+		<!-- The service group using multiple hardware components of the network, in some network environments since the router setting does not allow UDP broadcast to cause the cross-physical machine network is unsuccessful
+Here you can fill in all the relevant physical machine address, the engine will be to specific address to send probe packets to complete the network.
+			（When the network is composed of a plurality of hardware, the specific network address is detected.）
+		-->
+		<addresses>
+			<!--<item> 127.0.0.1 </item>-->
+			<!--<item> 192.168.10.18 </item>-->
+		</addresses>
+	</machine>
+
+	<bots>
+		<!-- Script entry module, the equivalent of the main function
+			(Entry module, like the main-function)
+		-->
+		<entryScriptFile> ouromain </entryScriptFile>
+
+		<!-- Specify the interface address, you can configure the network card name, MAC, IP
+			（Interface address specified, configurable NIC/MAC/IP）
+		-->
+		<internalInterface>  </internalInterface>
+
+		<!-- Corresponding to the baseapp's externalAddress solution when externalAddress force issued a public IP to provide landing,
+			If the internal LAN using the robot to test go the public IP and the flow rate may be inappropriate, at this time can be set to true, the landing force is directly used within the network environment.
+			Corresponding to baseapp->externalAddress solution, when externalAddress mandatory release of the public network to provide landing IP,
+			If the use of robot within the LAN test also take the public network IP and traffic may be inappropriate, can be set to true,
+			when landing forced to use the internal network environment. -->
+		<forceInternalLogin> false </forceInternalLogin>
+
+		<!-- loginapp地址
+			（loginapp address)
+		-->
+		<host> localhost </host>										<!-- Type: String -->
+		<port> 20013 </port>											<!-- Type: Integer -->
+
+		<!-- At Entity initialization time whether to trigger the properties of the set_*event -->
+		<isOnInitCallPropertysSetMethods> true </isOnInitCallPropertysSetMethods>
+
+		<!-- The default boot process automatically add it to the plurality of robots
+			(After starting the process, automatically add some robots)
+			totalCount	： Add the total number of			(Add the total-number)
+			tickTime	： Each time you add the time(s)	(Interval time-secs)
+			tickCount	： Every time you add a number			(Each time you add the number of)
+		-->
+		<defaultAddBots>
+			<totalCount> 10  </totalCount>								<!-- Type: Integer -->
+			<tickTime> 0.1  </tickTime>									<!-- Type: Float -->
+			<tickCount> 5  </tickCount>									<!-- Type: Integer -->
+		</defaultAddBots>
+
+		<!-- Robot account related
+			(about bots-accounts)
+		-->
+		<account_infos>
+			<!-- The robot account name prefix
+				(The account name prefix)
+			-->
+			<account_name_prefix>		bot_	</account_name_prefix>
+
+			<!-- The robot account name of a Postfix increment, 0 to use a random number incremented, otherwise in accordance with the fill number is incremented
+				Note: want to make the robot each time you login using the same account please set fixed bots when the program starts, the cid parameters,
+				with particular reference to the server start script, the robot account by the"prefix cid suffix of composition."
+				(The account name suffix, 0 is the use of random number, Otherwise, use account_name_suffix_inc and increasing.)
+			-->
+			<account_name_suffix_inc>	0		</account_name_suffix_inc><!-- Type: Integer -->
+
+			<account_password> pwd123456 </account_password>
+		</account_infos>
+
+		<!-- Telnet service, if the port is occupied backwards to try 51001..
+			(Telnet service, if the port is occupied backwards to try 51001)
+		-->
+		<telnet_service>
+			<port> 51000 </port>
+			<password> pwd123456 </password>
+			<!-- Command Default layer
+				(layer of default the command)
+			-->
+			<default_layer> python </default_layer>
+		</telnet_service>
+	</bots>
+
+	<logger>
+		<!-- Script entry module, the equivalent of the main function
+			(Entry module, like the main-function)
+		-->
+		<entryScriptFile> ouromain </entryScriptFile>
+
+		<!-- Specify the interface address, you can configure the network card name, MAC, IP
+			（Interface address specified, configurable NIC/MAC/IP）
+		-->
+		<internalInterface>  </internalInterface>
+
+		<!-- A single app(baseapp, cellapp, etc..)on the process, one tick up to cache the log of the number
+			（The number of single-process(baseapp, cellapp, etc..), The number of log a tick buffer.）
+		-->
+		<tick_max_buffered_logs> 131070 </tick_max_buffered_logs>
+
+		<!-- A single app(baseapp, cellapp, etc..)on the process, a tick synchronization to the logger's log number
+			（The number of single-process(baseapp, cellapp, etc..), A tick synchronization to the number of logger）
+		-->
+		<tick_sync_logs> 0 </tick_sync_logs>
+
+		<!-- Telnet service, if the port is occupied backwards to try 34001..
+			(Telnet service, if the port is occupied backwards to try 34001)
+		-->
+		<telnet_service>
+			<port> 34000 </port>
+			<password> pwd123456 </password>
+			<!-- Command Default layer
+				(layer of default the command)
+			-->
+			<default_layer> python </default_layer>
+		</telnet_service>
+	</logger>
+</root>

@@ -1,0 +1,81 @@
+{% extends "WebConsole/base.html" %}
+
+{% block content %}
+<div class="row placeholders">
+    <table class="table table-striped table-condensed">
+      <thead>
+        <tr>
+          <th>Configuration name</th>
+          <th>System user name</th>
+          <th>cellapp</th>
+          <th>baseapp</th>
+          <th>cellappmgr</th>
+          <th>baseappmgr</th>
+          <th>loginapp</th>
+          <th>dbmgr</th>
+          <th>interfaces</th>
+          <th>logger</th>
+          <th>Operation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for layout in OUROLayouts %}
+        <tr>
+          <td>{{ layout.layout_name }}</td>
+          <td>{{ layout.sys_user }}</td>
+          <td>{{ layout.cellapp }}</td>
+          <td>{{ layout.baseapp }}</td>
+          <td>{{ layout.cellappmgr }}</td>
+          <td>{{ layout.baseappmgr }}</td>
+          <td>{{ layout.loginapp }}</td>
+          <td>{{ layout.dbmgr }}</td>
+          <td>{{ layout.interfaces }}</td>
+          <td>{{ layout.logger }}</td>
+          <td>
+            <ul class="list-inline">
+                <li><a href="/wc/components/delete_layout?id={{layout.id}}">Delete</a></li>
+                <li><a href="#" onClick="load_layout({{ layout.id }})">Loading</a></li>
+            </ul>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block tail_js %}
+<script>$(".config").addClass("active");</script>
+<script>
+  $(".ouro-list .dd").hide();
+  $(".ouro-list .components .dd").show();
+  $(".ouro-list .components ").css({"background-color":"#317eb4"});
+  $(".ouro-list .components").find('li').addClass("menu_chioce");
+    // function load_layout(layoutID)
+    // {
+    //     window.location.href='/wc/components/load_layout?id=' + layoutID;
+    //     layer.msg('The server is loaded……', {icon: 16, time: 10000});
+    // }
+    function load_layout(layoutID)
+    {
+
+        href = "/wc/components/load_layout?id="+ layoutID;
+        layer.open({
+            type: 2,
+            title: "Load the server configuration",
+            closeBtn: 1,
+            shade: [0.3,'#000'],
+            //shadeClose: true,
+            area: ['80%', '70%'],
+            scrollbar: false,
+            // skin: 'layui-layer-rim', //Plus border
+            content: href,
+            end: function (){
+                 location.href='/wc/components/manage';
+            }
+        });
+    }
+
+</script>
+
+{% endblock %}

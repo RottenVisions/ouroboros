@@ -1,0 +1,125 @@
+{% autoescape on %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags*must*be placed in the front, any other content*must*follow it! -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/favicon.ico">
+
+    <title>{% block title %}Ouroboros Web Console{% endblock %}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/static/custom_styles.css" rel="stylesheet">
+    <script type="text/javascript" src="/static/js/echarts.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-1.11.3.min.js"></script>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="/static/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="/static/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    {% block head_js %}{% endblock %}
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+		  <span class="navbar-brand-custom"><a href="#" style="text-decoration:none;color: white;">Ouroboros控制台</a></span>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <p class="navbar-text">用户名：{{ request.session.auth_show_name }}</p></li>
+            <li><p class="navbar-text">Can the management server UID: the{{ request.session.sys_uid }}</p></li>
+            <li><a href="/wc/logout">退出</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid ouro-list">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <div class="nav nav-sidebar ouro-manager">
+            <ul class="dt components "><ll class="checkbox">Cluster Management<img src="/static/images/left/select_xl01.png"></ll>
+	            <li class="dd components-manage"><a href="/wc/components/manage">Server Management</a></li>
+	            <li class="dd daemon"><a href="/wc/machines/show_all">All daemon state</a></li>
+	            <li class="dd config"><a href="/wc/components/show_layout">Server run configuration</a></li>
+			      </ul>
+			       <ul class="dt statistics"><ll class="checkbox">Performance analysis<img src="/static/images/left/select_xl01.png"></ll>
+                <li class="dd profile-comps"><a href="/wc/profile/show_components">Connected to the component</a></li>
+            </ul>
+            <ul class="dt log"><ll class="checkbox">Log view<img src="/static/images/left/select_xl01.png"></ll>
+                <li class="dd show-log"><a href="/wc/log/connect">Real-time log</a></li>
+            </ul>
+            <ul class="dt condition"><ll class="checkbox">State diagram<img src="/static/images/left/select_xl01.png"></ll>
+                <li class="dd"><a href="/wc/status/show_components">My Assembly</a></li>
+            </ul>
+            <ul class="dt pyconsole"><ll class="checkbox">Python console<img src="/static/images/left/select_xl01.png"></ll>
+                <li class="dd py-coupling" ><a href="/wc/console/show_components">Connected to the component</a></li>
+            </ul>
+            <ul class="dt watcher"><ll class="checkbox">Watcher<img src="/static/images/left/select_xl01.png"></ll>
+                <li class="dd watcher-cp" ><a href="/wc/watcher/show_components">Connected to the component</a></li>
+            </ul>
+            <ul class="dt spaceviewer"><ll class="checkbox">SpaceViewer<img src="/static/images/left/select_xl01.png"></ll>
+                <li class="dd spaceviewer-cp" ><a href="/wc/spaceviewer/show">Connected to the component</a></li>
+            </ul>
+          </div>
+       </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        {% block content %}
+            <p>Here you need to insert specific content</p>
+        {% endblock %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
+    <script src="/static/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+    <script src="/static/layer/layer.js"></script>
+    <script>
+        layer.config({extend: 'extend/layer.ext.js'});
+    </script>
+    <script>
+        $(".ouro-list .dt").css({"background-color":"#3992d0"});
+		$(".ouro-list .dt img").attr("src","/static/images/left/select_xl01.png");
+		$(function(){
+
+			$(".ouro-list .dt ll").click(function(){
+				$(".ouro-list .dt").css({"background-color":"#3992d0"});
+				$(this).parent().css({"background-color": "#317eb4"});
+				$(this).parent().find('li').removeClass("menu_chioce");
+				$(".ouro-list ll img").attr("src","/static/images/left/select_xl01.png");
+				$(this).find('img').attr("src","/static/images/left/select_xl.png");
+				$(".menu_chioce").slideUp();
+				$(this).parent().find('.dd').slideToggle();
+				$(this).parent().find('.dd').addClass("menu_chioce");
+			});
+		})
+
+		$(".disable a").click(function disable(){
+			alert("This function is temporarily not open");
+		})
+
+
+    </script>
+    {% block tail_js %}{% endblock %}
+    </body>
+</html>
+{% endautoescape %}

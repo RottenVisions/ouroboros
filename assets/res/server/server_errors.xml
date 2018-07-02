@@ -1,0 +1,14 @@
+<root>
+	 <!-- Error code category:uint16 -->
+	<!--
+	Personalized service-side configuration({assets}/res/server/server_errors.xml)
+
+	If you need to change engine default setting, add in({assets}/res/server/server_errors.xml)cover the ouro/res/server/server_errors_defaults. the xml corresponding to the parameter to modify,
+	This benefit is not to destroy the engine of the default settings, when you update the engine when it does not produce a conflict, as well as in plurality of logical items does not affect to other project settings.
+	For details, please refer to: http://ouroboros.org/cn/docs/configuration/ouroboros.html
+	-->
+	<SUCCESS>
+		<id>0</id>
+		<descr>	Success.</descr>
+	</SUCCESS>
+</root>

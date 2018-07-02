@@ -1,0 +1,95 @@
+{% extends "User/base.html" %}
+
+{% block content %}
+<div class="row placeholders user-manger">
+    <table class="table table-condensed">
+      <thead>
+        <tr>
+          <th>id</th>
+          <th>Account name</th>
+          <th>Display name</th>
+          <th>The operating system user</th>
+          <th>The operating system user uid</th>
+          <th>ouro_root</th>
+          <th>ouro_res_path</th>
+          <th>ouro_bin_path</th>
+          <th>Operation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in Users %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.name }}</td>
+          <td>{{ u.show_name }}</td>
+          <td>{{ u.sys_user }}</td>
+          <td>{{ u.sys_uid }}</td>
+          <td>{{ u.ouro_root }}</td>
+          <td>{{ u.ouro_res_path }}</td>
+          <td>{{ u.ouro_bin_path }}</td>
+          <td><button class="ct-stop-btn btn" onClick="requestChangeUser({{u.id}})">Modify the information</button> <button class="ct-stop-btn btn" onClick="requestChangePwd({{u.id}}, '{{u.name}}')">修改密码</button> <button class="ct-stop-btn btn" onClick="user_delete({{ u.id }},'{{ u.name }}')">删除</button></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+
+<script>
+    function requestChangePwd( uid, uname )
+    {
+        var href = "/wc/user/change_pwd";
+        var form = document.createElement("form");
+
+        // Only added to the body in order to be effective
+        document.body.appendChild(form);
+        form.method = 'post';
+        form.action = '/wc/user/change_pwd';
+
+        // Create a hidden form
+        var euid = document.createElement("input");
+        euid.setAttribute("name", "id");
+        euid.setAttribute("type", "hidden");
+        euid.setAttribute("value", uid);
+        form.appendChild(euid);
+
+        var euname = document.createElement("input");
+        euname.setAttribute("name", "username");
+        euname.setAttribute("type", "hidden");
+        euname.setAttribute("value", uname);
+        form.appendChild(euname);
+
+        form.submit();
+
+    }
+    function user_delete(userID,userNAME)
+    {
+        href="/wc/user/delete?id="+userID;
+        if (confirm('Confirm that you want to delete the user'+userNAME+'(ID：'+userID+')？'))
+        {
+          window.location.href = href;
+        }
+    }
+    function requestChangeUser(userID)
+    {
+        href = "/wc/user/change_user/"+userID;
+        layer.open({
+            type: 2,
+            title: "Account edit",
+            closeBtn: 1,
+            shade: 0.8,
+            //shadeClose: true,
+            area: ['800px', '650px'],
+            scrollbar: false,
+            skin: 'layui-layer-rim', //Plus border
+            content: href,
+            end: function (){
+                location.reload();
+            }
+        });
+    }
+</script>
+
+{% endblock %}
+{% block tail_js %}
+<script>$(".user-manager").addClass("active");</script>
+{% endblock %}
