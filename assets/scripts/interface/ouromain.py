@@ -4,7 +4,7 @@ import Ouroboros
 from OURODebug import *
 from Poller import Poller
 
-	"""
+"""
 	interfaces process primary processing Ouroboros service end with the third-party platform to access connected to the work.
 	(Note: Due to the interfaces is a single-threaded server, if you need to use the python http server library, we recommend using asynchronous, for example: the Tornado, otherwise will snap the main thread resulting in blocking)
 	Currently supports several functions:
@@ -29,7 +29,7 @@ from Poller import Poller
 	To complete this function should be in the script layer to create a socket,
 	And the socket attached to the Ouroboros, which prevents the blockage leads to the main thread, and then listening on the specified port.
 	The use of OURO the Ouroboros. registerReadFileDescriptor()and Ouroboros. registerWriteFileDescriptor (), the Check API documentation specifically the Poller.py.
-	"""
+"""
 
 g_poller = Poller()
 
