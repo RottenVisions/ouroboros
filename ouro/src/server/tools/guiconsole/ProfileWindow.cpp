@@ -53,12 +53,12 @@ BOOL CProfileWindow::OnInitDialog()
 	profilename = ss.str();
 
 	int idx = 0;
-	m_profileShowList.InsertColumn(idx++, _T("ncalls "),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("tottime"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("percall"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("cumtime"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("percall"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("filename:lineno(function)"),	LVCFMT_CENTER,	300);
+	m_profileShowList.InsertColumn(idx++, _T("NCalls "),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("TotTime"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("PerCall"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("CumTime"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("PerCall"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("Filename:lineno(function)"),	LVCFMT_CENTER,	300);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -113,7 +113,7 @@ void CProfileWindow::OnBnClickedButton1()
 	m_cprofile.EnableWindow(TRUE);
 	m_eventprofile.EnableWindow(TRUE);
 	m_networkprofile.EnableWindow(TRUE);
-	::AfxMessageBox(L"please select the baseapp|cellapp.");
+	::AfxMessageBox(L"Please Select the BaseApp|CellApp.");
 }
 
 void CProfileWindow::OnBnClickedButton2()
@@ -143,7 +143,7 @@ void CProfileWindow::OnBnClickedButton2()
 	m_cprofile.EnableWindow(TRUE);
 	m_eventprofile.EnableWindow(TRUE);
 	m_networkprofile.EnableWindow(TRUE);
-	::AfxMessageBox(L"please select the baseapp|cellapp.");
+	::AfxMessageBox(L"Please Select the BaseApp|CellApp.");
 }
 
 void CProfileWindow::OnBnClickedButton3()
@@ -173,7 +173,7 @@ void CProfileWindow::OnBnClickedButton3()
 	m_cprofile.EnableWindow(TRUE);
 	m_eventprofile.EnableWindow(TRUE);
 	m_networkprofile.EnableWindow(TRUE);
-	::AfxMessageBox(L"please select the baseapp|cellapp.");
+	::AfxMessageBox(L"Please Select the BaseApp|CellApp.");
 }
 
 void CProfileWindow::OnBnClickedButton4()
@@ -203,7 +203,7 @@ void CProfileWindow::OnBnClickedButton4()
 	m_cprofile.EnableWindow(TRUE);
 	m_eventprofile.EnableWindow(TRUE);
 	m_networkprofile.EnableWindow(TRUE);
-	::AfxMessageBox(L"please select the baseapp|cellapp.");
+	::AfxMessageBox(L"Please Select the BaseApp|CellApp.");
 }
 
 void CProfileWindow::onReceiveData(Ouroboros::int8 type, Ouroboros::MemoryStream& s)
@@ -236,7 +236,7 @@ void CProfileWindow::onReceiveData(Ouroboros::int8 type, Ouroboros::MemoryStream
 		onReceiveNetworkProfileData(s);
 		break;
 	default:
-		ERROR_MSG(fmt::format("CProfileWindow::onReceiveData: type({}) not support!\n",
+		ERROR_MSG(fmt::format("CProfileWindow::onReceiveData: type({}) not supported!\n",
 			type));
 		break;
 	};
@@ -273,12 +273,12 @@ void CProfileWindow::onReceiveCProfileData(Ouroboros::MemoryStream& s)
 	}
 
 	int idx = 0;
-	m_profileShowList.InsertColumn(idx++, _T("ncalls "),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("tottime"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("percall"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("cumtime"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("percall"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("filename:lineno(function)"),	LVCFMT_CENTER,	300);
+	m_profileShowList.InsertColumn(idx++, _T("NCalls "),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("TotTime"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("PerCall"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("CumTime"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("PerCall"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("Filename:lineno(function)"),	LVCFMT_CENTER,	300);
 
 
 	uint32 timinglen;
@@ -396,17 +396,17 @@ void CProfileWindow::onReceiveNetworkProfileData(Ouroboros::MemoryStream& s)
 	}
 
 	int idx = 0;
-	m_profileShowList.InsertColumn(idx++, _T("name "),					LVCFMT_CENTER,	230);
-	m_profileShowList.InsertColumn(idx++, _T("sent#"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("size"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("avg"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("total#"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("totalsize"),				LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("recv#"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("size"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("avg"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("total#"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("totalsize"),				LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("Name "),					LVCFMT_CENTER,	230);
+	m_profileShowList.InsertColumn(idx++, _T("Sent#"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("Size"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("Avg"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("Total#"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("TotalSize"),				LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("Recv#"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("Size"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("Avg"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("Total#"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("TotalSize"),				LVCFMT_CENTER,	50);
 
 	uint32 timinglen;
 	s >> timinglen;

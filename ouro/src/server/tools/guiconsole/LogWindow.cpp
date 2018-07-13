@@ -63,12 +63,12 @@ BOOL CLogWindow::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	m_componentlist.AddString(L"cellapp");
-	m_componentlist.AddString(L"baseapp");
-	m_componentlist.AddString(L"cellappmgr");
-	m_componentlist.AddString(L"baseappmgr");
-	m_componentlist.AddString(L"loginapp");
-	m_componentlist.AddString(L"dbmgr");
+	m_componentlist.AddString(L"CellApp");
+	m_componentlist.AddString(L"BaseApp");
+	m_componentlist.AddString(L"CellAppMgr");
+	m_componentlist.AddString(L"BaseAppMgr");
+	m_componentlist.AddString(L"LoginApp");
+	m_componentlist.AddString(L"DBMgr");
 
 	for(int i=0; i< m_componentlist.GetCount(); i++)
 	{
@@ -356,7 +356,7 @@ void CLogWindow::OnBnClickedButton1()
 	HTREEITEM item = dlg->hasCheckApp(LOGGER_TYPE);
 	if(item == NULL)
 	{
-		::AfxMessageBox(L"logger no select!");
+		::AfxMessageBox(L"Logged failed Selection!");
 		return;
 	}
 
@@ -371,7 +371,7 @@ void CLogWindow::pullLogs(Ouroboros::Network::Address addr)
 	Network::Channel* pChannel = dlg->networkInterface().findChannel(addr);
 	if(pChannel == NULL)
 	{
-		::AfxMessageBox(L"logger is error!");
+		::AfxMessageBox(L"Logger Error!");
 		return;
 	}
 
@@ -453,27 +453,27 @@ std::vector<Ouroboros::COMPONENT_TYPE> CLogWindow::getSelComponents()
 			CString s;
 			m_componentlist.GetText(i, s);
 
-			if(s == "cellapp")
+			if(s == "CellApp")
 			{
 				vec.push_back(Ouroboros::CELLAPP_TYPE);
 			}
-			else if(s == "baseapp")
+			else if(s == "BaseApp")
 			{
 				vec.push_back(Ouroboros::BASEAPP_TYPE);
 			}
-			else if(s == "cellappmgr")
+			else if(s == "CellAppMgr")
 			{
 				vec.push_back(Ouroboros::CELLAPPMGR_TYPE);
 			}
-			else if(s == "baseappmgr")
+			else if(s == "BaseAppMgr")
 			{
 				vec.push_back(Ouroboros::BASEAPPMGR_TYPE);
 			}
-			else if(s == "loginapp")
+			else if(s == "LoginApp")
 			{
 				vec.push_back(Ouroboros::LOGINAPP_TYPE);
 			}
-			else if(s == "dbmgr")
+			else if(s == "DBMgr")
 			{
 				vec.push_back(Ouroboros::DBMGR_TYPE);
 			}
@@ -657,7 +657,7 @@ void CLogWindow::updateSettingToServer()
 	HTREEITEM item = dlg->hasCheckApp(LOGGER_TYPE);
 	if(item == NULL)
 	{
-		::AfxMessageBox(L"logger no select!");
+		::AfxMessageBox(L"Logger failed Selection!");
 		Network::Bundle::reclaimPoolObject(pBundle);
 		return;
 	}
@@ -667,7 +667,7 @@ void CLogWindow::updateSettingToServer()
 	Network::Channel* pChannel = dlg->networkInterface().findChannel(addr);
 	if(pChannel == NULL)
 	{
-		::AfxMessageBox(L"logger is error!");
+		::AfxMessageBox(L"Logger Error!");
 		Network::Bundle::reclaimPoolObject(pBundle);
 		return;
 	}

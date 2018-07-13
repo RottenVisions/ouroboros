@@ -86,7 +86,7 @@ void CConnectRemoteMachineWindow::OnBnClickedOk()
 
 	if (0 == m_ip.GetAddress(ips[0],ips[1],ips[2],ips[3]))
 	{
-		AfxMessageBox(L"address is error!");
+		AfxMessageBox(L"Error with the Address!");
 		return;
 	}
 
@@ -111,7 +111,7 @@ void CConnectRemoteMachineWindow::OnBnClickedOk()
 
 	if(addr.ip == 0)
 	{
-		::AfxMessageBox(L"address is error!");
+		::AfxMessageBox(L"Error with the Address!");
 		Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 		return;
 	}
@@ -119,7 +119,7 @@ void CConnectRemoteMachineWindow::OnBnClickedOk()
 	endpoint->socket(SOCK_STREAM);
 	if (!endpoint->good())
 	{
-		AfxMessageBox(L"couldn't create a socket\n");
+		AfxMessageBox(L"Couldn't Create a Socket\n");
 		Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 		return;
 	}
@@ -128,7 +128,7 @@ void CConnectRemoteMachineWindow::OnBnClickedOk()
 	if(endpoint->connect(addr.port, addr.ip) == -1)
 	{
 		CString err;
-		err.Format(L"connect server is error! %d", ::WSAGetLastError());
+		err.Format(L"Connect Server Error! %d", ::WSAGetLastError());
 		AfxMessageBox(err);
 		Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 		return;
@@ -322,7 +322,7 @@ void CConnectRemoteMachineWindow::OnBnClickedAddIpmapping()
 
 	if (0 == m_lan_ip.GetAddress(lan_ips[0], lan_ips[1], lan_ips[2], lan_ips[3]))
 	{
-		AfxMessageBox(L"LAN-address error!");
+		AfxMessageBox(L"LAN-Address Error!");
 		return;
 	}
 
@@ -330,7 +330,7 @@ void CConnectRemoteMachineWindow::OnBnClickedAddIpmapping()
 
 	if (0 == m_internet_ip.GetAddress(internet_ips[0], internet_ips[1], internet_ips[2], internet_ips[3]))
 	{
-		AfxMessageBox(L"Internet-address error!");
+		AfxMessageBox(L"Internet-Address Error!");
 		return;
 	}
 

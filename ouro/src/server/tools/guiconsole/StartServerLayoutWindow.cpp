@@ -56,15 +56,15 @@ BOOL CStartServerLayoutWindow::OnInitDialog()
 	m_list.SetExtendedStyle(dwStyle);				//Set the extension style
 
 	int idx = 0;
-	m_list.InsertColumn(idx++, _T("componentType"),				LVCFMT_CENTER,	200);
-	m_list.InsertColumn(idx++, _T("addr"),						LVCFMT_CENTER,	250);
+	m_list.InsertColumn(idx++, _T("ComponentType"),				LVCFMT_CENTER,	200);
+	m_list.InsertColumn(idx++, _T("Addr"),						LVCFMT_CENTER,	250);
 
-	m_componentlist.AddString(L"cellapp");
-	m_componentlist.AddString(L"baseapp");
-	m_componentlist.AddString(L"cellappmgr");
-	m_componentlist.AddString(L"baseappmgr");
-	m_componentlist.AddString(L"loginapp");
-	m_componentlist.AddString(L"dbmgr");
+	m_componentlist.AddString(L"CellApp");
+	m_componentlist.AddString(L"BaseApp");
+	m_componentlist.AddString(L"CellAppMgr");
+	m_componentlist.AddString(L"BaseAppMgr");
+	m_componentlist.AddString(L"LoginApp");
+	m_componentlist.AddString(L"DBMgr");
 
 	m_port.SetWindowTextW(L"20099");
 
@@ -191,7 +191,7 @@ void CStartServerLayoutWindow::OnBnClickedButton1()
 
 	if(i < 0)
 	{
-		AfxMessageBox(L"no select componentType!");
+		AfxMessageBox(L"No Selected componentType!");
 		return;
 	}
 
@@ -202,7 +202,7 @@ void CStartServerLayoutWindow::OnBnClickedButton1()
 
 	if (0 == m_ip.GetAddress(ips[0],ips[1],ips[2],ips[3]))
 	{
-		AfxMessageBox(L"address is error!");
+		AfxMessageBox(L"Error with the Address!");
 		return;
 	}
 
@@ -261,11 +261,11 @@ void CStartServerLayoutWindow::OnBnClickedButton2()
 	CString layoutname = dlg.m_name;
 	if(layoutname.GetLength() <= 0)
 	{
-		::AfxMessageBox(L"is failed!");
+		::AfxMessageBox(L"has Failed!");
 		return;
 	}
 
-	::AfxMessageBox(L"successfully!");
+	::AfxMessageBox(L"Successfully!");
 
 	char* cs = Ouroboros::strutil::wchar2char(layoutname.GetBuffer(0));
 	std::vector<CStartServerWindow::LAYOUT_ITEM>& vec = static_cast<CStartServerWindow*>(this->GetParent())->layouts_[cs];

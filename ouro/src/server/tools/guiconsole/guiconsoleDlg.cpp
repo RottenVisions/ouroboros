@@ -255,7 +255,7 @@ RESTART_RECV:
 				}
 				else
 				{
-					ERROR_MSG(fmt::format("CguiconsoleDlg::OnTimer: {} not found. receive data is error!\n",
+					ERROR_MSG(fmt::format("CguiconsoleDlg::OnTimer: {} not found. Receive data error!\n",
 						COMPONENT_NAME_EX((COMPONENT_TYPE)findComponentType)));
 				}
 
@@ -555,7 +555,7 @@ void CguiconsoleDlg::commitPythonCommand(CString strCommand)
 		&& getTreeItemComponent(m_tree.GetSelectedItem()) != BASEAPP_TYPE
 		&& getTreeItemComponent(m_tree.GetSelectedItem()) != BOTS_TYPE)
 	{
-		::AfxMessageBox(L"Component can not debug!");
+		::AfxMessageBox(L"Component can not Debug!");
 		return;
 	}
 
@@ -767,7 +767,7 @@ void CguiconsoleDlg::updateFindTreeStatus()
 		count = 0;
 	}
 
-	CString s = L"find server";
+	CString s = L"Find Server";
 
 	for(int i=0; i<count; i++)
 	{
@@ -940,7 +940,7 @@ bool CguiconsoleDlg::hasTreeComponent(Components::ComponentInfos& cinfos)
 	{
 		CString s = m_tree.GetItemText(item);
 		CString s1;
-		s1.Format(L"uid[%u]", cinfos.uid);
+		s1.Format(L"UID[%u]", cinfos.uid);
 
 		if(s1 == s)
 		{
@@ -1014,7 +1014,7 @@ void CguiconsoleDlg::updateTree()
 		tcitem.hParent = TVI_ROOT;
 		tcitem.hInsertAfter = TVI_LAST;
 		tcitem.item.mask = TVIF_TEXT|TVIF_PARAM|TVIF_IMAGE|TVIF_SELECTEDIMAGE;
-		tcitem.item.pszText = L"servergroups";
+		tcitem.item.pszText = L"ServerGroups";
 		tcitem.item.lParam = 0;
 		tcitem.item.iImage = 0;
 		tcitem.item.iSelectedImage = 1;
@@ -1034,7 +1034,7 @@ void CguiconsoleDlg::updateTree()
 			{
 				CString s = m_tree.GetItemText(item);
 				CString s1;
-				s1.Format(L"uid[%u]", cinfos.uid);
+				s1.Format(L"UID[%u]", cinfos.uid);
 
 				if(s1 == s)
 				{
@@ -1047,7 +1047,7 @@ void CguiconsoleDlg::updateTree()
 		if(hasUIDItem == NULL)
 		{
 			CString s;
-			s.Format(L"uid[%u]", cinfos.uid);
+			s.Format(L"UID[%u]", cinfos.uid);
 			tcitem.hParent = hItemRoot;
 			tcitem.hInsertAfter = TVI_LAST;
 			tcitem.item.mask = TVIF_TEXT|TVIF_PARAM|TVIF_IMAGE|TVIF_SELECTEDIMAGE;
@@ -1188,18 +1188,18 @@ COMPONENT_TYPE CguiconsoleDlg::getTreeItemComponent(HTREEITEM hItem)
 		return UNKNOWN_COMPONENT_TYPE;
 
 	CString s = m_tree.GetItemText(hItem);
-	int fi_cellappmgr = s.Find(L"cellappmgr", 0);
-	int fi_baseappmgr = s.Find(L"baseappmgr", 0);
-	int fi_cellapp = s.Find(L"cellapp", 0);
-	int fi_baseapp = s.Find(L"baseapp", 0);
+	int fi_cellappmgr = s.Find(L"CellAppMgr", 0);
+	int fi_baseappmgr = s.Find(L"BaseAppMgr", 0);
+	int fi_cellapp = s.Find(L"CellApp", 0);
+	int fi_baseapp = s.Find(L"BaseApp", 0);
 	if(fi_cellappmgr >= 0)
 		fi_cellapp = -1;
 	if(fi_baseappmgr >= 0)
 		fi_baseapp = -1;
-	int fi_loginapp = s.Find(L"loginapp", 0);
-	int fi_dbmgr = s.Find(L"dbmgr", 0);
-	int fi_logger = s.Find(L"logger", 0);
-	int fi_bots = s.Find(L"bots", 0);
+	int fi_loginapp = s.Find(L"LoginApp", 0);
+	int fi_dbmgr = s.Find(L"DBMgr", 0);
+	int fi_logger = s.Find(L"Logger", 0);
+	int fi_bots = s.Find(L"Bots", 0);
 
 	if(fi_cellapp  < 0 &&
 		fi_baseapp < 0 &&
@@ -1256,9 +1256,9 @@ int32 CguiconsoleDlg::getSelTreeItemUID()
 		return 0;
 
 	CString s = m_tree.GetItemText(hItem);
-	if(s.Find(L"uid[") >= 0)
+	if(s.Find(L"UID[") >= 0)
 	{
-		s.Replace(L"uid[", L"");
+		s.Replace(L"UID[", L"");
 		s.Replace(L"]", L"");
 	}
 	else
@@ -1268,9 +1268,9 @@ int32 CguiconsoleDlg::getSelTreeItemUID()
 			return 0;
 
 		s = m_tree.GetItemText(hItem);
-		if(s.Find(L"uid[") >= 0)
+		if(s.Find(L"UID[") >= 0)
 		{
-			s.Replace(L"uid[", L"");
+			s.Replace(L"UID[", L"");
 			s.Replace(L"]", L"");
 		}
 		else
@@ -1295,18 +1295,18 @@ Network::Address CguiconsoleDlg::getTreeItemAddr(HTREEITEM hItem)
 		return Network::Address::NONE;
 
 	CString s = m_tree.GetItemText(hItem);
-	int fi_cellappmgr = s.Find(L"cellappmgr", 0);
-	int fi_baseappmgr = s.Find(L"baseappmgr", 0);
-	int fi_cellapp = s.Find(L"cellapp", 0);
-	int fi_baseapp = s.Find(L"baseapp", 0);
+	int fi_cellappmgr = s.Find(L"CellAppMgr", 0);
+	int fi_baseappmgr = s.Find(L"BaseAppMgr", 0);
+	int fi_cellapp = s.Find(L"CellApp", 0);
+	int fi_baseapp = s.Find(L"BaseApp", 0);
 	if(fi_cellappmgr >= 0)
 		fi_cellapp = -1;
 	if(fi_baseappmgr >= 0)
 		fi_baseapp = -1;
-	int fi_loginapp = s.Find(L"loginapp", 0);
-	int fi_dbmgr = s.Find(L"dbmgr", 0);
-	int fi_logger = s.Find(L"logger", 0);
-	int fi_bots = s.Find(L"bots", 0);
+	int fi_loginapp = s.Find(L"LoginApp", 0);
+	int fi_dbmgr = s.Find(L"DBMgr", 0);
+	int fi_logger = s.Find(L"Logger", 0);
+	int fi_bots = s.Find(L"Bots", 0);
 
 	if(fi_cellapp  < 0 &&
 		fi_baseapp < 0 &&
@@ -1355,7 +1355,7 @@ bool CguiconsoleDlg::connectTo()
 	Ouroboros::Network::Address addr = getTreeItemAddr(hItem);
 	if(addr.ip == 0)
 	{
-		::AfxMessageBox(L"no select!");
+		::AfxMessageBox(L"No Selection!");
 		return false;
 	}
 
@@ -1363,7 +1363,7 @@ bool CguiconsoleDlg::connectTo()
 	endpoint->socket(SOCK_STREAM);
 	if (!endpoint->good())
 	{
-		AfxMessageBox(L"couldn't create a socket\n");
+		AfxMessageBox(L"Couldn't Create a Socket\n");
 		return false;
 	}
 
@@ -1372,7 +1372,7 @@ bool CguiconsoleDlg::connectTo()
 	if(endpoint->connect(addr.port, addr.ip) == -1)
 	{
 		CString err;
-		err.Format(L"connect server is error! %d", ::WSAGetLastError());
+		err.Format(L"Connect Server Error! %d", ::WSAGetLastError());
 		AfxMessageBox(err);
 		return false;
 	}
@@ -1390,7 +1390,7 @@ bool CguiconsoleDlg::connectTo()
 	bool ret = pChannel->initialize(_networkInterface, endpoint, Network::Channel::INTERNAL);
 	if(!ret)
 	{
-		ERROR_MSG(fmt::format("CguiconsoleDlg::connectTo: initialize({}) is failed!\n",
+		ERROR_MSG(fmt::format("CguiconsoleDlg::connectTo: initialize({}) failed!\n",
 			pChannel->c_str()));
 
 		pChannel->destroy();
@@ -1405,7 +1405,7 @@ bool CguiconsoleDlg::connectTo()
 		Network::Channel::reclaimPoolObject(pChannel);
 
 		CString err;
-		err.Format(L"CguiconsoleDlg::connectTo: registerChannel(%s) is failed!\n",
+		err.Format(L"CguiconsoleDlg::connectTo: registerChannel(%s) failed!\n",
 			pChannel->c_str());
 		AfxMessageBox(err);
 		return false;
@@ -1420,7 +1420,7 @@ void CguiconsoleDlg::closeCurrTreeSelChannel()
 	Ouroboros::Network::Address addr = getTreeItemAddr(hItem);
 	if(addr.ip == 0)
 	{
-		::AfxMessageBox(L"no select!");
+		::AfxMessageBox(L"No Selection!");
 		return;
 	}
 
@@ -1578,7 +1578,7 @@ void CguiconsoleDlg::OnNMClickTree1(NMHDR *pNMHDR, LRESULT *pResult)
 
 	CString title;
 	wchar_t* tbuf = strutil::char2wchar(currAddr.c_str());
-	title.Format(L"guiconsole : selected[%s]", tbuf);
+	title.Format(L"Guiconsole : Selected[%s]", tbuf);
 	free(tbuf);
 	this->SetWindowTextW(title.GetBuffer(0));
 
@@ -1719,14 +1719,14 @@ void CguiconsoleDlg::OnToolBar_StopServer()
 
 		if(!bhandler.broadcast())
 		{
-			ERROR_MSG("CguiconsoleDlg::OnToolBar_StartServer: broadcast error!\n");
+			ERROR_MSG("CguiconsoleDlg::OnToolBar_StartServer: Broadcast error!\n");
 			//::AfxMessageBox(L"Cannot send server startup package.");
 			break;
 		}
 
 		if(!bhandler.receive(NULL, 0, 3000000))
 		{
-			ERROR_MSG("CguiconsoleDlg::OnToolBar_StartServer: recv error!\n");
+			ERROR_MSG("CguiconsoleDlg::OnToolBar_StartServer: Recv error!\n");
 			//::AfxMessageBox(L"Receive server startup package error.");
 			break;
 		}
@@ -1756,7 +1756,7 @@ bool CguiconsoleDlg::startProfile(std::string name, int8 type, uint32 timinglen)
 		if(getTreeItemComponent(m_tree.GetSelectedItem()) != BASEAPP_TYPE && getTreeItemComponent(m_tree.GetSelectedItem()) != CELLAPP_TYPE
 			&& getTreeItemComponent(m_tree.GetSelectedItem()) != BOTS_TYPE)
 		{
-			::AfxMessageBox(L"not support!");
+			::AfxMessageBox(L"Not Supported!");
 			return false;
 		}
 	}
@@ -1783,7 +1783,7 @@ bool CguiconsoleDlg::startProfile(std::string name, int8 type, uint32 timinglen)
 			(*pBundle).newMessage(BotsInterface::startProfile);
 		else
 		{
-			::AfxMessageBox(L"not support!");
+			::AfxMessageBox(L"Not Supported!");
 			Network::Bundle::reclaimPoolObject(pBundle);
 			return false;
 		}

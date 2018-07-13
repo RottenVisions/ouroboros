@@ -58,13 +58,13 @@ BOOL CStartServerWindow::OnInitDialog()
 	m_list1.SetExtendedStyle(dwStyle);					//Set the extension style
 
 	int idx = 0;
-	m_list.InsertColumn(idx++, _T("componentType"),				LVCFMT_CENTER,	150);
-	m_list.InsertColumn(idx++, _T("addr"),						LVCFMT_CENTER,	200);
-	m_list.InsertColumn(idx++, _T("running"),					LVCFMT_CENTER,	200);
+	m_list.InsertColumn(idx++, _T("ComponentType"),				LVCFMT_CENTER,	150);
+	m_list.InsertColumn(idx++, _T("Addr"),						LVCFMT_CENTER,	200);
+	m_list.InsertColumn(idx++, _T("Running"),					LVCFMT_CENTER,	200);
 
 	idx = 0;
-	m_list1.InsertColumn(idx++, _T("componentType"),			LVCFMT_CENTER,	200);
-	m_list1.InsertColumn(idx++, _T("addr"),						LVCFMT_CENTER,	250);
+	m_list1.InsertColumn(idx++, _T("ComponentType"),			LVCFMT_CENTER,	200);
+	m_list1.InsertColumn(idx++, _T("Addr"),						LVCFMT_CENTER,	250);
 
 	loadLayouts();
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -83,7 +83,7 @@ void CStartServerWindow::OnBnClickedButton2()
 
 	if(m_layoutlist.GetCurSel() < 0 || m_layoutlist.GetCurSel() > m_layoutlist.GetCount())
 	{
-		::AfxMessageBox(L"please select a layout!");
+		::AfxMessageBox(L"Please Select a Layout!");
 		return;
 	}
 
@@ -97,7 +97,7 @@ void CStartServerWindow::OnBnClickedButton2()
 
 	if(iter == layouts_.end())
 	{
-		::AfxMessageBox(L"please select a layout!");
+		::AfxMessageBox(L"Please Select a Layout!");
 		return;
 	}
 
@@ -123,7 +123,7 @@ void CStartServerWindow::OnBnClickedButton2()
 
 		if(addr.ip == 0)
 		{
-			::AfxMessageBox(L"address is error!");
+			::AfxMessageBox(L"Error with the Address!");
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 			continue;
 		}
@@ -131,7 +131,7 @@ void CStartServerWindow::OnBnClickedButton2()
 		endpoint->socket(SOCK_STREAM);
 		if (!endpoint->good())
 		{
-			AfxMessageBox(L"couldn't create a socket\n");
+			AfxMessageBox(L"Couldn't Create a Socket\n");
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 			continue;
 		}
@@ -140,7 +140,7 @@ void CStartServerWindow::OnBnClickedButton2()
 		if(endpoint->connect(addr.port, addr.ip) == -1)
 		{
 			CString err;
-			err.Format(L"connect server is error! %d", ::WSAGetLastError());
+			err.Format(L"Connect Server Error! %d", ::WSAGetLastError());
 			AfxMessageBox(err);
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 			continue;
@@ -218,7 +218,7 @@ void CStartServerWindow::OnBnClickedButton3()
 
 	if(m_layoutlist.GetCurSel() < 0 || m_layoutlist.GetCurSel() > m_layoutlist.GetCount())
 	{
-		::AfxMessageBox(L"please select a layout!");
+		::AfxMessageBox(L"Please Select a Layout!");
 		return;
 	}
 
@@ -232,7 +232,7 @@ void CStartServerWindow::OnBnClickedButton3()
 
 	if(iter == layouts_.end())
 	{
-		::AfxMessageBox(L"please select a layout!");
+		::AfxMessageBox(L"Please Select a Layout!");
 		return;
 	}
 
@@ -258,7 +258,7 @@ void CStartServerWindow::OnBnClickedButton3()
 
 		if(addr.ip == 0)
 		{
-			::AfxMessageBox(L"address is error!");
+			::AfxMessageBox(L"Error with the Address!");
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 			continue;
 		}
@@ -266,7 +266,7 @@ void CStartServerWindow::OnBnClickedButton3()
 		endpoint->socket(SOCK_STREAM);
 		if (!endpoint->good())
 		{
-			AfxMessageBox(L"couldn't create a socket\n");
+			AfxMessageBox(L"Couldn't Create a Socket\n");
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 			continue;
 		}
@@ -275,7 +275,7 @@ void CStartServerWindow::OnBnClickedButton3()
 		if(endpoint->connect(addr.port, addr.ip) == -1)
 		{
 			CString err;
-			err.Format(L"connect server is error! %d", ::WSAGetLastError());
+			err.Format(L"Connect Server Error! %d", ::WSAGetLastError());
 			AfxMessageBox(err);
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 			continue;
