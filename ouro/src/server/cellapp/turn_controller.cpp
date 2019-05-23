@@ -19,7 +19,7 @@ TurnController::~TurnController()
 {
 	// DEBUG_MSG(fmt::format("TurnController::~TurnController(): {:p}\n", (void*)this);
 	if (pRotatorHandler_)
-		pRotatorHandler_->pController(KBEShared_ptr<Controller>());
+		pRotatorHandler_->pController(OUROShared_ptr<Controller>());
 
 	pRotatorHandler_ = NULL;
 }
@@ -49,7 +49,7 @@ void TurnController::destroy()
 	// Since you have to destroy it, the updatable associated with yourself should also stop.
 	if (pRotatorHandler_)
 	{
-		pRotatorHandler_->pController(KBEShared_ptr<Controller>());
+		pRotatorHandler_->pController(OUROShared_ptr<Controller>());
 		pRotatorHandler_ = NULL;
 	}
 }

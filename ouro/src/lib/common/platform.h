@@ -212,8 +212,8 @@ typedef unsigned long											ulong;
 #define const_charptr											const char*
 #define PyObject_ptr											PyObject*
 
-#define KBEShared_ptr											std::tr1::shared_ptr
-#define KBEUnordered_map										std::tr1::unordered_map
+#define OUROShared_ptr											std::tr1::shared_ptr
+#define OUROUnordered_map										std::tr1::unordered_map
 
 /* Use correct types for x64 platforms, too */
 #if OURO_COMPILER != COMPILER_GNU
@@ -324,11 +324,11 @@ typedef int32													ScriptID;
 typedef uint32 ArraySize; // The size of any array is described by this
 typedef uint64 DBID; // An index in the database is used as an ID
 typedef uint32													CELL_ID;
-typedef KBEUnordered_map< std::string, std::string > SPACE_DATA; // data stored in space
+typedef OUROUnordered_map< std::string, std::string > SPACE_DATA; // data stored in space
 
 #if OURO_PLATFORM == PLATFORM_WIN32
 	#define IFNAMSIZ											16
-	typedef UINT_PTR											KBESOCKET;
+	typedef UINT_PTR											OUROSOCKET;
 #ifndef socklen_t
 	typedef	int													socklen_t;
 #endif
@@ -351,7 +351,7 @@ typedef KBEUnordered_map< std::string, std::string > SPACE_DATA; // data stored 
 	};
 #endif
 #else
-	typedef int													KBESOCKET;
+	typedef int													OUROSOCKET;
 #endif
 
 /*---------------------------------------------------------------------------------

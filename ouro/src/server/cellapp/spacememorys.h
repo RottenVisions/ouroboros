@@ -19,7 +19,7 @@ public:
 	
 	static void finalise();
 
-	typedef std::map<SPACE_ID, KBEShared_ptr<SpaceMemory> > SPACEMEMORYS;
+	typedef std::map<SPACE_ID, OUROShared_ptr<SpaceMemory> > SPACEMEMORYS;
 
 	/** 
 		Create a new space

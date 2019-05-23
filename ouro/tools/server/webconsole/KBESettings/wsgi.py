@@ -1,5 +1,5 @@
 """
-WSGI config for KBEWebConsole project.
+WSGI config for OUROWebConsole project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -14,6 +14,6 @@ initExtraRootPath()
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "KBESettings.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "OUROSettings.settings")
 
 application = get_wsgi_application()

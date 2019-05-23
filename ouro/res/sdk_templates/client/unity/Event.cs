@@ -7,7 +7,7 @@
 	using System.Threading;
 
     /// <summary>
-    /// KBE-Plugin fire-out events(KBE => Unity):
+    /// OURO-Plugin fire-out events(OURO => Unity):
     /// </summary>
     public class EventOutTypes
     {
@@ -187,7 +187,7 @@
     };
 
     /// <summary>
-    /// KBE-Plugin fire-in events(Unity => KBE):
+    /// OURO-Plugin fire-in events(Unity => OURO):
     /// </summary>
     public class EventInTypes
     {
@@ -195,7 +195,7 @@
         /// Create new account.
         /// <para> param1(string): accountName</para>
         /// <para> param2(string): password</para>
-        /// <para> param3(bytes): datas // Datas by user defined. Data will be recorded into the KBE account database, you can access the datas through the script layer. If you use third-party account system, datas will be submitted to the third-party system.</para>
+        /// <para> param3(bytes): datas // Datas by user defined. Data will be recorded into the OURO account database, you can access the datas through the script layer. If you use third-party account system, datas will be submitted to the third-party system.</para>
         /// </summary>
         public const string createAccount = "createAccount";
 
@@ -203,7 +203,7 @@
         /// Login to server.
         /// <para> param1(string): accountName</para>
         /// <para> param2(string): password</para>
-        /// <para> param3(bytes): datas // Datas by user defined. Data will be recorded into the KBE account database, you can access the datas through the script layer. If you use third-party account system, datas will be submitted to the third-party system.</para>
+        /// <para> param3(bytes): datas // Datas by user defined. Data will be recorded into the OURO account database, you can access the datas through the script layer. If you use third-party account system, datas will be submitted to the third-party system.</para>
         /// </summary>
         public const string login = "login";
 
@@ -352,7 +352,7 @@
 		}
 
         /// <summary>
-		/// Register to listen for events thrown by the kbe plugin. (out = kbe->render)
+		/// Register to listen for events thrown by the ouro plugin. (out = ouro->render)
 		/// is usually registered by the rendering presentation layer, for example: listening to changes in the character's blood volume properties, if the UI layer registers this event,
 		/// After the event is triggered, you can change the blood bar value at the top of the character based on the current blood volume value attached to the event.
         /// </summary>
@@ -362,7 +362,7 @@
 		}
 
         /// <summary>
-		/// Register to listen for events thrown by the kbe plugin. (out = kbe->render)
+		/// Register to listen for events thrown by the ouro plugin. (out = ouro->render)
 		/// is usually registered by the rendering presentation layer, for example: listening to changes in the character's blood volume properties, if the UI layer registers this event,
 		/// After the event is triggered, you can change the blood bar value at the top of the character based on the current blood volume value attached to the event.
         /// </summary>
@@ -372,7 +372,7 @@
         }
 
         /// <summary>
-		/// Register to listen for events thrown by the kbe plugin. (out = kbe->render)
+		/// Register to listen for events thrown by the ouro plugin. (out = ouro->render)
 		/// is usually registered by the rendering presentation layer, for example: listening to changes in the character's blood volume properties, if the UI layer registers this event,
 		/// After the event is triggered, you can change the blood bar value at the top of the character based on the current blood volume value attached to the event.
         /// </summary>
@@ -382,7 +382,7 @@
         }
 
         /// <summary>
-		/// Register to listen for events thrown by the kbe plugin. (out = kbe->render)
+		/// Register to listen for events thrown by the ouro plugin. (out = ouro->render)
 		/// is usually registered by the rendering presentation layer, for example: listening to changes in the character's blood volume properties, if the UI layer registers this event,
 		/// After the event is triggered, you can change the blood bar value at the top of the character based on the current blood volume value attached to the event.
         /// </summary>
@@ -392,7 +392,7 @@
         }
 
         /// <summary>
-		/// Register to listen for events thrown by the kbe plugin. (out = kbe->render)
+		/// Register to listen for events thrown by the ouro plugin. (out = ouro->render)
 		/// is usually registered by the rendering presentation layer, for example: listening to changes in the character's blood volume properties, if the UI layer registers this event,
 		/// After the event is triggered, you can change the blood bar value at the top of the character based on the current blood volume value attached to the event.
         /// </summary>
@@ -402,7 +402,7 @@
         }
 
         /// <summary>
-		/// Register to listen for events thrown by the kbe plugin. (out = kbe->render)
+		/// Register to listen for events thrown by the ouro plugin. (out = ouro->render)
 		/// is usually registered by the rendering presentation layer, for example: listening to changes in the character's blood volume properties, if the UI layer registers this event,
 		/// After the event is triggered, you can change the blood bar value at the top of the character based on the current blood volume value attached to the event.
         /// </summary>
@@ -412,8 +412,8 @@
         }
 
         /// <summary>
-                /// Register to listen for events thrown by the render presentation layer (in = render->kbe)
-		/// Usually registered by the kbe plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the kbe plugin layer to interact with the server.
+                /// Register to listen for events thrown by the render presentation layer (in = render->ouro)
+		/// Usually registered by the ouro plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the ouro plugin layer to interact with the server.
         /// </summary>
         public static bool registerIn(string eventname, object obj, string funcname)
 		{
@@ -421,8 +421,8 @@
 		}
 
         /// <summary>
-                /// Register to listen for events thrown by the render presentation layer (in = render->kbe)
-		/// Usually registered by the kbe plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the kbe plugin layer to interact with the server.
+                /// Register to listen for events thrown by the render presentation layer (in = render->ouro)
+		/// Usually registered by the ouro plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the ouro plugin layer to interact with the server.
         /// </summary>
         public static bool registerIn(string eventname, Action handler)
         {
@@ -430,8 +430,8 @@
         }
 
         /// <summary>
-                /// Register to listen for events thrown by the render presentation layer (in = render->kbe)
-		/// Usually registered by the kbe plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the kbe plugin layer to interact with the server.
+                /// Register to listen for events thrown by the render presentation layer (in = render->ouro)
+		/// Usually registered by the ouro plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the ouro plugin layer to interact with the server.
         /// </summary>
         public static bool registerIn<T1>(string eventname, Action<T1> handler)
         {
@@ -439,8 +439,8 @@
         }
 
         /// <summary>
-                /// Register to listen for events thrown by the render presentation layer (in = render->kbe)
-		/// Usually registered by the kbe plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the kbe plugin layer to interact with the server.
+                /// Register to listen for events thrown by the render presentation layer (in = render->ouro)
+		/// Usually registered by the ouro plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the ouro plugin layer to interact with the server.
         /// </summary>
         public static bool registerIn<T1, T2>(string eventname, Action<T1, T2> handler)
         {
@@ -448,8 +448,8 @@
         }
 
         /// <summary>
-                /// Register to listen for events thrown by the render presentation layer (in = render->kbe)
-		/// Usually registered by the kbe plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the kbe plugin layer to interact with the server.
+                /// Register to listen for events thrown by the render presentation layer (in = render->ouro)
+		/// Usually registered by the ouro plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the ouro plugin layer to interact with the server.
         /// </summary>
         public static bool registerIn<T1, T2, T3>(string eventname, Action<T1, T2, T3> handler)
         {
@@ -457,8 +457,8 @@
         }
 
         /// <summary>
-                /// Register to listen for events thrown by the render presentation layer (in = render->kbe)
-		/// Usually registered by the kbe plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the kbe plugin layer to interact with the server.
+                /// Register to listen for events thrown by the render presentation layer (in = render->ouro)
+		/// Usually registered by the ouro plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the ouro plugin layer to interact with the server.
         /// </summary>
         public static bool registerIn<T1, T2, T3, T4>(string eventname, Action<T1, T2, T3, T4> handler)
         {
@@ -582,7 +582,7 @@
 		}
 
         /// <summary>
-                /// kbe plugin trigger event (out = kbe->render)
+                /// ouro plugin trigger event (out = ouro->render)
 		/// is usually registered by the rendering presentation layer, for example: listening to changes in the character's blood volume properties, if the UI layer registers this event,
 		/// After the event is triggered, you can change the blood bar value at the top of the character based on the current blood volume value attached to the event.
 		/// </summary>
@@ -592,8 +592,8 @@
 		}
 
         /// <summary>
-                /// Render the presentation layer to throw the event (in = render->kbe)
-		/// Usually registered by the kbe plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the kbe plugin layer to interact with the server.
+                /// Render the presentation layer to throw the event (in = render->ouro)
+		/// Usually registered by the ouro plugin layer. For example, the UI layer clicks on the login. At this point, an event needs to be triggered to the ouro plugin layer to interact with the server.
 		/// </summary>
 		public static void fireIn(string eventname, params object[] args)
 		{
@@ -601,7 +601,7 @@
 		}
 
         /// <summary>
-                /// triggers events that both the kbe plugin and the rendering presentation layer can receive
+                /// triggers events that both the ouro plugin and the rendering presentation layer can receive
         /// <summary>
         public static void fireAll(string eventname, params object[] args)
 		{

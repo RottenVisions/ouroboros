@@ -54,7 +54,7 @@ public:
 			appFlags = APP_FLAGS_NONE;
 		}
 
-		KBEShared_ptr<Network::Address> pIntAddr, pExtAddr; // internal and external addresses
+		OUROShared_ptr<Network::Address> pIntAddr, pExtAddr; // internal and external addresses
 		char externalAddressEx[MAX_NAME + 1]; // Forced exposure to an external public address, see externalAddressEx in the configuration
 
 		int32 uid;

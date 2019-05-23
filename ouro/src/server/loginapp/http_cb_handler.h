@@ -26,7 +26,7 @@ protected:
 	
 	struct CLIENT
 	{
-		KBEShared_ptr< Network::EndPoint > endpoint;
+		OUROShared_ptr< Network::EndPoint > endpoint;
 		uint8 state;
 		std::string code;
 	};

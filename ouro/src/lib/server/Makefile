@@ -25,7 +25,7 @@ SRCS =				\
 	id_component_querier
 
 ifndef OURO_ROOT
-export OURO_ROOT := $(subst /kbe/src/lib/$(LIB),,$(CURDIR))
+export OURO_ROOT := $(subst /ouro/src/lib/$(LIB),,$(CURDIR))
 endif
 
 USE_PYTHON=1
@@ -36,4 +36,4 @@ ifndef NO_USE_LOG4CXX
 	CPPFLAGS += -DLOG4CXX_STATIC
 endif
 
-include $(OURO_ROOT)/kbe/src/build/common.mak
+include $(OURO_ROOT)/ouro/src/build/common.mak

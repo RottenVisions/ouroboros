@@ -25,7 +25,7 @@ class Resmgr : public Singleton<Resmgr>, public TimerHandler
 {
 public:
 	// engine environment variable
-	struct KBEEnv
+	struct OUROEnv
 	{
 		std::string root_path;
 		std::string res_path;
@@ -45,7 +45,7 @@ public:
 	void autoSetPaths();
 	void updatePaths();
 
-	const Resmgr::KBEEnv& getEnv() { return kb_env_; }
+	const Resmgr::OUROEnv& getEnv() { return kb_env_; }
 
 	/*
 		Match from the resource path (specified in the environment variable) to the full resource address
@@ -80,7 +80,7 @@ public:
 
 	/**
 		Get the engine system level resource directory
-		kbe\\res\\*
+		ouro\\res\\*
 	*/
 	std::string getPySysResPath();
 
@@ -119,11 +119,11 @@ private:
 
 	virtual void handleTimeout(TimerHandle handle, void * arg);
 
-	KBEEnv kb_env_;
+	OUROEnv kb_env_;
 	std::vector<std::string> respaths_;
 	bool isInit_;
 
-	KBEUnordered_map< std::string, ResourceObjectPtr > respool_;
+	OUROUnordered_map< std::string, ResourceObjectPtr > respool_;
 
 	Ouroboros::thread::ThreadMutex mutex_;
 };

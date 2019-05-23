@@ -98,9 +98,9 @@ int EpollPoller::processPendingEvents(double maxWait)
 	uint64 startTime = timestamp();
 #endif
 
-	KBEConcurrency::onStartMainThreadIdling();
+	OUROConcurrency::onStartMainThreadIdling();
 	int nfds = epoll_wait(epfd_, events, MAX_EVENTS, maxWaitInMilliseconds);
-	KBEConcurrency::onEndMainThreadIdling();
+	OUROConcurrency::onEndMainThreadIdling();
 
 
 #if ENABLE_WATCHERS

@@ -105,11 +105,11 @@ public:
 		std::string extraDatas, Ouroboros::SERVER_ERROR_CODE errorCode);
 	static PyObject* __py_createAccountResponse(PyObject* self, PyObject* args);
 
-	typedef KBEUnordered_map<std::string, KBEShared_ptr<Orders> > ORDERS;
+	typedef OUROUnordered_map<std::string, OUROShared_ptr<Orders> > ORDERS;
 	Interfaces::ORDERS& orders(){ return orders_; }
 
-	typedef KBEUnordered_map<std::string, CreateAccountTask*> REQCREATE_MAP;
-	typedef KBEUnordered_map<std::string, LoginAccountTask*> REQLOGIN_MAP;
+	typedef OUROUnordered_map<std::string, CreateAccountTask*> REQCREATE_MAP;
+	typedef OUROUnordered_map<std::string, LoginAccountTask*> REQLOGIN_MAP;
 	REQCREATE_MAP& reqCreateAccount_requests(){ return reqCreateAccount_requests_; }
 	REQLOGIN_MAP& reqAccountLogin_requests(){ return reqAccountLogin_requests_; }
 

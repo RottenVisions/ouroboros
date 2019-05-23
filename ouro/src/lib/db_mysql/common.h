@@ -10,7 +10,7 @@
 
 namespace Ouroboros{ 
 
-// Record all mysql tags set by KBE, check the settings when sync_item_to_db is provided
+// Record all mysql tags set by OURO, check the settings when sync_item_to_db is provided
 extern uint32 ALL_MYSQL_SET_FLAGS;
 
 }

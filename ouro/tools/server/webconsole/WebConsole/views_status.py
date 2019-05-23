@@ -32,15 +32,15 @@ def show_components( request ):
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	kbeComps = []
+	ouroComps = []
 	for mID, comps in interfaces_groups.items():
 		for comp in comps:
 			if comp.componentType in VALID_CT:
-				kbeComps.append( comp)
+				ouroComps.append( comp)
 
 	context = {
 		"http_host":request.META["HTTP_HOST"],
-		"OUROComps" : kbeComps,
+		"OUROComps" : ouroComps,
 	}
 	return render( request, html_template, context )
 
@@ -80,17 +80,17 @@ def connect( request ):
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	kbeComps = []
+	ouroComps = []
 	for mID, comps in interfaces_groups.items():
 		for comp in comps:
 			if comp.componentType in VALID_CT:
-				kbeComps.append( comp)
+				ouroComps.append( comp)
 
 	ws_url = "ws://%s/wc/status/process_cmd?cp=%s&port=%s&host=%s" % ( request.META["HTTP_HOST"], cp_type, cp_port, cp_host )
 
 	context = {
 		"http_host": request.META["HTTP_HOST"],
-		"OUROComps" : kbeComps,
+		"OUROComps" : ouroComps,
 		"ws_url"   : ws_url,
 		"child_type" : child_type
 

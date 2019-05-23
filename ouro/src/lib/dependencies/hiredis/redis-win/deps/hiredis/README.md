@@ -1,14 +1,14 @@
 hiredis-win
 ===========
 
-hiredis库的windows版本，也可在linux下编译，跨平台
+The windows version of the hiredis library can also be compiled under linux, cross-platform
 
-基于官方最后一个release版本(0.11.0)进行修改，在windows上实现hiredis所有的功能(基于官方版本的test.c文件所有测试用例全部通过)
+Based on the official release version (0.11.0), all the functions of hiredis are implemented on windows (all test cases based on the official version of test.c file are passed)
 
-编译步骤:
+Compile steps:
 
-  1 使用vs2010打开./vsproject/hiredis-win.sln
+    1 Open vs. /vsproject/hiredis-win.sln using vs2010
   
-  2 编译hiredis-win-lib，项目默认配置为MD版本，若有别的需求可自行修改工程配置。
+    2 Compile hiridis-win-lib, the project default configuration is MD version, if you have other requirements, you can modify the project configuration.
   
-  3 编译生成的库文件在该文件夹下的debug或release文件夹下。
+    3 Compile the generated library file in the debug or release folder under this folder.

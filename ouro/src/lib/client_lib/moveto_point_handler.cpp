@@ -76,7 +76,7 @@ bool MoveToPointHandler::update(TimerHandle& handle)
 	
 	bool ret = true;
 
-	if(KBEVec3Length(&movement) < velocity_ + distance_)
+	if(OUROVec3Length(&movement) < velocity_ + distance_)
 	{
 		float y = currpos.y;
 		currpos = dstPos;
@@ -84,7 +84,7 @@ bool MoveToPointHandler::update(TimerHandle& handle)
 		if(distance_ > 0.0f)
 		{
 			// unitized vector
-			KBEVec3Normalize(&movement, &movement); 
+			OUROVec3Normalize(&movement, &movement); 
 			movement *= distance_;
 			currpos -= movement;
 		}
@@ -97,7 +97,7 @@ bool MoveToPointHandler::update(TimerHandle& handle)
 	else
 	{
 		// unitized vector
-		KBEVec3Normalize(&movement, &movement); 
+		OUROVec3Normalize(&movement, &movement); 
 
 				// move Place
 		movement *= velocity_;

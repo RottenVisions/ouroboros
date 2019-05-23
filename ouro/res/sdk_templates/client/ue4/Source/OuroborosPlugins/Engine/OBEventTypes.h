@@ -1,6 +1,6 @@
 #pragma once
 
-#include "KBECommon.h"
+#include "OUROCommon.h"
 
 namespace Ouroboros
 {
@@ -16,7 +16,7 @@ struct OUROBOROSPLUGINS_API OBEventTypes
 	// Login to server.
 	// <para> param1(string): accountName</para>
 	// <para> param2(string): password</para>
-	// <para> param3(bytes): datas // Datas by user defined. Data will be recorded into the KBE account database, you can access the datas through the script layer. If you use third-party account system, datas will be submitted to the third-party system.</para>
+	// <para> param3(bytes): datas // Datas by user defined. Data will be recorded into the OURO account database, you can access the datas through the script layer. If you use third-party account system, datas will be submitted to the third-party system.</para>
 	static const FString login;
 
 	// Relogin to baseapp.

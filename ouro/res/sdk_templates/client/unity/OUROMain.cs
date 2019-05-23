@@ -8,7 +8,7 @@ using Ouroboros;
 	Installed the event (installEvents) that needs to be listened to in this entry, and initializes Ouroboros (initOuroboros).
 */
 	
-public class KBEMain : MonoBehaviour 
+public class OUROMain : MonoBehaviour 
 {
 	public OuroborosApp gameapp = null;
 	
@@ -114,10 +114,10 @@ public class KBEMain : MonoBehaviour
 	
 	protected virtual void FixedUpdate () 
 	{
-		KBEUpdate();
+		OUROUpdate();
 	}
 
-	public virtual void KBEUpdate()
+	public virtual void OUROUpdate()
 	{
 		// Single-threaded mode must be called by itself
 		if(!isMultiThreads)

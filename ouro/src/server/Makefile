@@ -1,12 +1,12 @@
 ifndef OURO_ROOT
-export OURO_ROOT := $(subst /kbe/src/server,,$(CURDIR))
+export OURO_ROOT := $(subst /ouro/src/server,,$(CURDIR))
 endif
 
 all clean realclean all_config install::
 
 # Check with and without the trailing slash
-ifneq ($(CURDIR),$(OURO_ROOT)/kbe/src/server)
-ifneq ($(CURDIR),$(OURO_ROOT)kbe/src/server)
+ifneq ($(CURDIR),$(OURO_ROOT)/ouro/src/server)
+ifneq ($(CURDIR),$(OURO_ROOT)ouro/src/server)
 	@echo 'Error: OURO_ROOT=$(OURO_ROOT)'
 	@echo '       is not the root of $(CURDIR)'
 	@echo 'Remove the OURO_ROOT environment variable.'

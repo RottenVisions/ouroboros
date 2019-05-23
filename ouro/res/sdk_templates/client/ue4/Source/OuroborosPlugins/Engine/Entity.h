@@ -3,7 +3,7 @@
 #pragma once
 
 #include "KBVar.h"
-#include "KBECommon.h"
+#include "OUROCommon.h"
 
 namespace Ouroboros
 {
@@ -18,7 +18,7 @@ class EntityComponent;
 	Entity base class of the Ouroboros logical layer
 	All extended game entities should inherit from this module
 
-	https://github.com/ouroboros/ouroboros/blob/master/kbe/res/sdk_templates/client/ue4/README.md
+	https://github.com/ouroboros/ouroboros/blob/master/ouro/res/sdk_templates/client/ue4/README.md
 */
 class OUROBOROSPLUGINS_API Entity
 {

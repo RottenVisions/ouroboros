@@ -25,7 +25,7 @@ class EventDispatcher;
 class TCPPacketSender : public PacketSender
 {
 public:
-	typedef KBEShared_ptr< SmartPoolObject< TCPPacketSender > > SmartPoolObjectPtr;
+	typedef OUROShared_ptr< SmartPoolObject< TCPPacketSender > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<TCPPacketSender>& ObjPool();
 	static TCPPacketSender* createPoolObject(const std::string& logPoint);

@@ -50,7 +50,7 @@ mysql_port = ""
 # MySQL root password
 mysql_root_password = ""
 
-# MySQL KBE account name and password
+# MySQL OURO account name and password
 mysql_ouro_name = ""
 mysql_ouro_password = ""
 
@@ -80,7 +80,7 @@ _install_path = ""
 
 def hello():
 	# echoSystemEnvironment()
-	# echoKBEEnvironment()
+	# echoOUROEnvironment()
 
 	OUT_MSG("###########################################################################")
 	OUT_MSG("#   installer:                                                            #")
@@ -90,7 +90,7 @@ def hello():
 	OUT_MSG("#   homepage:                                                             #")
 	OUT_MSG("#         http://ouroboros.org                                             #")
 	OUT_MSG("#   sources:                                                              #")
-	OUT_MSG("#         https://github.com/ouroboros/ouroboros/*/kbe/tools/server/install #")
+	OUT_MSG("#         https://github.com/ouroboros/ouroboros/*/ouro/tools/server/install #")
 	OUT_MSG("###########################################################################")
 	OUT_MSG("")
     
@@ -156,7 +156,7 @@ def getInput(s):
 	
 	return raw_input(s)
 	
-def echoKBEEnvironment():
+def echoOUROEnvironment():
 	global OURO_ROOT
 	global OURO_RES_PATH
 	global OURO_BIN_PATH
@@ -165,7 +165,7 @@ def echoKBEEnvironment():
 	OURO_ROOT = getEnvironment('user', 'OURO_ROOT')
 	OURO_RES_PATH = getEnvironment('user', 'OURO_RES_PATH')
 	OURO_BIN_PATH = getEnvironment('user', 'OURO_BIN_PATH')
-	_checkKBEEnvironment(False)
+	_checkOUROEnvironment(False)
 	
 	OUT_MSG("OURO_ROOT=" + OURO_ROOT)
 	OUT_MSG("OURO_RES_PATH=" + OURO_RES_PATH)
@@ -182,7 +182,7 @@ def findOuroboros(dir):
 	paths = []
 	for x in os.listdir(dir):
 		if "ouroboros" in x:
-			if os.path.isfile(dir + x + "/kbe/res/server/ouroboros_defaults.xml"):
+			if os.path.isfile(dir + x + "/ouro/res/server/ouroboros_defaults.xml"):
 				paths.append(dir + x + "/")
 	
 	return paths
@@ -207,7 +207,7 @@ def find_file_by_pattern(pattern = '.*', base = ".", circle = True):
 
     return final_file_list
     
-def resetKBEEnvironment():
+def resetOUROEnvironment():
 	global OURO_ROOT
 	global OURO_RES_PATH
 	global OURO_BIN_PATH
@@ -229,8 +229,8 @@ def resetKBEEnvironment():
 		curr = os.getcwd()
 		curr = curr.replace("\\", "/")
 		
-		if "kbe/tools/server/install" in curr:
-			curr = curr.replace("kbe/tools/server/install", "").replace("//", "/")
+		if "ouro/tools/server/install" in curr:
+			curr = curr.replace("ouro/tools/server/install", "").replace("//", "/")
 			x_OURO_ROOT = curr
 
 			if x_OURO_ROOT[-1] != "/":
@@ -242,16 +242,16 @@ def resetKBEEnvironment():
 			x_OURO_ROOT = x_OURO_ROOT.replace("\\", "/").replace("//", "/")
 		
 		if platform.system() == 'Windows':
-			x_OURO_RES_PATH = "%OURO_ROOT%/kbe/res/;%OURO_ROOT%/assets/;%OURO_ROOT%/assets/scripts/;%OURO_ROOT%/assets/res/"
+			x_OURO_RES_PATH = "%OURO_ROOT%/ouro/res/;%OURO_ROOT%/assets/;%OURO_ROOT%/assets/scripts/;%OURO_ROOT%/assets/res/"
 		else:
-			x_OURO_RES_PATH = "$OURO_ROOT/kbe/res/:$OURO_ROOT/assets/:$OURO_ROOT/assets/scripts/:$OURO_ROOT/assets/res/"
+			x_OURO_RES_PATH = "$OURO_ROOT/ouro/res/:$OURO_ROOT/assets/:$OURO_ROOT/assets/scripts/:$OURO_ROOT/assets/res/"
 			
 	if platform.architecture()[0] == '32bit':
-		x_OURO_BIN_PATH = "%OURO_ROOT%/kbe/bin/server/"
+		x_OURO_BIN_PATH = "%OURO_ROOT%/ouro/bin/server/"
 	else:
-		x_OURO_BIN_PATH = "%OURO_ROOT%/kbe/bin/server/"
+		x_OURO_BIN_PATH = "%OURO_ROOT%/ouro/bin/server/"
 		if not os.path.isdir(x_OURO_BIN_PATH):
-			x_OURO_BIN_PATH = "%OURO_ROOT%/kbe/bin/server/"
+			x_OURO_BIN_PATH = "%OURO_ROOT%/ouro/bin/server/"
 	
 	if platform.system() != 'Windows':
 		x_OURO_BIN_PATH = x_OURO_BIN_PATH.replace("%OURO_ROOT%", "$OURO_ROOT")
@@ -323,14 +323,14 @@ def resetKBEEnvironment():
 			else:
 				setEnvironment('user', 'UID', (OURO_UID, username))
 		
-		if _checkKBEEnvironment(True):
+		if _checkOUROEnvironment(True):
 			break
 		
 		INFO_MSG("\n---------------------------------------------")
 		if getInput('Check to some problems, if you are sure this is not a problem please skip: [yes|no]') == "yes":
 			return
 
-	echoKBEEnvironment()
+	echoOUROEnvironment()
 
 def get_linux_ugid(username):  
 	fileobj1 = open('/etc/passwd')  
@@ -351,7 +351,7 @@ def get_linux_ugid(username):
 
 	return (uid, gid)  
     
-def _checkKBEEnvironment(is_get_error):
+def _checkOUROEnvironment(is_get_error):
 	global OURO_ROOT
 	global OURO_RES_PATH
 	global OURO_BIN_PATH
@@ -361,7 +361,7 @@ def _checkKBEEnvironment(is_get_error):
 	OURO_RES_PATH = getEnvironment('user', 'OURO_RES_PATH')
 	OURO_BIN_PATH = getEnvironment('user', 'OURO_BIN_PATH')
 	
-	ouro_path = OURO_ROOT + "/kbe"
+	ouro_path = OURO_ROOT + "/ouro"
 	ouro_path = ouro_path.replace("\\", "/").replace("//", "/")
 	if not os.path.isdir(ouro_path):
 		if is_get_error:
@@ -370,12 +370,12 @@ def _checkKBEEnvironment(is_get_error):
 	
 	paths = []
 
-	checkKBERes = [
+	checkOURORes = [
 		"server/ouroboros_defaults.xml",
 		"scripts",
 	]
 	
-	checkKBEUserRes = [
+	checkOUROUserRes = [
 		"server/ouroboros.xml",
 		"scripts/entities.xml",
 	]
@@ -405,7 +405,7 @@ def _checkKBEEnvironment(is_get_error):
 			WARING_MSG("OURO_BIN_PATH: is error! The directory or file not found:\n%s" % (OURO_BIN_PATH)) 
 	
 	ouro_res_path = ""
-	for res in checkKBERes:
+	for res in checkOURORes:
 		found = False
 		
 		tmp = ""
@@ -425,7 +425,7 @@ def _checkKBEEnvironment(is_get_error):
 				ERROR_MSG("OURO_RES_PATH: is error! The directory or file not found:\n%s" % (tmp)) 
 			return False
 	
-	for res in checkKBEUserRes:
+	for res in checkOUROUserRes:
 		found = False
 		
 		tmp = ""
@@ -454,7 +454,7 @@ def echoSystemEnvironment():
 	OUT_MSG("python_path=" + sys.executable)
 	OUT_MSG("currpath=" + os.getcwd())
 
-def findLocalKBEVersion():
+def findLocalOUROVersion():
 	global OURO_ROOT
 	
 	OURO_ROOT = getEnvironment('user', 'OURO_ROOT')
@@ -476,8 +476,8 @@ def findLocalKBEVersion():
 		
 	return "unknown"
 	
-def echoKBEVersion():
-	INFO_MSG("version=" + findLocalKBEVersion())
+def echoOUROVersion():
+	INFO_MSG("version=" + findLocalOUROVersion())
 	
 	if getInput("View the latest version of GitHub? [yes|no]") != "yes":
 		return
@@ -581,7 +581,7 @@ def remmoveEnvironment(scope, name):
 	else:
 		removeLinuxEnvironment(scope, name)
 
-def removeKBEEnvironment():
+def removeOUROEnvironment():
 	INFO_MSG("Remove the Ouroboros-environment variables.")
 	
 	global OURO_ROOT
@@ -786,8 +786,8 @@ def syscommand(cmdstr, isGetRet):
 
 	return (ret, cret,)
 
-def modifyKBEConfig():
-	_checkKBEEnvironment(False)
+def modifyOUROConfig():
+	_checkOUROEnvironment(False)
 	
 	global mysql_ip
 	global mysql_port
@@ -811,13 +811,13 @@ def modifyKBEConfig():
 		mysql_port = "0"
 	
 	if len(mysql_ouro_name) == 0:
-		mysql_ouro_name = "kbe"
+		mysql_ouro_name = "ouro"
 
 	if len(mysql_ouro_password) == 0:
 		mysql_ouro_password = "pwd123456"
 		
 	if len(mysql_ouro_db_name) == 0:
-		mysql_ouro_db_name = "kbe"
+		mysql_ouro_db_name = "ouro"
 		
 	state = 0
 
@@ -966,22 +966,22 @@ def createDatabase():
 
 		if len(mysql_ouro_name) == 0:
 			OUT_MSG('')
-			INFO_MSG("create kbe mysql-account:")
-			mysql_ouro_name = getInput("- username(Do not enter the default is \'kbe\')): ")
+			INFO_MSG("create ouro mysql-account:")
+			mysql_ouro_name = getInput("- username(Do not enter the default is \'ouro\')): ")
 			if len(mysql_ouro_name) == 0:
-				mysql_ouro_name = "kbe"
+				mysql_ouro_name = "ouro"
                         
-			mysql_ouro_password = getInput("- password(Do not enter the default is \'kbe\')): ")
+			mysql_ouro_password = getInput("- password(Do not enter the default is \'ouro\')): ")
 			if len(mysql_ouro_password) == 0:
 				mysql_ouro_password = "pwd123456"
 
-			INFO_MSG('Create kbe-account: name=%s, password=%s successfully!' % (mysql_ouro_name, mysql_ouro_password))
+			INFO_MSG('Create ouro-account: name=%s, password=%s successfully!' % (mysql_ouro_name, mysql_ouro_password))
             
 			if len(mysql_ouro_db_name) == 0:
 				OUT_MSG('')
-				mysql_ouro_db_name = getInput("Create game database(Do not enter the default is \'kbe\'):")
+				mysql_ouro_db_name = getInput("Create game database(Do not enter the default is \'ouro\'):")
 				if len(mysql_ouro_db_name) == 0:
-					mysql_ouro_db_name = "kbe"
+					mysql_ouro_db_name = "ouro"
                     
 			sql = "\"grant all privileges on *.* to %s@\'%%\' identified by \'%s\';grant select,insert,update,delete,create,drop on *.* to %s@\'%%\' identified by \'%s\';FLUSH PRIVILEGES\"" % (mysql_ouro_name, mysql_ouro_password, mysql_ouro_name, mysql_ouro_password)
 			cmd = "\"" + mysql_home + ("mysql\" %s%s -hlocalhost -e" % (getRootOpt(mysql_root_password), rootusePortArgs)) + sql + " mysql"
@@ -1106,9 +1106,9 @@ def checkMysql():
 def checkGit():
 	pass
 
-def checkKBEEnvironment():
-	if not _checkKBEEnvironment(True):
-		resetKBEEnvironment()
+def checkOUROEnvironment():
+	if not _checkOUROEnvironment(True):
+		resetOUROEnvironment()
 		
 	return True
 	
@@ -1116,7 +1116,7 @@ def checkDeps():
 	setEnvironment('user', INSTALLER_EVN_NAME, os.getcwd())
     
 	deps = {
-			"ouro_environment": checkKBEEnvironment,
+			"ouro_environment": checkOUROEnvironment,
 	        "mysql" : checkMysql,
 	        # "git" : checkGit
 	    }
@@ -1215,9 +1215,9 @@ def getSystemUser():
 	if platform.system() == 'Windows':
 		return
 
-	os_user_name = getInput("Install Ouroboros to Linux-account(No input is kbe):")
+	os_user_name = getInput("Install Ouroboros to Linux-account(No input is ouro):")
 	if len(os_user_name) == 0:
-		os_user_name = "kbe"
+		os_user_name = "ouro"
 
 	hasuser = ""
 	try:
@@ -1227,10 +1227,10 @@ def getSystemUser():
 
 	if len(hasuser) == 0:
 		if getInput("not found system-user[%s], create new user?: [yes|no]" % (os_user_name)) == "yes":
-			os_user_passwd = getInput("Please enter the Linux-account passwd(No input is kbe):")
+			os_user_passwd = getInput("Please enter the Linux-account passwd(No input is ouro):")
 
 			if len(os_user_passwd) == 0:
-				os_user_passwd = "kbe"
+				os_user_passwd = "ouro"
 
 			syscommand('bash -c \'useradd %s -p%s\'' % (os_user_name, os_user_passwd), False)
 			syscommand('bash -c \'echo \'%s:%s\' | chpasswd\'' % (os_user_name, os_user_passwd), False)
@@ -1244,7 +1244,7 @@ def getInstallPath():
 	
 	OURO_ROOT = getEnvironment('user', 'OURO_ROOT')
 	
-	if _checkKBEEnvironment(False):
+	if _checkOUROEnvironment(False):
 		INFO_MSG("Already installed Ouroboros, OURO_ROOT=[%s].\n" % (OURO_ROOT))
 		if getInput("Want to install to [%s]?[yes|no]" % (OURO_ROOT)) == "yes":
 			_install_path = ""
@@ -1316,22 +1316,22 @@ def copy_new_to_ouroboros_dir(checksources = True):
 	global _zip_ouroboros_path
 	global _zip_ouroboros_dirname
 	
-	currkbedir = _zip_ouroboros_path + "/" + _zip_ouroboros_dirname
+	currourodir = _zip_ouroboros_path + "/" + _zip_ouroboros_dirname
 
 	if len(_install_path) > 0:
 		OURO_ROOT = _install_path
 		if platform.system() == 'Windows':
-			OURO_RES_PATH = "%OURO_ROOT%kbe/res/;%OURO_ROOT%assets/;%OURO_ROOT%/assets/scripts/;%OURO_ROOT%assets/res/"
+			OURO_RES_PATH = "%OURO_ROOT%ouro/res/;%OURO_ROOT%assets/;%OURO_ROOT%/assets/scripts/;%OURO_ROOT%assets/res/"
 			if platform.architecture()[0] == '32bit':
-				OURO_BIN_PATH = "%OURO_ROOT%kbe/bin/server/"
+				OURO_BIN_PATH = "%OURO_ROOT%ouro/bin/server/"
 			else:
-				OURO_BIN_PATH = "%OURO_ROOT%kbe/bin/server/"
+				OURO_BIN_PATH = "%OURO_ROOT%ouro/bin/server/"
 		else:
-			OURO_RES_PATH = "$OURO_ROOT/kbe/res/:$OURO_ROOT/assets/:$OURO_ROOT/assets/scripts/:$OURO_ROOT/assets/res/"
+			OURO_RES_PATH = "$OURO_ROOT/ouro/res/:$OURO_ROOT/assets/:$OURO_ROOT/assets/scripts/:$OURO_ROOT/assets/res/"
 			if platform.architecture()[0] == '32bit':
-				OURO_BIN_PATH = "$OURO_ROOT/kbe/bin/server/"
+				OURO_BIN_PATH = "$OURO_ROOT/ouro/bin/server/"
 			else:
-				OURO_BIN_PATH = "$OURO_ROOT/kbe/bin/server/"
+				OURO_BIN_PATH = "$OURO_ROOT/ouro/bin/server/"
 		
 		setEnvironment('user', 'OURO_ROOT', OURO_ROOT)
 		setEnvironment('user', 'OURO_RES_PATH', OURO_RES_PATH)
@@ -1342,8 +1342,8 @@ def copy_new_to_ouroboros_dir(checksources = True):
 		INFO_MSG("OURO_BIN_PATH = %s" % OURO_BIN_PATH)
 		
 		INFO_MSG("\n\nInstalling Ouroboros...")
-		INFO_MSG("moving %s to %s..." % (currkbedir, _install_path))
-		copyFilesTo(currkbedir, _install_path)
+		INFO_MSG("moving %s to %s..." % (currourodir, _install_path))
+		copyFilesTo(currourodir, _install_path)
 		
 		if platform.system() != 'Windows':
 			syscommand('bash -c \'chmod -R 755 %s\'' % (OURO_ROOT), True)
@@ -1354,17 +1354,17 @@ def copy_new_to_ouroboros_dir(checksources = True):
 	OURO_RES_PATH = getEnvironment('user', 'OURO_RES_PATH')
 	OURO_BIN_PATH = getEnvironment('user', 'OURO_BIN_PATH')
 	
-	currkbedir = currkbedir.replace("\\", "/").replace("//", "/")
+	currourodir = currourodir.replace("\\", "/").replace("//", "/")
 	OURO_ROOT = OURO_ROOT.replace("\\", "/").replace("//", "/")
 	
-	if currkbedir == OURO_ROOT:
-		WARNING_MSG("currkbedir[%s] == OURO_ROOT[%s]" % (currkbedir, OURO_ROOT))
+	if currourodir == OURO_ROOT:
+		WARNING_MSG("currourodir[%s] == OURO_ROOT[%s]" % (currourodir, OURO_ROOT))
 		return
 		
 	INFO_MSG("\n\nInstalling Ouroboros[%s]..." % OURO_ROOT)
 	ouro_res_path1 = ouro_res_path.replace("%OURO_ROOT%", OURO_ROOT).replace("$OURO_ROOT", OURO_ROOT)
 	if len(ouro_res_path1) == 0:
-		ouro_res_path1 = OURO_ROOT + "/kbe/res"
+		ouro_res_path1 = OURO_ROOT + "/ouro/res"
 		
 	if os.path.isdir(OURO_ROOT):
 		if os.path.isdir(ouro_res_path1):
@@ -1372,7 +1372,7 @@ def copy_new_to_ouroboros_dir(checksources = True):
 				# shutil.rmtree(ouro_res_path1)
 				pass
 				
-		ouro_tools_path = OURO_ROOT + "/kbe/tools"
+		ouro_tools_path = OURO_ROOT + "/ouro/tools"
 		ouro_tools_path = ouro_tools_path.replace("\\", "/").replace("//", "/")
 		if os.path.isdir(ouro_tools_path):
 			if getInput('Found that the existing directory(%s), whether to replace the: [yes|no]?' % ouro_tools_path) == "yes":
@@ -1380,26 +1380,26 @@ def copy_new_to_ouroboros_dir(checksources = True):
 				pass
 					
 		if checksources:
-			srcpath = OURO_ROOT + "/kbe/src"
+			srcpath = OURO_ROOT + "/ouro/src"
 			srcpath = srcpath.replace("\\", "/").replace("//", "/")
 			if os.path.isdir(srcpath):
 				if getInput('Found that the existing directory(%s), whether to replace the: [yes|no]?' % (srcpath)) == "yes":
 					# shutil.rmtree(srcpath)
 					pass
 					
-			copyFilesTo(currkbedir + "/kbe/src", srcpath)
+			copyFilesTo(currourodir + "/ouro/src", srcpath)
 		else:
-			binpath = OURO_ROOT + "/kbe/bin"
+			binpath = OURO_ROOT + "/ouro/bin"
 			binpath = binpath.replace("\\", "/").replace("//", "/")
 			if os.path.isdir(binpath):
 				if getInput('Found that the existing directory(%s), whether to replace the: [yes|no]?' % (binpath)) == "yes":
 					# shutil.rmtree(binpath)
 					pass
 					
-			copyFilesTo(currkbedir + "/kbe/bin", binpath)
+			copyFilesTo(currourodir + "/ouro/bin", binpath)
 			
-		copyFilesTo(currkbedir + "/kbe/tools", ouro_tools_path)
-		copyFilesTo(currkbedir + "/kbe/res", ouro_res_path1)
+		copyFilesTo(currourodir + "/ouro/tools", ouro_tools_path)
+		copyFilesTo(currourodir + "/ouro/res", ouro_res_path1)
 
 	if platform.system() != 'Windows':
 		syscommand('bash -c \'chmod -R 755 %s\'' % (OURO_ROOT), True)
@@ -1519,7 +1519,7 @@ def extract_file(src_file, extractPath = "./"):
 
 def normalinstall():
 	getSystemUser()
-	if checkDeps() and modifyKBEConfig():
+	if checkDeps() and modifyOUROConfig():
 		INFO_MSG("Ouroboros has been successfully installed!")
 	else:
 		ERROR_MSG("Ouroboros installation failed!")
@@ -1578,7 +1578,7 @@ def uninstall():
 		if getInput('Waring: Folder[%s] will be deleted: [deleteOuroboros|no]?' % (OURO_ROOT)) == "deleteOuroboros":
 			shutil.rmtree(OURO_ROOT)
 					
-	removeKBEEnvironment()
+	removeOUROEnvironment()
 	INFO_MSG("Uninstall Ouroboros completed!")
 
 def update():
@@ -1589,9 +1589,9 @@ def processCommand():
 	const_args = {
 		'update'	: update, 
 		'uninstall'	: uninstall, 
-		'version'	: echoKBEVersion, 
-		'evn'		: echoKBEEnvironment, 
-		'resetevn'	: resetKBEEnvironment, 
+		'version'	: echoOUROVersion, 
+		'evn'		: echoOUROEnvironment, 
+		'resetevn'	: resetOUROEnvironment, 
 		'help'		: help
 	}
 	  

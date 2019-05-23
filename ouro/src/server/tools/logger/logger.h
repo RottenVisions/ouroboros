@@ -41,7 +41,7 @@ struct LOG_ITEM
 	COMPONENT_ORDER componentGlobalOrder;
 	COMPONENT_ORDER componentGroupOrder;
 	int64 t;
-	GAME_TIME kbetime;
+	GAME_TIME ourotime;
 	std::stringstream logstream;
 	bool persistent;
 };

@@ -174,7 +174,7 @@ public:
 
 	static void handleMainTick();
 
-	typedef KBEUnordered_map<std::string, thread::ThreadPool*> DBThreadPoolMap;
+	typedef OUROUnordered_map<std::string, thread::ThreadPool*> DBThreadPoolMap;
 	static thread::ThreadPool* pThreadPool(const std::string& name)
 	{ 
 		DBThreadPoolMap::iterator iter = pThreadPoolMaps_.find(name);

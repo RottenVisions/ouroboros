@@ -12,7 +12,7 @@ namespace Network
 class UDPPacket : public Packet
 {
 public:
-	typedef KBEShared_ptr< SmartPoolObject< UDPPacket > > SmartPoolObjectPtr;
+	typedef OUROShared_ptr< SmartPoolObject< UDPPacket > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<UDPPacket>& ObjPool();
 	static UDPPacket* createPoolObject(const std::string& logPoint);

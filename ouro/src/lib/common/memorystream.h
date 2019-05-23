@@ -73,7 +73,7 @@ private:
 			stream << (int64)100000000;
 			stream << (uint8)1;
 			stream << (uint8)32;
-			stream << "kbe";
+			stream << "ouro";
 			stream.print_storage();
 			uint8 n, n1;
 			int64 x;
@@ -100,7 +100,7 @@ public:
 	static void reclaimPoolObject(MemoryStream* obj);
 	static void destroyObjPool();
 
-	typedef KBEShared_ptr< SmartPoolObject< MemoryStream > > SmartPoolObjectPtr;
+	typedef OUROShared_ptr< SmartPoolObject< MemoryStream > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 
 	virtual size_t getPoolObjectBytes();

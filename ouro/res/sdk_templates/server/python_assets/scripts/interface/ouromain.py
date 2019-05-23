@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import Ouroboros
-from KBEDebug import *
+from OURODebug import *
 from Poller import Poller
 
 """
@@ -28,7 +28,7 @@ Several features are currently supported:
 4: Platform callback
 	To accomplish this, you should create a socket in the script layer.
 	Attach the socket to Ouroboros (this prevents blocking from causing the main thread card) and then listen on the specified port.
-	Use KBE's Ouroboros.registerReadFileDescriptor() and Ouroboros.registerWriteFileDescriptor() to see the API documentation and Poller.py.
+	Use OURO's Ouroboros.registerReadFileDescriptor() and Ouroboros.registerWriteFileDescriptor() to see the API documentation and Poller.py.
 """
 
 g_poller = Poller()

@@ -128,7 +128,7 @@ public:
 
 	unsigned int getLastErrorNum() { return mysql_errno( pMysql_ ); }
 
-	typedef KBEUnordered_map<std::string, MYSQL_TABLE_FIELD> TABLE_FIELDS;
+	typedef OUROUnordered_map<std::string, MYSQL_TABLE_FIELD> TABLE_FIELDS;
 	void getFields(TABLE_FIELDS& outs, const char* tableName);
 
 	/**

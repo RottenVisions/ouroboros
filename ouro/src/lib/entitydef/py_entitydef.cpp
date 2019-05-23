@@ -864,10 +864,10 @@ static PyObject* __py_def_parse(PyObject *self, PyObject* args)
 	DefContext defContext;
 	defContext.optionName = cc.optionName;
 
-	PyObject* kbeModule = PyImport_AddModule("Ouroboros");
-	OURO_ASSERT(kbeModule);
+	PyObject* ouroModule = PyImport_AddModule("Ouroboros");
+	OURO_ASSERT(ouroModule);
 
-	PyObject* pyComponentName = PyObject_GetAttrString(kbeModule, "component");
+	PyObject* pyComponentName = PyObject_GetAttrString(ouroModule, "component");
 	if (!pyComponentName)
 	{
 		PyErr_Format(PyExc_AssertionError, "EntityDef.__py_def_call(): get Ouroboros.component error!\n");
@@ -1631,10 +1631,10 @@ static PyObject* __py_def_rename(PyObject* self, PyObject* args, PyObject* kwarg
 			defContext.moduleName = PyUnicode_AsUTF8AndSize(key, NULL);
 			defContext.returnType = typeName;
 
-			PyObject* kbeModule = PyImport_AddModule("Ouroboros");
-			OURO_ASSERT(kbeModule);
+			PyObject* ouroModule = PyImport_AddModule("Ouroboros");
+			OURO_ASSERT(ouroModule);
 
-			PyObject* pyComponentName = PyObject_GetAttrString(kbeModule, "component");
+			PyObject* pyComponentName = PyObject_GetAttrString(ouroModule, "component");
 			if (!pyComponentName)
 			{
 				PyErr_Format(PyExc_AssertionError, "EntityDef.rename(): get Ouroboros.component error!\n");
@@ -1727,10 +1727,10 @@ static PyObject* __py_def_fixed_array(PyObject* self, PyObject* args, PyObject* 
 			defContext.moduleName = PyUnicode_AsUTF8AndSize(key, NULL);
 			defContext.returnType = typeName;
 
-			PyObject* kbeModule = PyImport_AddModule("Ouroboros");
-			OURO_ASSERT(kbeModule);
+			PyObject* ouroModule = PyImport_AddModule("Ouroboros");
+			OURO_ASSERT(ouroModule);
 
-			PyObject* pyComponentName = PyObject_GetAttrString(kbeModule, "component");
+			PyObject* pyComponentName = PyObject_GetAttrString(ouroModule, "component");
 			if (!pyComponentName)
 			{
 				PyErr_Format(PyExc_AssertionError, "EntityDef.fixed_array(): get Ouroboros.component error!\n");
@@ -2032,18 +2032,18 @@ static bool execPython(COMPONENT_TYPE componentType)
 	PyObject *m = PyImport_AddModule("__main__");
 
 	// Add a script base module
-	PyObject* kbeModule = PyImport_AddModule("Ouroboros");
-	OURO_ASSERT(kbeModule);
+	PyObject* ouroModule = PyImport_AddModule("Ouroboros");
+	OURO_ASSERT(ouroModule);
 
-	Entity::registerScript(kbeModule);
-	Space::registerScript(kbeModule);
-	EntityComponent::registerScript(kbeModule);
+	Entity::registerScript(ouroModule);
+	Space::registerScript(ouroModule);
+	EntityComponent::registerScript(ouroModule);
 
 	if (componentType == BASEAPP_TYPE)
-		Proxy::registerScript(kbeModule);
+		Proxy::registerScript(ouroModule);
 
 	const char* componentName = COMPONENT_NAME_EX(componentType);
-	if (PyModule_AddStringConstant(kbeModule, "component", componentName))
+	if (PyModule_AddStringConstant(ouroModule, "component", componentName))
 	{
 		ERROR_MSG(fmt::format("PyEntityDef::execPython(): Unable to set Ouroboros.component to {}\n",
 			componentName));
@@ -2051,10 +2051,10 @@ static bool execPython(COMPONENT_TYPE componentType)
 		return false;
 	}
 
-	APPEND_SCRIPT_MODULE_METHOD(kbeModule, publish, __py_getAppPublish, METH_VARARGS, 0);
+	APPEND_SCRIPT_MODULE_METHOD(ouroModule, publish, __py_getAppPublish, METH_VARARGS, 0);
 
 	// Add the module object to main
-	PyObject_SetAttrString(m, "Ouroboros", kbeModule);
+	PyObject_SetAttrString(m, "Ouroboros", ouroModule);
 
 	if (pNewInterpreter != PyThreadState_Swap(pCurInterpreter))
 	{

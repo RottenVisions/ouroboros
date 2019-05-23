@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import Ouroboros
 import copy
-from KBEDebug import *
+from OURODebug import *
 
 class Account(Ouroboros.Entity):
 	def __init__(self):

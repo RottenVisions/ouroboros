@@ -161,7 +161,7 @@ std::string TelnetHandler::getWelcome()
 			"{}"
 			"\r\n---------------------------------------------"
 			" \033[0m\r\n{}",
-		COMPONENT_NAME_EX(g_componentType), KBEVersion::versionString(), KBEVersion::scriptVersionString(),
+		COMPONENT_NAME_EX(g_componentType), OUROVersion::versionString(), OUROVersion::scriptVersionString(),
 		OURO_CONFIG, __TIME__, __DATE__,
 		g_componentID, getUserUID(), getProcessPID(), help(), getInputStartString());
 }

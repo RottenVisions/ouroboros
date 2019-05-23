@@ -116,7 +116,7 @@ bool Config::loadConfig(std::string fileName)
 		childnode = xml->enterNode(rootNode, "script_version");
 		if(childnode)
 		{
-			KBEVersion::setScriptVersion(xml->getValStr(childnode));
+			OUROVersion::setScriptVersion(xml->getValStr(childnode));
 		}
 	}
 

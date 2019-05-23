@@ -227,7 +227,7 @@ bool ClientSDK::create(const std::string& path)
 //-------------------------------------------------------------------------------------
 void ClientSDK::onCreateTypeFileName()
 {
-	sourcefileName_ = "KBEType.unknown";
+	sourcefileName_ = "OUROType.unknown";
 	headerfileName_ = "";
 }
 
@@ -314,8 +314,8 @@ bool ClientSDK::copyPluginsSourceToPath(const std::string& path)
 		ss << input.rdbuf();
 		filebody = ss.str();
 
-		strutil::ouro_replace(filebody, "@{OURO_VERSION}", KBEVersion::versionString());
-		strutil::ouro_replace(filebody, "@{OURO_SCRIPT_VERSION}", KBEVersion::scriptVersionString());
+		strutil::ouro_replace(filebody, "@{OURO_VERSION}", OUROVersion::versionString());
+		strutil::ouro_replace(filebody, "@{OURO_SCRIPT_VERSION}", OUROVersion::scriptVersionString());
 		strutil::ouro_replace(filebody, "@{OURO_SERVER_PROTO_MD5}", Network::MessageHandlers::getDigestStr());
 		strutil::ouro_replace(filebody, "@{OURO_SERVER_ENTITYDEF_MD5}", EntityDef::md5().getDigestStr());
 		strutil::ouro_replace(filebody, "@{OURO_USE_ALIAS_ENTITYID}", g_ouroSrvConfig.getCellApp().aliasEntityID ? "true" : "false");

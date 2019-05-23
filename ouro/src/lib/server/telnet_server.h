@@ -25,7 +25,7 @@ public:
     TelnetServer(Network::EventDispatcher* pDispatcher, Network::NetworkInterface* networkInterface);
 	virtual ~TelnetServer(void);
 	
-	typedef std::map<int, KBEShared_ptr< TelnetHandler > >	TelnetHandlers;
+	typedef std::map<int, OUROShared_ptr< TelnetHandler > >	TelnetHandlers;
 
 	bool start(std::string passwd, std::string deflayer, u_int16_t port = 0, u_int32_t ip = INADDR_ANY);
 	bool stop();

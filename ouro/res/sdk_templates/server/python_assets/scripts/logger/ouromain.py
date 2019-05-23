@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import Ouroboros
-from KBEDebug import *
+from OURODebug import *
 
 """
 The logger process mainly handles the log save of the Ouroboros server.

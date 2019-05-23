@@ -39,7 +39,7 @@ thread::TPTask::TPTaskState DBTaskBase::presentMainThread()
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskSyncTable::DBTaskSyncTable(EntityTables* pEntityTables, KBEShared_ptr<EntityTable> pEntityTable) :
+DBTaskSyncTable::DBTaskSyncTable(EntityTables* pEntityTables, OUROShared_ptr<EntityTable> pEntityTable) :
 pEntityTable_(pEntityTable),
 success_(false),
 pEntityTables_(pEntityTables)

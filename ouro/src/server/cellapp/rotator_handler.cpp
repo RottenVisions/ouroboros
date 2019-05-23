@@ -9,7 +9,7 @@ namespace Ouroboros{
 
 
 //-------------------------------------------------------------------------------------
-RotatorHandler::RotatorHandler(KBEShared_ptr<Controller> pController, const Direction3D& destDir, float velocity, PyObject* userarg):
+RotatorHandler::RotatorHandler(OUROShared_ptr<Controller> pController, const Direction3D& destDir, float velocity, PyObject* userarg):
 destDir_(destDir),
 velocity_(fabs(velocity)),
 pyuserarg_(userarg),
@@ -28,7 +28,7 @@ RotatorHandler::RotatorHandler() :
 destDir_(0.f,0.f,0.f),
 velocity_(0.f),
 pyuserarg_(NULL),
-pController_(KBEShared_ptr<Controller>())
+pController_(OUROShared_ptr<Controller>())
 {
 	updatableName = "RotatorHandler";
 }
@@ -111,7 +111,7 @@ bool RotatorHandler::update()
 	}
 	else if (fabs(deltaYaw) > velocity_)
 	{
-		deltaYaw = KBEClamp(deltaYaw, -velocity_, velocity_);
+		deltaYaw = OUROClamp(deltaYaw, -velocity_, velocity_);
 		currDir.yaw(currDir.yaw() + deltaYaw);
 	}
 

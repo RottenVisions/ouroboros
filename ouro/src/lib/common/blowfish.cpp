@@ -7,7 +7,7 @@
 namespace Ouroboros { 
 
 //-------------------------------------------------------------------------------------
-KBEBlowfish::KBEBlowfish(const Key & key):
+OUROBlowfish::OUROBlowfish(const Key & key):
 key_(key),
 keySize_(key.size()),
 isGood_(false),
@@ -15,13 +15,13 @@ pBlowFishKey_(NULL)
 {
 	if (init())
 	{
-		//DEBUG_MSG(fmt::format("KBEBlowfish::KBEBlowfish(): Using Blowfish key: {}\n", 
+		//DEBUG_MSG(fmt::format("OUROBlowfish::OUROBlowfish(): Using Blowfish key: {}\n", 
 		//	this->strBlowFishKey()));
 	}
 }
 
 //-------------------------------------------------------------------------------------
-KBEBlowfish::KBEBlowfish(int keySize):
+OUROBlowfish::OUROBlowfish(int keySize):
 	key_(keySize, 0),
 	keySize_(keySize),
 	isGood_(false),
@@ -32,20 +32,20 @@ KBEBlowfish::KBEBlowfish(int keySize):
 
 	if (this->init())
 	{
-		DEBUG_MSG(fmt::format("KBEBlowfish::KBEBlowfish(): Using Blowfish key: {}\n", 
+		DEBUG_MSG(fmt::format("OUROBlowfish::OUROBlowfish(): Using Blowfish key: {}\n", 
 			this->strBlowFishKey()));
 	}
 }
 
 //-------------------------------------------------------------------------------------
-KBEBlowfish::~KBEBlowfish()
+OUROBlowfish::~OUROBlowfish()
 {
 	delete pBlowFishKey();
 	pBlowFishKey_ = NULL;
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEBlowfish::init()
+bool OUROBlowfish::init()
 {
 	pBlowFishKey_ = new BF_KEY;
 
@@ -56,7 +56,7 @@ bool KBEBlowfish::init()
 	}
 	else
 	{
-		ERROR_MSG(fmt::format("KBEBlowfish::init: "
+		ERROR_MSG(fmt::format("OUROBlowfish::init: "
 			"invalid length {}\n",
 			keySize_));
 
@@ -67,7 +67,7 @@ bool KBEBlowfish::init()
 }
 
 //-------------------------------------------------------------------------------------
-const char * KBEBlowfish::strBlowFishKey() const
+const char * OUROBlowfish::strBlowFishKey() const
 {
 	static char buf[1024];
 	char *c = buf;
@@ -82,7 +82,7 @@ const char * KBEBlowfish::strBlowFishKey() const
 }
 
 //-------------------------------------------------------------------------------------
-int KBEBlowfish::encrypt( const unsigned char * src, unsigned char * dest,
+int OUROBlowfish::encrypt( const unsigned char * src, unsigned char * dest,
 	int length )
 {
 	// BLOCK_SIZEµÄÕûÊý±¶
@@ -113,7 +113,7 @@ int KBEBlowfish::encrypt( const unsigned char * src, unsigned char * dest,
 }
 
 //-------------------------------------------------------------------------------------
-int KBEBlowfish::decrypt( const unsigned char * src, unsigned char * dest,
+int OUROBlowfish::decrypt( const unsigned char * src, unsigned char * dest,
 	int length )
 {
 	if (length % BLOCK_SIZE != 0)

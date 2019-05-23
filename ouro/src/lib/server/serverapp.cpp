@@ -529,9 +529,9 @@ void ServerApp::hello(Network::Channel* pChannel, MemoryStream& s)
 	INFO_MSG(fmt::format("ServerApp::onHello: verInfo={}, scriptVerInfo={}, encryptedKey={}, addr:{}\n", 
 		verInfo, scriptVerInfo, encryptedKey_str, pChannel->c_str()));
 
-	if(verInfo != KBEVersion::versionString())
+	if(verInfo != OUROVersion::versionString())
 		onVersionNotMatch(pChannel);
-	else if(scriptVerInfo != KBEVersion::scriptVersionString())
+	else if(scriptVerInfo != OUROVersion::scriptVersionString())
 		onScriptVersionNotMatch(pChannel);
 	else
 		onHello(pChannel, verInfo, scriptVerInfo, encryptedKey);

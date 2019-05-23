@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include "KBECommon.h"
+#include "OUROCommon.h"
 #include "ServerErrorDescrs.h"
 #include "Interfaces.h"
-#include "KBETicker.h"
+#include "OUROTicker.h"
 
 namespace Ouroboros
 {
@@ -43,8 +43,8 @@ public:
 	void destroy();
 	void reset();
 	
-	void installUKBETicker();
-	void uninstallUKBETicker();
+	void installUOUROTicker();
+	void uninstallUOUROTicker();
 
 	NetworkInterfaceBase* pNetworkInterface() const {
 		return pNetworkInterface_;
@@ -517,7 +517,7 @@ protected:
 	FString component_;
 
 	EncryptionFilter *pFilter_;
-	UKBETicker *pUKBETicker_;
+	UOUROTicker *pUOUROTicker_;
 
 };
 

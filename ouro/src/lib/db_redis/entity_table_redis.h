@@ -433,7 +433,7 @@ public:
 
 	virtual ~EntityTableItemRedis_FIXED_DICT(){};
 
-	typedef std::vector< std::pair< std::string, KBEShared_ptr<EntityTableItem> > > FIXEDDICT_KEYTYPES;
+	typedef std::vector< std::pair< std::string, OUROShared_ptr<EntityTableItem> > > FIXEDDICT_KEYTYPES;
 
 	uint8 type() const{ return TABLE_ITEM_TYPE_FIXEDDICT; }
 

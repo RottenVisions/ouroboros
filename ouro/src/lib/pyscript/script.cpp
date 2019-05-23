@@ -221,7 +221,7 @@ bool Script::install(const wchar_t* pythonHomeDir, std::wstring pyPaths,
 
 	math::installModule("Math");
 	INFO_MSG(fmt::format("Script::install(): is successfully, Python=({})!\n", Py_GetVersion()));
-	return installExtraModule("KBExtra");
+	return installExtraModule("OUROxtra");
 }
 
 //-------------------------------------------------------------------------------------

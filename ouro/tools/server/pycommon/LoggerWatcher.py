@@ -19,31 +19,31 @@ Logger_writeLog					= 704
 CONSOLE_LOG_MSGID = 65501 # log message
 
 
-KBELOG_UNKNOWN			= 0x00000000
-KBELOG_PRINT			= 0x00000001
-KBELOG_ERROR			= 0x00000002
-KBELOG_WARNING			= 0x00000004
-KBELOG_DEBUG			= 0x00000008
-KBELOG_INFO				= 0x00000010
-KBELOG_CRITICAL			= 0x00000020
-KBELOG_SCRIPT_INFO		= 0x00000040
-KBELOG_SCRIPT_ERROR		= 0x00000080
-KBELOG_SCRIPT_DEBUG 	= 0x00000100
-KBELOG_SCRIPT_WARNING	= 0x00000200
-KBELOG_SCRIPT_NORMAL	= 0x00000400
+OUROLOG_UNKNOWN			= 0x00000000
+OUROLOG_PRINT			= 0x00000001
+OUROLOG_ERROR			= 0x00000002
+OUROLOG_WARNING			= 0x00000004
+OUROLOG_DEBUG			= 0x00000008
+OUROLOG_INFO				= 0x00000010
+OUROLOG_CRITICAL			= 0x00000020
+OUROLOG_SCRIPT_INFO		= 0x00000040
+OUROLOG_SCRIPT_ERROR		= 0x00000080
+OUROLOG_SCRIPT_DEBUG 	= 0x00000100
+OUROLOG_SCRIPT_WARNING	= 0x00000200
+OUROLOG_SCRIPT_NORMAL	= 0x00000400
 
 logName2type = {
-	"PRINT"		:	KBELOG_PRINT,
-	"ERROR"		:	KBELOG_ERROR,
-	"WARNING"	:	KBELOG_WARNING,
-	"DEBUG"		:	KBELOG_DEBUG,
-	"INFO"		:	KBELOG_INFO,
-	"CRITICAL"	:	KBELOG_CRITICAL,
-	"S_NORM"	:	KBELOG_SCRIPT_NORMAL,
-	"S_INFO"	:	KBELOG_SCRIPT_INFO,
-	"S_ERR"		:	KBELOG_SCRIPT_ERROR,
-	"S_DBG"		:	KBELOG_SCRIPT_DEBUG,
-	"S_WARN"	:	KBELOG_SCRIPT_WARNING,
+	"PRINT"		:	OUROLOG_PRINT,
+	"ERROR"		:	OUROLOG_ERROR,
+	"WARNING"	:	OUROLOG_WARNING,
+	"DEBUG"		:	OUROLOG_DEBUG,
+	"INFO"		:	OUROLOG_INFO,
+	"CRITICAL"	:	OUROLOG_CRITICAL,
+	"S_NORM"	:	OUROLOG_SCRIPT_NORMAL,
+	"S_INFO"	:	OUROLOG_SCRIPT_INFO,
+	"S_ERR"		:	OUROLOG_SCRIPT_ERROR,
+	"S_DBG"		:	OUROLOG_SCRIPT_DEBUG,
+	"S_WARN"	:	OUROLOG_SCRIPT_WARNING,
 }
 
 class LoggerWatcher:
@@ -84,7 +84,7 @@ class LoggerWatcher:
 		msg.write( struct.pack("=H", struct.calcsize("=iIiiccB" + "i" * Define.COMPONENT_END_TYPE + "BB") ) ) # package len	
 		msg.write( struct.pack("=i", uid ) )
 		msg.write( struct.pack("=I",0xffffffff) ) # logtypes filter
-		# msg.write( struct.pack("=I",KBELOG_WARNING ) ) # logtypes filter
+		# msg.write( struct.pack("=I",OUROLOG_WARNING ) ) # logtypes filter
 		msg.write( struct.pack("=iicc", 0, 0, '\0'.encode(), '\0'.encode())) # globalOrder, groupOrder, date, keyStr
 		msg.write( struct.pack("=B" ,Define.COMPONENT_END_TYPE) ) # component type filter count 
 		msg.write( struct.pack("="+"i" * Define.COMPONENT_END_TYPE, *list(range(Define.COMPONENT_END_TYPE)))) # component type filter
@@ -103,7 +103,7 @@ class LoggerWatcher:
 		msg.write( struct.pack("=H", struct.calcsize("=iIiiccB" + "i" * Define.COMPONENT_END_TYPE + "BB") + len(searchDate.encode()) + len(keystr.encode())) ) # package len
 		msg.write( struct.pack("=i", uid ) )
 		msg.write( struct.pack("=I",logtype) ) # logtypes filter
-		# msg.write( struct.pack("=I",KBELOG_WARNING ) ) # logtypes filter
+		# msg.write( struct.pack("=I",OUROLOG_WARNING ) ) # logtypes filter
 		msg.write( struct.pack("=ii" + d1 + "sc" + d2 + "sc", globalOrder, groupOrder, searchDate.encode() ,'\0'.encode() , keystr.encode(), '\0'.encode() )) # globalOrder, groupOrder, date, keyStr
 		msg.write( struct.pack("=B" ,Define.COMPONENT_END_TYPE) ) # component type filter count 
 		msg.write( struct.pack("="+"i" * Define.COMPONENT_END_TYPE, *list(list(components_check)))) # component type filter
@@ -151,7 +151,7 @@ class LoggerWatcher:
 		msg.write( struct.pack("=I", logName2type[type]) ) # logtype
 		msg.write( struct.pack("=i", Define.WATCHER_TYPE ) )
 		msg.write( struct.pack("=Qii", 0, 0, 0) ) # componentID, globalOrder, groupOrder
-		msg.write( struct.pack("=qI", int(time.time()), 0) ) # time, kbetime
+		msg.write( struct.pack("=qI", int(time.time()), 0) ) # time, ourotime
 		msg.write( struct.pack("=I", logSize) ) # log size
 		msg.write( logStr )
 		

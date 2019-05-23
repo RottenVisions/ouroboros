@@ -13,7 +13,7 @@
 namespace Ouroboros{ 
 
 static Ouroboros::thread::ThreadMutex _g_logMutex;
-static KBEUnordered_map< std::string, uint32 > g_querystatistics;
+static OUROUnordered_map< std::string, uint32 > g_querystatistics;
 static bool _g_installedWatcher = false;
 static bool _g_debug = false;
 
@@ -22,7 +22,7 @@ static uint32 watcher_query(std::string cmd)
 {
 	Ouroboros::thread::ThreadGuard tg(&_g_logMutex);
 
-	KBEUnordered_map< std::string, uint32 >::iterator iter = g_querystatistics.find(cmd);
+	OUROUnordered_map< std::string, uint32 >::iterator iter = g_querystatistics.find(cmd);
 	if (iter != g_querystatistics.end())
 	{
 		return iter->second;
@@ -947,7 +947,7 @@ void RedisWatcher::querystatistics(const char* strCommand, uint32 size)
 
 	_g_logMutex.lockMutex();
 
-	KBEUnordered_map< std::string, uint32 >::iterator iter = g_querystatistics.find(op);
+	OUROUnordered_map< std::string, uint32 >::iterator iter = g_querystatistics.find(op);
 	if(iter == g_querystatistics.end())
 	{
 		g_querystatistics[op] = 1;

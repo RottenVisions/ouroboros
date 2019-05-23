@@ -178,7 +178,7 @@
 	
 	<SERVER_ERR_LOCAL_PROCESSING>
 		<id>35</id>
-		<descr> Local processing, usually something that is not handled by a third party but handled by a KBE server. </descr>
+		<descr> Local processing, usually something that is not handled by a third party but handled by a OURO server. </descr>
 	</SERVER_ERR_LOCAL_PROCESSING>
 	
 	<SERVER_ERR_ACCOUNT_RESET_PASSWORD_NOT_AVAILABLE>

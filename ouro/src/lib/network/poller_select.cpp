@@ -85,7 +85,7 @@ int SelectPoller::processPendingEvents(double maxWait)
 	uint64 startTime = timestamp();
 #endif
 
-	KBEConcurrency::onStartMainThreadIdling();
+	OUROConcurrency::onStartMainThreadIdling();
 
 	int countReady = 0;
 
@@ -101,7 +101,7 @@ int SelectPoller::processPendingEvents(double maxWait)
 				fdWriteCount_ ? &writeFDs : NULL, NULL, &nextTimeout);
 	}
 
-	KBEConcurrency::onEndMainThreadIdling();
+	OUROConcurrency::onEndMainThreadIdling();
 
 #if ENABLE_WATCHERS
 	g_idleProfile.stop();

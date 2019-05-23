@@ -32,7 +32,7 @@ class PacketSender;
 class Channel : public TimerHandler, public PoolObject
 {
 public:
-	typedef KBEShared_ptr< SmartPoolObject< Channel > > SmartPoolObjectPtr;
+	typedef OUROShared_ptr< SmartPoolObject< Channel > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<Channel>& ObjPool();
 	static Channel* createPoolObject(const std::string& logPoint);

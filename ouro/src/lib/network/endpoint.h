@@ -18,7 +18,7 @@ class Bundle;
 class EndPoint : public PoolObject
 {
 public:
-	typedef KBEShared_ptr< SmartPoolObject< EndPoint > > SmartPoolObjectPtr;
+	typedef OUROShared_ptr< SmartPoolObject< EndPoint > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<EndPoint>& ObjPool();
 	static EndPoint* createPoolObject(const std::string& logPoint);
@@ -28,7 +28,7 @@ public:
 
 	virtual size_t getPoolObjectBytes()
 	{
-		size_t bytes = sizeof(KBESOCKET)
+		size_t bytes = sizeof(OUROSOCKET)
 		 + address_.getPoolObjectBytes();
 
 		return bytes;
@@ -38,13 +38,13 @@ public:
 	EndPoint(u_int32_t networkAddr = 0, u_int16_t networkPort = 0);
 	virtual ~EndPoint();
 
-	INLINE operator KBESOCKET() const;
+	INLINE operator OUROSOCKET() const;
 	
 	static void initNetwork();
 	INLINE bool good() const;
 		
 	void socket(int type);
-	INLINE KBESOCKET socket() const;
+	INLINE OUROSOCKET socket() const;
 	
 	INLINE void setFileDescriptor(int fd);
 
@@ -117,7 +117,7 @@ public:
 
 	bool waitSend();
 
-	void setSocketRef(KBESOCKET s) 
+	void setSocketRef(OUROSOCKET s) 
 	{
 		socket_ = s;
 		isRefSocket_ = true;
@@ -131,7 +131,7 @@ public:
 	}
 
 protected:
-	KBESOCKET socket_;
+	OUROSOCKET socket_;
 	Address address_;
 	SSL* sslHandle_;
 	SSL_CTX* sslContext_;

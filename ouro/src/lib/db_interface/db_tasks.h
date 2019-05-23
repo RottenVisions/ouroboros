@@ -48,13 +48,13 @@ protected:
 class DBTaskSyncTable : public DBTaskBase
 {
 public:
-	DBTaskSyncTable(EntityTables* pEntityTables, KBEShared_ptr<EntityTable> pEntityTable);
+	DBTaskSyncTable(EntityTables* pEntityTables, OUROShared_ptr<EntityTable> pEntityTable);
 	virtual ~DBTaskSyncTable();
 	virtual bool db_thread_process();
 	virtual thread::TPTask::TPTaskState presentMainThread();
 
 protected:
-	KBEShared_ptr<EntityTable> pEntityTable_;
+	OUROShared_ptr<EntityTable> pEntityTable_;
 	bool success_;
 	EntityTables* pEntityTables_;
 };

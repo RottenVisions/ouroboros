@@ -203,7 +203,7 @@ void autoFixUserDigestUID();
 // is used to describe any option that is automatically set to not do after only one time.
 #define OURO_NEXT_ONLY								2
 
-/** c/c++ data category converted to KBEDataTypeID*/
+/** c/c++ data category converted to OURODataTypeID*/
 #define OURO_DATATYPE2ID_MAX							21
 uint16 datatype2id(std::string datatype);
 

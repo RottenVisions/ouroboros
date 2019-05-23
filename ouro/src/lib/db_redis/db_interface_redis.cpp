@@ -31,10 +31,10 @@ bool DBInterfaceRedis::initInterface(DBInterface* pdbi)
 {
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi->name());
 
-	entityTables.addKBETable(new KBEAccountTableRedis(&entityTables));
-	entityTables.addKBETable(new KBEServerLogTableRedis(&entityTables));
-	entityTables.addKBETable(new KBEEntityLogTableRedis(&entityTables));
-	entityTables.addKBETable(new KBEEmailVerificationTableRedis(&entityTables));
+	entityTables.addOUROTable(new OUROAccountTableRedis(&entityTables));
+	entityTables.addOUROTable(new OUROServerLogTableRedis(&entityTables));
+	entityTables.addOUROTable(new OUROEntityLogTableRedis(&entityTables));
+	entityTables.addOUROTable(new OUROEmailVerificationTableRedis(&entityTables));
 	return true;
 }
 

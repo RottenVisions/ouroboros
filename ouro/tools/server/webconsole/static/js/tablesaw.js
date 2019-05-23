@@ -19,7 +19,7 @@ if( typeof Tablesaw === "undefined" ) {
 		},
 		// cut the mustard
 		mustard: 'querySelector' in document &&
-			( !window.blacourorry || window.WebKitPoint ) &&
+			( !window.blackberry || window.WebKitPoint ) &&
 			!window.operamini
 	};
 }

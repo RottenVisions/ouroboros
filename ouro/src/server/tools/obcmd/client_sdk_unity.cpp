@@ -145,7 +145,7 @@ std::string ClientSDKUnity::typeToType(const std::string& type)
 //-------------------------------------------------------------------------------------
 void ClientSDKUnity::onCreateTypeFileName()
 {
-	sourcefileName_ = "KBETypes.cs";
+	sourcefileName_ = "OUROTypes.cs";
 }
 
 //-------------------------------------------------------------------------------------

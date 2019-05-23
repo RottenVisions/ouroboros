@@ -31,7 +31,7 @@ public:
 	NavigationHandlePtr findNavigation(std::string resPath);
 
 private:
-	KBEUnordered_map<std::string, NavigationHandlePtr> navhandles_;
+	OUROUnordered_map<std::string, NavigationHandlePtr> navhandles_;
 	Ouroboros::thread::ThreadMutex mutex_;
 };
 

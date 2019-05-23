@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "KBETicker.h"
+#include "OUROTicker.h"
 #include "Engine.h"
 #include "KBDebug.h"
 #include "Entity.h"
@@ -10,25 +10,25 @@
 #include "Editor.h"
 #endif
 
-UKBETicker::UKBETicker()
+UOUROTicker::UOUROTicker()
 {
 #if WITH_EDITOR
-	FEditorDelegates::EndPIE.AddUObject(this, &UKBETicker::OnEndPIE);
+	FEditorDelegates::EndPIE.AddUObject(this, &UOUROTicker::OnEndPIE);
 #endif
 }
 
-UKBETicker::~UKBETicker()
+UOUROTicker::~UOUROTicker()
 {
 }
 
-void UKBETicker::Tick(float DeltaTime)
+void UOUROTicker::Tick(float DeltaTime)
 {
 	OBEvent::processOutEvents();
 
 	APawn* ue4_player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	Ouroboros::Entity* ouro_player = Ouroboros::OuroborosApp::getSingleton().player();
 
-	// Each tick writes the player coordinates of UE4 to the player entity coordinates in the KBE plugin, and the plugin will periodically synchronize to the server.
+	// Each tick writes the player coordinates of UE4 to the player entity coordinates in the OURO plugin, and the plugin will periodically synchronize to the server.
 	if (ouro_player && ue4_player)
 	{
 		UE4Pos2KBPos(ouro_player->position, ue4_player->GetActorLocation());
@@ -40,17 +40,17 @@ void UKBETicker::Tick(float DeltaTime)
 	Ouroboros::OuroborosApp::getSingleton().process();
 }
 
-bool UKBETicker::IsTickable() const
+bool UOUROTicker::IsTickable() const
 {
 	return true;
 }
 
-TStatId UKBETicker::GetStatId() const
+TStatId UOUROTicker::GetStatId() const
 {
 	return TStatId();
 }
 
-UWorld* UKBETicker::GetWorld() const
+UWorld* UOUROTicker::GetWorld() const
 { 
 	UWorld* World = (GetOuter() != nullptr) ? GetOuter()->GetWorld() : GWorld;	
 	if (World == nullptr)
@@ -60,22 +60,22 @@ UWorld* UKBETicker::GetWorld() const
 	return World; 
 }
 
-bool UKBETicker::IsTickableWhenPaused() const
+bool UOUROTicker::IsTickableWhenPaused() const
 {
 	return false;
 }
 
-bool UKBETicker::IsTickableInEditor() const
+bool UOUROTicker::IsTickableInEditor() const
 {
 	return false;
 }
 
-UWorld* UKBETicker::GetTickableGameObjectWorld() const
+UWorld* UOUROTicker::GetTickableGameObjectWorld() const
 {
 	return GetWorld();
 }
 
-void UKBETicker::OnEndPIE(const bool data)
+void UOUROTicker::OnEndPIE(const bool data)
 {
 #if WITH_EDITOR
 	Ouroboros::OuroborosApp::destroyOuroborosApp();

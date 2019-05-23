@@ -135,7 +135,7 @@ MessageHandler* MessageHandlers::add(std::string ihName, MessageArgs* args,
 	if(msgID_ == 1)
 	{
 		//printf("\n------------------------------------------------------------------\n");
-		//printf("KBEMessage_handlers begin:\n");
+		//printf("OUROMessage_handlers begin:\n");
 	}
 	
 	//bool isfixedMsg = false;

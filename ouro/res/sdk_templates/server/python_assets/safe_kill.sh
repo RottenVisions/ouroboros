@@ -15,8 +15,8 @@ fi
 
 
 
-export OURO_RES_PATH="$OURO_ROOT/kbe/res/:$(pwd):$(pwd)/res:$(pwd)/scripts/"
-export OURO_BIN_PATH="$OURO_ROOT/kbe/bin/server/"
+export OURO_RES_PATH="$OURO_ROOT/ouro/res/:$(pwd):$(pwd)/res:$(pwd)/scripts/"
+export OURO_BIN_PATH="$OURO_ROOT/ouro/bin/server/"
 
 userid=`id -u $1 &>/dev/null`
 XUID=$?
@@ -28,4 +28,4 @@ then
 	echo UID=$XUID
 fi
 
-python "$OURO_ROOT/kbe/tools/server/pycluster/cluster_controller.py" stop $XUID
+python "$OURO_ROOT/ouro/tools/server/pycluster/cluster_controller.py" stop $XUID

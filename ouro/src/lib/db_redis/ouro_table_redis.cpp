@@ -14,7 +14,7 @@
 namespace Ouroboros { 
 
 //-------------------------------------------------------------------------------------
-bool KBEEntityLogTableRedis::syncToDB(DBInterface* pdbi)
+bool OUROEntityLogTableRedis::syncToDB(DBInterface* pdbi)
 {
 	/*
 	Generate table data when there is data
@@ -25,7 +25,7 @@ bool KBEEntityLogTableRedis::syncToDB(DBInterface* pdbi)
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEntityLogTableRedis::logEntity(DBInterface * pdbi, const char* ip, uint32 port, DBID dbid,
+bool OUROEntityLogTableRedis::logEntity(DBInterface * pdbi, const char* ip, uint32 port, DBID dbid,
 					COMPONENT_ID componentID, ENTITY_ID entityID, ENTITY_SCRIPT_UID entityType)
 {
 	/*
@@ -39,7 +39,7 @@ bool KBEEntityLogTableRedis::logEntity(DBInterface * pdbi, const char* ip, uint3
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEntityLogTableRedis::queryEntity(DBInterface * pdbi, DBID dbid, EntityLog& entitylog, ENTITY_SCRIPT_UID entityType)
+bool OUROEntityLogTableRedis::queryEntity(DBInterface * pdbi, DBID dbid, EntityLog& entitylog, ENTITY_SCRIPT_UID entityType)
 {
 	/*
 	ouro_entitylog:dbid:entityType = hashes(entityID, ip, port, componentID, serverGroupID)
@@ -77,7 +77,7 @@ bool KBEEntityLogTableRedis::queryEntity(DBInterface * pdbi, DBID dbid, EntityLo
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEntityLogTableRedis::eraseEntityLog(DBInterface * pdbi, DBID dbid, ENTITY_SCRIPT_UID entityType)
+bool OUROEntityLogTableRedis::eraseEntityLog(DBInterface * pdbi, DBID dbid, ENTITY_SCRIPT_UID entityType)
 {
 	std::string sqlstr = fmt::format("HDEL " OURO_TABLE_PERFIX "_entitylog:{}:{}", 
 		dbid, entityType);
@@ -87,38 +87,38 @@ bool KBEEntityLogTableRedis::eraseEntityLog(DBInterface * pdbi, DBID dbid, ENTIT
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEntityLogTableRedis::eraseBaseappEntityLog(DBInterface * pdbi, COMPONENT_ID componentID)
+bool OUROEntityLogTableRedis::eraseBaseappEntityLog(DBInterface * pdbi, COMPONENT_ID componentID)
 {
 	return false;
 }
 
 //-------------------------------------------------------------------------------------
-KBEEntityLogTableRedis::KBEEntityLogTableRedis(EntityTables* pEntityTables) :
-KBEEntityLogTable(pEntityTables)
+OUROEntityLogTableRedis::OUROEntityLogTableRedis(EntityTables* pEntityTables) :
+OUROEntityLogTable(pEntityTables)
 {
 }
 
 
 //-------------------------------------------------------------------------------------
-bool KBEServerLogTableRedis::syncToDB(DBInterface* pdbi)
-{
-	return true;
-}
-
-//-------------------------------------------------------------------------------------
-bool KBEServerLogTableRedis::updateServer(DBInterface * pdbi)
+bool OUROServerLogTableRedis::syncToDB(DBInterface* pdbi)
 {
 	return true;
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEServerLogTableRedis::queryServer(DBInterface * pdbi, ServerLog& serverlog)
+bool OUROServerLogTableRedis::updateServer(DBInterface * pdbi)
 {
 	return true;
 }
 
 //-------------------------------------------------------------------------------------
-std::vector<COMPONENT_ID> KBEServerLogTableRedis::queryTimeOutServers(DBInterface * pdbi)
+bool OUROServerLogTableRedis::queryServer(DBInterface * pdbi, ServerLog& serverlog)
+{
+	return true;
+}
+
+//-------------------------------------------------------------------------------------
+std::vector<COMPONENT_ID> OUROServerLogTableRedis::queryTimeOutServers(DBInterface * pdbi)
 {
 	std::vector<COMPONENT_ID> cids;
 
@@ -126,7 +126,7 @@ std::vector<COMPONENT_ID> KBEServerLogTableRedis::queryTimeOutServers(DBInterfac
 }
 
 //-------------------------------------------------------------------------------------
-std::vector<COMPONENT_ID> KBEServerLogTableRedis::queryServers(DBInterface * pdbi)
+std::vector<COMPONENT_ID> OUROServerLogTableRedis::queryServers(DBInterface * pdbi)
 {
 	std::vector<COMPONENT_ID> cids;
 
@@ -134,31 +134,31 @@ std::vector<COMPONENT_ID> KBEServerLogTableRedis::queryServers(DBInterface * pdb
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEServerLogTableRedis::clearServers(DBInterface * pdbi, const std::vector<COMPONENT_ID>& cids)
+bool OUROServerLogTableRedis::clearServers(DBInterface * pdbi, const std::vector<COMPONENT_ID>& cids)
 {
 	return true;
 }
 
 //-------------------------------------------------------------------------------------
-KBEServerLogTableRedis::KBEServerLogTableRedis(EntityTables* pEntityTables):
-KBEServerLogTable(pEntityTables)
+OUROServerLogTableRedis::OUROServerLogTableRedis(EntityTables* pEntityTables):
+OUROServerLogTable(pEntityTables)
 {
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableRedis::syncToDB(DBInterface* pdbi)
+bool OUROAccountTableRedis::syncToDB(DBInterface* pdbi)
 {
 	return true;
 }
 
 //-------------------------------------------------------------------------------------
-KBEAccountTableRedis::KBEAccountTableRedis(EntityTables* pEntityTables) :
-KBEAccountTable(pEntityTables)
+OUROAccountTableRedis::OUROAccountTableRedis(EntityTables* pEntityTables) :
+OUROAccountTable(pEntityTables)
 {
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableRedis::setFlagsDeadline(DBInterface * pdbi, const std::string& name, uint32 flags, uint64 deadline)
+bool OUROAccountTableRedis::setFlagsDeadline(DBInterface * pdbi, const std::string& name, uint32 flags, uint64 deadline)
 {
 	/*
 	ouro_accountinfos:accountName = hashes(password, bindata, email, entityDBID, flags, deadline, regtime, lasttime, numlogin)
@@ -173,7 +173,7 @@ bool KBEAccountTableRedis::setFlagsDeadline(DBInterface * pdbi, const std::strin
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableRedis::queryAccount(DBInterface * pdbi, const std::string& name, ACCOUNT_INFOS& info)
+bool OUROAccountTableRedis::queryAccount(DBInterface * pdbi, const std::string& name, ACCOUNT_INFOS& info)
 {
 	/*
 	ouro_accountinfos:accountName = hashes(password, bindata, email, entityDBID, flags, deadline, regtime, lasttime, numlogin)
@@ -207,7 +207,7 @@ bool KBEAccountTableRedis::queryAccount(DBInterface * pdbi, const std::string& n
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableRedis::queryAccountAllInfos(DBInterface * pdbi, const std::string& name, ACCOUNT_INFOS& info)
+bool OUROAccountTableRedis::queryAccountAllInfos(DBInterface * pdbi, const std::string& name, ACCOUNT_INFOS& info)
 {
 	/*
 	ouro_accountinfos:accountName = hashes(password, bindata, email, entityDBID, flags, deadline, regtime, lasttime, numlogin)
@@ -241,7 +241,7 @@ bool KBEAccountTableRedis::queryAccountAllInfos(DBInterface * pdbi, const std::s
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableRedis::updateCount(DBInterface * pdbi, const std::string& name, DBID dbid)
+bool OUROAccountTableRedis::updateCount(DBInterface * pdbi, const std::string& name, DBID dbid)
 {
 	/*
 	ouro_accountinfos:accountName = hashes(password, bindata, email, entityDBID, flags, deadline, regtime, lasttime, numlogin)
@@ -270,7 +270,7 @@ bool KBEAccountTableRedis::updateCount(DBInterface * pdbi, const std::string& na
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableRedis::updatePassword(DBInterface * pdbi, const std::string& name, const std::string& password)
+bool OUROAccountTableRedis::updatePassword(DBInterface * pdbi, const std::string& name, const std::string& password)
 {
 	// Return exists if the query fails, avoiding possible errors
 	if(!pdbi->query(fmt::format("HSET " OURO_TABLE_PERFIX "_accountinfos:{} password {}", name, password), false))
@@ -280,7 +280,7 @@ bool KBEAccountTableRedis::updatePassword(DBInterface * pdbi, const std::string&
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableRedis::logAccount(DBInterface * pdbi, ACCOUNT_INFOS& info)
+bool OUROAccountTableRedis::logAccount(DBInterface * pdbi, ACCOUNT_INFOS& info)
 {
 	std::string sqlstr = fmt::format("HSET " OURO_TABLE_PERFIX "_accountinfos:{} accountName {} password {} bindata {} ",
 		"email {} entityDBID {} flags {} deadline {} regtime {} lasttime {}", 
@@ -290,7 +290,7 @@ bool KBEAccountTableRedis::logAccount(DBInterface * pdbi, ACCOUNT_INFOS& info)
 	// Return exists if the query fails, avoiding possible errors
 	if(!pdbi->query(sqlstr.c_str(), sqlstr.size(), false))
 	{
-		ERROR_MSG(fmt::format("KBEAccountTableRedis::logAccount({}): cmd({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROAccountTableRedis::logAccount({}): cmd({}) is failed({})!\n", 
 				info.name, sqlstr, pdbi->getstrerror()));
 
 		return false;
@@ -300,18 +300,18 @@ bool KBEAccountTableRedis::logAccount(DBInterface * pdbi, ACCOUNT_INFOS& info)
 }
 
 //-------------------------------------------------------------------------------------
-KBEEmailVerificationTableRedis::KBEEmailVerificationTableRedis(EntityTables* pEntityTables) :
-KBEEmailVerificationTable(pEntityTables)
+OUROEmailVerificationTableRedis::OUROEmailVerificationTableRedis(EntityTables* pEntityTables) :
+OUROEmailVerificationTable(pEntityTables)
 {
 }
 	
 //-------------------------------------------------------------------------------------
-KBEEmailVerificationTableRedis::~KBEEmailVerificationTableRedis()
+OUROEmailVerificationTableRedis::~OUROEmailVerificationTableRedis()
 {
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableRedis::queryAccount(DBInterface * pdbi, int8 type, const std::string& name, ACCOUNT_INFOS& info)
+bool OUROEmailVerificationTableRedis::queryAccount(DBInterface * pdbi, int8 type, const std::string& name, ACCOUNT_INFOS& info)
 {
 	/*
 	ouro_email_verification:code = hashes(accountName, type, datas, logtime)
@@ -342,7 +342,7 @@ bool KBEEmailVerificationTableRedis::queryAccount(DBInterface * pdbi, int8 type,
 	}
 	else
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::queryAccount({}): cmd({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::queryAccount({}): cmd({}) is failed({})!\n", 
 				name, pdbi->lastquery(), pdbi->getstrerror()));
 				
 		return false;
@@ -360,7 +360,7 @@ bool KBEEmailVerificationTableRedis::queryAccount(DBInterface * pdbi, int8 type,
 	}
 	else
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::queryAccount({}): cmd({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::queryAccount({}): cmd({}) is failed({})!\n", 
 				name, pdbi->lastquery(), pdbi->getstrerror()));
 				
 		return false;
@@ -372,21 +372,21 @@ bool KBEEmailVerificationTableRedis::queryAccount(DBInterface * pdbi, int8 type,
 }
 
 //-------------------------------------------------------------------------------------
-int KBEEmailVerificationTableRedis::getDeadline(int8 type)
+int OUROEmailVerificationTableRedis::getDeadline(int8 type)
 {
 	int deadline = 3600;
-	if(type == (int8)KBEEmailVerificationTable::V_TYPE_CREATEACCOUNT)
+	if(type == (int8)OUROEmailVerificationTable::V_TYPE_CREATEACCOUNT)
 		deadline = g_ouroSrvConfig.emailAtivationInfo_.deadline;
-	else if(type == (int8)KBEEmailVerificationTable::V_TYPE_RESETPASSWORD)
+	else if(type == (int8)OUROEmailVerificationTable::V_TYPE_RESETPASSWORD)
 		deadline = g_ouroSrvConfig.emailResetPasswordInfo_.deadline;
-	else if(type == (int8)KBEEmailVerificationTable::V_TYPE_BIND_MAIL)
+	else if(type == (int8)OUROEmailVerificationTable::V_TYPE_BIND_MAIL)
 		deadline = g_ouroSrvConfig.emailBindInfo_.deadline;
 	
 	return deadline;
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableRedis::logAccount(DBInterface * pdbi, int8 type, const std::string& name, 
+bool OUROEmailVerificationTableRedis::logAccount(DBInterface * pdbi, int8 type, const std::string& name, 
 												const std::string& datas, const std::string& code)
 {
 	/*
@@ -400,7 +400,7 @@ bool KBEEmailVerificationTableRedis::logAccount(DBInterface * pdbi, int8 type, c
 	if(!pdbi->query(fmt::format("HSET " OURO_TABLE_PERFIX "_email_verification:{} accountName {} type {} datas {} logtime {}", 
 		code, name, type, datas, time(NULL)), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::logAccount({}): cmd({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::logAccount({}): cmd({}) is failed({})!\n", 
 				code, pdbi->lastquery(), pdbi->getstrerror()));
 		
 		transaction.rollback();
@@ -410,7 +410,7 @@ bool KBEEmailVerificationTableRedis::logAccount(DBInterface * pdbi, int8 type, c
 	// Return exists if the query fails, avoiding possible errors
 	if(!pdbi->query(fmt::format("SET " OURO_TABLE_PERFIX "_email_verification:{} {}", name, code), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::logAccount({}): cmd({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::logAccount({}): cmd({}) is failed({})!\n", 
 				code, pdbi->lastquery(), pdbi->getstrerror()));	
 		
 		transaction.rollback();	
@@ -421,7 +421,7 @@ bool KBEEmailVerificationTableRedis::logAccount(DBInterface * pdbi, int8 type, c
 	if(!pdbi->query(fmt::format("EXPIRE " OURO_TABLE_PERFIX "_email_verification:{} {}", 
 		code.c_str(), getDeadline(type)), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::logAccount({}): cmd({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::logAccount({}): cmd({}) is failed({})!\n", 
 				code, pdbi->lastquery(), pdbi->getstrerror()));
 		
 		transaction.rollback();	
@@ -432,7 +432,7 @@ bool KBEEmailVerificationTableRedis::logAccount(DBInterface * pdbi, int8 type, c
 	if(!pdbi->query(fmt::format("EXPIRE " OURO_TABLE_PERFIX "_email_verification:{} {}", 
 		name.c_str(), getDeadline(type)), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::logAccount({}): cmd({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::logAccount({}): cmd({}) is failed({})!\n", 
 				code, pdbi->lastquery(), pdbi->getstrerror()));
 		
 		transaction.rollback();	
@@ -447,7 +447,7 @@ bool KBEEmailVerificationTableRedis::logAccount(DBInterface * pdbi, int8 type, c
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableRedis::activateAccount(DBInterface * pdbi, const std::string& code, ACCOUNT_INFOS& info)
+bool OUROEmailVerificationTableRedis::activateAccount(DBInterface * pdbi, const std::string& code, ACCOUNT_INFOS& info)
 {
 	/*
 	ouro_email_verification:code = hashes(accountName, type, datas, logtime)
@@ -479,7 +479,7 @@ bool KBEEmailVerificationTableRedis::activateAccount(DBInterface * pdbi, const s
 
 	if(logtime > 0 && time(NULL) - logtime > g_ouroSrvConfig.emailAtivationInfo_.deadline)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::activateAccount({}): is expired! {} > {}.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::activateAccount({}): is expired! {} > {}.\n", 
 				code, (time(NULL) - logtime), g_ouroSrvConfig.emailAtivationInfo_.deadline));
 
 		return false;
@@ -487,15 +487,15 @@ bool KBEEmailVerificationTableRedis::activateAccount(DBInterface * pdbi, const s
 
 	if(info.name.size() == 0)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::activateAccount({}): name is NULL.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::activateAccount({}): name is NULL.\n", 
 				code));
 
 		return false;
 	}
 	
-	if((int)KBEEmailVerificationTable::V_TYPE_CREATEACCOUNT != type)
+	if((int)OUROEmailVerificationTable::V_TYPE_CREATEACCOUNT != type)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::activateAccount({}): type({}) error!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::activateAccount({}): type({}) error!\n", 
 				code, type));
 
 		return false;
@@ -504,7 +504,7 @@ bool KBEEmailVerificationTableRedis::activateAccount(DBInterface * pdbi, const s
 	std::string password = info.password;
 
 	// Find if dblog has this account
-	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(EntityTables::findByInterfaceName(pdbi->name()).findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
+	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(EntityTables::findByInterfaceName(pdbi->name()).findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
 	
 	info.flags = 0;
@@ -515,7 +515,7 @@ bool KBEEmailVerificationTableRedis::activateAccount(DBInterface * pdbi, const s
 
 	if((info.flags & ACCOUNT_FLAG_NOT_ACTIVATED) <= 0)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableRedis::activateAccount({}): Has been activated, flags={}.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableRedis::activateAccount({}): Has been activated, flags={}.\n", 
 				code, info.flags));
 
 		return false;
@@ -525,14 +525,14 @@ bool KBEEmailVerificationTableRedis::activateAccount(DBInterface * pdbi, const s
 
 	if(!pTable->setFlagsDeadline(pdbi, info.name, info.flags, info.deadline))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableRedis::activateAccount({}): set deadline error({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableRedis::activateAccount({}): set deadline error({})!\n", 
 				code, pdbi->getstrerror()));
 		return false;
 	}
 
 	if(!pTable->updatePassword(pdbi, info.name, password))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableRedis::activateAccount({}): update password error({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableRedis::activateAccount({}): update password error({})!\n", 
 				code, pdbi->getstrerror()));
 
 		return false;
@@ -558,7 +558,7 @@ bool KBEEmailVerificationTableRedis::activateAccount(DBInterface * pdbi, const s
 	if(!pdbi->query(fmt::format("HSET " OURO_TABLE_PERFIX "_accountinfos:{} entityDBID {}", 
 		info.name, info.dbid), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableRedis::activateAccount({}): update " OURO_TABLE_PERFIX "_accountinfos error({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableRedis::activateAccount({}): update " OURO_TABLE_PERFIX "_accountinfos error({})!\n", 
 				code, pdbi->getstrerror()));
 
 		return false;
@@ -569,7 +569,7 @@ bool KBEEmailVerificationTableRedis::activateAccount(DBInterface * pdbi, const s
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableRedis::bindEMail(DBInterface * pdbi, const std::string& name, const std::string& code)
+bool OUROEmailVerificationTableRedis::bindEMail(DBInterface * pdbi, const std::string& name, const std::string& code)
 {
 	/*
 	ouro_email_verification:code = hashes(accountName, type, datas, logtime)
@@ -579,7 +579,7 @@ bool KBEEmailVerificationTableRedis::bindEMail(DBInterface * pdbi, const std::st
 
 	if (!pdbi->query(fmt::format("HMGET " OURO_TABLE_PERFIX "_email_verification:{} accountName type, datas logtime", code), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableRedis::bindEMail({}): cmd({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableRedis::bindEMail({}): cmd({}) is failed({})!\n", 
 				code, pdbi->lastquery(), pdbi->getstrerror()));
 	}	
 
@@ -605,7 +605,7 @@ bool KBEEmailVerificationTableRedis::bindEMail(DBInterface * pdbi, const std::st
 
 	if(logtime > 0 && time(NULL) - logtime > g_ouroSrvConfig.emailBindInfo_.deadline)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableRedis::bindEMail({}): is expired! {} > {}.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableRedis::bindEMail({}): is expired! {} > {}.\n", 
 				code, (time(NULL) - logtime), g_ouroSrvConfig.emailBindInfo_.deadline));
 
 		return false;
@@ -613,7 +613,7 @@ bool KBEEmailVerificationTableRedis::bindEMail(DBInterface * pdbi, const std::st
 
 	if(qname.size() == 0 || qemail.size() == 0)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableRedis::bindEMail({}): name or email is NULL.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableRedis::bindEMail({}): name or email is NULL.\n", 
 				code));
 
 		return false;
@@ -621,15 +621,15 @@ bool KBEEmailVerificationTableRedis::bindEMail(DBInterface * pdbi, const std::st
 	
 	if(qemail != name)
 	{
-		WARNING_MSG(fmt::format("KBEEmailVerificationTableRedis::bindEMail: code({}) username({}:{}, {}) not match.\n" 
+		WARNING_MSG(fmt::format("OUROEmailVerificationTableRedis::bindEMail: code({}) username({}:{}, {}) not match.\n" 
 			, code, name, qname, qemail));
 
 		return false;
 	}
 
-	if((int)KBEEmailVerificationTable::V_TYPE_BIND_MAIL != type)
+	if((int)OUROEmailVerificationTable::V_TYPE_BIND_MAIL != type)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::bindEMail({}): type({}) error!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::bindEMail({}): type({}) error!\n", 
 				code, type));
 
 		return false;
@@ -643,7 +643,7 @@ bool KBEEmailVerificationTableRedis::bindEMail(DBInterface * pdbi, const std::st
 	if(!pdbi->query(fmt::format("HSET " OURO_TABLE_PERFIX "_accountinfos:{} email {}", 
 		qname, qemail), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableRedis::bindEMail({}): update " OURO_TABLE_PERFIX "_accountinfos({}) error({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableRedis::bindEMail({}): update " OURO_TABLE_PERFIX "_accountinfos({}) error({})!\n", 
 				code, qname, pdbi->getstrerror()));
 
 		return false;
@@ -654,7 +654,7 @@ bool KBEEmailVerificationTableRedis::bindEMail(DBInterface * pdbi, const std::st
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableRedis::resetpassword(DBInterface * pdbi, const std::string& name, 
+bool OUROEmailVerificationTableRedis::resetpassword(DBInterface * pdbi, const std::string& name, 
 												   const std::string& password, const std::string& code)
 {
 	/*
@@ -665,7 +665,7 @@ bool KBEEmailVerificationTableRedis::resetpassword(DBInterface * pdbi, const std
 
 	if (!pdbi->query(fmt::format("HMGET " OURO_TABLE_PERFIX "_email_verification:{} accountName type, datas logtime", code), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableRedis::bindEMail({}): cmd({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableRedis::bindEMail({}): cmd({}) is failed({})!\n", 
 				code, pdbi->lastquery(), pdbi->getstrerror()));
 	}	
 
@@ -691,7 +691,7 @@ bool KBEEmailVerificationTableRedis::resetpassword(DBInterface * pdbi, const std
 
 	if(logtime > 0 && time(NULL) - logtime > g_ouroSrvConfig.emailResetPasswordInfo_.deadline)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableRedis::resetpassword({}): is expired! {} > {}.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableRedis::resetpassword({}): is expired! {} > {}.\n", 
 				code, (time(NULL) - logtime), g_ouroSrvConfig.emailResetPasswordInfo_.deadline));
 
 		return false;
@@ -699,7 +699,7 @@ bool KBEEmailVerificationTableRedis::resetpassword(DBInterface * pdbi, const std
 
 	if(qname.size() == 0 || password.size() == 0)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableRedis::resetpassword({}): name or password is NULL.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableRedis::resetpassword({}): name or password is NULL.\n", 
 				code));
 
 		return false;
@@ -707,27 +707,27 @@ bool KBEEmailVerificationTableRedis::resetpassword(DBInterface * pdbi, const std
 
 	if(qname != name)
 	{
-		WARNING_MSG(fmt::format("KBEEmailVerificationTableRedis::resetpassword: code({}) username({} != {}) not match.\n" 
+		WARNING_MSG(fmt::format("OUROEmailVerificationTableRedis::resetpassword: code({}) username({} != {}) not match.\n" 
 			, code, name, qname));
 
 		return false;
 	}
 
-	if((int)KBEEmailVerificationTable::V_TYPE_RESETPASSWORD != type)
+	if((int)OUROEmailVerificationTable::V_TYPE_RESETPASSWORD != type)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::resetpassword({}): type({}) error!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::resetpassword({}): type({}) error!\n", 
 				code, type));
 
 		return false;
 	}
 	
 	// Find if dblog has this account
-	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(EntityTables::findByInterfaceName(pdbi->name()).findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
+	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(EntityTables::findByInterfaceName(pdbi->name()).findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
 
 	if(!pTable->updatePassword(pdbi, qname, OURO_MD5::getDigest(password.data(), password.length())))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableRedis::resetpassword({}): update accountName({}) password error({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableRedis::resetpassword({}): update accountName({}) password error({})!\n", 
 				code, qname, pdbi->getstrerror()));
 
 		return false;
@@ -738,7 +738,7 @@ bool KBEEmailVerificationTableRedis::resetpassword(DBInterface * pdbi, const std
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableRedis::delAccount(DBInterface * pdbi, int8 type, const std::string& name)
+bool OUROEmailVerificationTableRedis::delAccount(DBInterface * pdbi, int8 type, const std::string& name)
 {
 	/*
 	ouro_email_verification:code = hashes(accountName, type, datas, logtime)
@@ -778,7 +778,7 @@ bool KBEEmailVerificationTableRedis::delAccount(DBInterface * pdbi, int8 type, c
 	}
 	else
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::queryAccount({}): cmd({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::queryAccount({}): cmd({}) is failed({})!\n", 
 				name, pdbi->lastquery(), pdbi->getstrerror()));
 				
 		return false;
@@ -788,7 +788,7 @@ bool KBEEmailVerificationTableRedis::delAccount(DBInterface * pdbi, int8 type, c
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableRedis::syncToDB(DBInterface* pdbi)
+bool OUROEmailVerificationTableRedis::syncToDB(DBInterface* pdbi)
 {
 	return true;
 }

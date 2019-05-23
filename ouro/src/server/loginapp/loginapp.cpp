@@ -1347,9 +1347,9 @@ void Loginapp::onHello(Network::Channel* pChannel,
 	if (initProgress_ < 1.f)
 		(*pBundle) << "Getting";
 	else
-		(*pBundle) << KBEVersion::versionString();
+		(*pBundle) << OUROVersion::versionString();
 
-	(*pBundle) << KBEVersion::scriptVersionString();
+	(*pBundle) << OUROVersion::scriptVersionString();
 	(*pBundle) << Network::MessageHandlers::getDigestStr();
 	(*pBundle) << digest_;
 	(*pBundle) << g_componentType;
@@ -1382,7 +1382,7 @@ void Loginapp::onVersionNotMatch(Network::Channel* pChannel)
 	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	
 	pBundle->newMessage(ClientInterface::onVersionNotMatch);
-	(*pBundle) << KBEVersion::versionString();
+	(*pBundle) << OUROVersion::versionString();
 	pChannel->send(pBundle);
 }
 
@@ -1392,7 +1392,7 @@ void Loginapp::onScriptVersionNotMatch(Network::Channel* pChannel)
 	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	
 	pBundle->newMessage(ClientInterface::onScriptVersionNotMatch);
-	(*pBundle) << KBEVersion::scriptVersionString();
+	(*pBundle) << OUROVersion::scriptVersionString();
 	pChannel->send(pBundle);
 }
 

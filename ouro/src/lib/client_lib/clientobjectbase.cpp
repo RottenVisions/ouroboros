@@ -577,10 +577,10 @@ void ClientObjectBase::onVersionNotMatch(Network::Channel* pChannel, MemoryStrea
 	s >> verInfo;
 	
 	INFO_MSG(fmt::format("ClientObjectBase::onVersionNotMatch: verInfo={} not match(server:{})\n",
-		KBEVersion::versionString(), verInfo));
+		OUROVersion::versionString(), verInfo));
 
 	EventData_VersionNotMatch eventdata;
-	eventdata.verInfo = KBEVersion::versionString();
+	eventdata.verInfo = OUROVersion::versionString();
 	eventdata.serVerInfo = verInfo;
 	eventHandler_.fire(&eventdata);
 }
@@ -592,10 +592,10 @@ void ClientObjectBase::onScriptVersionNotMatch(Network::Channel* pChannel, Memor
 	s >> verInfo;
 	
 	INFO_MSG(fmt::format("ClientObjectBase::onScriptVersionNotMatch: verInfo={} not match(server:{})\n", 
-		KBEVersion::scriptVersionString(), verInfo));
+		OUROVersion::scriptVersionString(), verInfo));
 
 	EventData_ScriptVersionNotMatch eventdata;
-	eventdata.verInfo = KBEVersion::scriptVersionString();
+	eventdata.verInfo = OUROVersion::scriptVersionString();
 	eventdata.serVerInfo = verInfo;
 	eventHandler_.fire(&eventdata);
 }
@@ -1214,7 +1214,7 @@ void ClientObjectBase::updatePlayerToServer()
 
 	bool dirChanged = !almostEqual(dir.yaw(), clientDir.yaw()) || !almostEqual(dir.pitch(), clientDir.pitch()) || !almostEqual(dir.roll(), clientDir.roll());
 	Vector3 movement = pos - clientPos;
-	bool posChanged =  KBEVec3Length(&movement) > 0.0004f;
+	bool posChanged =  OUROVec3Length(&movement) > 0.0004f;
 
     if(posChanged || dirChanged)
     {
@@ -1250,7 +1250,7 @@ void ClientObjectBase::updatePlayerToServer()
 
         dirChanged = !almostEqual(tempdir.yaw(), tempClientDir.yaw()) || !almostEqual(tempdir.pitch(), tempClientDir.pitch()) || !almostEqual(tempdir.roll(), tempClientDir.roll());
         movement = temppos - tempClientPos;
-        posChanged = KBEVec3Length(&movement) > 0.0004f;
+        posChanged = OUROVec3Length(&movement) > 0.0004f;
         if (posChanged || dirChanged)
         {
             entity->position(tempClientPos);
@@ -2470,7 +2470,7 @@ PyObject* ClientObjectBase::__py_getWatcher(PyObject* self, PyObject* args)
 
 	//DebugHelper::getSingleton().setScriptMsgType(type);
 
-	KBEShared_ptr< WatcherObject > pWobj = WatcherPaths::root().getWatcher(path);
+	OUROShared_ptr< WatcherObject > pWobj = WatcherPaths::root().getWatcher(path);
 	if(pWobj.get() == NULL)
 	{
 		PyErr_Format(PyExc_TypeError, "Ouroboros::getWatcher(): not found watcher[%s]!", path);

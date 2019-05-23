@@ -34,7 +34,7 @@ class MemoryStream;
 #define TABLE_ITEM_TYPE_PYTHON		11
 #define TABLE_ITEM_TYPE_COMPONENT	12
 
-#define OURO_TABLE_PERFIX						"kbe"
+#define OURO_TABLE_PERFIX						"ouro"
 #define ENTITY_TABLE_PERFIX						"tbl"
 #define TABLE_ID_CONST_STR						"id"
 #define TABLE_PARENTID_CONST_STR				"parentID"
@@ -174,7 +174,7 @@ protected:
 class EntityTable
 {
 public:
-	typedef std::map<int32/*ENTITY_PROPERTY_UID*/, KBEShared_ptr<EntityTableItem> > TABLEITEM_MAP;
+	typedef std::map<int32/*ENTITY_PROPERTY_UID*/, OUROShared_ptr<EntityTableItem> > TABLEITEM_MAP;
 
 	EntityTable(EntityTables* pEntityTables) :
 	tableName_(),
@@ -295,11 +295,11 @@ public:
 		}
 	};
 
-	typedef KBEUnordered_map<std::string, EntityTables> ENTITY_TABLES_MAP;
+	typedef OUROUnordered_map<std::string, EntityTables> ENTITY_TABLES_MAP;
 	static ENTITY_TABLES_MAP sEntityTables;
 	static EntityTables& findByInterfaceName(const std::string& dbInterfaceName);
 
-	typedef KBEUnordered_map<std::string, KBEShared_ptr<EntityTable>, case_insensitive_hasher, case_insensitive_comparer> TABLES_MAP;
+	typedef OUROUnordered_map<std::string, OUROShared_ptr<EntityTable>, case_insensitive_hasher, case_insensitive_comparer> TABLES_MAP;
 
 	EntityTables();
 	virtual ~EntityTables();
@@ -320,9 +320,9 @@ public:
 
 	EntityTable* findTable(std::string name);
 
-	void addKBETable(EntityTable* pTable);
+	void addOUROTable(EntityTable* pTable);
 
-	EntityTable* findKBETable(std::string name);
+	EntityTable* findOUROTable(std::string name);
 
 	/**
 		Write entity to the database
@@ -339,7 +339,7 @@ public:
 	*/
 	bool queryEntity(DBInterface* pdbi, DBID dbid, MemoryStream* s, ScriptDefModule* pModule);
 
-	void onTableSyncSuccessfully(KBEShared_ptr<EntityTable> pEntityTable, bool error);
+	void onTableSyncSuccessfully(OUROShared_ptr<EntityTable> pEntityTable, bool error);
 
 	/**
 		Query automatically loaded entities

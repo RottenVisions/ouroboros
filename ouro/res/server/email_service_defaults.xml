@@ -18,7 +18,7 @@
 				<html>
 				<body>
 				Account activation <br><br>
-				This letter was sent by Ouroboros (configuration file: ouroboros\kbe\res\server\email_service.xml). <br>
+				This letter was sent by Ouroboros (configuration file: ouroboros\ouro\res\server\email_service.xml). <br>
 				You received this email because it was used by Ouroboros new users when registering. If you have not visited Ouroboros,
 				Or did not do this, please ignore this email. You do not need to unsubscribe or perform other further operations. <br>
 				----------------------------------------------------------------------<br>

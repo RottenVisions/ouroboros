@@ -93,7 +93,7 @@ public:
 		mysql::DBContext::DB_ITEM_DATAS::iterator tableValIter = tableItemDatas.begin();
 		for(; tableValIter != tableItemDatas.end(); ++tableValIter)
 		{
-			KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = (*tableValIter);
+			OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = (*tableValIter);
 
 			if(dbid > 0)
 			{
@@ -169,7 +169,7 @@ public:
 		mysql::DBContext::DB_ITEM_DATAS::iterator tableValIter = tableItemDatas.begin();
 		for(; tableValIter != tableItemDatas.end(); ++tableValIter)
 		{
-			KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = (*tableValIter);
+			OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = (*tableValIter);
 			
 			sqlstr_ += pSotvs->sqlkey;
 			sqlstr_ += "=";
@@ -250,7 +250,7 @@ public:
 		mysql::DBContext::DB_ITEM_DATAS::iterator tableValIter = tableItemDatas.begin();
 		for(; tableValIter != tableItemDatas.end(); ++tableValIter)
 		{
-			KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = (*tableValIter);
+			OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = (*tableValIter);
 			
 			sqlstr_ += pSotvs->sqlkey;
 			sqlstr_ += ",";

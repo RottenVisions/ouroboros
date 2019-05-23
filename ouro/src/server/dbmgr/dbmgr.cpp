@@ -97,7 +97,7 @@ ShutdownHandler::CAN_SHUTDOWN_STATE Dbmgr::canShutdown()
 		}
 	}
 
-	KBEUnordered_map<std::string, Buffered_DBTasks>::iterator bditer = bufferedDBTasksMaps_.begin();
+	OUROUnordered_map<std::string, Buffered_DBTasks>::iterator bditer = bufferedDBTasksMaps_.begin();
 	for (; bditer != bufferedDBTasksMaps_.end(); ++bditer)
 	{
 		if (bditer->second.size() > 0)
@@ -171,7 +171,7 @@ bool Dbmgr::initializeWatcher()
 	WATCH_OBJECT("numExecuteRawDatabaseCommand", numExecuteRawDatabaseCommand_);
 	WATCH_OBJECT("numCreatedAccount", numCreatedAccount_);
 
-	KBEUnordered_map<std::string, Buffered_DBTasks>::iterator bditer = bufferedDBTasksMaps_.begin();
+	OUROUnordered_map<std::string, Buffered_DBTasks>::iterator bditer = bufferedDBTasksMaps_.begin();
 	for (; bditer != bufferedDBTasksMaps_.end(); ++bditer)
 	{
 		WATCH_OBJECT(fmt::format("DBThreadPool/{}/dbid_tasksSize", bditer->first).c_str(), &bditer->second, &Buffered_DBTasks::dbid_tasksSize);
@@ -213,8 +213,8 @@ void Dbmgr::handleMainTick()
 	AUTO_SCOPED_PROFILE("mainTick");
 	
 	 // time_t t = ::time(NULL);
-	 // static int kbeTime = 0;
-	 // DEBUG_MSG(fmt::format("Dbmgr::handleGameTick[{}]:{}\n", t, ++kbeTime));
+	 // static int ouroTime = 0;
+	 // DEBUG_MSG(fmt::format("Dbmgr::handleGameTick[{}]:{}\n", t, ++ouroTime));
 	
 	threadPool_.onMainThreadTick();
 	DBUtil::handleMainTick();
@@ -1156,8 +1156,8 @@ void Dbmgr::syncEntityStreamTemplate(Network::Channel* pChannel, Ouroboros::Memo
 	EntityTables::ENTITY_TABLES_MAP::iterator iter = EntityTables::sEntityTables.begin();
 	for (; iter != EntityTables::sEntityTables.end(); ++iter)
 	{
-		KBEAccountTable* pTable =
-			static_cast<KBEAccountTable*>(iter->second.findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
+		OUROAccountTable* pTable =
+			static_cast<OUROAccountTable*>(iter->second.findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
 
 		OURO_ASSERT(pTable);
 

@@ -40,4 +40,4 @@
     <appender-ref ref="TEMP" />
   </root>
 
-</log4j:configuration>
+</log4j:configuration

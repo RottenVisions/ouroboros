@@ -9,7 +9,7 @@ namespace Ouroboros
 /*
 	Ouroboros's math related module
 */
-public class KBEMath 
+public class OUROMath 
 {
 	public static float OURO_FLT_MAX = float.MaxValue;
 	

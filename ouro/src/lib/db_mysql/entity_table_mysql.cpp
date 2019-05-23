@@ -254,7 +254,7 @@ bool EntityTableMysql::syncIndexToDB(DBInterface* pdbi)
 		return false;
 	}
 
-	KBEUnordered_map<std::string, std::string> currDBKeys;
+	OUROUnordered_map<std::string, std::string> currDBKeys;
 
 	MYSQL_RES * pResult = mysql_store_result(static_cast<DBInterfaceMysql*>(pdbi)->mysql());
 	if(pResult)
@@ -288,7 +288,7 @@ bool EntityTableMysql::syncIndexToDB(DBInterface* pdbi)
 	for(; iiter != indexs.end(); )
 	{
 		std::string itemName = fmt::format(TABLE_ITEM_PERFIX"_{}", (*iiter)->itemName());
-		KBEUnordered_map<std::string, std::string>::iterator fiter = currDBKeys.find(itemName);
+		OUROUnordered_map<std::string, std::string>::iterator fiter = currDBKeys.find(itemName);
 		if(fiter != currDBKeys.end())
 		{
 			bool deleteIndex = fiter->second != (*iiter)->indexType();
@@ -331,7 +331,7 @@ bool EntityTableMysql::syncIndexToDB(DBInterface* pdbi)
 	}
 
 	// The rest is the index to be deleted from the database.
-	KBEUnordered_map<std::string, std::string>::iterator dbkey_iter = currDBKeys.begin();
+	OUROUnordered_map<std::string, std::string>::iterator dbkey_iter = currDBKeys.begin();
 	for(; dbkey_iter != currDBKeys.end(); ++dbkey_iter)
 	{
 		sql += fmt::format("DROP INDEX `{}`,", dbkey_iter->first);
@@ -884,8 +884,8 @@ void EntityTableMysql::getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql
 	context1->dbid = 0;
 	context1->isEmpty = (s == NULL);
 
-	KBEShared_ptr< mysql::DBContext > opTableValBox1Ptr(context1);
-	context.optable.push_back(std::pair<std::string/*tableName*/, KBEShared_ptr< mysql::DBContext > >
+	OUROShared_ptr< mysql::DBContext > opTableValBox1Ptr(context1);
+	context.optable.push_back(std::pair<std::string/*tableName*/, OUROShared_ptr< mysql::DBContext > >
 		((*iter)->tableName(), opTableValBox1Ptr));
 
 	for(; iter != tableFixedOrderItems_.end(); ++iter)
@@ -909,8 +909,8 @@ void EntityTableMysql::getReadSqlItem(mysql::DBContext& context)
 	context1->dbid = 0;
 	context1->isEmpty = true;
 
-	KBEShared_ptr< mysql::DBContext > opTableValBox1Ptr(context1);
-	context.optable.push_back(std::pair<std::string/*tableName*/, KBEShared_ptr< mysql::DBContext > >
+	OUROShared_ptr< mysql::DBContext > opTableValBox1Ptr(context1);
+	context.optable.push_back(std::pair<std::string/*tableName*/, OUROShared_ptr< mysql::DBContext > >
 		((*iter)->tableName(), opTableValBox1Ptr));
 
 	for(; iter != tableFixedOrderItems_.end(); ++iter)
@@ -990,7 +990,7 @@ void EntityTableItemMysql_VECTOR2::getWriteSqlItem(DBInterface* pdbi, MemoryStre
 		ouro_snprintf(pSotvs->sqlval, MAX_BUF, "%f", v);
 #endif
 		
-		context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+		context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 	}
 }
 
@@ -1002,7 +1002,7 @@ void EntityTableItemMysql_VECTOR2::getReadSqlItem(mysql::DBContext& context)
 		mysql::DBContext::DB_ITEM_DATA* pSotvs = new mysql::DBContext::DB_ITEM_DATA();
 		pSotvs->sqlkey = db_item_names_[i];
 		memset(pSotvs->sqlval, 0, MAX_BUF);
-		context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+		context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 	}
 }
 
@@ -1073,7 +1073,7 @@ void EntityTableItemMysql_VECTOR3::getWriteSqlItem(DBInterface* pdbi, MemoryStre
 		ouro_snprintf(pSotvs->sqlval, MAX_BUF, "%f", v);
 #endif
 
-		context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+		context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 	}
 }
 
@@ -1085,7 +1085,7 @@ void EntityTableItemMysql_VECTOR3::getReadSqlItem(mysql::DBContext& context)
 		mysql::DBContext::DB_ITEM_DATA* pSotvs = new mysql::DBContext::DB_ITEM_DATA();
 		pSotvs->sqlkey = db_item_names_[i];
 		memset(pSotvs->sqlval, 0, MAX_BUF);
-		context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+		context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 	}
 }
 
@@ -1156,7 +1156,7 @@ void EntityTableItemMysql_VECTOR4::getWriteSqlItem(DBInterface* pdbi, MemoryStre
 		ouro_snprintf(pSotvs->sqlval, MAX_BUF, "%f", v);
 #endif
 
-		context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+		context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 	}
 }
 
@@ -1168,7 +1168,7 @@ void EntityTableItemMysql_VECTOR4::getReadSqlItem(mysql::DBContext& context)
 		mysql::DBContext::DB_ITEM_DATA* pSotvs = new mysql::DBContext::DB_ITEM_DATA();
 		pSotvs->sqlkey = db_item_names_[i];
 		memset(pSotvs->sqlval, 0, MAX_BUF);
-		context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+		context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 	}
 }
 
@@ -1392,7 +1392,7 @@ bool EntityTableItemMysql_FIXED_DICT::initialize(const PropertyDescription* pPro
 		if(!tableItem->initialize(pPropertyDescription, iter->second->dataType, iter->first))
 			return false;
 
-		std::pair< std::string, KBEShared_ptr<EntityTableItem> > itemVal;
+		std::pair< std::string, OUROShared_ptr<EntityTableItem> > itemVal;
 		itemVal.first = iter->first;
 		itemVal.second.reset(tableItem);
 
@@ -1791,7 +1791,7 @@ void EntityTableItemMysql_DIGIT::getWriteSqlItem(DBInterface* pdbi, MemoryStream
 	}
 
 	pSotvs->sqlkey = db_item_name();
-	context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+	context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 }
 
 //-------------------------------------------------------------------------------------
@@ -1800,7 +1800,7 @@ void EntityTableItemMysql_DIGIT::getReadSqlItem(mysql::DBContext& context)
 	mysql::DBContext::DB_ITEM_DATA* pSotvs = new mysql::DBContext::DB_ITEM_DATA();
 	pSotvs->sqlkey = db_item_name();
 	memset(pSotvs->sqlval, 0, MAX_BUF);
-	context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+	context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 }
 
 //-------------------------------------------------------------------------------------
@@ -1863,7 +1863,7 @@ void EntityTableItemMysql_STRING::getWriteSqlItem(DBInterface* pdbi,
 
 	memset(pSotvs->sqlval, 0, sizeof(pSotvs->sqlval));
 	pSotvs->sqlkey = db_item_name();
-	context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+	context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 }
 
 //-------------------------------------------------------------------------------------
@@ -1872,7 +1872,7 @@ void EntityTableItemMysql_STRING::getReadSqlItem(mysql::DBContext& context)
 	mysql::DBContext::DB_ITEM_DATA* pSotvs = new mysql::DBContext::DB_ITEM_DATA();
 	pSotvs->sqlkey = db_item_name();
 	memset(pSotvs->sqlval, 0, MAX_BUF);
-	context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+	context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 }
 
 //-------------------------------------------------------------------------------------
@@ -1933,7 +1933,7 @@ void EntityTableItemMysql_UNICODE::getWriteSqlItem(DBInterface* pdbi, MemoryStre
 
 	memset(pSotvs->sqlval, 0, sizeof(pSotvs->sqlval));
 	pSotvs->sqlkey = db_item_name();
-	context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+	context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 }
 
 //-------------------------------------------------------------------------------------
@@ -1942,7 +1942,7 @@ void EntityTableItemMysql_UNICODE::getReadSqlItem(mysql::DBContext& context)
 	mysql::DBContext::DB_ITEM_DATA* pSotvs = new mysql::DBContext::DB_ITEM_DATA();
 	pSotvs->sqlkey = db_item_name();
 	memset(pSotvs->sqlval, 0, MAX_BUF);
-	context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+	context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 }
 
 //-------------------------------------------------------------------------------------
@@ -1985,7 +1985,7 @@ void EntityTableItemMysql_BLOB::getWriteSqlItem(DBInterface* pdbi, MemoryStream*
 
 	memset(pSotvs->sqlval, 0, sizeof(pSotvs->sqlval));
 	pSotvs->sqlkey = db_item_name();
-	context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+	context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 }
 
 //-------------------------------------------------------------------------------------
@@ -1994,7 +1994,7 @@ void EntityTableItemMysql_BLOB::getReadSqlItem(mysql::DBContext& context)
 	mysql::DBContext::DB_ITEM_DATA* pSotvs = new mysql::DBContext::DB_ITEM_DATA();
 	pSotvs->sqlkey = db_item_name();
 	memset(pSotvs->sqlval, 0, MAX_BUF);
-	context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+	context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 }
 
 //-------------------------------------------------------------------------------------
@@ -2037,7 +2037,7 @@ void EntityTableItemMysql_PYTHON::getWriteSqlItem(DBInterface* pdbi, MemoryStrea
 
 	memset(pSotvs->sqlval, 0, sizeof(pSotvs->sqlval));
 	pSotvs->sqlkey = db_item_name();
-	context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+	context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 }
 
 //-------------------------------------------------------------------------------------
@@ -2046,7 +2046,7 @@ void EntityTableItemMysql_PYTHON::getReadSqlItem(mysql::DBContext& context)
 	mysql::DBContext::DB_ITEM_DATA* pSotvs = new mysql::DBContext::DB_ITEM_DATA();
 	pSotvs->sqlkey = db_item_name();
 	memset(pSotvs->sqlval, 0, MAX_BUF);
-	context.items.push_back(KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
+	context.items.push_back(OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA>(pSotvs));
 }
 
 //-------------------------------------------------------------------------------------

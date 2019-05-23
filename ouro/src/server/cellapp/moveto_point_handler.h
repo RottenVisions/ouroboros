@@ -23,7 +23,7 @@ public:
 	void addToStream(Ouroboros::MemoryStream& s);
 	void createFromStream(Ouroboros::MemoryStream& s);
 
-	MoveToPointHandler(KBEShared_ptr<Controller>& pController, int layer, const Position3D& destPos, float velocity, float distance, bool faceMovement, 
+	MoveToPointHandler(OUROShared_ptr<Controller>& pController, int layer, const Position3D& destPos, float velocity, float distance, bool faceMovement, 
 		bool moveVertically, PyObject* userarg);
 
 	MoveToPointHandler();
@@ -55,7 +55,7 @@ protected:
 	bool moveVertically_; // true can fly to move or paste
 	PyObject* pyuserarg_;
 	float distance_;
-	KBEShared_ptr<Controller> pController_;
+	OUROShared_ptr<Controller> pController_;
 	int layer_;
 	bool isDestroyed_;
 };

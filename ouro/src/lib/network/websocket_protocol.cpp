@@ -88,7 +88,7 @@ bool WebSocketProtocol::handshake(Network::Channel* pChannel, MemoryStream* s)
 		return false;
 	}
 
-	KBEUnordered_map<std::string, std::string> headers;
+	OUROUnordered_map<std::string, std::string> headers;
 	std::vector<std::string> values;
 	
 	Ouroboros::strutil::ouro_splits(header_and_data[0], "\r\n", values);
@@ -110,7 +110,7 @@ bool WebSocketProtocol::handshake(Network::Channel* pChannel, MemoryStream* s)
 
 	std::string szKey, szOrigin, szHost;
 
-	KBEUnordered_map<std::string, std::string>::iterator findIter = headers.find("Sec-WebSocket-Origin");
+	OUROUnordered_map<std::string, std::string>::iterator findIter = headers.find("Sec-WebSocket-Origin");
 	if(findIter == headers.end())
 	{
 		findIter = headers.find("Origin");

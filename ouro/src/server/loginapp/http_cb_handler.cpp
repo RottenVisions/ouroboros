@@ -90,7 +90,7 @@ int HTTPCBHandler::handleInputNotification(int fd)
 		
 		newclient->setnonblocking(true);
 		CLIENT& client = clients_[*newclient];
-		client.endpoint = KBEShared_ptr< Network::EndPoint >(newclient);
+		client.endpoint = OUROShared_ptr< Network::EndPoint >(newclient);
 		client.state = 0;
 		Loginapp::getSingleton().networkInterface().dispatcher().registerReadFileDescriptor(*newclient, this);
 	}

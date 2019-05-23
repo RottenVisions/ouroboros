@@ -60,10 +60,10 @@ OuroborosApp::OuroborosApp() :
 	isLoadedGeometry_(false),
 	component_(TEXT("client")),
 	pFilter_(NULL),
-	pUKBETicker_(nullptr)
+	pUOUROTicker_(nullptr)
 {
 	INFO_MSG("OuroborosApp::OuroborosApp(): hello!");
-	installUKBETicker();
+	installUOUROTicker();
 }
 
 OuroborosApp::OuroborosApp(OuroborosArgs* pArgs):
@@ -103,11 +103,11 @@ OuroborosApp::OuroborosApp(OuroborosArgs* pArgs):
 	isLoadedGeometry_(false),
 	component_(TEXT("client")),
 	pFilter_(NULL),
-	pUKBETicker_(nullptr)
+	pUOUROTicker_(nullptr)
 {
 	INFO_MSG("OuroborosApp::OuroborosApp(): hello!");
 	initialize(pArgs);
-	installUKBETicker();
+	installUOUROTicker();
 }
 
 OuroborosApp::~OuroborosApp()
@@ -209,7 +209,7 @@ void OuroborosApp::destroy()
 	OURO_SAFE_RELEASE(pArgs_);
 	OURO_SAFE_RELEASE(pNetworkInterface_);
 	OURO_SAFE_RELEASE(pFilter_);
-	uninstallUKBETicker();
+	uninstallUOUROTicker();
 }
 
 void OuroborosApp::resetMessages()
@@ -261,22 +261,22 @@ void OuroborosApp::reset()
 	initNetwork();
 }
 
-void OuroborosApp::installUKBETicker()
+void OuroborosApp::installUOUROTicker()
 {
-	if (pUKBETicker_ == nullptr)
+	if (pUOUROTicker_ == nullptr)
 	{
-		pUKBETicker_ = NewObject<UKBETicker>();
-		pUKBETicker_->AddToRoot();
+		pUOUROTicker_ = NewObject<UOUROTicker>();
+		pUOUROTicker_->AddToRoot();
 	}
 }
 
-void OuroborosApp::uninstallUKBETicker()
+void OuroborosApp::uninstallUOUROTicker()
 {
-	if (pUKBETicker_)
+	if (pUOUROTicker_)
 	{
-		pUKBETicker_->RemoveFromRoot();
-		pUKBETicker_->ConditionalBeginDestroy();
-		pUKBETicker_ = nullptr;
+		pUOUROTicker_->RemoveFromRoot();
+		pUOUROTicker_->ConditionalBeginDestroy();
+		pUOUROTicker_ = nullptr;
 	}
 }
 

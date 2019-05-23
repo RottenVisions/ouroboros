@@ -128,9 +128,9 @@ def user_add( request ):
 		password2 = POST.get("password2", "")
 		sysuser = POST.get("sysuser", "")
 		sysuid = POST.get("sysuid", "")
-		ouro_root = POST.get("kbe-root", "")
-		ouro_res_path = POST.get("kbe-res-path", "")
-		ouro_bin_path = POST.get("kbe-bin-path", "")
+		ouro_root = POST.get("ouro-root", "")
+		ouro_res_path = POST.get("ouro-res-path", "")
+		ouro_bin_path = POST.get("ouro-bin-path", "")
 		
 		if not username:
 			Context["error"] = "Invalid account name"
@@ -256,9 +256,9 @@ def change_user(request,userID):
 	showname = POST.get("showname", "")
 	sysuser = POST.get("sysuser", "")
 	sysuid = POST.get("sysuid", "")
-	ouro_root = POST.get("kbe-root", "")
-	ouro_res_path = POST.get("kbe-res-path", "")
-	ouro_bin_path = POST.get("kbe-bin-path", "")
+	ouro_root = POST.get("ouro-root", "")
+	ouro_res_path = POST.get("ouro-res-path", "")
+	ouro_bin_path = POST.get("ouro-bin-path", "")
 		
 	if not showname:
 		Context["error"] = "Invalid nickname"

@@ -58,7 +58,7 @@
 		
 		public override bool isSameType(object v)
 		{
-			if (!KBEMath.isNumeric (v))
+			if (!OUROMath.isNumeric (v))
 				return false;
 
 			decimal v1 = Convert.ToDecimal (v);
@@ -87,7 +87,7 @@
 		
 		public override bool isSameType(object v)
 		{
-			if (!KBEMath.isNumeric (v))
+			if (!OUROMath.isNumeric (v))
 				return false;
 
 			decimal v1 = Convert.ToDecimal (v);
@@ -116,7 +116,7 @@
 		
 		public override bool isSameType(object v)
 		{
-			if (!KBEMath.isNumeric (v))
+			if (!OUROMath.isNumeric (v))
 				return false;
 
 			decimal v1 = Convert.ToDecimal (v);
@@ -145,7 +145,7 @@
 		
 		public override bool isSameType(object v)
 		{
-			if (!KBEMath.isNumeric (v))
+			if (!OUROMath.isNumeric (v))
 				return false;
 
 			decimal v1 = Convert.ToDecimal (v);
@@ -174,7 +174,7 @@
 		
 		public override bool isSameType(object v)
 		{
-			if (!KBEMath.isNumeric (v))
+			if (!OUROMath.isNumeric (v))
 				return false;
 
 			decimal v1 = Convert.ToDecimal (v);
@@ -203,7 +203,7 @@
 		
 		public override bool isSameType(object v)
 		{
-			if (!KBEMath.isNumeric (v))
+			if (!OUROMath.isNumeric (v))
 				return false;
 
 			decimal v1 = Convert.ToDecimal (v);
@@ -232,7 +232,7 @@
 		
 		public override bool isSameType(object v)
 		{
-			if (!KBEMath.isNumeric (v))
+			if (!OUROMath.isNumeric (v))
 				return false;
 
 			decimal v1 = Convert.ToDecimal (v);
@@ -261,7 +261,7 @@
 		
 		public override bool isSameType(object v)
 		{
-			if (!KBEMath.isNumeric (v))
+			if (!OUROMath.isNumeric (v))
 				return false;
 
 			decimal v1 = Convert.ToDecimal (v);

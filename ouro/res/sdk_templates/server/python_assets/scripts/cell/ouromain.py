@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import Ouroboros
-from KBEDebug import *
+from OURODebug import *
 
 def onInit(isReload):
 	"""

@@ -2,7 +2,7 @@
 import Ouroboros
 import Functor
 import socket
-from KBEDebug import *
+from OURODebug import *
 
 class Poller:
 	"""

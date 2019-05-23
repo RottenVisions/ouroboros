@@ -32,7 +32,7 @@ namespace Ouroboros{
     #define INLINE
 #endif
 
-/** kbe time*/
+/** ouro time*/
 extern GAME_TIME g_ourotime;
 
 /** Account category*/

@@ -95,7 +95,7 @@ typedef uint16								PacketLength;				// ×î´ó65535
 #define GAME_PACKET_MAX_SIZE_TCP			PACKET_MAX_SIZE_TCP - NETWORK_MESSAGE_ID_SIZE - \
 											NETWORK_MESSAGE_LENGTH_SIZE - ENCRYPTTION_WASTAGE_SIZE
 
-/** kbe machine port*/
+/** ouro machine port*/
 #define OURO_PORT_START						20000
 #define OURO_MACHINE_BROADCAST_SEND_PORT OURO_PORT_START + 86 // The port on which the machine receives the broadcast
 #define OURO_PORT_BROADCAST_DISCOVERY		OURO_PORT_START + 87

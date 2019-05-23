@@ -292,7 +292,7 @@ bool PythonApp::installPyModules()
 	// Match the relative path to get the full path
 	APPEND_SCRIPT_MODULE_METHOD(module, matchPath, __py_matchPath, METH_VARARGS, 0);
 
-	// debug trace kbe package py object count
+	// debug trace ouro package py object count
 	APPEND_SCRIPT_MODULE_METHOD(module, debugTracing, script::PyGC::__py_debugTracing, METH_VARARGS, 0);
 
 	if (PyModule_AddIntConstant(module, "LOG_TYPE_NORMAL", log4cxx::ScriptLevel::SCRIPT_INT))

@@ -40,4 +40,4 @@
     <appender-ref ref="ROLL"/>
   </logger>
  
-</log4j:configuration>
+</log4j:configuration

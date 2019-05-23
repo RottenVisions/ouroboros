@@ -342,7 +342,7 @@
 					（Database auth)
 				-->
 				<auth>  
-					<username> kbe </username>									<!-- Type: String -->
+					<username> ouro </username>									<!-- Type: String -->
 					<password> pwd123456 </password>							<!-- Type: String -->
 					
 					<!-- is true, indicating that the password is encrypted (rsa), which prevents plaintext configuration.
@@ -354,7 +354,7 @@
 				<!-- database name
 					(Database name)
 				-->
-				<databaseName> kbe </databaseName> 								<!-- Type: String -->
+				<databaseName> ouro </databaseName> 								<!-- Type: String -->
 				
 				<!-- Number of connections allowed by the database
 					(Number of connections allowed by the database)
@@ -587,11 +587,11 @@
 		<internalInterface>  </internalInterface>
 		<externalInterface>  </externalInterface>						<!-- Type: String -->
 		
-		<!-- Forcibly specify an external IP address or domain name. In some network environments, port mapping may be used to access the KBE server inside the LAN. Then KBE is currently
+		<!-- Forcibly specify an external IP address or domain name. In some network environments, port mapping may be used to access the OURO server inside the LAN. Then OURO is currently
 			The external address obtained on the machine is the LAN address, and some functions will be abnormal. For example: the callback address given in the account activation email, log in to baseapp.
 			Note: The server does not check the availability of this address because it cannot be checked.
-			(Forced to specify an external IP-address or Domain-name, In some server environment, May use the port mapping to access KBE,
-			So KBE on current machines on the external IP address may be a LAN IP address, Then some functions will not normal.
+			(Forced to specify an external IP-address or Domain-name, In some server environment, May use the port mapping to access OURO,
+			So OURO on current machines on the external IP address may be a LAN IP address, Then some functions will not normal.
 			For example: account activation email address given callback.
 			Note: the availability of server does not check the address, because cannot check)
 		-->
@@ -731,11 +731,11 @@
 		<internalInterface>  </internalInterface>
 		<externalInterface>  </externalInterface>						<!-- Type: String -->
 		
-		<!-- Forcibly specify an external IP address or domain name. In some network environments, port mapping may be used to access the KBE server inside the LAN. Then KBE is currently
+		<!-- Forcibly specify an external IP address or domain name. In some network environments, port mapping may be used to access the OURO server inside the LAN. Then OURO is currently
 			The external address obtained on the machine is the LAN address, and some functions will be abnormal. For example: the callback address given in the account activation email, log in to baseapp.
 			Note: The server does not check the availability of this address because it cannot be checked.
-			(Forced to specify an external IP-address or Domain-name, In some server environment, May use the port mapping to access KBE,
-			So KBE on current machines on the external IP address may be a LAN IP address, Then some functions will not normal.
+			(Forced to specify an external IP-address or Domain-name, In some server environment, May use the port mapping to access OURO,
+			So OURO on current machines on the external IP address may be a LAN IP address, Then some functions will not normal.
 			For example: account activation email address given callback.
 			Note: the availability of server does not check the address, because cannot check)
 		-->

@@ -7,7 +7,7 @@
 #include "EngineGlobals.h"
 #include "Engine/Engine.h"
 #include "GameFramework/Actor.h"
-#include "KBECommon.generated.h"
+#include "OUROCommon.generated.h"
 
 namespace Ouroboros
 {
@@ -192,25 +192,25 @@ inline bool isNumeric(Ouroboros::KBVar& v)
 // UE4's scale unit is converted to meters
 #define UE4_SCALE_UNIT_TO_METER 100.f
 
-// Convert the position (Vector3) of the KBE coordinate system to the position of the UE4 coordinate system
+// Convert the position (Vector3) of the OURO coordinate system to the position of the UE4 coordinate system
 inline void KBPos2UE4Pos(FVector& UE4_POSITION, const FVector& OURO_POSITION)
 {	
-	// UE4 coordinates are in centimeters, KBE is in meters, so conversions require constants
+	// UE4 coordinates are in centimeters, OURO is in meters, so conversions require constants
 	UE4_POSITION.Y = OURO_POSITION.X * UE4_SCALE_UNIT_TO_METER;
 	UE4_POSITION.Z = OURO_POSITION.Y * UE4_SCALE_UNIT_TO_METER;
 	UE4_POSITION.X = OURO_POSITION.Z * UE4_SCALE_UNIT_TO_METER;
 }	
 
-// Convert the position (Vector3) of the UE4 coordinate system to the position of the KBE coordinate system
+// Convert the position (Vector3) of the UE4 coordinate system to the position of the OURO coordinate system
 inline void UE4Pos2KBPos(FVector& OURO_POSITION, const FVector& UE4_POSITION)
 {
-	// UE4 coordinates are in centimeters, KBE is in meters, so conversions require constants
+	// UE4 coordinates are in centimeters, OURO is in meters, so conversions require constants
 	OURO_POSITION.X = UE4_POSITION.Y / UE4_SCALE_UNIT_TO_METER;
 	OURO_POSITION.Y = UE4_POSITION.Z / UE4_SCALE_UNIT_TO_METER;
 	OURO_POSITION.Z = UE4_POSITION.X / UE4_SCALE_UNIT_TO_METER;
 }
 
-// Convert KBE direction to UE4 direction
+// Convert OURO direction to UE4 direction
 inline void KBDir2UE4Dir(FRotator& UE4_DIRECTION, const FVector& OURO_DIRECTION)
 {
 	UE4_DIRECTION.Pitch = FMath::RadiansToDegrees<float>(OURO_DIRECTION.Y);
@@ -218,7 +218,7 @@ inline void KBDir2UE4Dir(FRotator& UE4_DIRECTION, const FVector& OURO_DIRECTION)
 	UE4_DIRECTION.Roll = FMath::RadiansToDegrees<float>(OURO_DIRECTION.X);
 }
 
-// Convert UE4 direction to KBE direction
+// Convert UE4 direction to OURO direction
 inline void UE4Dir2KBDir(FVector& OURO_DIRECTION, const FRotator& UE4_DIRECTION)
 {
 	OURO_DIRECTION.Y = FMath::DegreesToRadians<float>(UE4_DIRECTION.Pitch);
@@ -227,13 +227,13 @@ inline void UE4Dir2KBDir(FVector& OURO_DIRECTION, const FRotator& UE4_DIRECTION)
 }
 
 UCLASS()
-class OUROBOROSPLUGINS_API AKBECommon : public AActor
+class OUROBOROSPLUGINS_API AOUROCommon : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AKBECommon();
+	AOUROCommon();
 	
 };
 

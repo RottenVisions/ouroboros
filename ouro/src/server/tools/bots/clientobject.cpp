@@ -187,7 +187,7 @@ bool ClientObject::initCreate()
 
 	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(LoginappInterface::hello);
-	(*pBundle) << KBEVersion::versionString() << KBEVersion::scriptVersionString();
+	(*pBundle) << OUROVersion::versionString() << OUROVersion::scriptVersionString();
 
 	if(Network::g_channelExternalEncryptType == 1)
 	{
@@ -280,10 +280,10 @@ bool ClientObject::initLoginBaseapp()
 
 				if (Network::UDP_HELLO_ACK == helloAck)
 				{
-					if (versionString != KBEVersion::versionString())
+					if (versionString != OUROVersion::versionString())
 					{
 						ERROR_MSG(fmt::format("ClientObject::initLogin: Version mismatch! {} != serverVersionString({})\n", 
-							KBEVersion::versionString(), versionString));
+							OUROVersion::versionString(), versionString));
 
 						error_ = C_ERROR_INIT_NETWORK_FAILED;
 						return false;
@@ -313,7 +313,7 @@ bool ClientObject::initLoginBaseapp()
 
 					Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 					(*pBundle).newMessage(BaseappInterface::hello);
-					(*pBundle) << KBEVersion::versionString() << KBEVersion::scriptVersionString();
+					(*pBundle) << OUROVersion::versionString() << OUROVersion::scriptVersionString();
 
 					if (Network::g_channelExternalEncryptType == 1)
 					{
@@ -387,7 +387,7 @@ bool ClientObject::initLoginBaseapp()
 
 		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(BaseappInterface::hello);
-		(*pBundle) << KBEVersion::versionString() << KBEVersion::scriptVersionString();
+		(*pBundle) << OUROVersion::versionString() << OUROVersion::scriptVersionString();
 
 		if (Network::g_channelExternalEncryptType == 1)
 		{

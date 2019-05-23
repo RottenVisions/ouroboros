@@ -15,7 +15,7 @@ class Address  : public PoolObject
 public:
 	static const Address NONE;
 
-	typedef KBEShared_ptr< SmartPoolObject< Address > > SmartPoolObjectPtr;
+	typedef OUROShared_ptr< SmartPoolObject< Address > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<Address>& ObjPool();
 	static Address* createPoolObject(const std::string& logPoint);

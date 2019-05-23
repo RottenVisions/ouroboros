@@ -1,6 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "KBEMain.h"
+#include "OUROMain.h"
 #include "Ouroboros.h"
 #include "OuroborosArgs.h"
 #include "MemoryStream.h"
@@ -9,10 +9,10 @@
 #include "KBDebug.h"
 #include "Entity.h"
 
-bool UKBEMain::hasUpdateSDK = false;
+bool UOUROMain::hasUpdateSDK = false;
 
 // Sets default values for this component's properties
-UKBEMain::UKBEMain(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UOUROMain::UOUROMain(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -39,18 +39,18 @@ UKBEMain::UKBEMain(const FObjectInitializer& ObjectInitializer) : Super(ObjectIn
 	automaticallyUpdateSDK = true;
 }
 
-void UKBEMain::InitializeComponent()
+void UOUROMain::InitializeComponent()
 {
 	Super::InitializeComponent();
 }
 
-void UKBEMain::UninitializeComponent()
+void UOUROMain::UninitializeComponent()
 {
 	Super::UninitializeComponent();
 }
 
 // Called when the game starts
-void UKBEMain::BeginPlay()
+void UOUROMain::BeginPlay()
 {
 	Super::BeginPlay();
 	Ouroboros::OuroborosArgs* pArgs = new Ouroboros::OuroborosArgs();
@@ -74,7 +74,7 @@ void UKBEMain::BeginPlay()
 	installEvents();
 }
 
-void UKBEMain::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void UOUROMain::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (pUpdaterObj != nullptr)
 	{
@@ -88,12 +88,12 @@ void UKBEMain::EndPlay(const EEndPlayReason::Type EndPlayReason)
 }
 
 // Called every frame
-void UKBEMain::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
+void UOUROMain::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
 	
 }
 
-void UKBEMain::installEvents()
+void UOUROMain::installEvents()
 {
 	OUROBOROS_REGISTER_EVENT(Ouroboros::OBEventTypes::onScriptVersionNotMatch, onScriptVersionNotMatch);
 	OUROBOROS_REGISTER_EVENT(Ouroboros::OBEventTypes::onVersionNotMatch, onVersionNotMatch);
@@ -101,7 +101,7 @@ void UKBEMain::installEvents()
 	OUROBOROS_REGISTER_EVENT(Ouroboros::OBEventTypes::onDownloadSDK, onDownloadSDK);
 }
 
-void UKBEMain::deregisterEvents()
+void UOUROMain::deregisterEvents()
 {
 	OUROBOROS_DEREGISTER_EVENT(Ouroboros::OBEventTypes::onScriptVersionNotMatch);
 	OUROBOROS_DEREGISTER_EVENT(Ouroboros::OBEventTypes::onVersionNotMatch);
@@ -109,17 +109,17 @@ void UKBEMain::deregisterEvents()
 	OUROBOROS_DEREGISTER_EVENT(Ouroboros::OBEventTypes::onDownloadSDK);
 }
 
-void UKBEMain::onVersionNotMatch(const UOBEventData* pEventData)
+void UOUROMain::onVersionNotMatch(const UOBEventData* pEventData)
 {
 	handVersionNotMatch();
 }
 
-void UKBEMain::onScriptVersionNotMatch(const UOBEventData* pEventData)
+void UOUROMain::onScriptVersionNotMatch(const UOBEventData* pEventData)
 {
 	handVersionNotMatch();
 }
 
-bool UKBEMain::isUpdateSDK()
+bool UOUROMain::isUpdateSDK()
 {
 #if WITH_EDITOR
 	return automaticallyUpdateSDK;
@@ -128,7 +128,7 @@ bool UKBEMain::isUpdateSDK()
 	return false;
 }
 
-void UKBEMain::downloadSDKFromServer()
+void UOUROMain::downloadSDKFromServer()
 {
 	if (GEngine->IsValidLowLevel())
 	{
@@ -153,12 +153,12 @@ void UKBEMain::downloadSDKFromServer()
 	}
 }
 
-void UKBEMain::onImportClientSDKSuccessfully(const UOBEventData* pEventData)
+void UOUROMain::onImportClientSDKSuccessfully(const UOBEventData* pEventData)
 {
 	UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Quit, true);
 }
 
-void UKBEMain::onDownloadSDK(const UOBEventData* pEventData)
+void UOUROMain::onDownloadSDK(const UOBEventData* pEventData)
 {
 	ClientSDKUpdateUI.Reset();
 	if (GEngine->IsValidLowLevel())
@@ -186,7 +186,7 @@ void UKBEMain::onDownloadSDK(const UOBEventData* pEventData)
 	}
 }
 
-FString UKBEMain::getClientVersion()
+FString UOUROMain::getClientVersion()
 {
 	if (!Ouroboros::OuroborosApp::getSingleton().isInitialized())
 		return TEXT("");
@@ -194,7 +194,7 @@ FString UKBEMain::getClientVersion()
 	return Ouroboros::OuroborosApp::getSingleton().clientVersion();
 }
 
-FString UKBEMain::getClientScriptVersion()
+FString UOUROMain::getClientScriptVersion()
 {
 	if (!Ouroboros::OuroborosApp::getSingleton().isInitialized())
 		return TEXT("");
@@ -202,7 +202,7 @@ FString UKBEMain::getClientScriptVersion()
 	return Ouroboros::OuroborosApp::getSingleton().clientScriptVersion();
 }
 
-FString UKBEMain::getServerVersion()
+FString UOUROMain::getServerVersion()
 {
 	if (!Ouroboros::OuroborosApp::getSingleton().isInitialized())
 		return TEXT("");
@@ -210,7 +210,7 @@ FString UKBEMain::getServerVersion()
 	return Ouroboros::OuroborosApp::getSingleton().serverVersion();
 }
 
-FString UKBEMain::getServerScriptVersion()
+FString UOUROMain::getServerScriptVersion()
 {
 	if (!Ouroboros::OuroborosApp::getSingleton().isInitialized())
 		return TEXT("");
@@ -218,7 +218,7 @@ FString UKBEMain::getServerScriptVersion()
 	return Ouroboros::OuroborosApp::getSingleton().serverScriptVersion();
 }
 
-FString UKBEMain::getComponentName()
+FString UOUROMain::getComponentName()
 {
 	if (!Ouroboros::OuroborosApp::getSingleton().isInitialized())
 		return TEXT("");
@@ -226,7 +226,7 @@ FString UKBEMain::getComponentName()
 	return Ouroboros::OuroborosApp::getSingleton().component();
 }
 
-bool UKBEMain::destroyOuroboros()
+bool UOUROMain::destroyOuroboros()
 {
 	if (!Ouroboros::OuroborosApp::getSingleton().isInitialized())
 		return false;
@@ -236,7 +236,7 @@ bool UKBEMain::destroyOuroboros()
 	return true;
 }
 
-bool UKBEMain::login(FString username, FString password, TArray<uint8> datas)
+bool UOUROMain::login(FString username, FString password, TArray<uint8> datas)
 {
 	if (!Ouroboros::OuroborosApp::getSingleton().isInitialized())
 	{
@@ -253,7 +253,7 @@ bool UKBEMain::login(FString username, FString password, TArray<uint8> datas)
 	return true;
 }
 
-bool UKBEMain::createAccount(FString username, FString password, const TArray<uint8>& datas)
+bool UOUROMain::createAccount(FString username, FString password, const TArray<uint8>& datas)
 {
 	if (!Ouroboros::OuroborosApp::getSingleton().isInitialized())
 	{
@@ -270,7 +270,7 @@ bool UKBEMain::createAccount(FString username, FString password, const TArray<ui
 	return true;
 }
 
-void UKBEMain::handVersionNotMatch()
+void UOUROMain::handVersionNotMatch()
 {
 	if (hasUpdateSDK) 
 	{
@@ -282,7 +282,7 @@ void UKBEMain::handVersionNotMatch()
 	}
 }
 
-void UKBEMain::showPromptMessageOfCompile()
+void UOUROMain::showPromptMessageOfCompile()
 {
 	if (GEngine->IsValidLowLevel())
 	{

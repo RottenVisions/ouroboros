@@ -72,8 +72,8 @@ endif
 CPPFLAGS += -DOURO_CELLAPP
 
 ifndef OURO_ROOT
-export OURO_ROOT := $(subst /kbe/src/server/$(BIN),,$(CURDIR))
+export OURO_ROOT := $(subst /ouro/src/server/$(BIN),,$(CURDIR))
 endif
 
-include $(OURO_ROOT)/kbe/src/build/common.mak
+include $(OURO_ROOT)/ouro/src/build/common.mak
 

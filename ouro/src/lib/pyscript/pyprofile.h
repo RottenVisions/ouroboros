@@ -36,7 +36,7 @@ public:
 	static void finalise(void);
 	
 private:
-	typedef KBEUnordered_map< std::string, PyObjectPtr > PROFILES;
+	typedef OUROUnordered_map< std::string, PyObjectPtr > PROFILES;
 	static PROFILES profiles_;
 
 	static PyObject* profileMethod_;

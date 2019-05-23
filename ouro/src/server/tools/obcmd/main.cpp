@@ -307,7 +307,7 @@ int process_newassets(int argc, char* argv[], const std::string assetsType)
 	if (root_path[root_path.size() - 1] != '\\' && root_path[root_path.size() - 1] != '/')
 		root_path += "/";
 
-	std::string assets_sys_path_root = root_path + "kbe/res/sdk_templates/server/";
+	std::string assets_sys_path_root = root_path + "ouro/res/sdk_templates/server/";
 
 #if OURO_PLATFORM != PLATFORM_WIN32
 	char splitflag = ':';
@@ -440,7 +440,7 @@ int process_help(int argc, char* argv[])
 {
 	printf("Usage:\n");
 	printf("--clientsdk:\n");
-	printf("\tAutomatically generate client code based on entity_defs file. Environment variables based on KBE.\n");
+	printf("\tAutomatically generate client code based on entity_defs file. Environment variables based on OURO.\n");
 	printf("\tobcmd.exe --clientsdk=unity --outpath=c:/unity_ourosdk\n");
 	printf("\tobcmd.exe --clientsdk=ue4 --zip=c:/unity_ourosdk.zip\n");
 	printf("\tobcmd.exe --clientsdk=ue4 --tar=c:/unity_ourosdk.tgz\n");

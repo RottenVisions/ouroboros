@@ -20,7 +20,7 @@ CString  state_flags[8] = {
 	L"↘ ",
 	L"↓",
 	L"↙",
-	L"←",
+	L"�?",
 };
 
 int state_flags_idx = 0;
@@ -495,47 +495,47 @@ Ouroboros::uint32 CLogWindow::getSelLogTypes()
 
 			if(s == "PRINT")
 			{
-				types |= KBELOG_PRINT;
+				types |= OUROLOG_PRINT;
 			}
 			else if(s == "ERROR")
 			{
-				types |= KBELOG_ERROR;
+				types |= OUROLOG_ERROR;
 			}
 			else if(s == "DEBUG")
 			{
-				types |= KBELOG_DEBUG;
+				types |= OUROLOG_DEBUG;
 			}
 			else if(s == "INFO")
 			{
-				types |= KBELOG_INFO;
+				types |= OUROLOG_INFO;
 			}
 			else if(s == "WARNING")
 			{
-				types |= KBELOG_WARNING;
+				types |= OUROLOG_WARNING;
 			}
 			else if(s == "CRITICAL")
 			{
-				types |= KBELOG_CRITICAL;
+				types |= OUROLOG_CRITICAL;
 			}
 			else if(s == "S_INFO")
 			{
-				types |= KBELOG_SCRIPT_INFO;
+				types |= OUROLOG_SCRIPT_INFO;
 			}
 			else if(s == "S_ERR")
 			{
-				types |= KBELOG_SCRIPT_ERROR;
+				types |= OUROLOG_SCRIPT_ERROR;
 			}
 			else if(s == "S_DBG")
 			{
-				types |= KBELOG_SCRIPT_DEBUG;
+				types |= OUROLOG_SCRIPT_DEBUG;
 			}
 			else if(s == "S_WARN")
 			{
-				types |= KBELOG_SCRIPT_WARNING;
+				types |= OUROLOG_SCRIPT_WARNING;
 			}
 			else if(s == "S_NORM")
 			{
-				types |= KBELOG_SCRIPT_NORMAL;
+				types |= OUROLOG_SCRIPT_NORMAL;
 			}
 		}
 	}

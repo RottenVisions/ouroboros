@@ -478,7 +478,7 @@ protected:
 
 	CLIENT_CTYPE											typeClient_;
 
-	typedef std::map<ENTITY_ID, KBEShared_ptr<MemoryStream> > BUFFEREDMESSAGE;
+	typedef std::map<ENTITY_ID, OUROShared_ptr<MemoryStream> > BUFFEREDMESSAGE;
 	BUFFEREDMESSAGE											bufferedCreateEntityMessage_;
 
 	EventHandler											eventHandler_;

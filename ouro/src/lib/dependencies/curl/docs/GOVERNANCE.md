@@ -74,7 +74,7 @@ just find themselves unable to perform their duties there.
 
 We run a web server, a mailing list and more on the curl project's primary
 server. That physical machine is owned and run by Haxx. Daniel is the primary
-admin of all things curl related server stuff, but Björn Stenberg and Linus
+admin of all things curl related server stuff, but BjÃ¶rn Stenberg and Linus
 Feltzing serve as backup admins for when Daniel is gone or unable.
 
 The primary server is paid for by Haxx. The machine is physically located in a

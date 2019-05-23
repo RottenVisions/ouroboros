@@ -4,20 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "Object.h"
-#include "KBECommon.h"
+#include "OUROCommon.h"
 #include "OBEvent.h"
 #include "Tickable.h"
-#include "KBETicker.generated.h"
+#include "OUROTicker.generated.h"
 /**
  * 
  */
 UCLASS()
-class OUROBOROSPLUGINS_API UKBETicker : public UObject, public FTickableGameObject
+class OUROBOROSPLUGINS_API UOUROTicker : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
 public:
-	UKBETicker();
-	~UKBETicker();
+	UOUROTicker();
+	~UOUROTicker();
 
 	UWorld* GetWorld() const override;
 

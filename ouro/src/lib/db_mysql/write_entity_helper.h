@@ -93,7 +93,7 @@ public:
 			// Then update the data in memory to the database sequentially, if there are existing entries in the database, the order will overwrite the existing entries, if the number of data
 			// Insert the remaining data if it is larger than the existing one in the database. If the data is less than the entry in the database, delete the entry in the database.
 			// select id from tbl_SpawnPoint_xxx_values where parentID = 7;
-			KBEUnordered_map< std::string, std::vector<DBID> > childTableDBIDs;
+			OUROUnordered_map< std::string, std::vector<DBID> > childTableDBIDs;
 
 			if(context.dbid > 0)
 			{
@@ -102,7 +102,7 @@ public:
 				{
 					mysql::DBContext& wbox = *iter1->second.get();
 
-					KBEUnordered_map<std::string, std::vector<DBID> >::iterator iter = 
+					OUROUnordered_map<std::string, std::vector<DBID> >::iterator iter = 
 						childTableDBIDs.find(context.tableName);
 
 					if(iter == childTableDBIDs.end())
@@ -115,7 +115,7 @@ public:
 				if(childTableDBIDs.size() > 1)
 				{
 					std::string sqlstr_getids;
-					KBEUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
+					OUROUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
 					for(; tabiter != childTableDBIDs.end();)
 					{
 						char sqlstr[MAX_BUF * 10];
@@ -167,7 +167,7 @@ public:
 				}
 				else if(childTableDBIDs.size() == 1)
 				{
-					KBEUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
+					OUROUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
 						char sqlstr[MAX_BUF * 10];
 						ouro_snprintf(sqlstr, MAX_BUF * 10, "select id from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID, 
 							tabiter->first.c_str(),
@@ -207,7 +207,7 @@ public:
 					// Bind table relationship
 					wbox.parentTableDBID = context.dbid;
 
-					KBEUnordered_map<std::string, std::vector<DBID> >::iterator iter = 
+					OUROUnordered_map<std::string, std::vector<DBID> >::iterator iter = 
 						childTableDBIDs.find(wbox.tableName);
 					
 					if(iter != childTableDBIDs.end())
@@ -230,7 +230,7 @@ public:
 			}
 			
 			// delete obsolete data items
-			KBEUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
+			OUROUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
 			for(; tabiter != childTableDBIDs.end(); ++tabiter)
 			{
 				if(tabiter->second.size() == 0)

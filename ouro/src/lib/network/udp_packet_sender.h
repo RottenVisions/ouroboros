@@ -25,7 +25,7 @@ class EventDispatcher;
 class UDPPacketSender : public PacketSender
 {
 public:
-	typedef KBEShared_ptr< SmartPoolObject< UDPPacketSender > > SmartPoolObjectPtr;
+	typedef OUROShared_ptr< SmartPoolObject< UDPPacketSender > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<UDPPacketSender>& ObjPool();
 	static UDPPacketSender* createPoolObject(const std::string& logPoint);

@@ -472,8 +472,8 @@ public:
 	ScriptObject(PyTypeObject* pyType, bool isInitialised = false);
 	~ScriptObject();
 
-	// all kbe script categories
-	typedef KBEUnordered_map<std::string, PyTypeObject*> SCRIPTOBJECT_TYPES;
+	// all ouro script categories
+	typedef OUROUnordered_map<std::string, PyTypeObject*> SCRIPTOBJECT_TYPES;
 	static SCRIPTOBJECT_TYPES scriptObjectTypes;
 	static PyTypeObject* getScriptObjectType(const std::string& name);
 

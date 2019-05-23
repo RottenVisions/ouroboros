@@ -687,7 +687,7 @@ public:
 		uint32 databaseLength;
 	};
 
-	typedef KBEShared_ptr< DictItemDataType > DictItemDataTypePtr;
+	typedef OUROShared_ptr< DictItemDataType > DictItemDataTypePtr;
 	typedef std::vector< std::pair< std::string, DictItemDataTypePtr > > FIXEDDICT_KEYTYPE_MAP;
 
 public:	

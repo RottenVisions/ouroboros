@@ -310,4 +310,4 @@ esmtp.lib.prefix=${esmtp.lib.prefix}
 esmtp.lib.suffix=${esmtp.lib.suffix}
 esmtp.lib.type=${esmtp.lib.type}
 </echo>
-</target>
+</target

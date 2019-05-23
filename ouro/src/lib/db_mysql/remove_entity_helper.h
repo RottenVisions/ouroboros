@@ -53,14 +53,14 @@ public:
 	{
 		bool ret = true;
 
-		KBEUnordered_map< std::string, std::vector<DBID> > childTableDBIDs;
+		OUROUnordered_map< std::string, std::vector<DBID> > childTableDBIDs;
 
 		mysql::DBContext::DB_RW_CONTEXTS::iterator iter1 = context.optable.begin();
 		for(; iter1 != context.optable.end(); ++iter1)
 		{
 			mysql::DBContext& wbox = *iter1->second.get();
 
-			KBEUnordered_map<std::string, std::vector<DBID> >::iterator iter = 
+			OUROUnordered_map<std::string, std::vector<DBID> >::iterator iter = 
 				childTableDBIDs.find(context.tableName);
 
 			if(iter == childTableDBIDs.end())
@@ -73,7 +73,7 @@ public:
 		if(childTableDBIDs.size() > 1)
 		{
 			std::string sqlstr_getids;
-			KBEUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
+			OUROUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
 			for(; tabiter != childTableDBIDs.end();)
 			{
 				char sqlstr[MAX_BUF * 10];
@@ -125,7 +125,7 @@ public:
 		}
 		else if(childTableDBIDs.size() == 1)
 		{
-			KBEUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
+			OUROUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
 				char sqlstr[MAX_BUF * 10];
 				ouro_snprintf(sqlstr, MAX_BUF * 10, "select id from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID, 
 					tabiter->first.c_str(),
@@ -150,7 +150,7 @@ public:
 		}
 	
 		// delete obsolete data items
-		KBEUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
+		OUROUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
 		for(; tabiter != childTableDBIDs.end(); ++tabiter)
 		{
 			if(tabiter->second.size() == 0)

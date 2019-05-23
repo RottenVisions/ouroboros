@@ -726,7 +726,7 @@ void Baseapp::onCellAppDeath(Network::Channel * pChannel)
 		iter++;
 	}
 
-	pRestoreEntityHandlers_.push_back(KBEShared_ptr< RestoreEntityHandler >(pRestoreEntityHandler));
+	pRestoreEntityHandlers_.push_back(OUROShared_ptr< RestoreEntityHandler >(pRestoreEntityHandler));
 }
 
 //-------------------------------------------------------------------------------------
@@ -743,7 +743,7 @@ void Baseapp::onRequestRestoreCB(Network::Channel* pChannel, Ouroboros::MemorySt
 	DEBUG_MSG(fmt::format("Baseapp::onRequestRestoreCB: cid={}, source_cid={}, canRestore={}, channel={}.\n", 
 		cid, source_cid, canRestore, pChannel->c_str()));
 
-	std::vector< KBEShared_ptr< RestoreEntityHandler > >::iterator resiter = pRestoreEntityHandlers_.begin();
+	std::vector< OUROShared_ptr< RestoreEntityHandler > >::iterator resiter = pRestoreEntityHandlers_.begin();
 	for(; resiter != pRestoreEntityHandlers_.end(); ++resiter)
 	{
 		if((*resiter)->cellappID() == source_cid)
@@ -757,7 +757,7 @@ void Baseapp::onRequestRestoreCB(Network::Channel* pChannel, Ouroboros::MemorySt
 //-------------------------------------------------------------------------------------
 void Baseapp::onRestoreEntitiesOver(RestoreEntityHandler* pRestoreEntityHandler)
 {
-	std::vector< KBEShared_ptr< RestoreEntityHandler > >::iterator resiter = pRestoreEntityHandlers_.begin();
+	std::vector< OUROShared_ptr< RestoreEntityHandler > >::iterator resiter = pRestoreEntityHandlers_.begin();
 	for(; resiter != pRestoreEntityHandlers_.end(); ++resiter)
 	{
 		if((*resiter).get() == pRestoreEntityHandler)
@@ -786,7 +786,7 @@ void Baseapp::onRestoreSpaceCellFromOtherBaseapp(Network::Channel* pChannel, Our
 		"restoreEntityHandlers({4})\n",
 		baseappID, spaceID, spaceEntityID, destroyed, pRestoreEntityHandlers_.size(), cellappID));
 
-	std::vector< KBEShared_ptr< RestoreEntityHandler > >::iterator resiter = pRestoreEntityHandlers_.begin();
+	std::vector< OUROShared_ptr< RestoreEntityHandler > >::iterator resiter = pRestoreEntityHandlers_.begin();
 	for(; resiter != pRestoreEntityHandlers_.end(); ++resiter)
 	{
 		(*resiter)->onRestoreSpaceCellFromOtherBaseapp(baseappID, cellappID, spaceID, spaceEntityID, utype, destroyed);
@@ -4751,8 +4751,8 @@ void Baseapp::onHello(Network::Channel* pChannel,
 	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	
 	pBundle->newMessage(ClientInterface::onHelloCB);
-	(*pBundle) << KBEVersion::versionString();
-	(*pBundle) << KBEVersion::scriptVersionString();
+	(*pBundle) << OUROVersion::versionString();
+	(*pBundle) << OUROVersion::scriptVersionString();
 	(*pBundle) << Network::MessageHandlers::getDigestStr();
 	(*pBundle) << EntityDef::md5().getDigestStr();
 	(*pBundle) << g_componentType;
@@ -5674,7 +5674,7 @@ void Baseapp::onVersionNotMatch(Network::Channel* pChannel)
 
 	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	pBundle->newMessage(ClientInterface::onVersionNotMatch);
-	(*pBundle) << KBEVersion::versionString();
+	(*pBundle) << OUROVersion::versionString();
 	pChannel->send(pBundle);
 }
 
@@ -5685,7 +5685,7 @@ void Baseapp::onScriptVersionNotMatch(Network::Channel* pChannel)
 
 	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	pBundle->newMessage(ClientInterface::onScriptVersionNotMatch);
-	(*pBundle) << KBEVersion::scriptVersionString();
+	(*pBundle) << OUROVersion::scriptVersionString();
 	pChannel->send(pBundle);
 }
 

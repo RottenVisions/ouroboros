@@ -25,7 +25,7 @@ public:
 
 
 
-class BlowfishFilter : public EncryptionFilter, public KBEBlowfish
+class BlowfishFilter : public EncryptionFilter, public OUROBlowfish
 {
 public:
 

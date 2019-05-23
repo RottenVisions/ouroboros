@@ -53,7 +53,7 @@ public:
 		bool needCheckPassword;
 	};
 
-	typedef KBEUnordered_map<std::string, PLInfos*> PTINFO_MAP;
+	typedef OUROUnordered_map<std::string, PLInfos*> PTINFO_MAP;
 
 public:
 	PendingLoginMgr(Network::NetworkInterface & networkInterface);

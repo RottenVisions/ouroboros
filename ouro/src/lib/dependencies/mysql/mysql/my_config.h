@@ -435,7 +435,7 @@
 #define DEFAULT_SECURE_FILE_PRIV_EMBEDDED_DIR "NULL"
 /* #undef HAVE_LIBNUMA */
 
-#else //-----------------------------32λ-----------------------------------------------------------------
+#else //-----------------------------32Î»-----------------------------------------------------------------
 
 /*
  * From configure.cmake, in order of appearance 

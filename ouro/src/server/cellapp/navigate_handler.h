@@ -12,7 +12,7 @@ namespace Ouroboros{
 class NavigateHandler : public MoveToPointHandler
 {
 public:
-	NavigateHandler(KBEShared_ptr<Controller>& pController, const Position3D& destPos, float velocity, float distance, bool faceMovement, 
+	NavigateHandler(OUROShared_ptr<Controller>& pController, const Position3D& destPos, float velocity, float distance, bool faceMovement, 
 		float maxMoveDistance, VECTOR_POS3D_PTR paths_ptr,
 		PyObject* userarg);
 

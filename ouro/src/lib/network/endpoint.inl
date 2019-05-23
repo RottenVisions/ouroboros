@@ -69,12 +69,12 @@ INLINE bool EndPoint::good() const
 #endif
 }
 
-INLINE EndPoint::operator KBESOCKET() const
+INLINE EndPoint::operator OUROSOCKET() const
 {
 	return socket_;
 }
 
-INLINE KBESOCKET EndPoint::socket() const
+INLINE OUROSOCKET EndPoint::socket() const
 {
 	return socket_;
 }
@@ -206,9 +206,9 @@ INLINE int EndPoint::close()
 	address_ = Address::NONE;
 
 #if OURO_PLATFORM == PLATFORM_WIN32
-	const KBESOCKET invalidSocket = INVALID_SOCKET;
+	const OUROSOCKET invalidSocket = INVALID_SOCKET;
 #else
-	const KBESOCKET invalidSocket = -1;
+	const OUROSOCKET invalidSocket = -1;
 #endif
 
 	if (socket_ == invalidSocket)

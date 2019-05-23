@@ -573,13 +573,13 @@ void DebugHelper::onMessage(uint32 logType, const char * str, uint32 length)
 
 		switch(logType)
 		{
-		case KBELOG_ERROR:
+		case OUROLOG_ERROR:
 			lid = LOG_ERR;
 			break;
-		case KBELOG_CRITICAL:
+		case OUROLOG_CRITICAL:
 			lid = LOG_CRIT;
 			break;
-		case KBELOG_WARNING:
+		case OUROLOG_WARNING:
 			lid = LOG_WARNING;
 			break;
 		default:
@@ -587,7 +587,7 @@ void DebugHelper::onMessage(uint32 logType, const char * str, uint32 length)
 			break;
 		};
 		
-		if(lid == KBELOG_ERROR || lid == KBELOG_CRITICAL)
+		if(lid == OUROLOG_ERROR || lid == OUROLOG_CRITICAL)
 			syslog( LOG_CRIT, "%s", str );
 	}
 
@@ -759,7 +759,7 @@ void DebugHelper::printBufferedLogs()
 		COMPONENT_ORDER componentGlobalOrder;
 		COMPONENT_ORDER componentGroupOrder;
 		int64 t;
-		GAME_TIME kbetime;
+		GAME_TIME ourotime;
 
 		std::string str;
 
@@ -776,7 +776,7 @@ void DebugHelper::printBufferedLogs()
 		(*pBundle) >> componentGlobalOrder;
 		(*pBundle) >> componentGroupOrder;
 		(*pBundle) >> t;
-		(*pBundle) >> kbetime;
+		(*pBundle) >> ourotime;
 		(*pBundle).readBlob(str);
 
 		time_t tt = static_cast<time_t>(t);	
@@ -796,7 +796,7 @@ void DebugHelper::printBufferedLogs()
 	
 		char timebuf[MAX_BUF];
 	    ouro_snprintf(timebuf, MAX_BUF, " [%-4d-%02d-%02d %02d:%02d:%02d %03d] ", aTm->tm_year+1900, aTm->tm_mon+1, 
-			aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec, kbetime);
+			aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec, ourotime);
 
 		std::string logstr = fmt::format("==>{}", timebuf);
 		logstr += str;
@@ -805,41 +805,41 @@ void DebugHelper::printBufferedLogs()
 #else
 		switch (logtype)
 		{
-		case KBELOG_PRINT:
+		case OUROLOG_PRINT:
 			OURO_LOG4CXX_INFO(g_logger, logstr);
 			break;
-		case KBELOG_ERROR:
+		case OUROLOG_ERROR:
 			OURO_LOG4CXX_ERROR(g_logger, logstr);
 			break;
-		case KBELOG_WARNING:
+		case OUROLOG_WARNING:
 			OURO_LOG4CXX_WARN(g_logger, logstr);
 			break;
-		case KBELOG_DEBUG:
+		case OUROLOG_DEBUG:
 			OURO_LOG4CXX_DEBUG(g_logger, logstr);
 			break;
-		case KBELOG_INFO:
+		case OUROLOG_INFO:
 			OURO_LOG4CXX_INFO(g_logger, logstr);
 			break;
-		case KBELOG_CRITICAL:
+		case OUROLOG_CRITICAL:
 			OURO_LOG4CXX_FATAL(g_logger, logstr);
 			break;
-		case KBELOG_SCRIPT_INFO:
+		case OUROLOG_SCRIPT_INFO:
 			setScriptMsgType(log4cxx::ScriptLevel::SCRIPT_INFO);
 			OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), logstr);
 			break;
-		case KBELOG_SCRIPT_ERROR:
+		case OUROLOG_SCRIPT_ERROR:
 			setScriptMsgType(log4cxx::ScriptLevel::SCRIPT_ERR);
 			OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), logstr);
 			break;
-		case KBELOG_SCRIPT_DEBUG:
+		case OUROLOG_SCRIPT_DEBUG:
 			setScriptMsgType(log4cxx::ScriptLevel::SCRIPT_DBG);
 			OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), logstr);
 			break;
-		case KBELOG_SCRIPT_WARNING:
+		case OUROLOG_SCRIPT_WARNING:
 			setScriptMsgType(log4cxx::ScriptLevel::SCRIPT_WAR);
 			OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), logstr);
 			break;
-		case KBELOG_SCRIPT_NORMAL:
+		case OUROLOG_SCRIPT_NORMAL:
 			setScriptMsgType(log4cxx::ScriptLevel::SCRIPT_INFO);
 			OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), logstr);
 			break;
@@ -866,7 +866,7 @@ void DebugHelper::print_msg(const std::string& s)
 		OURO_LOG4CXX_INFO(g_logger, s);
 #endif
 
-	onMessage(KBELOG_PRINT, s.c_str(), (uint32)s.size());
+	onMessage(OUROLOG_PRINT, s.c_str(), (uint32)s.size());
 }
 
 //-------------------------------------------------------------------------------------
@@ -879,7 +879,7 @@ void DebugHelper::error_msg(const std::string& s)
 	OURO_LOG4CXX_ERROR(g_logger, s);
 #endif
 
-	onMessage(KBELOG_ERROR, s.c_str(), (uint32)s.size());
+	onMessage(OUROLOG_ERROR, s.c_str(), (uint32)s.size());
 
 	set_errorcolor();
 	printf("%s%02d: [ERROR]: %s", COMPONENT_NAME_EX_2(g_componentType), g_componentGroupOrder, s.c_str());
@@ -897,30 +897,30 @@ void DebugHelper::info_msg(const std::string& s)
 		OURO_LOG4CXX_INFO(g_logger, s);
 #endif
 
-	onMessage(KBELOG_INFO, s.c_str(), (uint32)s.size());
+	onMessage(OUROLOG_INFO, s.c_str(), (uint32)s.size());
 }
 
 //-------------------------------------------------------------------------------------
-int KBELOG_TYPE_MAPPING(int type)
+int OUROLOG_TYPE_MAPPING(int type)
 {
 #ifdef NO_USE_LOG4CXX
-	return KBELOG_SCRIPT_INFO;
+	return OUROLOG_SCRIPT_INFO;
 #else
 	switch(type)
 	{
 	case log4cxx::ScriptLevel::SCRIPT_INFO:
-		return KBELOG_SCRIPT_INFO;
+		return OUROLOG_SCRIPT_INFO;
 	case log4cxx::ScriptLevel::SCRIPT_ERR:
-		return KBELOG_SCRIPT_ERROR;
+		return OUROLOG_SCRIPT_ERROR;
 	case log4cxx::ScriptLevel::SCRIPT_DBG:
-		return KBELOG_SCRIPT_DEBUG;
+		return OUROLOG_SCRIPT_DEBUG;
 	case log4cxx::ScriptLevel::SCRIPT_WAR:
-		return KBELOG_SCRIPT_WARNING;
+		return OUROLOG_SCRIPT_WARNING;
 	default:
 		break;
 	}
 
-	return KBELOG_SCRIPT_NORMAL;
+	return OUROLOG_SCRIPT_NORMAL;
 #endif
 }
 
@@ -935,7 +935,7 @@ void DebugHelper::script_info_msg(const std::string& s)
 		OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), s);
 #endif
 
-	onMessage(KBELOG_TYPE_MAPPING(scriptMsgType_), s.c_str(), (uint32)s.size());
+	onMessage(OUROLOG_TYPE_MAPPING(scriptMsgType_), s.c_str(), (uint32)s.size());
 
 	// If the user manually set the output is also an error message
 	if(log4cxx::ScriptLevel::SCRIPT_ERR == scriptMsgType_)
@@ -959,7 +959,7 @@ void DebugHelper::script_error_msg(const std::string& s)
 		OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), s);
 #endif
 
-	onMessage(KBELOG_SCRIPT_ERROR, s.c_str(), (uint32)s.size());
+	onMessage(OUROLOG_SCRIPT_ERROR, s.c_str(), (uint32)s.size());
 
 	set_errorcolor();
 	printf("%s%02d: [S_ERROR]: %s", COMPONENT_NAME_EX_2(g_componentType), g_componentGroupOrder, s.c_str());
@@ -989,7 +989,7 @@ void DebugHelper::debug_msg(const std::string& s)
 		OURO_LOG4CXX_DEBUG(g_logger, s);
 #endif
 
-	onMessage(KBELOG_DEBUG, s.c_str(), (uint32)s.size());
+	onMessage(OUROLOG_DEBUG, s.c_str(), (uint32)s.size());
 }
 
 //-------------------------------------------------------------------------------------
@@ -1003,7 +1003,7 @@ void DebugHelper::warning_msg(const std::string& s)
 		OURO_LOG4CXX_WARN(g_logger, s);
 #endif
 
-	onMessage(KBELOG_WARNING, s.c_str(), (uint32)s.size());
+	onMessage(OUROLOG_WARNING, s.c_str(), (uint32)s.size());
 
 #if OURO_PLATFORM == PLATFORM_WIN32
 	set_warningcolor();
@@ -1031,7 +1031,7 @@ void DebugHelper::critical_msg(const std::string& s)
 	set_normalcolor();
 #endif
 
-	onMessage(KBELOG_CRITICAL, buf, (uint32)strlen(buf));
+	onMessage(OUROLOG_CRITICAL, buf, (uint32)strlen(buf));
 	backtrace_msg();
 }
 
@@ -1118,7 +1118,7 @@ void DebugHelper::backtrace_msg()
 			OURO_LOG4CXX_INFO(g_logger, ss);
 #endif
 
-			onMessage(KBELOG_PRINT, ss.c_str(), ss.size());
+			onMessage(OUROLOG_PRINT, ss.c_str(), ss.size());
 
 	}
 

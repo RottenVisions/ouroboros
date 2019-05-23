@@ -33,19 +33,19 @@ def show_components( request ):
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	kbeComps = []
+	ouroComps = []
 	for mID, comps in interfaces_groups.items():
 		for comp in comps:
 			if comp.componentType in VALID_CT:
-				kbeComps.append( comp)
+				ouroComps.append( comp)
 	POST = request.POST
 	try:
-		intaddr = kbeComps[0].intaddr
-		intport = kbeComps[0].intport
-		extaddr = kbeComps[0].extaddr
-		extport = kbeComps[0].extport
-		componentType = kbeComps[0].componentType
-		componentName = kbeComps[0].componentName
+		intaddr = ouroComps[0].intaddr
+		intport = ouroComps[0].intport
+		extaddr = ouroComps[0].extaddr
+		extport = ouroComps[0].extport
+		componentType = ouroComps[0].componentType
+		componentName = ouroComps[0].componentName
 		uid = request.session["sys_uid"]
 	except:
 		context = {
@@ -55,7 +55,7 @@ def show_components( request ):
 	ws_url = "ws://%s/wc/spaceviewer/process_cmd?host=%s&port=%s&cp=%s" % ( request.META["HTTP_HOST"], intaddr, intport, componentType)
 	context = {
 		"http_host":request.META["HTTP_HOST"],
-		"kbeComps":kbeComps,
+		"ouroComps":ouroComps,
 		"intaddr": intaddr,
 		"intport": intport,
 		"extaddr":extaddr,

@@ -449,7 +449,7 @@ bool EntityApp<E>::installPyModules()
 	// Get the watcher directory
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),	getWatcherDir,		__py_getWatcherDir,						METH_VARARGS,	0);
 
-	// debug trace kbe package py object count
+	// debug trace ouro package py object count
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),	debugTracing,		script::PyGC::__py_debugTracing,		METH_VARARGS,	0);
 
 	if(PyModule_AddIntConstant(this->getScript().getModule(), "LOG_TYPE_NORMAL", log4cxx::ScriptLevel::SCRIPT_INT))
@@ -775,7 +775,7 @@ PyObject* EntityApp<E>::__py_getWatcher(PyObject* self, PyObject* args)
 
 	//DebugHelper::getSingleton().setScriptMsgType(type);
 
-	KBEShared_ptr< WatcherObject > pWobj = WatcherPaths::root().getWatcher(path);
+	OUROShared_ptr< WatcherObject > pWobj = WatcherPaths::root().getWatcher(path);
 	if(pWobj.get() == NULL)
 	{
 		PyErr_Format(PyExc_TypeError, "Ouroboros::getWatcher(): not found watcher[%s]!", path);
@@ -1424,7 +1424,7 @@ template<class E>
 void EntityApp<E>::calcLoad(float spareTime)
 {
 	// The value of the load is 1.0 - the ratio of idle time, must be between 0-1.f
-	float load = KBEClamp(1.f - spareTime, 0.f, 1.f);
+	float load = OUROClamp(1.f - spareTime, 0.f, 1.f);
 
 	// Here the algorithm looks at server_operations_guide.pdf to introduce loadSmoothingBias
 	// loadSmoothingBias determines the remaining ratio of loadSmoothingBias for the last load of this load + the loadSmoothingBias ratio of the current load

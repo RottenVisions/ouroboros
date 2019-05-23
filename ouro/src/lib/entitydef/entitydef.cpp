@@ -981,13 +981,13 @@ bool EntityDef::validDefPropertyName(const std::string& name)
 		++i;
 	};
 
-	PyObject* pyKBEModule =
+	PyObject* pyOUROModule =
 		PyImport_ImportModule(const_cast<char*>("Ouroboros"));
 
 	PyObject* pyEntityModule =
-		PyObject_GetAttrString(pyKBEModule, const_cast<char *>("Entity"));
+		PyObject_GetAttrString(pyOUROModule, const_cast<char *>("Entity"));
 
-	Py_DECREF(pyKBEModule);
+	Py_DECREF(pyOUROModule);
 
 	if (pyEntityModule != NULL)
 	{
@@ -1949,7 +1949,7 @@ PyObject* EntityDef::loadScriptModule(std::string moduleName)
 	if (g_isReload && pyModule)
 		pyModule = PyImport_ReloadModule(pyModule);
 
-	// Check whether the module path is in the KBE script directory, to prevent the system module from being incorrectly imported due to user name and python module name conflict
+	// Check whether the module path is in the OURO script directory, to prevent the system module from being incorrectly imported due to user name and python module name conflict
 	if (pyModule)
 	{
 		std::string userScriptsPath = Resmgr::getSingleton().getPyUserScriptsPath();

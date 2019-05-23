@@ -15,11 +15,11 @@ namespace Ouroboros {
 /*
 	Kbe system table
 */
-class KBEEntityLogTableMysql : public KBEEntityLogTable
+class OUROEntityLogTableMysql : public OUROEntityLogTable
 {
 public:
-	KBEEntityLogTableMysql(EntityTables* pEntityTables);
-	virtual ~KBEEntityLogTableMysql(){}
+	OUROEntityLogTableMysql(EntityTables* pEntityTables);
+	virtual ~OUROEntityLogTableMysql(){}
 	
 	/**
 		Synchronize tables into the database
@@ -39,11 +39,11 @@ protected:
 	
 };
 
-class KBEServerLogTableMysql : public KBEServerLogTable
+class OUROServerLogTableMysql : public OUROServerLogTable
 {
 public:
-	KBEServerLogTableMysql(EntityTables* pEntityTables);
-	virtual ~KBEServerLogTableMysql(){}
+	OUROServerLogTableMysql(EntityTables* pEntityTables);
+	virtual ~OUROServerLogTableMysql(){}
 	
 	/**
 		Synchronize tables into the database
@@ -68,11 +68,11 @@ protected:
 	
 };
 
-class KBEAccountTableMysql : public KBEAccountTable
+class OUROAccountTableMysql : public OUROAccountTable
 {
 public:
-	KBEAccountTableMysql(EntityTables* pEntityTables);
-	virtual ~KBEAccountTableMysql(){}
+	OUROAccountTableMysql(EntityTables* pEntityTables);
+	virtual ~OUROAccountTableMysql(){}
 	
 	/**
 		Synchronize tables into the database
@@ -89,12 +89,12 @@ public:
 protected:
 };
 
-class KBEEmailVerificationTableMysql : public KBEEmailVerificationTable
+class OUROEmailVerificationTableMysql : public OUROEmailVerificationTable
 {
 public:
 
-	KBEEmailVerificationTableMysql(EntityTables* pEntityTables);
-	virtual ~KBEEmailVerificationTableMysql();
+	OUROEmailVerificationTableMysql(EntityTables* pEntityTables);
+	virtual ~OUROEmailVerificationTableMysql();
 
 	/**
 		Synchronize tables into the database

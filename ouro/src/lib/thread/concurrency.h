@@ -12,7 +12,7 @@ namespace Ouroboros{
 extern void (*pMainThreadIdleStartCallback)();
 extern void (*pMainThreadIdleEndCallback)();
 
-namespace KBEConcurrency
+namespace OUROConcurrency
 {
 
 /**

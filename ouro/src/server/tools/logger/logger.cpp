@@ -241,7 +241,7 @@ void Logger::writeLog(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 	s >> pLogItem->componentGlobalOrder;
 	s >> pLogItem->componentGroupOrder;
 	s >> pLogItem->t;
-	s >> pLogItem->kbetime;
+	s >> pLogItem->ourotime;
 	s.readBlob(str);
 
 	time_t tt = static_cast<time_t>(pLogItem->t);	
@@ -262,7 +262,7 @@ void Logger::writeLog(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 
 	char timebuf[MAX_BUF];
 
-	pLogItem->logstream << KBELOG_TYPE_NAME_EX(pLogItem->logtype);
+	pLogItem->logstream << OUROLOG_TYPE_NAME_EX(pLogItem->logtype);
 	pLogItem->logstream << " ";
 	pLogItem->logstream << COMPONENT_NAME_EX_2(pLogItem->componentType);
 
@@ -275,7 +275,7 @@ void Logger::writeLog(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 	pLogItem->logstream << " ";
 
     ouro_snprintf(timebuf, MAX_BUF, " [%-4d-%02d-%02d %02d:%02d:%02d %03d] ", aTm->tm_year+1900, aTm->tm_mon+1, 
-		aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec, pLogItem->kbetime);
+		aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec, pLogItem->ourotime);
 	pLogItem->logstream << timebuf;
 
 	pLogItem->logstream << "- ";

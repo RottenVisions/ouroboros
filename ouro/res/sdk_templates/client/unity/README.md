@@ -10,11 +10,11 @@ Usage
 		
 	2: Create clientapp.cs
 		using Ouroboros;
-		public class clientapp : KBEMain 
+		public class clientapp : OUROMain 
 		{
 		}
 
-	3: Implment the KBE defined entity (including the client part)
+	3: Implment the OURO defined entity (including the client part)
 		See: ouroboros\ouroboros_demos_assets\scripts\entities.xml->hasClient="true" need to implment
 			<Account hasClient="true"></Account>
 			<Monster hasClient="true"></Monster>
@@ -35,7 +35,7 @@ Usage
 
 		Reference: https://github.com/ouroboros/ouroboros/issues/532
 
-	4: Monitor KBE-plugins event
+	4: Monitor OURO-plugins event
 		For example:
 			public class UI : MonoBehaviour
 			{
@@ -46,17 +46,17 @@ Usage
 
 				public void onConnectionState(bool success)
 				{
-					// KBE-plugins event fired
+					// OURO-plugins event fired
 				}
 			}
 
-	5: Fire events to the KBE-plugins
+	5: Fire events to the OURO-plugins
 		For example:
 			Ouroboros.Event.fireIn("login", "stringAccount", "stringPasswd", System.Text.Encoding.UTF8.GetBytes("ouroboros_unity3d_demo"));
 
 
 
-KBE-Plugin fire-out events(KBE => Unity):
+OURO-Plugin fire-out events(OURO => Unity):
 ---------------------
 
 	Entity events:
@@ -297,7 +297,7 @@ KBE-Plugin fire-out events(KBE => Unity):
 
 
 
-KBE-Plugin fire-in events(Unity => KBE):
+OURO-Plugin fire-in events(Unity => OURO):
 ---------------------
 
 	createAccount
@@ -309,7 +309,7 @@ KBE-Plugin fire-in events(Unity => KBE):
 				string: password
 				bytes: datas
 					Datas by user defined.
-					Data will be recorded into the KBE account database, you can access the datas through the script layer.
+					Data will be recorded into the OURO account database, you can access the datas through the script layer.
 					If you use third-party account system, datas will be submitted to the third-party system.
 				
 	login
@@ -321,7 +321,7 @@ KBE-Plugin fire-in events(Unity => KBE):
 				string: password
 				bytes: datas
 					Datas by user defined.
-					Data will be recorded into the KBE account database, you can access the datas through the script layer.
+					Data will be recorded into the OURO account database, you can access the datas through the script layer.
 					If you use third-party account system, datas will be submitted to the third-party system.
 
 	logout

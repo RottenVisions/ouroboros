@@ -359,7 +359,7 @@ bool DBTaskWriteEntity::db_thread_process()
 		success_ = false;
 
 		// Write the log first, if the write fails, the entity may be online.
-		KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
+		OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
 		OURO_ASSERT(pELTable);
 
 		success_ = pELTable->logEntity(pdbi_, inet_ntoa((struct in_addr&)ip), port, entityDBID_, 
@@ -419,7 +419,7 @@ bool DBTaskRemoveEntity::db_thread_process()
 	(*pDatas_) >> sid_;
 
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
+	OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
 
 	OURO_ASSERT(pELTable);
 	pELTable->eraseEntityLog(pdbi_, entityDBID_, sid_);
@@ -459,13 +459,13 @@ DBTaskDeleteEntityByDBID::~DBTaskDeleteEntityByDBID()
 bool DBTaskDeleteEntityByDBID::db_thread_process()
 {
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>
-		(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
+	OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>
+		(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
 
 	OURO_ASSERT(pELTable);
 
 	bool haslog = false;
-	KBEEntityLogTable::EntityLog entitylog;
+	OUROEntityLogTable::EntityLog entitylog;
 
 	ScriptDefModule* pModule = EntityDef::findScriptModule(sid_);
 
@@ -589,12 +589,12 @@ DBTaskLookUpEntityByDBID::~DBTaskLookUpEntityByDBID()
 bool DBTaskLookUpEntityByDBID::db_thread_process()
 {
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>
-		(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
+	OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>
+		(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
 
 	OURO_ASSERT(pELTable);
 
-	KBEEntityLogTable::EntityLog entitylog;
+	OUROEntityLogTable::EntityLog entitylog;
 
 	ScriptDefModule* pModule = EntityDef::findScriptModule(sid_);
 
@@ -693,7 +693,7 @@ bool DBTaskCreateAccount::writeAccount(DBInterface* pdbi, const std::string& acc
 	// Find if dblog has this account, if it does, the creation fails.
 	// If not, create a new entity data in the account table and write a log association dbid in the accountlog table.
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi->name());
-	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
+	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
 
 	ScriptDefModule* pModule = EntityDef::findScriptModule(DBUtil::accountScriptName());
@@ -847,7 +847,7 @@ bool DBTaskCreateMailAccount::db_thread_process()
 
 	// Find if dblog has this account, if it does, the creation fails.
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
+	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
 	
 	info.flags = 0;
@@ -865,7 +865,7 @@ bool DBTaskCreateMailAccount::db_thread_process()
 	// Generate an activation code and store the activation code to the database
 	// Send smtp mail to the mailbox, the user can click to confirm and activate
 	std::string codestr = genmail_code(password_);
-	KBEEmailVerificationTable* pTable1 = static_cast<KBEEmailVerificationTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_email_verification"));
+	OUROEmailVerificationTable* pTable1 = static_cast<OUROEmailVerificationTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_email_verification"));
 	OURO_ASSERT(pTable1);
 	
 	info.datas = getdatas_;
@@ -888,7 +888,7 @@ bool DBTaskCreateMailAccount::db_thread_process()
 	password_ = OURO_MD5::getDigest(password_.data(), (int)password_.length());
 	getdatas_ = codestr;
 
-	success_ = pTable1->logAccount(pdbi_, (int8)KBEEmailVerificationTable::V_TYPE_CREATEACCOUNT, 
+	success_ = pTable1->logAccount(pdbi_, (int8)OUROEmailVerificationTable::V_TYPE_CREATEACCOUNT, 
 		registerName_, password_, getdatas_);
 
 	return false;
@@ -937,8 +937,8 @@ bool DBTaskActivateAccount::db_thread_process()
 {
 	ACCOUNT_INFOS info;
 
-	KBEEmailVerificationTable* pTable1 = 
-		static_cast<KBEEmailVerificationTable*>(EntityTables::findByInterfaceName(pdbi_->name()).findKBETable(OURO_TABLE_PERFIX "_email_verification"));
+	OUROEmailVerificationTable* pTable1 = 
+		static_cast<OUROEmailVerificationTable*>(EntityTables::findByInterfaceName(pdbi_->name()).findOUROTable(OURO_TABLE_PERFIX "_email_verification"));
 
 	OURO_ASSERT(pTable1);
 
@@ -996,7 +996,7 @@ bool DBTaskReqAccountResetPassword::db_thread_process()
 	}
 
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
+	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
 
 	if(!pTable->queryAccountAllInfos(pdbi_, accountName_, info))
@@ -1009,14 +1009,14 @@ bool DBTaskReqAccountResetPassword::db_thread_process()
 	
 	// Generate an activation code and store the activation code to the database
 	// Send smtp mail to the mailbox, the user can click to confirm and activate
-	KBEEmailVerificationTable* pTable1 = 
-		static_cast<KBEEmailVerificationTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_email_verification"));
+	OUROEmailVerificationTable* pTable1 = 
+		static_cast<OUROEmailVerificationTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_email_verification"));
 	OURO_ASSERT(pTable1);
 
 	info.datas = genmail_code(accountName_);
 	code_ = info.datas;
 	email_ = info.email;
-	success_ = pTable1->logAccount(pdbi_, (int8)KBEEmailVerificationTable::V_TYPE_RESETPASSWORD, accountName_, email_, code_);
+	success_ = pTable1->logAccount(pdbi_, (int8)OUROEmailVerificationTable::V_TYPE_RESETPASSWORD, accountName_, email_, code_);
 	return false;
 }
 
@@ -1066,8 +1066,8 @@ DBTaskAccountResetPassword::~DBTaskAccountResetPassword()
 //-------------------------------------------------------------------------------------
 bool DBTaskAccountResetPassword::db_thread_process()
 {
-	KBEEmailVerificationTable* pTable1 = static_cast<KBEEmailVerificationTable*>(
-		EntityTables::findByInterfaceName(pdbi_->name()).findKBETable(OURO_TABLE_PERFIX "_email_verification"));
+	OUROEmailVerificationTable* pTable1 = static_cast<OUROEmailVerificationTable*>(
+		EntityTables::findByInterfaceName(pdbi_->name()).findOUROTable(OURO_TABLE_PERFIX "_email_verification"));
 
 	OURO_ASSERT(pTable1);
 
@@ -1125,15 +1125,15 @@ bool DBTaskReqAccountBindEmail::db_thread_process()
 
 	// Generate an activation code and store the activation code to the database
 	// Send smtp mail to the mailbox, the user can click to confirm and activate
-	KBEEmailVerificationTable* pTable1 = static_cast<KBEEmailVerificationTable*>(
-		EntityTables::findByInterfaceName(pdbi_->name()).findKBETable(OURO_TABLE_PERFIX "_email_verification"));
+	OUROEmailVerificationTable* pTable1 = static_cast<OUROEmailVerificationTable*>(
+		EntityTables::findByInterfaceName(pdbi_->name()).findOUROTable(OURO_TABLE_PERFIX "_email_verification"));
 
 	OURO_ASSERT(pTable1);
 
 	info.datas = genmail_code(accountName_);
 	info.name = accountName_;
 	code_ = info.datas;
-	success_ = pTable1->logAccount(pdbi_, (int8)KBEEmailVerificationTable::V_TYPE_BIND_MAIL, accountName_, email_, code_);
+	success_ = pTable1->logAccount(pdbi_, (int8)OUROEmailVerificationTable::V_TYPE_BIND_MAIL, accountName_, email_, code_);
 	return false;
 }
 
@@ -1184,8 +1184,8 @@ DBTaskAccountBindEmail::~DBTaskAccountBindEmail()
 //-------------------------------------------------------------------------------------
 bool DBTaskAccountBindEmail::db_thread_process()
 {
-	KBEEmailVerificationTable* pTable1 = static_cast<KBEEmailVerificationTable*>(
-		EntityTables::findByInterfaceName(pdbi_->name()).findKBETable(OURO_TABLE_PERFIX "_email_verification"));
+	OUROEmailVerificationTable* pTable1 = static_cast<OUROEmailVerificationTable*>(
+		EntityTables::findByInterfaceName(pdbi_->name()).findOUROTable(OURO_TABLE_PERFIX "_email_verification"));
 
 	OURO_ASSERT(pTable1);
 
@@ -1233,8 +1233,8 @@ DBTaskAccountNewPassword::~DBTaskAccountNewPassword()
 //-------------------------------------------------------------------------------------
 bool DBTaskAccountNewPassword::db_thread_process()
 {
-	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(
-		EntityTables::findByInterfaceName(pdbi_->name()).findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
+	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(
+		EntityTables::findByInterfaceName(pdbi_->name()).findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
 
 	OURO_ASSERT(pTable);
 
@@ -1320,7 +1320,7 @@ bool DBTaskQueryAccount::db_thread_process()
 	}
 
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
+	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
 
 	ACCOUNT_INFOS info;
@@ -1381,8 +1381,8 @@ bool DBTaskQueryAccount::db_thread_process()
 	success_ = false;
 
 	// Write the log first, if the write fails, the entity may be online.
-	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>
-		(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
+	OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>
+		(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
 	
 	OURO_ASSERT(pELTable);
 	
@@ -1499,8 +1499,8 @@ DBTaskEntityOffline::~DBTaskEntityOffline()
 //-------------------------------------------------------------------------------------
 bool DBTaskEntityOffline::db_thread_process()
 {
-	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>
-		(EntityTables::findByInterfaceName(pdbi_->name()).findKBETable(OURO_TABLE_PERFIX "_entitylog"));
+	OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>
+		(EntityTables::findByInterfaceName(pdbi_->name()).findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
 
 	OURO_ASSERT(pELTable);
 
@@ -1577,12 +1577,12 @@ bool DBTaskAccountLogin::db_thread_process()
 	}
 
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>
-		(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
+	OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>
+		(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
 
 	OURO_ASSERT(pELTable);
 
-	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
+	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
 
 	ACCOUNT_INFOS info;
@@ -1655,7 +1655,7 @@ bool DBTaskAccountLogin::db_thread_process()
 	pTable->updateCount(pdbi_, accountName_, info.dbid);
 
 	retcode_ = SERVER_ERR_ACCOUNT_IS_ONLINE;
-	KBEEntityLogTable::EntityLog entitylog;
+	OUROEntityLogTable::EntityLog entitylog;
 	bool success = !pELTable->queryEntity(pdbi_, info.dbid, entitylog, pModule->getUType());
 
 	// If there is an online record
@@ -1765,8 +1765,8 @@ bool DBTaskQueryEntity::db_thread_process()
 	if(success_)
 	{
 		// Write the log first, if the write fails, the entity may be online.
-		KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>
-			(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
+		OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>
+			(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
 
 		OURO_ASSERT(pELTable);
 
@@ -1789,7 +1789,7 @@ bool DBTaskQueryEntity::db_thread_process()
 
 		if(!success_)
 		{
-			KBEEntityLogTable::EntityLog entitylog;
+			OUROEntityLogTable::EntityLog entitylog;
 
 			try
 			{
@@ -1891,7 +1891,7 @@ DBTaskServerLog::~DBTaskServerLog()
 bool DBTaskServerLog::db_thread_process()
 {
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	KBEServerLogTable* pTable = static_cast<KBEServerLogTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_serverlog"));
+	OUROServerLogTable* pTable = static_cast<OUROServerLogTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_serverlog"));
 	OURO_ASSERT(pTable);
 	
 	pTable->updateServer(pdbi_);
@@ -1922,7 +1922,7 @@ DBTaskEraseBaseappEntityLog::~DBTaskEraseBaseappEntityLog()
 bool DBTaskEraseBaseappEntityLog::db_thread_process()
 {
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
+	OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
 	
 	if (!pELTable)
 	{

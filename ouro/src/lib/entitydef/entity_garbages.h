@@ -20,7 +20,7 @@ class EntityGarbages : public script::ScriptObject
 	*/
 	INSTANCE_SCRIPT_HREADER(EntityGarbages, ScriptObject)	
 public:
-	typedef KBEUnordered_map<ENTITY_ID, PyObject*> ENTITYS_MAP;
+	typedef OUROUnordered_map<ENTITY_ID, PyObject*> ENTITYS_MAP;
 
 	EntityGarbages():
 	ScriptObject(getScriptType(), false),

@@ -12,7 +12,7 @@ namespace Network
 class KCPPacketReceiver : public UDPPacketReceiver
 {
 public:
-	typedef KBEShared_ptr< SmartPoolObject< KCPPacketReceiver > > SmartPoolObjectPtr;
+	typedef OUROShared_ptr< SmartPoolObject< KCPPacketReceiver > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<KCPPacketReceiver>& ObjPool();
 	static KCPPacketReceiver* createPoolObject(const std::string& logPoint);

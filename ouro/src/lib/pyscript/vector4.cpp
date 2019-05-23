@@ -184,13 +184,13 @@ PyObject* ScriptVector4::tp_str()
 //-------------------------------------------------------------------------------------
 PyObject* ScriptVector4::pyGetVectorLength()
 { 
-	return PyFloat_FromDouble(KBEVec4Length(&getVector())); 
+	return PyFloat_FromDouble(OUROVec4Length(&getVector())); 
 }
 
 //-------------------------------------------------------------------------------------
 PyObject* ScriptVector4::pyGetVectorLengthSquared()
 { 
-	return PyFloat_FromDouble(KBEVec4LengthSq(&getVector()));
+	return PyFloat_FromDouble(OUROVec4LengthSq(&getVector()));
 }
 
 //-------------------------------------------------------------------------------------
@@ -636,7 +636,7 @@ PyObject* ScriptVector4::__py_pyDistTo(PyObject* self, PyObject* args)
 	convertPyObjectToVector4(v1, pyVal);
 	
 	Vector4 rv = (v - v1);
-	return PyFloat_FromDouble(KBEVec4Length(&rv)); //calculate the length and return
+	return PyFloat_FromDouble(OUROVec4Length(&rv)); //calculate the length and return
 }
 
 //-------------------------------------------------------------------------------------
@@ -662,7 +662,7 @@ PyObject* ScriptVector4::__py_pyDistSqrTo(PyObject* self, PyObject* args)
 	convertPyObjectToVector4(v1, pyVal);
 	
 	Vector4 rv = (v - v1);
-	return PyFloat_FromDouble(KBEVec4LengthSq(&rv)); //calculate point multiplication and return
+	return PyFloat_FromDouble(OUROVec4LengthSq(&rv)); //calculate point multiplication and return
 }
 
 //-------------------------------------------------------------------------------------
@@ -691,7 +691,7 @@ PyObject* ScriptVector4::__py_pyDot(PyObject* self, PyObject* args)
 		Py_DECREF(pyResult);
 
 	ScriptVector4* sv = static_cast<ScriptVector4*>(self);
-	float result = KBEVec4Dot(const_cast<Vector4*>(&sv->getVector()), const_cast<Vector4*>(&v->getVector()));
+	float result = OUROVec4Dot(const_cast<Vector4*>(&sv->getVector()), const_cast<Vector4*>(&v->getVector()));
 	Py_DECREF(v);
 	return PyFloat_FromDouble(result);
 }
@@ -708,7 +708,7 @@ PyObject* ScriptVector4::__py_pyNormalise(PyObject* self, PyObject* args)
 
 	ScriptVector4* sv = static_cast<ScriptVector4*>(self);
 	Vector4& v = sv->getVector();
-	KBEVec4Normalize(&v, &v);
+	OUROVec4Normalize(&v, &v);
 	S_Return;
 }
 

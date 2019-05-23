@@ -1593,7 +1593,7 @@ uint32 Entity::addProximity(float range_xz, float range_y, int32 userarg)
 	}
 
 	// Put a trap in the space
-	KBEShared_ptr<Controller> p( new ProximityController(this, range_xz, range_y, userarg, pControllers_->freeID()) );
+	OUROShared_ptr<Controller> p( new ProximityController(this, range_xz, range_y, userarg, pControllers_->freeID()) );
 
 	bool ret = pControllers_->add(p);
 	OURO_ASSERT(ret);
@@ -2602,7 +2602,7 @@ bool Entity::navigatePathPoints( std::vector<Position3D>& outPaths, const Positi
 	while(iter != outPaths.end())
 	{
 		Vector3 movement = (*iter) - position_;
-		if(KBEVec3Length(&movement) <= 0.00001f)
+		if(OUROVec3Length(&movement) <= 0.00001f)
 		{
 			iter++;
 			continue;
@@ -2674,7 +2674,7 @@ uint32 Entity::navigate(const Position3D& destination, float velocity, float dis
 
 	velocity = velocity / g_ouroSrvConfig.gameUpdateHertz();
 
-	KBEShared_ptr<Controller> p(new MoveController(this, NULL));
+	OUROShared_ptr<Controller> p(new MoveController(this, NULL));
 	
 	new NavigateHandler(p, destination, velocity, 
 		distance, faceMovement, maxMoveDistance, paths_ptr, userData);
@@ -2800,7 +2800,7 @@ uint32 Entity::moveToPoint(const Position3D& destination, float velocity, float 
 
 	velocity = velocity / g_ouroSrvConfig.gameUpdateHertz();
 
-	KBEShared_ptr<Controller> p(new MoveController(this, NULL));
+	OUROShared_ptr<Controller> p(new MoveController(this, NULL));
 
 	new MoveToPointHandler(p, layer(), destination, velocity, 
 		distance, faceMovement, moveVertically, userData);
@@ -2862,7 +2862,7 @@ uint32 Entity::moveToEntity(ENTITY_ID targetID, float velocity, float distance, 
 
 	velocity = velocity / g_ouroSrvConfig.gameUpdateHertz();
 
-	KBEShared_ptr<Controller> p(new MoveController(this, NULL));
+	OUROShared_ptr<Controller> p(new MoveController(this, NULL));
 
 	new MoveToEntityHandler(p, targetID, velocity, distance,
 		faceMovement, moveVertically, userData, offsetPos);
@@ -3045,7 +3045,7 @@ uint32 Entity::addYawRotator(float yaw, float velocity, PyObject* userData)
 
 	velocity = velocity / g_ouroSrvConfig.gameUpdateHertz();
 
-	KBEShared_ptr<Controller> p(new TurnController(this, NULL));
+	OUROShared_ptr<Controller> p(new TurnController(this, NULL));
 
 	Direction3D dir;
 	dir.yaw(yaw);
@@ -3132,7 +3132,7 @@ void Entity::debugView()
 		{
 			epos = pEntity->position();
 			Vector3 distvec = epos - this->position();
-			dist = KBEVec3Length(&distvec);
+			dist = OUROVec3Length(&distvec);
 		}
 
 		Cellapp::getSingleton().getScript().pyPrint(fmt::format("{7}::debugView: {0} {1}({2}), position({3}.{4}.{5}), dist={6}, Seen={8}", 
@@ -4295,7 +4295,7 @@ void Entity::createMovementHandlerFromStream(Ouroboros::MemoryStream& s)
 	{
 		stopMove();
 
-		pMoveController_ = KBEShared_ptr<Controller>(new MoveController(this));
+		pMoveController_ = OUROShared_ptr<Controller>(new MoveController(this));
 		pMoveController_->createFromStream(s);
 		pControllers_->add(pMoveController_);
 	}
@@ -4308,7 +4308,7 @@ void Entity::createMovementHandlerFromStream(Ouroboros::MemoryStream& s)
 		if(!hasMoveHandler)
 			stopMove();
 		
-		pTurnController_ = KBEShared_ptr<Controller>(new TurnController(this));
+		pTurnController_ = OUROShared_ptr<Controller>(new TurnController(this));
 		pTurnController_->createFromStream(s);
 		pControllers_->add(pTurnController_);
 	}	

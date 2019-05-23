@@ -59,14 +59,14 @@ void Resmgr::autoSetPaths()
 
 	strutil::ouro_replace(s, "\\", "/");
 	strutil::ouro_replace(s, "//", "/");
-	pos1 = s.find("/kbe/bin/");
+	pos1 = s.find("/ouro/bin/");
 
 	if(pos1 == std::string::npos)
 		return;
 
 	s = s.substr(0, pos1 + 1);
 	kb_env_.root_path = s;
-	kb_env_.res_path = kb_env_.root_path + "kbe/res/;" + kb_env_.root_path + "/assets/;" + kb_env_.root_path + "/assets/scripts/;" + kb_env_.root_path + "/assets/res/";
+	kb_env_.res_path = kb_env_.root_path + "ouro/res/;" + kb_env_.root_path + "/assets/;" + kb_env_.root_path + "/assets/scripts/;" + kb_env_.root_path + "/assets/res/";
 }
 
 //-------------------------------------------------------------------------------------
@@ -142,8 +142,8 @@ bool Resmgr::initialize()
 	kb_env_.bin_path		= getenv("OURO_BIN_PATH") == NULL ? "" : getenv("OURO_BIN_PATH"); 
 
 	//kb_env_.root			= "/home/ouroboros/";
-	//kb_env_.res_path		= "/home/ouroboros/kbe/res/;/home/ouroboros/assets/;/home/ouroboros/assets/scripts/;/home/ouroboros/assets/res/"; 
-	//kb_env_.bin_path		= "/home/ouroboros/kbe/bin/server/"; 
+	//kb_env_.res_path		= "/home/ouroboros/ouro/res/;/home/ouroboros/assets/;/home/ouroboros/assets/scripts/;/home/ouroboros/assets/res/"; 
+	//kb_env_.bin_path		= "/home/ouroboros/ouro/bin/server/"; 
 	updatePaths();
 
 	if (kb_env_.root_path == "" || kb_env_.res_path == "")
@@ -579,7 +579,7 @@ ResourceObjectPtr Resmgr::openResource(const char* res, const char* model, uint3
 	}
 
 	Ouroboros::thread::ThreadGuard tg(&mutex_); 
-	KBEUnordered_map< std::string, ResourceObjectPtr >::iterator iter = respool_.find(respath);
+	OUROUnordered_map< std::string, ResourceObjectPtr >::iterator iter = respool_.find(respath);
 	if(iter == respool_.end())
 	{
 		FileObject* fobj = new FileObject(respath.c_str(), flags, model);
@@ -596,7 +596,7 @@ ResourceObjectPtr Resmgr::openResource(const char* res, const char* model, uint3
 void Resmgr::update()
 {
 	Ouroboros::thread::ThreadGuard tg(&mutex_); 
-	KBEUnordered_map< std::string, ResourceObjectPtr >::iterator iter = respool_.begin();
+	OUROUnordered_map< std::string, ResourceObjectPtr >::iterator iter = respool_.begin();
 	for(; iter != respool_.end();)
 	{
 		if(!iter->second->valid())

@@ -44,7 +44,7 @@ public:
 	static void decTracing(std::string name);
 
 	/**
-		Debug traces the py object count of the kbe package
+		Debug traces the py object count of the ouro package
 	*/
 	static void debugTracing(bool shuttingdown = true);
 
@@ -59,7 +59,7 @@ private:
 
 	static bool isInit; // whether it has been initialized
 
-	static KBEUnordered_map<std::string, int> tracingCountMap_; // Track specific object counters
+	static OUROUnordered_map<std::string, int> tracingCountMap_; // Track specific object counters
 } ;
 
 }

@@ -9,7 +9,7 @@ namespace Ouroboros{
 
 
 //-------------------------------------------------------------------------------------
-MoveToPointHandler::MoveToPointHandler(KBEShared_ptr<Controller>& pController, int layer, const Position3D& destPos, 
+MoveToPointHandler::MoveToPointHandler(OUROShared_ptr<Controller>& pController, int layer, const Position3D& destPos, 
 											 float velocity, float distance, bool faceMovement, 
 											bool moveVertically, PyObject* userarg):
 destPos_(destPos),
@@ -117,7 +117,7 @@ bool MoveToPointHandler::update()
 	if (!moveVertically_) movement.y = 0.f;
 	
 	bool ret = true;
-	float dist_len = KBEVec3Length(&movement);
+	float dist_len = OUROVec3Length(&movement);
 
 	if (dist_len < velocity_ + distance_)
 	{
@@ -126,7 +126,7 @@ bool MoveToPointHandler::update()
 		if (distance_ > 0.0f)
 		{
 			// unitized vector
-			KBEVec3Normalize(&movement, &movement); 
+			OUROVec3Normalize(&movement, &movement); 
 				
 			if(dist_len > distance_)
 			{
@@ -147,7 +147,7 @@ bool MoveToPointHandler::update()
 	else
 	{
 		// unitized vector
-		KBEVec3Normalize(&movement, &movement); 
+		OUROVec3Normalize(&movement, &movement); 
 
 				// move Place
 		movement *= velocity_;

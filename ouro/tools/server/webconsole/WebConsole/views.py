@@ -25,13 +25,13 @@ def components_query( request ):
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [ [machine, other-components, ...], ...]
-	kbeComps = []
+	ouroComps = []
 	for mID, comps in interfaces_groups.items():
 		if len( comps ) <= 1:
 			continue
 
 		dl = []
-		kbeComps.append( dl )
+		ouroComps.append( dl )
 		for comp in comps:
 			d = {
 				"ip"			: comp.intaddr,
@@ -52,7 +52,7 @@ def components_query( request ):
 			}
 			dl.append( d )
 	
-	return HttpResponse( json.dumps( kbeComps ), content_type="application/json" )
+	return HttpResponse( json.dumps( ouroComps ), content_type="application/json" )
 
 def components_group_query( request , ct ):
 	"""
@@ -62,13 +62,13 @@ def components_group_query( request , ct ):
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [ [machine, other-components, ...], ...]
-	kbeComps = []
+	ouroComps = []
 	for mID, comps in interfaces_groups.items():
 		if len( comps ) <= 1:
 			continue
 
 		dl = []
-		kbeComps.append( dl )
+		ouroComps.append( dl )
 		for comp in comps:
 			if comp.componentType == ct or comp.componentType == 8:
 				d = {
@@ -90,7 +90,7 @@ def components_group_query( request , ct ):
 				}
 				dl.append( d )
 		
-	return HttpResponse( json.dumps( kbeComps ), content_type="application/json" )
+	return HttpResponse( json.dumps( ouroComps ), content_type="application/json" )
 
 def components_one_query( request , ct, cid ):
 	"""
@@ -101,13 +101,13 @@ def components_one_query( request , ct, cid ):
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [ [machine, other-components, ...], ...]
-	kbeComps = []
+	ouroComps = []
 	for mID, comps in interfaces_groups.items():
 		if len( comps ) <= 1:
 			continue
 
 		dl = []
-		kbeComps.append( dl )
+		ouroComps.append( dl )
 		for comp in comps:
 			if comp.componentType == 8:
 				d = {
@@ -191,7 +191,7 @@ def components_one_query( request , ct, cid ):
 					}
 					dl.append( d )
 				
-	return HttpResponse( json.dumps( kbeComps ), content_type="application/json" )
+	return HttpResponse( json.dumps( ouroComps ), content_type="application/json" )
 
 @login_check
 def components_query_machines( request ):
@@ -201,16 +201,16 @@ def components_query_machines( request ):
 	machines = machinesmgr.queryMachines()
 
 	# [ machine, ...]
-	kbeComps = []
+	ouroComps = []
 	for machine in components.machines:
 		d = {
 			"ip"	: machine.intaddr,
 			"uid"	: machine.uid,
 			"pid"	: machine.pid,
 		}
-		kbeComps.append( d )
+		ouroComps.append( d )
 	
-	return HttpResponse( json.dumps( kbeComps ), content_type="application/json" )
+	return HttpResponse( json.dumps( ouroComps ), content_type="application/json" )
 
 
 
@@ -224,14 +224,14 @@ def components_manage( request ):
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	kbeComps = []
+	ouroComps = []
 	for mID, comps in interfaces_groups.items():
 		if len( comps ) > 1:
-			kbeComps.extend( comps[1:] )
+			ouroComps.extend( comps[1:] )
 
 	context = {
-		"OUROComps" : kbeComps,
-		"hasComponents" : len( kbeComps ) > 0,
+		"OUROComps" : ouroComps,
+		"hasComponents" : len( ouroComps ) > 0,
 		"hasMachines" : len( interfaces_groups ) > 0,
 	}
 	return render( request, html_template, context )
@@ -418,7 +418,7 @@ def components_show_layout( request ):
 				d[compnentName] = len( layoutData[compnentName] )
 		datas.append( d )
 
-	return render( request, "WebConsole/components_show_layout.html", { "KBELayouts" : datas } )
+	return render( request, "WebConsole/components_show_layout.html", { "OUROLayouts" : datas } )
 
 @login_check
 def components_delete_layout( request ):
@@ -513,18 +513,18 @@ def machines_show_all( request ):
 
 	targetIP = request.GET.get( "target", None )
 	
-	kbeComps = []
+	ouroComps = []
 	for mID, comps in interfaces_groups.items():
 		if len( comps ) > 1 and comps[0].intaddr == targetIP:
-			kbeComps = comps[1:]
+			ouroComps = comps[1:]
 			break
 
-	kbeMachines = machinesmgr.queryMachines()
-	kbeMachines.sort(key = lambda info: info.intaddr)
+	ouroMachines = machinesmgr.queryMachines()
+	ouroMachines.sort(key = lambda info: info.intaddr)
 
 	context = {
-		"OUROMachines" : kbeMachines,
-		"OUROComps" : kbeComps,
+		"OUROMachines" : ouroMachines,
+		"OUROComps" : ouroComps,
 	}
 	return render( request, "WebConsole/machines_show_all.html", context )
 

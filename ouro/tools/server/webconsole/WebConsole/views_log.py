@@ -18,19 +18,19 @@ def connect(request):
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	kbeComps = []
+	ouroComps = []
 	for mID, comps in interfaces_groups.items():
 		for comp in comps:
 			if comp.componentType in VALID_CT:
-				kbeComps.append( comp)
+				ouroComps.append( comp)
 	POST = request.POST
 	try:
-		intaddr = kbeComps[0].intaddr
-		intport = kbeComps[0].intport
-		extaddr = kbeComps[0].extaddr
-		extport = kbeComps[0].extport
-		# host = kbeComps[0].extaddr
-		# port = kbeComps[0].consolePort
+		intaddr = ouroComps[0].intaddr
+		intport = ouroComps[0].intport
+		extaddr = ouroComps[0].extaddr
+		extport = ouroComps[0].extport
+		# host = ouroComps[0].extaddr
+		# port = ouroComps[0].consolePort
 		uid = request.session["sys_uid"]
 	except:
 		context = {
@@ -194,19 +194,19 @@ def pull_log(request):
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	kbeComps = []
+	ouroComps = []
 	for mID, comps in interfaces_groups.items():
 		for comp in comps:
 			if comp.componentType in VALID_CT:
-				kbeComps.append( comp)
+				ouroComps.append( comp)
 	POST = request.POST
 	try:
-		intaddr = kbeComps[0].intaddr
-		intport = kbeComps[0].intport
-		extaddr = kbeComps[0].extaddr
-		extport = kbeComps[0].extport
-		# host = kbeComps[0].extaddr
-		# port = kbeComps[0].consolePort
+		intaddr = ouroComps[0].intaddr
+		intport = ouroComps[0].intport
+		extaddr = ouroComps[0].extaddr
+		extport = ouroComps[0].extport
+		# host = ouroComps[0].extaddr
+		# port = ouroComps[0].consolePort
 		uid = request.session["sys_uid"]
 	except:
 		message = {

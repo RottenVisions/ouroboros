@@ -1711,7 +1711,7 @@
 			float p = stream.readFloat();
 			float r = stream.readFloat();
 			
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, y, p, r, -1, false);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, y, p, r, -1, false);
 		}
 		
 		public void Client_onUpdateData_yp(MemoryStream stream)
@@ -1721,7 +1721,7 @@
 			float y = stream.readFloat();
 			float p = stream.readFloat();
 			
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, y, p, KBEMath.OURO_FLT_MAX, -1, false);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, y, p, OUROMath.OURO_FLT_MAX, -1, false);
 		}
 		
 		public void Client_onUpdateData_yr(MemoryStream stream)
@@ -1731,7 +1731,7 @@
 			float y = stream.readFloat();
 			float r = stream.readFloat();
 			
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, y, KBEMath.OURO_FLT_MAX, r, -1, false);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, y, OUROMath.OURO_FLT_MAX, r, -1, false);
 		}
 		
 		public void Client_onUpdateData_pr(MemoryStream stream)
@@ -1741,7 +1741,7 @@
 			float p = stream.readFloat();
 			float r = stream.readFloat();
 			
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, p, r, -1, false);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, p, r, -1, false);
 		}
 		
 		public void Client_onUpdateData_y(MemoryStream stream)
@@ -1750,7 +1750,7 @@
 
 			float y = stream.readFloat();
 			
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, y, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, -1, false);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, y, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, -1, false);
 		}
 		
 		public void Client_onUpdateData_p(MemoryStream stream)
@@ -1759,7 +1759,7 @@
 			
 			float p = stream.readFloat();
 			
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, p, KBEMath.OURO_FLT_MAX, -1, false);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, p, OUROMath.OURO_FLT_MAX, -1, false);
 		}
 		
 		public void Client_onUpdateData_r(MemoryStream stream)
@@ -1768,7 +1768,7 @@
 
 			float r = stream.readFloat();
 			
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, r, -1, false);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, r, -1, false);
 		}
 		
 		public void Client_onUpdateData_xz(MemoryStream stream)
@@ -1778,7 +1778,7 @@
 			float x = stream.readFloat();
 			float z = stream.readFloat();
 
-			_updateVolatileData(eid, x, KBEMath.OURO_FLT_MAX, z, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, 1, false);
+			_updateVolatileData(eid, x, OUROMath.OURO_FLT_MAX, z, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, 1, false);
 		}
 		
 		public void Client_onUpdateData_xz_ypr(MemoryStream stream)
@@ -1792,7 +1792,7 @@
 			float p = stream.readFloat();
 			float r = stream.readFloat();
 			
-			_updateVolatileData(eid, x, KBEMath.OURO_FLT_MAX, z, y, p, r, 1, false);
+			_updateVolatileData(eid, x, OUROMath.OURO_FLT_MAX, z, y, p, r, 1, false);
 		}
 		
 		public void Client_onUpdateData_xz_yp(MemoryStream stream)
@@ -1805,7 +1805,7 @@
 			float y = stream.readFloat();
 			float p = stream.readFloat();
 			
-			_updateVolatileData(eid, x, KBEMath.OURO_FLT_MAX, z, y, p, KBEMath.OURO_FLT_MAX, 1, false);
+			_updateVolatileData(eid, x, OUROMath.OURO_FLT_MAX, z, y, p, OUROMath.OURO_FLT_MAX, 1, false);
 		}
 		
 		public void Client_onUpdateData_xz_yr(MemoryStream stream)
@@ -1818,7 +1818,7 @@
 			float y = stream.readFloat();
 			float r = stream.readFloat();
 			
-			_updateVolatileData(eid, x, KBEMath.OURO_FLT_MAX, z, y, KBEMath.OURO_FLT_MAX, r, 1, false);
+			_updateVolatileData(eid, x, OUROMath.OURO_FLT_MAX, z, y, OUROMath.OURO_FLT_MAX, r, 1, false);
 		}
 		
 		public void Client_onUpdateData_xz_pr(MemoryStream stream)
@@ -1831,7 +1831,7 @@
 			float p = stream.readFloat();
 			float r = stream.readFloat();
 			
-			_updateVolatileData(eid, x, KBEMath.OURO_FLT_MAX, z, KBEMath.OURO_FLT_MAX, p, r, 1, false);
+			_updateVolatileData(eid, x, OUROMath.OURO_FLT_MAX, z, OUROMath.OURO_FLT_MAX, p, r, 1, false);
 		}
 		
 		public void Client_onUpdateData_xz_y(MemoryStream stream)
@@ -1843,7 +1843,7 @@
 
 			float yaw = stream.readFloat();
 
-			_updateVolatileData(eid, x, KBEMath.OURO_FLT_MAX, z, yaw, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, 1, false);
+			_updateVolatileData(eid, x, OUROMath.OURO_FLT_MAX, z, yaw, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, 1, false);
 		}
 		
 		public void Client_onUpdateData_xz_p(MemoryStream stream)
@@ -1855,7 +1855,7 @@
 
 			float p = stream.readFloat();
 			
-			_updateVolatileData(eid, x, KBEMath.OURO_FLT_MAX, z, KBEMath.OURO_FLT_MAX, p, KBEMath.OURO_FLT_MAX, 1, false);
+			_updateVolatileData(eid, x, OUROMath.OURO_FLT_MAX, z, OUROMath.OURO_FLT_MAX, p, OUROMath.OURO_FLT_MAX, 1, false);
 		}
 		
 		public void Client_onUpdateData_xz_r(MemoryStream stream)
@@ -1867,7 +1867,7 @@
 
 			float r = stream.readFloat();
 			
-			_updateVolatileData(eid, x, KBEMath.OURO_FLT_MAX, z, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, r, 1, false);
+			_updateVolatileData(eid, x, OUROMath.OURO_FLT_MAX, z, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, r, 1, false);
 		}
 		
 		public void Client_onUpdateData_xyz(MemoryStream stream)
@@ -1878,7 +1878,7 @@
 			float y = stream.readFloat();
 			float z = stream.readFloat();
 
-			_updateVolatileData(eid, x, y, z, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, 0, false);
+			_updateVolatileData(eid, x, y, z, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, 0, false);
 		}
 		
 		public void Client_onUpdateData_xyz_ypr(MemoryStream stream)
@@ -1907,7 +1907,7 @@
 			float yaw = stream.readFloat();
 			float p = stream.readFloat();
 
-			_updateVolatileData(eid, x, y, z, yaw, p, KBEMath.OURO_FLT_MAX, 0, false);
+			_updateVolatileData(eid, x, y, z, yaw, p, OUROMath.OURO_FLT_MAX, 0, false);
 		}
 		
 		public void Client_onUpdateData_xyz_yr(MemoryStream stream)
@@ -1921,7 +1921,7 @@
 			float yaw = stream.readFloat();
 			float r = stream.readFloat();
 			
-			_updateVolatileData(eid, x, y, z, yaw, KBEMath.OURO_FLT_MAX, r, 0, false);
+			_updateVolatileData(eid, x, y, z, yaw, OUROMath.OURO_FLT_MAX, r, 0, false);
 		}
 		
 		public void Client_onUpdateData_xyz_pr(MemoryStream stream)
@@ -1935,7 +1935,7 @@
 			float p = stream.readFloat();
 			float r = stream.readFloat();
 			
-			_updateVolatileData(eid, x, y, z, KBEMath.OURO_FLT_MAX, p, r, 0, false);
+			_updateVolatileData(eid, x, y, z, OUROMath.OURO_FLT_MAX, p, r, 0, false);
 		}
 		
 		public void Client_onUpdateData_xyz_y(MemoryStream stream)
@@ -1948,7 +1948,7 @@
 
 			float yaw = stream.readFloat();
 
-			_updateVolatileData(eid, x, y, z, yaw, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, 0, false);
+			_updateVolatileData(eid, x, y, z, yaw, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, 0, false);
 		}
 		
 		public void Client_onUpdateData_xyz_p(MemoryStream stream)
@@ -1961,7 +1961,7 @@
 
 			float p = stream.readFloat();
 			
-			_updateVolatileData(eid, x, y, z, KBEMath.OURO_FLT_MAX, p, KBEMath.OURO_FLT_MAX, 0, false);
+			_updateVolatileData(eid, x, y, z, OUROMath.OURO_FLT_MAX, p, OUROMath.OURO_FLT_MAX, 0, false);
 		}
 		
 		public void Client_onUpdateData_xyz_r(MemoryStream stream)
@@ -1974,7 +1974,7 @@
 
 			float r = stream.readFloat();
 			
-			_updateVolatileData(eid, x, y, z, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, r, 0, false);
+			_updateVolatileData(eid, x, y, z, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, r, 0, false);
 		}
 
 		public void Client_onUpdateData_ypr_optimized(MemoryStream stream)
@@ -1985,7 +1985,7 @@
 			SByte p = stream.readInt8();
 			SByte r = stream.readInt8();
 
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, y, p, r, -1, true);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, y, p, r, -1, true);
 		}
 
 		public void Client_onUpdateData_yp_optimized(MemoryStream stream)
@@ -1995,7 +1995,7 @@
 			SByte y = stream.readInt8();
 			SByte p = stream.readInt8();
 
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, y, p, KBEMath.OURO_FLT_MAX, -1, true);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, y, p, OUROMath.OURO_FLT_MAX, -1, true);
 		}
 
 		public void Client_onUpdateData_yr_optimized(MemoryStream stream)
@@ -2005,7 +2005,7 @@
 			SByte y = stream.readInt8();
 			SByte r = stream.readInt8();
 
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, y, KBEMath.OURO_FLT_MAX, r, -1, true);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, y, OUROMath.OURO_FLT_MAX, r, -1, true);
 		}
 
 		public void Client_onUpdateData_pr_optimized(MemoryStream stream)
@@ -2015,7 +2015,7 @@
 			SByte p = stream.readInt8();
 			SByte r = stream.readInt8();
 
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, p, r, -1, true);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, p, r, -1, true);
 		}
 
 		public void Client_onUpdateData_y_optimized(MemoryStream stream)
@@ -2024,7 +2024,7 @@
 
 			SByte y = stream.readInt8();
 
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, y, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, -1, true);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, y, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, -1, true);
 		}
 
 		public void Client_onUpdateData_p_optimized(MemoryStream stream)
@@ -2033,7 +2033,7 @@
 
 			SByte p = stream.readInt8();
 
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, p, KBEMath.OURO_FLT_MAX, -1, true);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, p, OUROMath.OURO_FLT_MAX, -1, true);
 		}
 
 		public void Client_onUpdateData_r_optimized(MemoryStream stream)
@@ -2042,7 +2042,7 @@
 
 			SByte r = stream.readInt8();
 
-			_updateVolatileData(eid, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, r, -1, true);
+			_updateVolatileData(eid, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, r, -1, true);
 		}
 
 		public void Client_onUpdateData_xz_optimized(MemoryStream stream)
@@ -2051,7 +2051,7 @@
 
 			Vector2 xz = stream.readPackXZ();
 
-			_updateVolatileData(eid, xz[0], KBEMath.OURO_FLT_MAX, xz[1], KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, 1, true);
+			_updateVolatileData(eid, xz[0], OUROMath.OURO_FLT_MAX, xz[1], OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, 1, true);
 		}
 
 		public void Client_onUpdateData_xz_ypr_optimized(MemoryStream stream)
@@ -2064,7 +2064,7 @@
 			SByte p = stream.readInt8();
 			SByte r = stream.readInt8();
 
-			_updateVolatileData(eid, xz[0], KBEMath.OURO_FLT_MAX, xz[1], y, p, r, 1, true);
+			_updateVolatileData(eid, xz[0], OUROMath.OURO_FLT_MAX, xz[1], y, p, r, 1, true);
 		}
 
 		public void Client_onUpdateData_xz_yp_optimized(MemoryStream stream)
@@ -2076,7 +2076,7 @@
 			SByte y = stream.readInt8();
 			SByte p = stream.readInt8();
 
-			_updateVolatileData(eid, xz[0], KBEMath.OURO_FLT_MAX, xz[1], y, p, KBEMath.OURO_FLT_MAX, 1, true);
+			_updateVolatileData(eid, xz[0], OUROMath.OURO_FLT_MAX, xz[1], y, p, OUROMath.OURO_FLT_MAX, 1, true);
 		}
 
 		public void Client_onUpdateData_xz_yr_optimized(MemoryStream stream)
@@ -2088,7 +2088,7 @@
 			SByte y = stream.readInt8();
 			SByte r = stream.readInt8();
 
-			_updateVolatileData(eid, xz[0], KBEMath.OURO_FLT_MAX, xz[1], y, KBEMath.OURO_FLT_MAX, r, 1, true);
+			_updateVolatileData(eid, xz[0], OUROMath.OURO_FLT_MAX, xz[1], y, OUROMath.OURO_FLT_MAX, r, 1, true);
 		}
 
 		public void Client_onUpdateData_xz_pr_optimized(MemoryStream stream)
@@ -2100,7 +2100,7 @@
 			SByte p = stream.readInt8();
 			SByte r = stream.readInt8();
 
-			_updateVolatileData(eid, xz[0], KBEMath.OURO_FLT_MAX, xz[1], KBEMath.OURO_FLT_MAX, p, r, 1, true);
+			_updateVolatileData(eid, xz[0], OUROMath.OURO_FLT_MAX, xz[1], OUROMath.OURO_FLT_MAX, p, r, 1, true);
 		}
 
 		public void Client_onUpdateData_xz_y_optimized(MemoryStream stream)
@@ -2108,7 +2108,7 @@
 			Int32 eid = getViewEntityIDFromStream(stream);
 			Vector2 xz = stream.readPackXZ();
 			SByte yaw = stream.readInt8();
-			_updateVolatileData(eid, xz[0], KBEMath.OURO_FLT_MAX, xz[1], yaw, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, 1, true);
+			_updateVolatileData(eid, xz[0], OUROMath.OURO_FLT_MAX, xz[1], yaw, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, 1, true);
 		}
 
 		public void Client_onUpdateData_xz_p_optimized(MemoryStream stream)
@@ -2119,7 +2119,7 @@
 
 			SByte p = stream.readInt8();
 
-			_updateVolatileData(eid, xz[0], KBEMath.OURO_FLT_MAX, xz[1], KBEMath.OURO_FLT_MAX, p, KBEMath.OURO_FLT_MAX, 1, true);
+			_updateVolatileData(eid, xz[0], OUROMath.OURO_FLT_MAX, xz[1], OUROMath.OURO_FLT_MAX, p, OUROMath.OURO_FLT_MAX, 1, true);
 		}
 
 		public void Client_onUpdateData_xz_r_optimized(MemoryStream stream)
@@ -2130,7 +2130,7 @@
 
 			SByte r = stream.readInt8();
 
-			_updateVolatileData(eid, xz[0], KBEMath.OURO_FLT_MAX, xz[1], KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, r, 1, true);
+			_updateVolatileData(eid, xz[0], OUROMath.OURO_FLT_MAX, xz[1], OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, r, 1, true);
 		}
 
 		public void Client_onUpdateData_xyz_optimized(MemoryStream stream)
@@ -2140,7 +2140,7 @@
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
 
-			_updateVolatileData(eid, xz[0], y, xz[1], KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, 0, true);
+			_updateVolatileData(eid, xz[0], y, xz[1], OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, 0, true);
 		}
 
 		public void Client_onUpdateData_xyz_ypr_optimized(MemoryStream stream)
@@ -2167,7 +2167,7 @@
 			SByte yaw = stream.readInt8();
 			SByte p = stream.readInt8();
 
-			_updateVolatileData(eid, xz[0], y, xz[1], yaw, p, KBEMath.OURO_FLT_MAX, 0, true);
+			_updateVolatileData(eid, xz[0], y, xz[1], yaw, p, OUROMath.OURO_FLT_MAX, 0, true);
 		}
 
 		public void Client_onUpdateData_xyz_yr_optimized(MemoryStream stream)
@@ -2180,7 +2180,7 @@
 			SByte yaw = stream.readInt8();
 			SByte r = stream.readInt8();
 
-			_updateVolatileData(eid, xz[0], y, xz[1], yaw, KBEMath.OURO_FLT_MAX, r, 0, true);
+			_updateVolatileData(eid, xz[0], y, xz[1], yaw, OUROMath.OURO_FLT_MAX, r, 0, true);
 		}
 
 		public void Client_onUpdateData_xyz_pr_optimized(MemoryStream stream)
@@ -2193,7 +2193,7 @@
 			SByte p = stream.readInt8();
 			SByte r = stream.readInt8();
 
-			_updateVolatileData(eid, xz[0], y, xz[1], KBEMath.OURO_FLT_MAX, p, r, 0, true);
+			_updateVolatileData(eid, xz[0], y, xz[1], OUROMath.OURO_FLT_MAX, p, r, 0, true);
 		}
 
 		public void Client_onUpdateData_xyz_y_optimized(MemoryStream stream)
@@ -2204,7 +2204,7 @@
 			float y = stream.readPackY();
 
 			SByte yaw = stream.readInt8();
-			_updateVolatileData(eid, xz[0], y, xz[1], yaw, KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, 0, true);
+			_updateVolatileData(eid, xz[0], y, xz[1], yaw, OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, 0, true);
 		}
 
 		public void Client_onUpdateData_xyz_p_optimized(MemoryStream stream)
@@ -2216,7 +2216,7 @@
 
 			SByte p = stream.readInt8();
 
-			_updateVolatileData(eid, xz[0], y, xz[1], KBEMath.OURO_FLT_MAX, p, KBEMath.OURO_FLT_MAX, 0, true);
+			_updateVolatileData(eid, xz[0], y, xz[1], OUROMath.OURO_FLT_MAX, p, OUROMath.OURO_FLT_MAX, 0, true);
 		}
 
 		public void Client_onUpdateData_xyz_r_optimized(MemoryStream stream)
@@ -2228,7 +2228,7 @@
 
 			SByte r = stream.readInt8();
 
-			_updateVolatileData(eid, xz[0], y, xz[1], KBEMath.OURO_FLT_MAX, KBEMath.OURO_FLT_MAX, r, 0, true);
+			_updateVolatileData(eid, xz[0], y, xz[1], OUROMath.OURO_FLT_MAX, OUROMath.OURO_FLT_MAX, r, 0, true);
 		}
 
 		private void _updateVolatileData(Int32 entityID, float x, float y, float z, float yaw, float pitch, float roll, sbyte isOnGround, bool isOptimized)
@@ -2252,22 +2252,22 @@
 		
 			bool changeDirection = false;
 			
-			if(roll != KBEMath.OURO_FLT_MAX)
+			if(roll != OUROMath.OURO_FLT_MAX)
 			{
 				changeDirection = true;
-				entity.direction.x = isOptimized ? KBEMath.int82angle((SByte)roll, false) * 360 / ((float)System.Math.PI * 2) : roll;
+				entity.direction.x = isOptimized ? OUROMath.int82angle((SByte)roll, false) * 360 / ((float)System.Math.PI * 2) : roll;
 			}
 
-			if(pitch != KBEMath.OURO_FLT_MAX)
+			if(pitch != OUROMath.OURO_FLT_MAX)
 			{
 				changeDirection = true;
-				entity.direction.y = isOptimized ? KBEMath.int82angle((SByte)pitch, false) * 360 / ((float)System.Math.PI * 2) : pitch;
+				entity.direction.y = isOptimized ? OUROMath.int82angle((SByte)pitch, false) * 360 / ((float)System.Math.PI * 2) : pitch;
 			}
 			
-			if(yaw != KBEMath.OURO_FLT_MAX)
+			if(yaw != OUROMath.OURO_FLT_MAX)
 			{
 				changeDirection = true;
-				entity.direction.z = isOptimized ? KBEMath.int82angle((SByte)yaw, false) * 360 / ((float)System.Math.PI * 2) : yaw;
+				entity.direction.z = isOptimized ? OUROMath.int82angle((SByte)yaw, false) * 360 / ((float)System.Math.PI * 2) : yaw;
 			}
 			
 			bool done = false;
@@ -2277,10 +2277,10 @@
 				done = true;
 			}
 			
-			bool positionChanged = x != KBEMath.OURO_FLT_MAX || y != KBEMath.OURO_FLT_MAX || z != KBEMath.OURO_FLT_MAX;
-			if (x == KBEMath.OURO_FLT_MAX) x = isOptimized ? 0.0f : entity.position.x;
-			if (y == KBEMath.OURO_FLT_MAX) y = isOptimized ? 0.0f : entity.position.y;
-			if (z == KBEMath.OURO_FLT_MAX) z = isOptimized ? 0.0f : entity.position.z;
+			bool positionChanged = x != OUROMath.OURO_FLT_MAX || y != OUROMath.OURO_FLT_MAX || z != OUROMath.OURO_FLT_MAX;
+			if (x == OUROMath.OURO_FLT_MAX) x = isOptimized ? 0.0f : entity.position.x;
+			if (y == OUROMath.OURO_FLT_MAX) y = isOptimized ? 0.0f : entity.position.y;
+			if (z == OUROMath.OURO_FLT_MAX) z = isOptimized ? 0.0f : entity.position.z;
 			
 			if(positionChanged)
 			{
@@ -2323,20 +2323,20 @@
 		/*
 			Ouroboros processing thread
 		*/
-		public class KBEThread
+		public class OUROThread
 		{
 
 			OuroborosApp app_;
 			public bool over = false;
 			
-			public KBEThread(OuroborosApp app)
+			public OUROThread(OuroborosApp app)
 			{
 				this.app_ = app;
 			}
 
 			public void run()
 			{
-				Dbg.INFO_MSG("KBEThread::run()");
+				Dbg.INFO_MSG("OUROThread::run()");
 				over = false;
 
 				try
@@ -2349,12 +2349,12 @@
 				}
 				
 				over = true;
-				Dbg.INFO_MSG("KBEThread::end()");
+				Dbg.INFO_MSG("OUROThread::end()");
 			}
 		}
 	
 		private Thread _t = null;
-		public KBEThread kbethread = null;
+		public OUROThread ourothread = null;
 
 		// main cycle frequency
 		public static int threadUpdateHZ = 10;
@@ -2379,8 +2379,8 @@
 			OuroborosAppThread.threadUpdateHZ = args.threadUpdateHZ;
 			threadUpdatePeriod = 1000f / threadUpdateHZ;
 			
-			kbethread = new KBEThread(this);
-			_t = new Thread(new ThreadStart(kbethread.run));
+			ourothread = new OUROThread(this);
+			_t = new Thread(new ThreadStart(ourothread.run));
 			_t.Start();
 			
 			return true;
@@ -2440,7 +2440,7 @@
 			breakProcess();
 			
 			int i = 0;
-			while(!kbethread.over && i < 50)
+			while(!ourothread.over && i < 50)
 			{
 				Thread.Sleep(100);
 				i += 1;

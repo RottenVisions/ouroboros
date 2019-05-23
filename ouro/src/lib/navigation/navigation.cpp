@@ -35,7 +35,7 @@ void Navigation::finalise()
 bool Navigation::removeNavigation(std::string resPath)
 {
 	Ouroboros::thread::ThreadGuard tg(&mutex_); 
-	KBEUnordered_map<std::string, NavigationHandlePtr>::iterator iter = navhandles_.find(resPath);
+	OUROUnordered_map<std::string, NavigationHandlePtr>::iterator iter = navhandles_.find(resPath);
 	if(navhandles_.find(resPath) != navhandles_.end())
 	{
 		iter->second->decRef();
@@ -52,7 +52,7 @@ bool Navigation::removeNavigation(std::string resPath)
 NavigationHandlePtr Navigation::findNavigation(std::string resPath)
 {
 	Ouroboros::thread::ThreadGuard tg(&mutex_); 
-	KBEUnordered_map<std::string, NavigationHandlePtr>::iterator iter = navhandles_.find(resPath);
+	OUROUnordered_map<std::string, NavigationHandlePtr>::iterator iter = navhandles_.find(resPath);
 	if(navhandles_.find(resPath) != navhandles_.end())
 	{
 		if(iter->second == NULL)
@@ -90,7 +90,7 @@ NavigationHandlePtr Navigation::loadNavigation(std::string resPath, const std::m
 	if(resPath == "")
 		return NULL;
 	
-	KBEUnordered_map<std::string, NavigationHandlePtr>::iterator iter = navhandles_.find(resPath);
+	OUROUnordered_map<std::string, NavigationHandlePtr>::iterator iter = navhandles_.find(resPath);
 	if(iter != navhandles_.end())
 	{
 		return iter->second;

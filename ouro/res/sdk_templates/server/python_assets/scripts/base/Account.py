@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import Ouroboros
-from KBEDebug import *
+from OURODebug import *
 
 class Account(Ouroboros.Proxy):
 	def __init__(self):

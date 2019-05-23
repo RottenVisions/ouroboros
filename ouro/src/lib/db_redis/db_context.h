@@ -47,8 +47,8 @@ public:
 		std::string extraDatas;
 	};
 
-	typedef std::vector< std::pair< std::string/*tableName*/, KBEShared_ptr< DBContext > > > DB_RW_CONTEXTS;
-	typedef std::vector< KBEShared_ptr<DB_ITEM_DATA>  > DB_ITEM_DATAS;
+	typedef std::vector< std::pair< std::string/*tableName*/, OUROShared_ptr< DBContext > > > DB_RW_CONTEXTS;
+	typedef std::vector< OUROShared_ptr<DB_ITEM_DATA>  > DB_ITEM_DATAS;
 
 	DBContext()
 	{

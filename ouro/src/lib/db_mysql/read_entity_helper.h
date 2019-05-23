@@ -98,7 +98,7 @@ public:
 
 					for (uint32 i = 1; i < nfields; ++i)
 					{
-						KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = context.items[i - 1];
+						OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = context.items[i - 1];
 						std::string data;
 						data.assign(arow[i], lengths[i]);
 
@@ -216,7 +216,7 @@ public:
 
 					for (uint32 i = const_fields; i < nfields; ++i)
 					{
-						KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = context.items[i - const_fields];
+						OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = context.items[i - const_fields];
 						std::string data;
 						data.assign(arow[i], lengths[i]);
 

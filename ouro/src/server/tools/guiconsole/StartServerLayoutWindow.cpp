@@ -310,7 +310,7 @@ void CStartServerLayoutWindow::OnCbnSelchangeCombo1()
 	m_list.DeleteAllItems();
 
 	char* cs = Ouroboros::strutil::wchar2char(s.GetBuffer(0));
-	KBEUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
+	OUROUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
 		static_cast<CStartServerWindow*>(this->GetParent())->layouts_.find(cs);
 
 	free(cs);
@@ -369,7 +369,7 @@ void CStartServerLayoutWindow::OnBnClickedButton3()
 		return;
 
 	cs = Ouroboros::strutil::wchar2char(s.GetBuffer(0));
-	KBEUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
+	OUROUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
 		static_cast<CStartServerWindow*>(this->GetParent())->layouts_.find(cs);
 
 	free(cs);
@@ -421,7 +421,7 @@ void CStartServerLayoutWindow::OnBnClickedButton4()
 	m_layoutlist.DeleteString(m_layoutlist.GetCurSel());
 
 	char* cs = Ouroboros::strutil::wchar2char(s.GetBuffer(0));
-	KBEUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
+	OUROUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
 		static_cast<CStartServerWindow*>(this->GetParent())->layouts_.find(cs);
 
 	free(cs);

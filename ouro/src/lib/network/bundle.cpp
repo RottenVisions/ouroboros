@@ -144,7 +144,7 @@ void Bundle::_calcPacketMaxSize()
 		packetMaxSize_ = isTCPPacket_ ? (int)(TCPPacket::maxBufferSize() - ENCRYPTTION_WASTAGE_SIZE) :
 			(PACKET_MAX_SIZE_UDP - ENCRYPTTION_WASTAGE_SIZE);
 
-		packetMaxSize_ -= packetMaxSize_ % Ouroboros::KBEBlowfish::BLOCK_SIZE;
+		packetMaxSize_ -= packetMaxSize_ % Ouroboros::OUROBlowfish::BLOCK_SIZE;
 	}
 	else
 	{

@@ -10,7 +10,7 @@ namespace Ouroboros{ namespace script {
 
 PyObject* PyGC::collectMethod_ = NULL;
 PyObject* PyGC::set_debugMethod_ = NULL;
-KBEUnordered_map<std::string, int> PyGC::tracingCountMap_;
+OUROUnordered_map<std::string, int> PyGC::tracingCountMap_;
 
 uint32 PyGC::DEBUG_STATS = 0;
 uint32 PyGC::DEBUG_COLLECTABLE = 0;
@@ -177,7 +177,7 @@ void PyGC::set_debug(uint32 flags)
 //-------------------------------------------------------------------------------------
 void PyGC::incTracing(std::string name)
 {
-	KBEUnordered_map<std::string, int>::iterator iter = tracingCountMap_.find(name);
+	OUROUnordered_map<std::string, int>::iterator iter = tracingCountMap_.find(name);
 	if(iter == tracingCountMap_.end())
 	{
 		tracingCountMap_[name] = 0;
@@ -190,7 +190,7 @@ void PyGC::incTracing(std::string name)
 //-------------------------------------------------------------------------------------
 void PyGC::decTracing(std::string name)
 {
-	KBEUnordered_map<std::string, int>::iterator iter = tracingCountMap_.find(name);
+	OUROUnordered_map<std::string, int>::iterator iter = tracingCountMap_.find(name);
 	if(iter == tracingCountMap_.end())
 	{
 		return;
@@ -203,7 +203,7 @@ void PyGC::decTracing(std::string name)
 //-------------------------------------------------------------------------------------
 void PyGC::debugTracing(bool shuttingdown)
 {
-	KBEUnordered_map<std::string, int>::iterator iter = tracingCountMap_.begin();
+	OUROUnordered_map<std::string, int>::iterator iter = tracingCountMap_.begin();
 	for(; iter != tracingCountMap_.end(); ++iter)
 	{
 		if(shuttingdown)

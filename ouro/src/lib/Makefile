@@ -1,5 +1,5 @@
 ifndef OURO_ROOT
-export OURO_ROOT := $(subst /kbe/src/lib,,$(CURDIR))
+export OURO_ROOT := $(subst /ouro/src/lib,,$(CURDIR))
 endif
 
 ifndef OURO_CONFIG
@@ -16,7 +16,7 @@ else
 endif
 
 # This directory must match the directory in src/build/common.mak
-LIBDIR=$(OURO_ROOT)/kbe/src/lib/bin
+LIBDIR=$(OURO_ROOT)/ouro/src/lib/bin
 
 all install clean full:
 	test -d $(LIBDIR) || mkdir $(LIBDIR)
@@ -35,7 +35,7 @@ all install clean full:
 	cd dependencies/expat && $(MAKE) $@ && if ! test -e ../../../libs/libexpat.a; then \cp -f "./.libs/libexpat.a" "../../../libs"; fi
 	cd dependencies/apr-util && $(MAKE) $@ && if ! test -e ../../../libs/libaprutil-1.a; then \cp -f ".libs/libaprutil-1.a" "../../../libs"; fi
 	cd dependencies/log4cxx && $(MAKE) $@ && if ! test -e ../../../libs/liblog4cxx.a; then \cp -f "src/main/cpp/.libs/liblog4cxx.a" "../../../libs"; fi
-	cd python && $(MAKE) $@ && cp -f "$(OURO_ROOT)/kbe/src/lib/python/libpython3.7m.a" "$(OURO_ROOT)/kbe/src/libs/libpython.a" && mkdir -p "$(OURO_ROOT)/kbe/res/scripts/common/lib-dynload/" && cp -rf $(OURO_ROOT)/kbe/src/lib/python/build/lib.*/* "$(OURO_ROOT)/kbe/res/scripts/common/lib-dynload/" && rm -rf "$(OURO_ROOT)/kbe/res/scripts/common/Lib/*" && cp -rf "$(OURO_ROOT)/kbe/src/lib/python/Lib" "$(OURO_ROOT)/kbe/res/scripts/common/Lib"  
+	cd python && $(MAKE) $@ && cp -f "$(OURO_ROOT)/ouro/src/lib/python/libpython3.7m.a" "$(OURO_ROOT)/ouro/src/libs/libpython.a" && mkdir -p "$(OURO_ROOT)/ouro/res/scripts/common/lib-dynload/" && cp -rf $(OURO_ROOT)/ouro/src/lib/python/build/lib.*/* "$(OURO_ROOT)/ouro/res/scripts/common/lib-dynload/" && rm -rf "$(OURO_ROOT)/ouro/res/scripts/common/Lib/*" && cp -rf "$(OURO_ROOT)/ouro/src/lib/python/Lib" "$(OURO_ROOT)/ouro/res/scripts/common/Lib"  
 	cd client_lib && $(MAKE) $@
 	cd common && $(MAKE) $@
 	cd db_redis && $(MAKE) $@

@@ -159,7 +159,7 @@ protected:
 
 	std::map< COMPONENT_ID, Baseapp >							baseapps_;
 
-	KBEUnordered_map< std::string, COMPONENT_ID >				pending_logins_;
+	OUROUnordered_map< std::string, COMPONENT_ID >				pending_logins_;
 
 	float														baseappsInitProgress_;
 };

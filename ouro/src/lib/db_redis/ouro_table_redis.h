@@ -15,11 +15,11 @@ namespace Ouroboros {
 /*
 	Kbe system table
 */
-class KBEEntityLogTableRedis : public KBEEntityLogTable
+class OUROEntityLogTableRedis : public OUROEntityLogTable
 {
 public:
-	KBEEntityLogTableRedis(EntityTables* pEntityTables);
-	virtual ~KBEEntityLogTableRedis(){}
+	OUROEntityLogTableRedis(EntityTables* pEntityTables);
+	virtual ~OUROEntityLogTableRedis(){}
 	
 	/**
 		Synchronize tables into the database
@@ -39,11 +39,11 @@ protected:
 	
 };
 
-class KBEServerLogTableRedis : public KBEServerLogTable
+class OUROServerLogTableRedis : public OUROServerLogTable
 {
 public:
-	KBEServerLogTableRedis(EntityTables* pEntityTables);
-	virtual ~KBEServerLogTableRedis(){}
+	OUROServerLogTableRedis(EntityTables* pEntityTables);
+	virtual ~OUROServerLogTableRedis(){}
 	
 	/**
 		Synchronize tables into the database
@@ -64,11 +64,11 @@ protected:
 	
 };
 
-class KBEAccountTableRedis : public KBEAccountTable
+class OUROAccountTableRedis : public OUROAccountTable
 {
 public:
-	KBEAccountTableRedis(EntityTables* pEntityTables);
-	virtual ~KBEAccountTableRedis(){}
+	OUROAccountTableRedis(EntityTables* pEntityTables);
+	virtual ~OUROAccountTableRedis(){}
 	
 	/**
 		Synchronize tables into the database
@@ -85,12 +85,12 @@ public:
 protected:
 };
 
-class KBEEmailVerificationTableRedis : public KBEEmailVerificationTable
+class OUROEmailVerificationTableRedis : public OUROEmailVerificationTable
 {
 public:
 
-	KBEEmailVerificationTableRedis(EntityTables* pEntityTables);
-	virtual ~KBEEmailVerificationTableRedis();
+	OUROEmailVerificationTableRedis(EntityTables* pEntityTables);
+	virtual ~OUROEmailVerificationTableRedis();
 
 	/**
 		Synchronize tables into the database

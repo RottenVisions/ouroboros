@@ -187,7 +187,7 @@ bool ClientSDKUE4::getArrayType(DataType* pDataType, std::string& outstr)
 void ClientSDKUE4::onCreateTypeFileName()
 {
 	sourcefileName_ = "";
-	headerfileName_ = "KBETypes.h";
+	headerfileName_ = "OUROTypes.h";
 
 	currHeaderPath_ = basepath_ + "Source/OuroborosPlugins/Engine/";
 	currSourcePath_ = basepath_ + "Source/OuroborosPlugins/Engine/";
@@ -274,7 +274,7 @@ bool ClientSDKUE4::writeServerErrorDescrsModuleBegin()
 	strutil::ouro_replace(fileBody(), "#REPLACE#", "");
 
 	fileBody() += "#pragma once\n\n";
-	fileBody() += "#include \"KBECommon.h\"\n\n";
+	fileBody() += "#include \"OUROCommon.h\"\n\n";
 
 	fileBody() += namespaceNameBegin;
 	fileBody() += "// defined in */res/server/server_errors.xml\n\n";
@@ -318,7 +318,7 @@ bool ClientSDKUE4::writeEngineMessagesModuleBegin()
 	strutil::ouro_replace(fileBody(), "#REPLACE#", "");
 
 	fileBody() += "#pragma once\n\n";
-	fileBody() += "#include \"KBECommon.h\"\n";
+	fileBody() += "#include \"OUROCommon.h\"\n";
 	fileBody() += "#include \"MemoryStream.h\"\n\n";
 
 	fileBody() += "// engine-c++ messages\n\n";
@@ -524,7 +524,7 @@ bool ClientSDKUE4::writeEntityDefsModuleBegin()
 	strutil::ouro_replace(fileBody(), "#REPLACE#", "");
 
 	fileBody() += "#pragma once\n\n";
-	fileBody() += "#include \"KBECommon.h\"\n\n";
+	fileBody() += "#include \"OUROCommon.h\"\n\n";
 
 	fileBody() += namespaceNameBegin;
 	fileBody() += "class Entity;\n";
@@ -782,9 +782,9 @@ bool ClientSDKUE4::writeEntityCallBegin(ScriptDefModule* pScriptDefModule)
 		fileBody()));
 
 	fileBody() += "#pragma once\n\n";
-	fileBody() += "#include \"KBECommon.h\"\n";
+	fileBody() += "#include \"OUROCommon.h\"\n";
 	fileBody() += "#include \"EntityCall.h\"\n";
-	fileBody() += fmt::format("#include \"KBETypes.h\"\n");
+	fileBody() += fmt::format("#include \"OUROTypes.h\"\n");
 	fileBody() += fmt::format("#include \"CustomDataTypes.h\"\n\n");
 
 	{
@@ -1090,8 +1090,8 @@ bool ClientSDKUE4::writeCustomDataTypesBegin()
 	strutil::ouro_replace(fileBody(), "#REPLACE#", "");
 
 	fileBody() += "#pragma once\n";
-	fileBody() += "#include \"KBECommon.h\"\n";
-	fileBody() += "#include \"KBETypes.h\"\n";
+	fileBody() += "#include \"OUROCommon.h\"\n";
+	fileBody() += "#include \"OUROTypes.h\"\n";
 	fileBody() += "#include \"MemoryStream.h\"\n";
 	fileBody() += "#include \"Bundle.h\"\n";
 	fileBody() += "#include \"DataTypes.h\"\n";
@@ -1789,7 +1789,7 @@ bool ClientSDKUE4::writeTypesBegin()
 	strutil::ouro_replace(fileBody(), "#REPLACE#", "");
 
 	fileBody() += "#pragma once\n\n";
-	fileBody() += "#include \"KBECommon.h\"\n\n";
+	fileBody() += "#include \"OUROCommon.h\"\n\n";
 	fileBody() += namespaceNameBegin;
 	fileBody() += "\n// defined in */scripts/entity_defs/types.xml\n\n";
 	return true;
@@ -2103,7 +2103,7 @@ bool ClientSDKUE4::writeEntityModuleBegin(ScriptDefModule* pEntityScriptDefModul
 		pEntityScriptDefModule->getName(), pEntityScriptDefModule->getName(), moduleSuffix));
 
 	fileBody() += "#pragma once\n";
-	fileBody() += "#include \"KBECommon.h\"\n";
+	fileBody() += "#include \"OUROCommon.h\"\n";
 
 	if (!pEntityScriptDefModule->isComponentModule())
 	{
@@ -2114,7 +2114,7 @@ bool ClientSDKUE4::writeEntityModuleBegin(ScriptDefModule* pEntityScriptDefModul
 		fileBody() += "#include \"EntityComponent.h\"\n";
 	}
 
-	fileBody() += "#include \"KBETypes.h\"\n";
+	fileBody() += "#include \"OUROTypes.h\"\n";
 	
 
 	if (pEntityScriptDefModule->isComponentModule())

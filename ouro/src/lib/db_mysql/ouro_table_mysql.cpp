@@ -14,9 +14,9 @@
 namespace Ouroboros { 
 
 //-------------------------------------------------------------------------------------
-bool KBEEntityLogTableMysql::syncToDB(DBInterface* pdbi)
+bool OUROEntityLogTableMysql::syncToDB(DBInterface* pdbi)
 {
-	KBEServerLogTableMysql serverLogTable(NULL);
+	OUROServerLogTableMysql serverLogTable(NULL);
 
 	int ret = serverLogTable.isShareDB(pdbi);
 	if (ret == -1)
@@ -31,7 +31,7 @@ bool KBEEntityLogTableMysql::syncToDB(DBInterface* pdbi)
 		}
 		catch (...)
 		{
-			ERROR_MSG(fmt::format("KBEEntityLogTableMysql::syncToDB(): error({}: {})\n lastQuery: {}.\n",
+			ERROR_MSG(fmt::format("OUROEntityLogTableMysql::syncToDB(): error({}: {})\n lastQuery: {}.\n",
 				pdbi->getlasterror(), pdbi->getstrerror(), static_cast<DBInterfaceMysql*>(pdbi)->lastquery()));
 
 			return false;
@@ -141,7 +141,7 @@ bool KBEEntityLogTableMysql::syncToDB(DBInterface* pdbi)
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEntityLogTableMysql::logEntity(DBInterface * pdbi, const char* ip, uint32 port, DBID dbid,
+bool OUROEntityLogTableMysql::logEntity(DBInterface * pdbi, const char* ip, uint32 port, DBID dbid,
 					COMPONENT_ID componentID, ENTITY_ID entityID, ENTITY_SCRIPT_UID entityType)
 {
 	std::string sqlstr = "insert into " OURO_TABLE_PERFIX "_entitylog (entityDBID, entityType, entityID, ip, port, componentID, serverGroupID) values(";
@@ -204,7 +204,7 @@ bool KBEEntityLogTableMysql::logEntity(DBInterface * pdbi, const char* ip, uint3
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEntityLogTableMysql::queryEntity(DBInterface * pdbi, DBID dbid, EntityLog& entitylog, ENTITY_SCRIPT_UID entityType)
+bool OUROEntityLogTableMysql::queryEntity(DBInterface * pdbi, DBID dbid, EntityLog& entitylog, ENTITY_SCRIPT_UID entityType)
 {
 	std::string sqlstr = "select entityID, ip, port, componentID, serverGroupID from " OURO_TABLE_PERFIX "_entitylog where entityDBID=";
 
@@ -249,7 +249,7 @@ bool KBEEntityLogTableMysql::queryEntity(DBInterface * pdbi, DBID dbid, EntityLo
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEntityLogTableMysql::eraseEntityLog(DBInterface * pdbi, DBID dbid, ENTITY_SCRIPT_UID entityType)
+bool OUROEntityLogTableMysql::eraseEntityLog(DBInterface * pdbi, DBID dbid, ENTITY_SCRIPT_UID entityType)
 {
 	std::string sqlstr = "delete from " OURO_TABLE_PERFIX "_entitylog where entityDBID=";
 
@@ -271,7 +271,7 @@ bool KBEEntityLogTableMysql::eraseEntityLog(DBInterface * pdbi, DBID dbid, ENTIT
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEntityLogTableMysql::eraseBaseappEntityLog(DBInterface * pdbi, COMPONENT_ID componentID)
+bool OUROEntityLogTableMysql::eraseBaseappEntityLog(DBInterface * pdbi, COMPONENT_ID componentID)
 {
 	std::string sqlstr = "delete from " OURO_TABLE_PERFIX "_entitylog where componentID=";
 
@@ -289,13 +289,13 @@ bool KBEEntityLogTableMysql::eraseBaseappEntityLog(DBInterface * pdbi, COMPONENT
 }
 
 //-------------------------------------------------------------------------------------
-KBEEntityLogTableMysql::KBEEntityLogTableMysql(EntityTables* pEntityTables):
-KBEEntityLogTable(pEntityTables)
+OUROEntityLogTableMysql::OUROEntityLogTableMysql(EntityTables* pEntityTables):
+OUROEntityLogTable(pEntityTables)
 {
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEServerLogTableMysql::syncToDB(DBInterface* pdbi)
+bool OUROServerLogTableMysql::syncToDB(DBInterface* pdbi)
 {
 	std::string sqlstr = "";
 	
@@ -314,7 +314,7 @@ bool KBEServerLogTableMysql::syncToDB(DBInterface* pdbi)
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEServerLogTableMysql::updateServer(DBInterface * pdbi)
+bool OUROServerLogTableMysql::updateServer(DBInterface * pdbi)
 {
 	int ret = isShareDB(pdbi);
 	if (ret == -1)
@@ -369,7 +369,7 @@ bool KBEServerLogTableMysql::updateServer(DBInterface * pdbi)
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEServerLogTableMysql::queryServer(DBInterface * pdbi, ServerLog& serverlog)
+bool OUROServerLogTableMysql::queryServer(DBInterface * pdbi, ServerLog& serverlog)
 {
 	std::string sqlstr = "select heartbeatTime from " OURO_TABLE_PERFIX "_serverlog where serverGroupID=";
 
@@ -405,7 +405,7 @@ bool KBEServerLogTableMysql::queryServer(DBInterface * pdbi, ServerLog& serverlo
 }
 
 //-------------------------------------------------------------------------------------
-std::vector<COMPONENT_ID> KBEServerLogTableMysql::queryServers(DBInterface * pdbi)
+std::vector<COMPONENT_ID> OUROServerLogTableMysql::queryServers(DBInterface * pdbi)
 {
 	std::vector<COMPONENT_ID> cids;
 
@@ -436,7 +436,7 @@ std::vector<COMPONENT_ID> KBEServerLogTableMysql::queryServers(DBInterface * pdb
 }
 
 //-------------------------------------------------------------------------------------
-std::vector<COMPONENT_ID> KBEServerLogTableMysql::queryTimeOutServers(DBInterface * pdbi)
+std::vector<COMPONENT_ID> OUROServerLogTableMysql::queryTimeOutServers(DBInterface * pdbi)
 {
 	std::vector<COMPONENT_ID> cids;
 
@@ -460,7 +460,7 @@ std::vector<COMPONENT_ID> KBEServerLogTableMysql::queryTimeOutServers(DBInterfac
 			if(serverlog.serverGroupID == (uint64)getUserUID())
 				continue;
 			
-			if ((uint64)time(NULL) > serverlog.heartbeatTime + KBEServerLogTable::TIMEOUT * 2)
+			if ((uint64)time(NULL) > serverlog.heartbeatTime + OUROServerLogTable::TIMEOUT * 2)
 				cids.push_back(serverlog.serverGroupID);
 		}
 
@@ -471,7 +471,7 @@ std::vector<COMPONENT_ID> KBEServerLogTableMysql::queryTimeOutServers(DBInterfac
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEServerLogTableMysql::clearServers(DBInterface * pdbi, const std::vector<COMPONENT_ID>& cids)
+bool OUROServerLogTableMysql::clearServers(DBInterface * pdbi, const std::vector<COMPONENT_ID>& cids)
 {
 	if(cids.size() == 0)
 		return true;
@@ -505,7 +505,7 @@ bool KBEServerLogTableMysql::clearServers(DBInterface * pdbi, const std::vector<
 }
 
 //-------------------------------------------------------------------------------------
-std::map<Ouroboros::COMPONENT_ID, bool> KBEServerLogTableMysql::queryAllServerShareDBState(DBInterface * pdbi)
+std::map<Ouroboros::COMPONENT_ID, bool> OUROServerLogTableMysql::queryAllServerShareDBState(DBInterface * pdbi)
 {
 	std::vector<COMPONENT_ID> cids = queryTimeOutServers(pdbi);
 	clearServers(pdbi, cids);
@@ -539,7 +539,7 @@ std::map<Ouroboros::COMPONENT_ID, bool> KBEServerLogTableMysql::queryAllServerSh
 }
 
 //-------------------------------------------------------------------------------------
-int KBEServerLogTableMysql::isShareDB(DBInterface * pdbi)
+int OUROServerLogTableMysql::isShareDB(DBInterface * pdbi)
 {
 	bool isShareDB = g_ouroSrvConfig.getDBMgr().isShareDB;
 	uint64 uid = getUserUID();
@@ -555,7 +555,7 @@ int KBEServerLogTableMysql::isShareDB(DBInterface * pdbi)
 				bool isOtherServerShareDB = citer->second;
 				if (!isOtherServerShareDB || (isOtherServerShareDB && !isShareDB))
 				{
-					ERROR_MSG(fmt::format("KBEServerLogTableMysql::isShareDB: The database interface({}) is{} shared, uid={}.\n", pdbi->name(),
+					ERROR_MSG(fmt::format("OUROServerLogTableMysql::isShareDB: The database interface({}) is{} shared, uid={}.\n", pdbi->name(),
 						isOtherServerShareDB ? "" : " not", citer->first));
 
 					return -1;
@@ -571,13 +571,13 @@ int KBEServerLogTableMysql::isShareDB(DBInterface * pdbi)
 }
 
 //-------------------------------------------------------------------------------------
-KBEServerLogTableMysql::KBEServerLogTableMysql(EntityTables* pEntityTables):
-KBEServerLogTable(pEntityTables)
+OUROServerLogTableMysql::OUROServerLogTableMysql(EntityTables* pEntityTables):
+OUROServerLogTable(pEntityTables)
 {
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableMysql::syncToDB(DBInterface* pdbi)
+bool OUROAccountTableMysql::syncToDB(DBInterface* pdbi)
 {
 	bool ret = false;
 
@@ -600,13 +600,13 @@ bool KBEAccountTableMysql::syncToDB(DBInterface* pdbi)
 }
 
 //-------------------------------------------------------------------------------------
-KBEAccountTableMysql::KBEAccountTableMysql(EntityTables* pEntityTables) :
-KBEAccountTable(pEntityTables)
+OUROAccountTableMysql::OUROAccountTableMysql(EntityTables* pEntityTables) :
+OUROAccountTable(pEntityTables)
 {
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableMysql::setFlagsDeadline(DBInterface * pdbi, const std::string& name, uint32 flags, uint64 deadline)
+bool OUROAccountTableMysql::setFlagsDeadline(DBInterface * pdbi, const std::string& name, uint32 flags, uint64 deadline)
 {
 	char* tbuf = new char[name.size() * 2 + 1];
 
@@ -626,7 +626,7 @@ bool KBEAccountTableMysql::setFlagsDeadline(DBInterface * pdbi, const std::strin
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableMysql::queryAccount(DBInterface * pdbi, const std::string& name, ACCOUNT_INFOS& info)
+bool OUROAccountTableMysql::queryAccount(DBInterface * pdbi, const std::string& name, ACCOUNT_INFOS& info)
 {
 	std::string sqlstr = "select entityDBID, password, flags, deadline, bindata from " OURO_TABLE_PERFIX "_accountinfos where accountName=\"";
 
@@ -671,7 +671,7 @@ bool KBEAccountTableMysql::queryAccount(DBInterface * pdbi, const std::string& n
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableMysql::queryAccountAllInfos(DBInterface * pdbi, const std::string& name, ACCOUNT_INFOS& info)
+bool OUROAccountTableMysql::queryAccountAllInfos(DBInterface * pdbi, const std::string& name, ACCOUNT_INFOS& info)
 {
 	std::string sqlstr = "select entityDBID, password, email, flags, deadline from " OURO_TABLE_PERFIX "_accountinfos where accountName=\"";
 
@@ -712,7 +712,7 @@ bool KBEAccountTableMysql::queryAccountAllInfos(DBInterface * pdbi, const std::s
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableMysql::updateCount(DBInterface * pdbi, const std::string& name, DBID dbid)
+bool OUROAccountTableMysql::updateCount(DBInterface * pdbi, const std::string& name, DBID dbid)
 {
 	// Return exists if the query fails, avoiding possible errors
 	if(!pdbi->query(fmt::format("update " OURO_TABLE_PERFIX "_accountinfos set lasttime={}, numlogin=numlogin+1 where entityDBID={}",
@@ -723,7 +723,7 @@ bool KBEAccountTableMysql::updateCount(DBInterface * pdbi, const std::string& na
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableMysql::updatePassword(DBInterface * pdbi, const std::string& name, const std::string& password)
+bool OUROAccountTableMysql::updatePassword(DBInterface * pdbi, const std::string& name, const std::string& password)
 {
 	char* tbuf = new char[MAX_BUF * 3];
 	char* tbuf1 = new char[MAX_BUF * 3];
@@ -749,7 +749,7 @@ bool KBEAccountTableMysql::updatePassword(DBInterface * pdbi, const std::string&
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEAccountTableMysql::logAccount(DBInterface * pdbi, ACCOUNT_INFOS& info)
+bool OUROAccountTableMysql::logAccount(DBInterface * pdbi, ACCOUNT_INFOS& info)
 {
 	std::string sqlstr = "insert into " OURO_TABLE_PERFIX "_accountinfos (accountName, password, bindata, email, entityDBID, flags, deadline, regtime, lasttime) values(";
 
@@ -808,7 +808,7 @@ bool KBEAccountTableMysql::logAccount(DBInterface * pdbi, ACCOUNT_INFOS& info)
 	// Return exists if the query fails, avoiding possible errors
 	if(!pdbi->query(sqlstr.c_str(), sqlstr.size(), false))
 	{
-		ERROR_MSG(fmt::format("KBEAccountTableMysql::logAccount({}): sql({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROAccountTableMysql::logAccount({}): sql({}) is failed({})!\n", 
 				info.name, sqlstr, pdbi->getstrerror()));
 
 		return false;
@@ -818,18 +818,18 @@ bool KBEAccountTableMysql::logAccount(DBInterface * pdbi, ACCOUNT_INFOS& info)
 }
 
 //-------------------------------------------------------------------------------------
-KBEEmailVerificationTableMysql::KBEEmailVerificationTableMysql(EntityTables* pEntityTables) :
-KBEEmailVerificationTable(pEntityTables)
+OUROEmailVerificationTableMysql::OUROEmailVerificationTableMysql(EntityTables* pEntityTables) :
+OUROEmailVerificationTable(pEntityTables)
 {
 }
 	
 //-------------------------------------------------------------------------------------
-KBEEmailVerificationTableMysql::~KBEEmailVerificationTableMysql()
+OUROEmailVerificationTableMysql::~OUROEmailVerificationTableMysql()
 {
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableMysql::queryAccount(DBInterface * pdbi, int8 type, const std::string& name, ACCOUNT_INFOS& info)
+bool OUROEmailVerificationTableMysql::queryAccount(DBInterface * pdbi, int8 type, const std::string& name, ACCOUNT_INFOS& info)
 {
 	std::string sqlstr = "select code, datas from " OURO_TABLE_PERFIX "_email_verification where accountName=\"";
 
@@ -848,7 +848,7 @@ bool KBEEmailVerificationTableMysql::queryAccount(DBInterface * pdbi, int8 type,
 
 	if(!pdbi->query(sqlstr.c_str(), sqlstr.size(), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::queryAccount({}): sql({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::queryAccount({}): sql({}) is failed({})!\n", 
 				name, sqlstr, pdbi->getstrerror()));
 
 		return false;
@@ -873,7 +873,7 @@ bool KBEEmailVerificationTableMysql::queryAccount(DBInterface * pdbi, int8 type,
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableMysql::logAccount(DBInterface * pdbi, int8 type, const std::string& name, 
+bool OUROEmailVerificationTableMysql::logAccount(DBInterface * pdbi, int8 type, const std::string& name, 
 												const std::string& datas, const std::string& code)
 {
 	std::string sqlstr = "insert into " OURO_TABLE_PERFIX "_email_verification (accountName, type, datas, code, logtime) values(";
@@ -914,7 +914,7 @@ bool KBEEmailVerificationTableMysql::logAccount(DBInterface * pdbi, int8 type, c
 
 	if(!pdbi->query(sqlstr.c_str(), sqlstr.size(), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::logAccount({}): sql({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::logAccount({}): sql({}) is failed({})!\n", 
 				code, sqlstr, pdbi->getstrerror()));
 
 		return false;
@@ -924,7 +924,7 @@ bool KBEEmailVerificationTableMysql::logAccount(DBInterface * pdbi, int8 type, c
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableMysql::activateAccount(DBInterface * pdbi, const std::string& code, ACCOUNT_INFOS& info)
+bool OUROEmailVerificationTableMysql::activateAccount(DBInterface * pdbi, const std::string& code, ACCOUNT_INFOS& info)
 {
 	std::string sqlstr = "select accountName, datas, logtime from " OURO_TABLE_PERFIX "_email_verification where code=\"";
 
@@ -936,14 +936,14 @@ bool KBEEmailVerificationTableMysql::activateAccount(DBInterface * pdbi, const s
 	sqlstr += tbuf;
 
 	sqlstr += "\" and type=";
-	ouro_snprintf(tbuf, MAX_BUF, "%d", (int)KBEEmailVerificationTable::V_TYPE_CREATEACCOUNT);
+	ouro_snprintf(tbuf, MAX_BUF, "%d", (int)OUROEmailVerificationTable::V_TYPE_CREATEACCOUNT);
 	sqlstr += tbuf;
 	sqlstr += " LIMIT 1";
 	SAFE_RELEASE_ARRAY(tbuf);
 
 	if(!pdbi->query(sqlstr.c_str(), sqlstr.size(), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::activateAccount({}): sql({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::activateAccount({}): sql({}) is failed({})!\n", 
 				code, sqlstr, pdbi->getstrerror()));
 
 		return false;
@@ -968,7 +968,7 @@ bool KBEEmailVerificationTableMysql::activateAccount(DBInterface * pdbi, const s
 
 	if(logtime > 0 && time(NULL) - logtime > g_ouroSrvConfig.emailAtivationInfo_.deadline)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::activateAccount({}): is expired! {} > {}.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::activateAccount({}): is expired! {} > {}.\n", 
 				code, (time(NULL) - logtime), g_ouroSrvConfig.emailAtivationInfo_.deadline));
 
 		return false;
@@ -976,7 +976,7 @@ bool KBEEmailVerificationTableMysql::activateAccount(DBInterface * pdbi, const s
 
 	if(info.name.size() == 0)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::activateAccount({}): name is NULL.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::activateAccount({}): name is NULL.\n", 
 				code));
 
 		return false;
@@ -985,7 +985,7 @@ bool KBEEmailVerificationTableMysql::activateAccount(DBInterface * pdbi, const s
 	std::string password = info.password;
 
 	// Find if dblog has this account
-	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(EntityTables::findByInterfaceName(pdbi->name()).findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
+	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(EntityTables::findByInterfaceName(pdbi->name()).findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
 	
 	info.flags = 0;
@@ -996,7 +996,7 @@ bool KBEEmailVerificationTableMysql::activateAccount(DBInterface * pdbi, const s
 
 	if((info.flags & ACCOUNT_FLAG_NOT_ACTIVATED) <= 0)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::activateAccount({}): Has been activated, flags={}.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::activateAccount({}): Has been activated, flags={}.\n", 
 				code, info.flags));
 
 		return false;
@@ -1006,14 +1006,14 @@ bool KBEEmailVerificationTableMysql::activateAccount(DBInterface * pdbi, const s
 
 	if(!pTable->setFlagsDeadline(pdbi, info.name, info.flags, info.deadline))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::activateAccount({}): set deadline error({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::activateAccount({}): set deadline error({})!\n", 
 				code, pdbi->getstrerror()));
 		return false;
 	}
 
 	if(!pTable->updatePassword(pdbi, info.name, password))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::activateAccount({}): update password error({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::activateAccount({}): update password error({})!\n", 
 				code, pdbi->getstrerror()));
 
 		return false;
@@ -1040,7 +1040,7 @@ bool KBEEmailVerificationTableMysql::activateAccount(DBInterface * pdbi, const s
 	if(!pdbi->query(fmt::format("update " OURO_TABLE_PERFIX "_accountinfos set entityDBID={} where accountName like \"{}\"", 
 		info.dbid, tbuf), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::activateAccount({}): update " OURO_TABLE_PERFIX "_accountinfos error({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::activateAccount({}): update " OURO_TABLE_PERFIX "_accountinfos error({})!\n", 
 				code, pdbi->getstrerror()));
 
 		SAFE_RELEASE_ARRAY(tbuf);
@@ -1061,7 +1061,7 @@ bool KBEEmailVerificationTableMysql::activateAccount(DBInterface * pdbi, const s
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableMysql::bindEMail(DBInterface * pdbi, const std::string& name, const std::string& code)
+bool OUROEmailVerificationTableMysql::bindEMail(DBInterface * pdbi, const std::string& name, const std::string& code)
 {
 	std::string sqlstr = "select accountName, datas, logtime from " OURO_TABLE_PERFIX "_email_verification where code=\"";
 
@@ -1073,14 +1073,14 @@ bool KBEEmailVerificationTableMysql::bindEMail(DBInterface * pdbi, const std::st
 	sqlstr += tbuf;
 
 	sqlstr += "\" and type=";
-	ouro_snprintf(tbuf, MAX_BUF, "%d", (int)KBEEmailVerificationTable::V_TYPE_BIND_MAIL);
+	ouro_snprintf(tbuf, MAX_BUF, "%d", (int)OUROEmailVerificationTable::V_TYPE_BIND_MAIL);
 	sqlstr += tbuf;
 	sqlstr += " LIMIT 1";
 	SAFE_RELEASE_ARRAY(tbuf);
 
 	if(!pdbi->query(sqlstr.c_str(), sqlstr.size(), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::bindEMail({}): sql({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::bindEMail({}): sql({}) is failed({})!\n", 
 				code, sqlstr, pdbi->getstrerror()));
 
 		return false;
@@ -1107,7 +1107,7 @@ bool KBEEmailVerificationTableMysql::bindEMail(DBInterface * pdbi, const std::st
 
 	if(logtime > 0 && time(NULL) - logtime > g_ouroSrvConfig.emailBindInfo_.deadline)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::bindEMail({}): is expired! {} > {}.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::bindEMail({}): is expired! {} > {}.\n", 
 				code, (time(NULL) - logtime), g_ouroSrvConfig.emailBindInfo_.deadline));
 
 		return false;
@@ -1115,7 +1115,7 @@ bool KBEEmailVerificationTableMysql::bindEMail(DBInterface * pdbi, const std::st
 
 	if(qname.size() == 0 || qemail.size() == 0)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::bindEMail({}): name or email is NULL.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::bindEMail({}): name or email is NULL.\n", 
 				code));
 
 		return false;
@@ -1123,7 +1123,7 @@ bool KBEEmailVerificationTableMysql::bindEMail(DBInterface * pdbi, const std::st
 	
 	if(qemail != name)
 	{
-		WARNING_MSG(fmt::format("KBEEmailVerificationTableMysql::bindEMail: code({}) username({}:{}, {}) not match.\n" 
+		WARNING_MSG(fmt::format("OUROEmailVerificationTableMysql::bindEMail: code({}) username({}:{}, {}) not match.\n" 
 			, code, name, qname, qemail));
 
 		return false;
@@ -1148,7 +1148,7 @@ bool KBEEmailVerificationTableMysql::bindEMail(DBInterface * pdbi, const std::st
 
 	if(!pdbi->query(sqlstr, false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::bindEMail({}): update " OURO_TABLE_PERFIX "_accountinfos({}) error({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::bindEMail({}): update " OURO_TABLE_PERFIX "_accountinfos({}) error({})!\n", 
 				code, qname, pdbi->getstrerror()));
 
 		return false;
@@ -1166,7 +1166,7 @@ bool KBEEmailVerificationTableMysql::bindEMail(DBInterface * pdbi, const std::st
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableMysql::resetpassword(DBInterface * pdbi, const std::string& name, 
+bool OUROEmailVerificationTableMysql::resetpassword(DBInterface * pdbi, const std::string& name, 
 												   const std::string& password, const std::string& code)
 {
 	std::string sqlstr = "select accountName, datas, logtime from " OURO_TABLE_PERFIX "_email_verification where code=\"";
@@ -1179,14 +1179,14 @@ bool KBEEmailVerificationTableMysql::resetpassword(DBInterface * pdbi, const std
 	sqlstr += tbuf;
 
 	sqlstr += "\" and type=";
-	ouro_snprintf(tbuf, MAX_BUF, "%d", (int)KBEEmailVerificationTable::V_TYPE_RESETPASSWORD);
+	ouro_snprintf(tbuf, MAX_BUF, "%d", (int)OUROEmailVerificationTable::V_TYPE_RESETPASSWORD);
 	sqlstr += tbuf;
 	sqlstr += " LIMIT 1";
 	SAFE_RELEASE_ARRAY(tbuf);
 
 	if(!pdbi->query(sqlstr.c_str(), sqlstr.size(), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::resetpassword({}): sql({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::resetpassword({}): sql({}) is failed({})!\n", 
 				code, sqlstr, pdbi->getstrerror()));
 
 		return false;
@@ -1212,7 +1212,7 @@ bool KBEEmailVerificationTableMysql::resetpassword(DBInterface * pdbi, const std
 
 	if(logtime > 0 && time(NULL) - logtime > g_ouroSrvConfig.emailResetPasswordInfo_.deadline)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::resetpassword({}): is expired! {} > {}.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::resetpassword({}): is expired! {} > {}.\n", 
 				code, (time(NULL) - logtime), g_ouroSrvConfig.emailResetPasswordInfo_.deadline));
 
 		return false;
@@ -1220,7 +1220,7 @@ bool KBEEmailVerificationTableMysql::resetpassword(DBInterface * pdbi, const std
 
 	if(qname.size() == 0 || password.size() == 0)
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::resetpassword({}): name or password is NULL.\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::resetpassword({}): name or password is NULL.\n", 
 				code));
 
 		return false;
@@ -1228,19 +1228,19 @@ bool KBEEmailVerificationTableMysql::resetpassword(DBInterface * pdbi, const std
 
 	if(qname != name)
 	{
-		WARNING_MSG(fmt::format("KBEEmailVerificationTableMysql::resetpassword: code({}) username({} != {}) not match.\n" 
+		WARNING_MSG(fmt::format("OUROEmailVerificationTableMysql::resetpassword: code({}) username({} != {}) not match.\n" 
 			, code, name, qname));
 
 		return false;
 	}
 
 	// Find if dblog has this account
-	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(EntityTables::findByInterfaceName(pdbi->name()).findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
+	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(EntityTables::findByInterfaceName(pdbi->name()).findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
 
 	if(!pTable->updatePassword(pdbi, qname, OURO_MD5::getDigest(password.data(), password.length())))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::resetpassword({}): update accountName({}) password error({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::resetpassword({}): update accountName({}) password error({})!\n", 
 				code, qname, pdbi->getstrerror()));
 
 		return false;
@@ -1259,7 +1259,7 @@ bool KBEEmailVerificationTableMysql::resetpassword(DBInterface * pdbi, const std
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableMysql::delAccount(DBInterface * pdbi, int8 type, const std::string& name)
+bool OUROEmailVerificationTableMysql::delAccount(DBInterface * pdbi, int8 type, const std::string& name)
 {
 	std::string sqlstr = "delete from " OURO_TABLE_PERFIX "_email_verification where accountName=";
 
@@ -1279,7 +1279,7 @@ bool KBEEmailVerificationTableMysql::delAccount(DBInterface * pdbi, int8 type, c
 
 	if(!pdbi->query(sqlstr.c_str(), sqlstr.size(), false))
 	{
-		ERROR_MSG(fmt::format("KBEEmailVerificationTableMysql::delAccount({}): sql({}) is failed({})!\n", 
+		ERROR_MSG(fmt::format("OUROEmailVerificationTableMysql::delAccount({}): sql({}) is failed({})!\n", 
 				name, sqlstr, pdbi->getstrerror()));
 
 		return false;
@@ -1289,7 +1289,7 @@ bool KBEEmailVerificationTableMysql::delAccount(DBInterface * pdbi, int8 type, c
 }
 
 //-------------------------------------------------------------------------------------
-bool KBEEmailVerificationTableMysql::syncToDB(DBInterface* pdbi)
+bool OUROEmailVerificationTableMysql::syncToDB(DBInterface* pdbi)
 {
 	bool ret = false;
 
@@ -1307,21 +1307,21 @@ bool KBEEmailVerificationTableMysql::syncToDB(DBInterface* pdbi)
 	// delete the record before xx hours
 	sqlstr = fmt::format("delete from " OURO_TABLE_PERFIX "_email_verification where logtime<{} and type={}", 
 		Ouroboros::StringConv::val2str(time(NULL) - g_ouroSrvConfig.emailAtivationInfo_.deadline), 
-		((int)KBEEmailVerificationTable::V_TYPE_CREATEACCOUNT));
+		((int)OUROEmailVerificationTable::V_TYPE_CREATEACCOUNT));
 
 	ret = pdbi->query(sqlstr.c_str(), sqlstr.size(), true);
 	OURO_ASSERT(ret);
 
 	sqlstr = fmt::format("delete from " OURO_TABLE_PERFIX "_email_verification where logtime<{} and type={}", 
 		Ouroboros::StringConv::val2str(time(NULL) - g_ouroSrvConfig.emailResetPasswordInfo_.deadline),
-		((int)KBEEmailVerificationTable::V_TYPE_RESETPASSWORD));
+		((int)OUROEmailVerificationTable::V_TYPE_RESETPASSWORD));
 
 	ret = pdbi->query(sqlstr.c_str(), sqlstr.size(), true);
 	OURO_ASSERT(ret);
 
 	sqlstr = fmt::format("delete from " OURO_TABLE_PERFIX "_email_verification where logtime<{} and type={}", 
 		Ouroboros::StringConv::val2str(time(NULL) - g_ouroSrvConfig.emailBindInfo_.deadline), 
-		((int)KBEEmailVerificationTable::V_TYPE_BIND_MAIL));
+		((int)OUROEmailVerificationTable::V_TYPE_BIND_MAIL));
 
 	ret = pdbi->query(sqlstr.c_str(), sqlstr.size(), true);
 	OURO_ASSERT(ret);

@@ -31,14 +31,14 @@ def show_components( request ):
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	kbeComps = []
+	ouroComps = []
 	for mID, comps in interfaces_groups.items():
 		for comp in comps:
 			if comp.componentType in VALID_CT:
-				kbeComps.append( comp)
+				ouroComps.append( comp)
 
 	context = {
-		"OUROComps" : kbeComps,
+		"OUROComps" : ouroComps,
 	}
 	return render( request, html_template, context )
 

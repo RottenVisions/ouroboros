@@ -2,7 +2,7 @@
 
 #pragma once
 #include "KBVar.h"
-#include "KBECommon.h"
+#include "OUROCommon.h"
 
 namespace Ouroboros
 {

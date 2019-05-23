@@ -10,15 +10,15 @@
 
 namespace Ouroboros { 
 
-class KBETable : public EntityTable
+class OUROTable : public EntityTable
 {
 public:
-	KBETable(EntityTables* pEntityTables) :
+	OUROTable(EntityTables* pEntityTables) :
 	EntityTable(pEntityTables)
 	{
 	}
 	
-	virtual ~KBETable()
+	virtual ~OUROTable()
 	{
 	}
 	
@@ -41,7 +41,7 @@ protected:
 /*
 	Kbe system table
 */
-class KBEEntityLogTable : public KBETable
+class OUROEntityLogTable : public OUROTable
 {
 public:
 	struct EntityLog
@@ -56,13 +56,13 @@ public:
 		COMPONENT_ID serverGroupID;
 	};
 
-	KBEEntityLogTable(EntityTables* pEntityTables) :
-	KBETable(pEntityTables)
+	OUROEntityLogTable(EntityTables* pEntityTables) :
+	OUROTable(pEntityTables)
 	{
 		tableName(OURO_TABLE_PERFIX "_entitylog");
 	}
 	
-	virtual ~KBEEntityLogTable()
+	virtual ~OUROEntityLogTable()
 	{
 	}
 	
@@ -81,7 +81,7 @@ protected:
 /*
 	Kbe system table
 */
-class KBEServerLogTable : public KBETable
+class OUROServerLogTable : public OUROTable
 {
 public:
 	const static uint32 TIMEOUT = 3600;
@@ -96,13 +96,13 @@ public:
 		uint8 isShareDB;
 	};
 
-	KBEServerLogTable(EntityTables* pEntityTables) :
-	KBETable(pEntityTables)
+	OUROServerLogTable(EntityTables* pEntityTables) :
+	OUROTable(pEntityTables)
 	{
 		tableName(OURO_TABLE_PERFIX "_serverlog");
 	}
 	
-	virtual ~KBEServerLogTable()
+	virtual ~OUROServerLogTable()
 	{
 	}
 	
@@ -119,17 +119,17 @@ protected:
 	
 };
 
-class KBEAccountTable : public KBETable
+class OUROAccountTable : public OUROTable
 {
 public:
-	KBEAccountTable(EntityTables* pEntityTables) :
-	KBETable(pEntityTables),
+	OUROAccountTable(EntityTables* pEntityTables) :
+	OUROTable(pEntityTables),
 	accountDefMemoryStream_()
 	{
 		tableName(OURO_TABLE_PERFIX "_accountinfos");
 	}
 	
-	virtual ~KBEAccountTable()
+	virtual ~OUROAccountTable()
 	{
 	}
 
@@ -155,7 +155,7 @@ protected:
 	MemoryStream accountDefMemoryStream_;
 };
 
-class KBEEmailVerificationTable : public KBETable
+class OUROEmailVerificationTable : public OUROTable
 {
 public:
 	enum V_TYPE
@@ -165,13 +165,13 @@ public:
 		V_TYPE_BIND_MAIL = 3
 	};
 
-	KBEEmailVerificationTable(EntityTables* pEntityTables) :
-	KBETable(pEntityTables)
+	OUROEmailVerificationTable(EntityTables* pEntityTables) :
+	OUROTable(pEntityTables)
 	{
 		tableName(OURO_TABLE_PERFIX "_email_verification");
 	}
 	
-	virtual ~KBEEmailVerificationTable()
+	virtual ~OUROEmailVerificationTable()
 	{
 	}
 

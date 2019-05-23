@@ -376,13 +376,13 @@ public:
 	void addToStream(MemoryStream* s);
 
 	void readWatchers(MemoryStream* s);
-	typedef KBEUnordered_map<std::string, KBEShared_ptr< WatcherObject > > WATCHER_MAP;
+	typedef OUROUnordered_map<std::string, OUROShared_ptr< WatcherObject > > WATCHER_MAP;
 
 	bool addWatcher(const std::string& path, WatcherObject* pwo);
 	bool delWatcher(const std::string& name);
 	bool hasWatcher(const std::string& name);
 
-	KBEShared_ptr< WatcherObject > getWatcher(const std::string& name);
+	OUROShared_ptr< WatcherObject > getWatcher(const std::string& name);
 
 	void updateStream(MemoryStream* s);
 
@@ -409,7 +409,7 @@ public:
 	void readChildPaths(std::string srcPath, std::string path, MemoryStream* s);
 	void dirPath(std::string path, std::vector<std::string>& vec);
 
-	typedef KBEUnordered_map<std::string, KBEShared_ptr<WatcherPaths> > WATCHER_PATHS;
+	typedef OUROUnordered_map<std::string, OUROShared_ptr<WatcherPaths> > WATCHER_PATHS;
 
 	bool addWatcher(std::string path, WatcherObject* pwo);
 	bool _addWatcher(std::string path, WatcherObject* pwo);
@@ -419,7 +419,7 @@ public:
 
 	bool delWatcher(const std::string& fullpath);
 	bool hasWatcher(const std::string& fullpath);
-	KBEShared_ptr< WatcherObject > getWatcher(const std::string& fullpath);
+	OUROShared_ptr< WatcherObject > getWatcher(const std::string& fullpath);
 
 	void updateStream(MemoryStream* s);
 

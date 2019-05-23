@@ -1105,7 +1105,7 @@ bool Channel::handshake(Packet* pPacket)
 			else
 			{
 				UDPPacket* pHelloAckUDPPacket = UDPPacket::createPoolObject(OBJECTPOOL_POINT);
-				(*pHelloAckUDPPacket) << Network::UDP_HELLO_ACK << KBEVersion::versionString() << (uint32)id();
+				(*pHelloAckUDPPacket) << Network::UDP_HELLO_ACK << OUROVersion::versionString() << (uint32)id();
 				pEndPoint()->sendto(pHelloAckUDPPacket->data(), pHelloAckUDPPacket->length());
 				UDPPacket::reclaimPoolObject(pHelloAckUDPPacket);
 

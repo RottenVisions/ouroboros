@@ -523,14 +523,14 @@ protected:
 	ForwardComponent_MessageBuffer							forward_messagebuffer_;
 
 	// backup archive related
-	KBEShared_ptr< Backuper >								pBackuper_;	
-	KBEShared_ptr< Archiver >								pArchiver_;	
+	OUROShared_ptr< Backuper >								pBackuper_;	
+	OUROShared_ptr< Archiver >								pArchiver_;	
 
 	int32													numProxices_;
 
 	TelnetServer*											pTelnetServer_;
 
-	std::vector< KBEShared_ptr< RestoreEntityHandler > >	pRestoreEntityHandlers_;
+	std::vector< OUROShared_ptr< RestoreEntityHandler > >	pRestoreEntityHandlers_;
 
 	TimerHandle												pResmgrTimerHandle_;
 

@@ -3,7 +3,7 @@
 	<!--
 		Personalized server configuration ({assets}/res/server/server_errors.xml)
 
-		If you need to change the engine default settings, please override the corresponding parameters of kbe/res/server/server_errors_defaults.xml in {assets}/res/server/server_errors.xml).
+		If you need to change the engine default settings, please override the corresponding parameters of ouro/res/server/server_errors_defaults.xml in {assets}/res/server/server_errors.xml).
 		This has the advantage of not breaking the engine's default settings, creating conflicts when you update the engine, and not affecting other project settings in multiple logical projects.
 		For details, please refer to: http://ouroboros.org/cn/docs/configuration/ouroboros.html
 	-->

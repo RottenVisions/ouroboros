@@ -90,7 +90,7 @@ void CStartServerWindow::OnBnClickedButton2()
 	m_layoutlist.GetLBText(m_layoutlist.GetCurSel(), s);
 
 	char* cs = Ouroboros::strutil::wchar2char(s.GetBuffer(0));
-	KBEUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
+	OUROUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
 		layouts_.find(cs);
 
 	free(cs);
@@ -225,7 +225,7 @@ void CStartServerWindow::OnBnClickedButton3()
 	m_layoutlist.GetLBText(m_layoutlist.GetCurSel(), s);
 
 	char* cs = Ouroboros::strutil::wchar2char(s.GetBuffer(0));
-	KBEUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
+	OUROUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
 		layouts_.find(cs);
 
 	free(cs);
@@ -399,7 +399,7 @@ void CStartServerWindow::saveLayouts()
     TiXmlDocument *pDocument = new TiXmlDocument();
 
 	int i = 0;
-	KBEUnordered_map< std::string, std::vector<LAYOUT_ITEM> >::iterator iter = layouts_.begin();
+	OUROUnordered_map< std::string, std::vector<LAYOUT_ITEM> >::iterator iter = layouts_.begin();
 	TiXmlElement *rootElement = new TiXmlElement("root");
 	pDocument->LinkEndChild(rootElement);
 
@@ -453,7 +453,7 @@ void CStartServerWindow::OnCbnSelchangeCombo3()
 	m_list.DeleteAllItems();
 
 	char* cs = Ouroboros::strutil::wchar2char(s.GetBuffer(0));
-	KBEUnordered_map< std::string, std::vector<LAYOUT_ITEM> >::iterator iter = layouts_.find(cs);
+	OUROUnordered_map< std::string, std::vector<LAYOUT_ITEM> >::iterator iter = layouts_.find(cs);
 	free(cs);
 
 	if(iter == layouts_.end())

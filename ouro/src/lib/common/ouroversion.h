@@ -1,7 +1,7 @@
 // 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
-#ifndef KBEVERSION_H
-#define KBEVERSION_H
+#ifndef OUROVERSION_H
+#define OUROVERSION_H
 
 #include "common/platform.h"
 
@@ -12,7 +12,7 @@ namespace Ouroboros{
 #define OURO_VERSION_PATCH 0
 
 
-namespace KBEVersion
+namespace OUROVersion
 {
 	const std::string & versionString();
 	void setScriptVersion(const std::string& ver);
@@ -20,4 +20,4 @@ namespace KBEVersion
 }
 
 }
-#endif // KBEVERSION_H
+#endif // OUROVERSION_H

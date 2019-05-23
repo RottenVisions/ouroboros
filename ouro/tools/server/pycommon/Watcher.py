@@ -44,7 +44,7 @@ class Watcher(ServerApp.ServerApp):
 	"""
 	Use the example:
 	import sys
-	sys.path.append(r"x:\ouroboros\kbe\tools\server")
+	sys.path.append(r"x:\ouroboros\ouro\tools\server")
 	import pycommon.Watcher
 	import pycommon.Define
 	w = pycommon.Watcher.Watcher(pycommon.Define.CELLAPP_TYPE)

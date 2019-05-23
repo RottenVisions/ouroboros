@@ -25,7 +25,7 @@ public:
 
 	~EntityRef();
 	
-	typedef KBEShared_ptr< SmartPoolObject< EntityRef > > SmartPoolObjectPtr;
+	typedef OUROShared_ptr< SmartPoolObject< EntityRef > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 
 	static ObjectPool<EntityRef>& ObjPool();

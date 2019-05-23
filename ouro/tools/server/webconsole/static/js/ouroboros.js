@@ -111,7 +111,7 @@ Ouroboros = {
 
         var tickData = $.data.lastPyTickProfileData;
 
-        // 开始处理
+        // 开始处�?�
         for (var i = 0; i < ds.length; i++)
         {
             line = pytools.strip(ds[i]);

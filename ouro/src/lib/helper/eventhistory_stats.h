@@ -28,7 +28,7 @@ public:
 		uint32 count;
 	};
 
-	typedef KBEUnordered_map<std::string, Stats> STATS;
+	typedef OUROUnordered_map<std::string, Stats> STATS;
 
 	EventHistoryStats(std::string name);
 	~EventHistoryStats();

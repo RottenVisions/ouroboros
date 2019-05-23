@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include "KBECommon.h"
+#include "OUROCommon.h"
 #include "OBEvent.h"
 #include "ClientSDKUpdater.h"
 #include "ClientSDKUpdateUI.h"
 #include "ShowPromptMessageUI.h"
 #include "Components/ActorComponent.h"
-#include "KBEMain.generated.h"
+#include "OUROMain.generated.h"
 
 /*
 Can be understood as the plugin's entry module
@@ -18,13 +18,13 @@ class OuroborosApp;
 
 
 UCLASS(ClassGroup = "Ouroboros", blueprintable, editinlinenew, hidecategories = (Object, LOD, Lighting, TextureStreaming), meta = (DisplayName = "Ouroboros Main", BlueprintSpawnableComponent))
-class OUROBOROSPLUGINS_API UKBEMain : public UActorComponent
+class OUROBOROSPLUGINS_API UOUROMain : public UActorComponent
 {
 	GENERATED_UCLASS_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UKBEMain();
+	UOUROMain();
 
 	/**
 	* Initializes the component.  Occurs at level startup. This is before BeginPlay (Actor or Component).
@@ -79,7 +79,7 @@ public:
 	static FString getServerScriptVersion();
 
 	/*
-		The client belongs to a functional component in the KBE framework, where the get will be fixed back to the client
+		The client belongs to a functional component in the OURO framework, where the get will be fixed back to the client
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Ouroboros")
 	static FString getComponentName();

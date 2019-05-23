@@ -34,7 +34,7 @@ namespace Ouroboros
             foreach (GameObject child in objs)
             {
                 if (!child.gameObject.GetComponent<Camera>() &&
-                    !child.gameObject.GetComponent<KBEMain>() &&
+                    !child.gameObject.GetComponent<OUROMain>() &&
                     !child.gameObject.GetComponent<ClientSDKUpdater>())
                 {
                     child.gameObject.SetActive(false);

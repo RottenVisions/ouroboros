@@ -398,8 +398,8 @@ void ClientApp::handleGameTick()
 					// Shake hands first and wait for helloCB before logging in
 					Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 					(*pBundle).newMessage(BaseappInterface::hello);
-					(*pBundle) << KBEVersion::versionString();
-					(*pBundle) << KBEVersion::scriptVersionString();
+					(*pBundle) << OUROVersion::versionString();
+					(*pBundle) << OUROVersion::scriptVersionString();
 
 					if(Network::g_channelExternalEncryptType == 1)
 					{
@@ -648,8 +648,8 @@ bool ClientApp::login(std::string accountName, std::string passwd, std::string d
 		// Shake hands first and wait for helloCB before logging in
 		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(LoginappInterface::hello);
-		(*pBundle) << KBEVersion::versionString();
-		(*pBundle) << KBEVersion::scriptVersionString();
+		(*pBundle) << OUROVersion::versionString();
+		(*pBundle) << OUROVersion::scriptVersionString();
 
 		if(Network::g_channelExternalEncryptType == 1)
 		{

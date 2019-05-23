@@ -113,7 +113,7 @@
 
 		/*
 			Ouroboros's entity constructor, corresponding to the server script.
-			Exist in such a constructor because KBE needs to create a good entity and fill in the data such as attributes to tell the script layer to initialize
+			Exist in such a constructor because OURO needs to create a good entity and fill in the data such as attributes to tell the script layer to initialize
 		*/
 		public virtual void __init__()
 		{

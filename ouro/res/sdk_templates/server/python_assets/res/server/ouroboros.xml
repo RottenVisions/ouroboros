@@ -2,7 +2,7 @@
 	<!--
 		Personalized server configuration ({assets}/res/server/ouroboros.xml)
 
-		If you need to change the engine settings, please override the corresponding parameters of kbe/res/server/ouroboros_defaults.xml in {assets}/res/server/ouroboros.xml).
+		If you need to change the engine settings, please override the corresponding parameters of ouro/res/server/ouroboros_defaults.xml in {assets}/res/server/ouroboros.xml).
 		This has the advantage of not breaking the engine's default settings, creating conflicts when you update the engine, and not affecting other project settings in multiple logical projects.
 		For details, please refer to: http://ouroboros.org/cn/docs/configuration/ouroboros.html
 	-->
@@ -27,7 +27,7 @@
 		<script_version> 0.1.0 </script_version>
 	</publish>
 	
-	<!-- defined => kbe/res/server/ouroboros_defs.xml -->
+	<!-- defined => ouro/res/server/ouroboros_defs.xml -->
 	<dbmgr>
 		<account_system>
 			<!-- Account recovery password related
@@ -59,7 +59,7 @@
 		<databaseInterfaces>
 			<default>
 				<!-- <host> localhost </host> -->
-				<!-- <databaseName> kbe </databaseName> -->
+				<!-- <databaseName> ouro </databaseName> -->
 			</default>
 		</databaseInterfaces>
 	</dbmgr>

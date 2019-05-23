@@ -3,7 +3,7 @@
 #include "ouroversion.h"
 #include "helper/debug_helper.h"
 namespace Ouroboros{
-namespace KBEVersion
+namespace OUROVersion
 {
 std::string g_versionString;
 

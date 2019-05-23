@@ -252,7 +252,7 @@ protected:
 	// cellAppData
 	GlobalDataServer*									pCellAppData_;
 
-	typedef KBEUnordered_map<std::string, Buffered_DBTasks> BUFFERED_DBTASKS_MAP;
+	typedef OUROUnordered_map<std::string, Buffered_DBTasks> BUFFERED_DBTASKS_MAP;
 	BUFFERED_DBTASKS_MAP								bufferedDBTasksMaps_;
 
 	// Statistics

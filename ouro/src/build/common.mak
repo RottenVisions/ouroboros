@@ -40,7 +40,7 @@ all::
 	@false
 endif
 
-LIBDIR = $(OURO_ROOT)/kbe/src/libs
+LIBDIR = $(OURO_ROOT)/ouro/src/libs
 
 ifneq (,$(findstring s, $(MAKEFLAGS)))
 QUIET_BUILD=1
@@ -65,7 +65,7 @@ MSG_FILE := make$(MAKELEVEL)_$(shell echo $$RANDOM).tmp
 ifdef BIN
 MAKE_LIBS=1
 ifndef INSTALL_DIR
-OUTPUTDIR = $(OURO_ROOT)/kbe/bin/server
+OUTPUTDIR = $(OURO_ROOT)/ouro/bin/server
 else # INSTALL_DIR
 endif # INSTALL_DIR
 
@@ -75,7 +75,7 @@ endif # BIN
 ifdef SO
 MAKE_LIBS=1
 ifndef OUTPUTDIR
-	OUTPUTDIR = $(OURO_ROOT)/kbe/bin/server/extensions
+	OUTPUTDIR = $(OURO_ROOT)/ouro/bin/server/extensions
 endif # OUTPUTDIR
 	OUTPUTFILE = $(OUTPUTDIR)/$(SO).so
 endif # SO
@@ -108,14 +108,14 @@ endif
 
 # Include and lib paths
 LDFLAGS += -L$(LIBDIR)
-OURO_INCLUDES += -I $(OURO_ROOT)/kbe/src
-OURO_INCLUDES += -I $(OURO_ROOT)/kbe/src/lib
-OURO_INCLUDES += -I $(OURO_ROOT)/kbe/src/server
-OURO_INCLUDES += -I $(OURO_ROOT)/kbe/src/lib/dependencies
-OURO_INCLUDES += -I $(OURO_ROOT)/kbe/src/lib/dependencies/zlib
-OURO_INCLUDES += -I $(OURO_ROOT)/kbe/src/lib/dependencies/tinyxml
-OURO_INCLUDES += -I $(OURO_ROOT)/kbe/src/lib/dependencies/fmt/include
-OURO_INCLUDES += -I $(OURO_ROOT)/kbe/src/lib/dependencies/curl/include
+OURO_INCLUDES += -I $(OURO_ROOT)/ouro/src
+OURO_INCLUDES += -I $(OURO_ROOT)/ouro/src/lib
+OURO_INCLUDES += -I $(OURO_ROOT)/ouro/src/server
+OURO_INCLUDES += -I $(OURO_ROOT)/ouro/src/lib/dependencies
+OURO_INCLUDES += -I $(OURO_ROOT)/ouro/src/lib/dependencies/zlib
+OURO_INCLUDES += -I $(OURO_ROOT)/ouro/src/lib/dependencies/tinyxml
+OURO_INCLUDES += -I $(OURO_ROOT)/ouro/src/lib/dependencies/fmt/include
+OURO_INCLUDES += -I $(OURO_ROOT)/ouro/src/lib/dependencies/curl/include
 
 # Preprocessor output only (useful when debugging macros)
 # CPPFLAGS += -E
@@ -130,8 +130,8 @@ endif
 
 ifdef USE_PYTHON
 USE_OURO_PYTHON = 1
-OURO_INCLUDES += -I $(OURO_ROOT)/kbe/src/lib/python/Include
-OURO_INCLUDES += -I $(OURO_ROOT)/kbe/src/lib/python
+OURO_INCLUDES += -I $(OURO_ROOT)/ouro/src/lib/python/Include
+OURO_INCLUDES += -I $(OURO_ROOT)/ouro/src/lib/python
 LDLIBS += -l$(PYTHONLIB) -lpthread -lutil -ldl
 endif # USE_PYTHON
 
@@ -150,7 +150,7 @@ endif # USE_MYSQL
 ifdef USE_REDIS
 LDLIBS += -lhiredis
 CPPFLAGS += -DUSE_REDIS
-OURO_INCLUDES += -I $(OURO_ROOT)/kbe/src/lib/dependencies/hiredis
+OURO_INCLUDES += -I $(OURO_ROOT)/ouro/src/lib/dependencies/hiredis
 endif # USE_REDIS
 
 # everyone needs pthread if LDLINUX_TLS_IS_BROKEN
@@ -164,49 +164,49 @@ LDFLAGS += -export-dynamic
 # The OpenSSL redist is used for all builds as common/md5.[ch]pp depends
 # on the OpenSSL MD5 implementation.
 
-OURO_INCLUDES += -I $(OURO_ROOT)/kbe/src/lib/dependencies/log4cxx/src/main/include
+OURO_INCLUDES += -I $(OURO_ROOT)/ouro/src/lib/dependencies/log4cxx/src/main/include
 ifeq ($(NO_USE_LOG4CXX),0)
 LDLIBS += -llog4cxx -lapr-1 -laprutil-1 -lexpat
 else
 CPPFLAGS += -DNO_USE_LOG4CXX
 endif
 
-OPENSSL_DIR = $(OURO_ROOT)/kbe/src/lib/dependencies/openssl
+OPENSSL_DIR = $(OURO_ROOT)/ouro/src/lib/dependencies/openssl
 OURO_INCLUDES += -I$(OPENSSL_DIR)/include
 ifeq ($(USE_OPENSSL),1)
 LDLIBS += -lssl -lcrypto -ldl
 CPPFLAGS += -DUSE_OPENSSL
 endif
 
-G3DMATH_DIR = $(OURO_ROOT)/kbe/src/lib/dependencies/g3dlite
+G3DMATH_DIR = $(OURO_ROOT)/ouro/src/lib/dependencies/g3dlite
 OURO_INCLUDES += -I$(G3DMATH_DIR)
 ifeq ($(USE_G3DMATH),1)
 LDLIBS += -lg3dlite
 CPPFLAGS += -DUSE_G3DMATH
 endif
 
-SIGAR_DIR = $(OURO_ROOT)/kbe/src/lib/dependencies/sigar
+SIGAR_DIR = $(OURO_ROOT)/ouro/src/lib/dependencies/sigar
 OURO_INCLUDES += -I$(SIGAR_DIR)/linux
 #ifeq ($(USE_SIGAR),1)
 LDLIBS += -lsigar
 CPPFLAGS += -DUSE_SIGAR
 #endif
 
-JWSMTP_DIR = $(OURO_ROOT)/kbe/src/lib/dependencies/jwsmtp
+JWSMTP_DIR = $(OURO_ROOT)/ouro/src/lib/dependencies/jwsmtp
 OURO_INCLUDES += -I$(JWSMTP_DIR)/jwsmtp/jwsmtp
 ifeq ($(USE_JWSMTP),1)
 LDLIBS += -ljwsmtp
 CPPFLAGS += -DUSE_JWSMTP
 endif
 
-TMXPARSER_DIR = $(OURO_ROOT)/kbe/src/lib/dependencies/tmxparser
+TMXPARSER_DIR = $(OURO_ROOT)/ouro/src/lib/dependencies/tmxparser
 OURO_INCLUDES += -I$(TMXPARSER_DIR)
 ifeq ($(USE_TMXPARSER),1)
 LDLIBS += -ltmxparser
 CPPFLAGS += -DUSE_TMXPARSER
 endif
 
-JEMALLOC_DIR = $(OURO_ROOT)/kbe/src/lib/dependencies/jemalloc
+JEMALLOC_DIR = $(OURO_ROOT)/ouro/src/lib/dependencies/jemalloc
 OURO_INCLUDES += -I$(JEMALLOC_DIR)/include
 #ifeq ($(USE_JEMALLOC),1)
 LDLIBS += -ljemalloc -lrt
@@ -421,7 +421,7 @@ OURO_PYTHONLIB=$(LIBDIR)/lib$(PYTHONLIB).a
 
 # Strip the prefixed "lib" string. Be careful not to strip any _lib
 $(MY_LIBNAMES): always
-	$(MAKE) -C $(OURO_ROOT)/kbe/src/lib/$(subst XXXXX,_lib,$(subst lib,,$(subst _lib,XXXXX,$(*F)))) \
+	$(MAKE) -C $(OURO_ROOT)/ouro/src/lib/$(subst XXXXX,_lib,$(subst lib,,$(subst _lib,XXXXX,$(*F)))) \
 		"OURO_CONFIG=$(OURO_CONFIG)"
 
 endif # MAKE_LIBS

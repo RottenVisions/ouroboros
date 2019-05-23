@@ -144,7 +144,7 @@ bool EntityTables::load(DBInterface* pdbi)
 }
 
 //-------------------------------------------------------------------------------------
-void EntityTables::onTableSyncSuccessfully(KBEShared_ptr<EntityTable> pEntityTable, bool error)
+void EntityTables::onTableSyncSuccessfully(OUROShared_ptr<EntityTable> pEntityTable, bool error)
 {
 	if(error)
 	{
@@ -264,7 +264,7 @@ EntityTable* EntityTables::findTable(std::string name)
 };
 
 //-------------------------------------------------------------------------------------
-void EntityTables::addKBETable(EntityTable* pTable)
+void EntityTables::addOUROTable(EntityTable* pTable)
 {
 	TABLES_MAP::iterator iter = ouro_tables_.begin();
 
@@ -281,7 +281,7 @@ void EntityTables::addKBETable(EntityTable* pTable)
 }
 
 //-------------------------------------------------------------------------------------
-EntityTable* EntityTables::findKBETable(std::string name)
+EntityTable* EntityTables::findOUROTable(std::string name)
 {
 	TABLES_MAP::iterator iter = ouro_tables_.find(name);
 	if(iter != ouro_tables_.end())

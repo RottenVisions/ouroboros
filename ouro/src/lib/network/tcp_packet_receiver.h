@@ -25,7 +25,7 @@ class EventDispatcher;
 class TCPPacketReceiver : public PacketReceiver
 {
 public:
-	typedef KBEShared_ptr< SmartPoolObject< TCPPacketReceiver > > SmartPoolObjectPtr;
+	typedef OUROShared_ptr< SmartPoolObject< TCPPacketReceiver > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<TCPPacketReceiver>& ObjPool();
 	static TCPPacketReceiver* createPoolObject(const std::string& logPoint);

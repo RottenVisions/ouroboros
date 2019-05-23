@@ -21,7 +21,7 @@ void SpaceMemorys::finalise()
 	while (spaces.size() > 0)
 	{
 		SPACEMEMORYS::iterator iter = spaces.begin();
-		KBEShared_ptr<SpaceMemory> pSpace = iter->second;
+		OUROShared_ptr<SpaceMemory> pSpace = iter->second;
 		spaces.erase(iter++);
 		pSpace->destroy(0, false);
 	}

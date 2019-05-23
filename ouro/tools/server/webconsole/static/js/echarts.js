@@ -1515,7 +1515,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var componentsMap = this._componentsMap;
 	            var newCptTypes = [];
 
-	            // 如果不存在对应的 component model 则直接 merge
+	            // 如果�?存在对应的 component model 则直接 merge
 	            each(newOption, function (componentOption, mainType) {
 	                if (componentOption == null) {
 	                    return;
@@ -1531,7 +1531,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            });
 
-	            // FIXME OPTION 同步是否要改回原来的
+	            // FIXME OPTION �?�步是�?��?改回原�?�的
 	            ComponentModel.topologicalTravel(
 	                newCptTypes, ComponentModel.getAllClassMainTypes(), visitComponent, this
 	            );
@@ -1953,7 +1953,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	    function mergeTheme(option, theme) {
 	        for (var name in theme) {
-	            // 如果有 component model 则把具体的 merge 逻辑交给该 model 处理
+	            // 如果有 component model 则把具体的 merge 逻辑交给该 model 处�?�
 	            if (!ComponentModel.hasClass(name)) {
 	                if (typeof theme[name] === 'object') {
 	                    option[name] = !option[name]
@@ -2160,7 +2160,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	    var Gradient = __webpack_require__(4);
-	    // 用于处理merge时无法遍历Date等对象的问题
+	    // 用于处�?�merge时无法�??历Date等对象的问题
 	    var BUILTIN_OBJECT = {
 	        '[object Function]': 1,
 	        '[object RegExp]': 1,
@@ -2180,7 +2180,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    /**
 	     * @param {*} source
-	     * @return {*} 拷贝后的新对象
+	     * @return {*} 拷�?�?�的新对象
 	     */
 	    function clone(source) {
 	        if (typeof source == 'object' && source !== null) {
@@ -2193,7 +2193,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	            else if (
 	                !isBuildInObject(source)
-	                // 是否为 dom 对象
+	                // 是�?�为 dom 对象
 	                && !isDom(source)
 	            ) {
 	                result = {};
@@ -2237,12 +2237,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    && !isBuildInObject(sourceProp)
 	                    && !isBuildInObject(targetProp)
 	                ) {
-	                    // 如果需要递归覆盖，就递归调用merge
+	                    // 如果需�?递归覆盖，就递归调用merge
 	                    merge(targetProp, sourceProp, overwrite);
 	                }
 	                else if (overwrite || !(key in target)) {
-	                    // 否则只处理overwrite为true，或者在目标对象中没有此属性的情况
-	                    // NOTE，在 target[key] 不存在的时候也是直接覆盖
+	                    // �?�则�?�处�?�overwrite为true，或者在目标对象中没有此属性的情况
+	                    // NOTE，在 target[key] �?存在的时候也是直接覆盖
 	                    target[key] = clone(source[key], true);
 	                }
 	            }
@@ -2331,7 +2331,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * 构造类继承关系
 	     *
 	     * @memberOf module:zrender/core/util
-	     * @param {Function} clazz 源类
+	     * @param {Function} clazz �?类
 	     * @param {Function} baseClazz 基类
 	     */
 	    function inherits(clazz, baseClazz) {
@@ -2374,7 +2374,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 数组或对象遍历
+	     * 数组或对象�??历
 	     * @memberOf module:zrender/core/util
 	     * @param {Object|Array} obj
 	     * @param {Function} cb
@@ -3086,7 +3086,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var numberUtil = __webpack_require__(7);
 
 	    /**
-	     * 每三位默认加,格式化
+	     * �?三�?默认加,格�?化
 	     * @type {string|number} x
 	     */
 	    function addCommas(x) {
@@ -3248,7 +3248,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports) {
 
 	/**
-	 * 数值处理模块
+	 * 数值处�?�模�?�
 	 * @module echarts/util/number
 	 */
 
@@ -3450,8 +3450,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    // "Nice Numbers for Graph Labels" of Graphic Gems
 	    /**
-	     * find a “nice” number approximately equal to x. Round the number if round = true, take ceiling if round = false
-	     * The primary observation is that the “nicest” numbers in decimal are 1, 2, and 5, and all power-of-ten multiples of these numbers.
+	     * find a “nice�? number approximately equal to x. Round the number if round = true, take ceiling if round = false
+	     * The primary observation is that the “nicest�? numbers in decimal are 1, 2, and 5, and all power-of-ten multiples of these numbers.
 	     * @param  {number} val
 	     * @param  {boolean} round
 	     * @return {number}
@@ -3535,7 +3535,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        constructor: Model,
 
 	        /**
-	         * Model 的初始化函数
+	         * Model 的�?始化函数
 	         * @param {Object} option
 	         */
 	        init: null,
@@ -4014,7 +4014,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var width = 0;
 
 	        for (var i = 0, l = textLines.length; i < l; i++) {
-	            // measureText 可以被覆盖以兼容不支持 Canvas 的环境
+	            // measureText �?�以被覆盖以兼容�?支�? Canvas 的环境
 	            width = Math.max(textContain.measureText(textLines[i], textFont).width, width);
 	        }
 
@@ -4180,7 +4180,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            maxIterations: 3,
 	            cnCharWidth: getTextWidth('国', textFont),
 	            // FIXME
-	            // 未考虑非等宽字体
+	            // 未考虑�?�等宽字体
 	            ascCharWidth: getTextWidth('a', textFont)
 	        }, options, true);
 
@@ -4199,7 +4199,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    function textLineTruncate(text, textFont, containerWidth, options) {
 	        // FIXME
-	        // 粗糙得写的，尚未考虑性能和各种语言、字体的效果。
+	        // 粗糙得写的，尚未考虑性能和�?��?语言�?字体的效果。
 	        for (var i = 0;; i++) {
 	            var lineWidth = getTextWidth(text, textFont);
 
@@ -4357,7 +4357,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            var m = matrix.create();
 
-	            // 矩阵右乘
+	            // 矩阵�?�乘
 	            matrix.translate(m, m, [-a.x, -a.y]);
 	            matrix.scale(m, m, [sx, sy]);
 	            matrix.translate(m, m, [b.x, b.y]);
@@ -4426,12 +4426,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @typedef {Float32Array|Array.<number>} Vector2
 	     */
 	    /**
-	     * 二维向量类
+	     * 二维�?��?类
 	     * @exports zrender/tool/vector
 	     */
 	    var vector = {
 	        /**
-	         * 创建一个向量
+	         * 创建一个�?��?
 	         * @param {number} [x=0]
 	         * @param {number} [y=0]
 	         * @return {Vector2}
@@ -4444,7 +4444,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 复制向量数据
+	         * �?制�?��?数�?�
 	         * @param {Vector2} out
 	         * @param {Vector2} v
 	         * @return {Vector2}
@@ -4456,7 +4456,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 克隆一个向量
+	         * 克隆一个�?��?
 	         * @param {Vector2} v
 	         * @return {Vector2}
 	         */
@@ -4468,7 +4468,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 设置向量的两个项
+	         * 设置�?��?的两个项
 	         * @param {Vector2} out
 	         * @param {number} a
 	         * @param {number} b
@@ -4481,7 +4481,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 向量相加
+	         * �?��?相加
 	         * @param {Vector2} out
 	         * @param {Vector2} v1
 	         * @param {Vector2} v2
@@ -4493,7 +4493,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 向量缩放后相加
+	         * �?��?缩放�?�相加
 	         * @param {Vector2} out
 	         * @param {Vector2} v1
 	         * @param {Vector2} v2
@@ -4506,7 +4506,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 向量相减
+	         * �?��?相�?
 	         * @param {Vector2} out
 	         * @param {Vector2} v1
 	         * @param {Vector2} v2
@@ -4518,7 +4518,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 向量长度
+	         * �?��?长度
 	         * @param {Vector2} v
 	         * @return {number}
 	         */
@@ -4527,7 +4527,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 向量长度平方
+	         * �?��?长度平方
 	         * @param {Vector2} v
 	         * @return {number}
 	         */
@@ -4536,7 +4536,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 向量乘法
+	         * �?��?乘法
 	         * @param {Vector2} out
 	         * @param {Vector2} v1
 	         * @param {Vector2} v2
@@ -4548,7 +4548,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 向量除法
+	         * �?��?除法
 	         * @param {Vector2} out
 	         * @param {Vector2} v1
 	         * @param {Vector2} v2
@@ -4560,7 +4560,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 向量点乘
+	         * �?��?点乘
 	         * @param {Vector2} v1
 	         * @param {Vector2} v2
 	         * @return {number}
@@ -4570,7 +4570,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 向量缩放
+	         * �?��?缩放
 	         * @param {Vector2} out
 	         * @param {Vector2} v
 	         * @param {number} s
@@ -4582,7 +4582,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 向量归一化
+	         * �?��?归一化
 	         * @param {Vector2} out
 	         * @param {Vector2} v
 	         */
@@ -4600,7 +4600,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 计算向量间距离
+	         * 计算�?��?间�?离
 	         * @param {Vector2} v1
 	         * @param {Vector2} v2
 	         * @return {number}
@@ -4613,7 +4613,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 向量距离平方
+	         * �?��?�?离平方
 	         * @param {Vector2} v1
 	         * @param {Vector2} v2
 	         * @return {number}
@@ -4624,7 +4624,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 求负向量
+	         * 求负�?��?
 	         * @param {Vector2} out
 	         * @param {Vector2} v
 	         */
@@ -4635,7 +4635,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 插值两个点
+	         * �?�值两个点
 	         * @param {Vector2} out
 	         * @param {Vector2} v1
 	         * @param {Vector2} v2
@@ -4648,7 +4648,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 矩阵左乘向量
+	         * 矩阵左乘�?��?
 	         * @param {Vector2} out
 	         * @param {Vector2} v
 	         * @param {Vector2} m
@@ -4661,7 +4661,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return out;
 	        },
 	        /**
-	         * 求两个向量最小值
+	         * 求两个�?��?最�?值
 	         * @param  {Vector2} out
 	         * @param  {Vector2} v1
 	         * @param  {Vector2} v2
@@ -4672,7 +4672,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return out;
 	        },
 	        /**
-	         * 求两个向量最大值
+	         * 求两个�?��?最大值
 	         * @param  {Vector2} out
 	         * @param  {Vector2} v1
 	         * @param  {Vector2} v2
@@ -4702,12 +4702,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        ? Array
 	        : Float32Array;
 	    /**
-	     * 3x2矩阵操作类
+	     * 3x2矩阵�?作类
 	     * @exports zrender/tool/matrix
 	     */
 	    var matrix = {
 	        /**
-	         * 创建一个单位矩阵
+	         * 创建一个�?��?矩阵
 	         * @return {Float32Array|Array.<number>}
 	         */
 	        create : function() {
@@ -4717,7 +4717,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return out;
 	        },
 	        /**
-	         * 设置矩阵为单位矩阵
+	         * 设置矩阵为�?��?矩阵
 	         * @param {Float32Array|Array.<number>} out
 	         */
 	        identity : function(out) {
@@ -4730,7 +4730,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return out;
 	        },
 	        /**
-	         * 复制矩阵
+	         * �?制矩阵
 	         * @param {Float32Array|Array.<number>} out
 	         * @param {Float32Array|Array.<number>} m
 	         */
@@ -4768,7 +4768,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return out;
 	        },
 	        /**
-	         * 平移变换
+	         * 平移�?��?�
 	         * @param {Float32Array|Array.<number>} out
 	         * @param {Float32Array|Array.<number>} a
 	         * @param {Float32Array|Array.<number>} v
@@ -4783,7 +4783,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return out;
 	        },
 	        /**
-	         * 旋转变换
+	         * 旋转�?��?�
 	         * @param {Float32Array|Array.<number>} out
 	         * @param {Float32Array|Array.<number>} a
 	         * @param {number} rad
@@ -4807,7 +4807,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return out;
 	        },
 	        /**
-	         * 缩放变换
+	         * 缩放�?��?�
 	         * @param {Float32Array|Array.<number>} out
 	         * @param {Float32Array|Array.<number>} a
 	         * @param {Float32Array|Array.<number>} v
@@ -5691,7 +5691,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // 深色
 	        color: ['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
 
-	        // 默认需要 Grid 配置项
+	        // 默认需�? Grid �?置项
 	        grid: {},
 	        // 主题，主题
 	        textStyle: {
@@ -5709,10 +5709,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        //     'circle', 'rectangle', 'triangle', 'diamond',
 	        //     'emptyCircle', 'emptyRectangle', 'emptyTriangle', 'emptyDiamond'
 	        // ],
-	        animation: true,                // 过渡动画是否开启
-	        animationThreshold: 2000,       // 动画元素阀值，产生的图形原素超过2000不出动画
-	        animationDuration: 1000,        // 过渡动画参数：进入
-	        animationDurationUpdate: 300,   // 过渡动画参数：更新
+	        animation: true,                // 过渡动画是�?�开�?�
+	        animationThreshold: 2000,       // 动画元素阀值，产生的图形原素超过2000�?出动画
+	        animationDuration: 1000,        // 过渡动画�?�数：进入
+	        animationDurationUpdate: 300,   // 过渡动画�?�数：更新
 	        animationEasing: 'exponentialOut',    //BounceOut
 	        animationEasingUpdate: 'cubicOut'
 	    };
@@ -5938,7 +5938,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            rawOption = clone(rawOption, true);
 
 	            // FIXME
-	            // 如果 timeline options 或者 media 中设置了某个属性，而baseOption中没有设置，则进行警告。
+	            // 如果 timeline options 或者 media 中设置了�?个属性，而baseOption中没有设置，则进行警告。
 
 	            var oldOptionBackup = this._optionBackup;
 	            var newParsedOption = parseRawOption.call(
@@ -5977,7 +5977,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var optionBackup = this._optionBackup;
 
 	            // TODO
-	            // 如果没有reset功能则不clone。
+	            // 如果没有reset功能则�?clone。
 
 	            this._timelineOptions = map(optionBackup.timelineOptions, clone);
 	            this._mediaList = map(optionBackup.mediaList, clone);
@@ -6042,7 +6042,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 
 	            // FIXME
-	            // 是否mediaDefault应该强制用户设置，否则可能修改不能回归。
+	            // 是�?�mediaDefault应该强制用户设置，�?�则�?�能修改�?能回归。
 	            if (!indices.length && mediaDefault) {
 	                indices = [-1];
 	            }
@@ -6505,7 +6505,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * Group是一个容器，可以插入子节点，Group的变换也会被应用到子节点上
+	 * Group是一个容器，�?�以�?�入�?节点，Group的�?��?�也会被应用到�?节点上
 	 * @module zrender/graphic/Group
 	 * @example
 	 *     var Group = require('zrender/lib/container/Group');
@@ -6561,7 +6561,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        type: 'group',
 
 	        /**
-	         * 所有子孙元素是否响应鼠标事件
+	         * 所有�?孙元素是�?��?应鼠标事件
 	         * @name module:/zrender/container/Group#silent
 	         * @type {boolean}
 	         * @default false
@@ -6576,7 +6576,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 获取指定 index 的儿子节点
+	         * 获�?�指定 index 的儿�?节点
 	         * @param  {number} idx
 	         * @return {module:zrender/Element}
 	         */
@@ -6585,7 +6585,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 获取指定名字的儿子节点
+	         * 获�?�指定�??字的儿�?节点
 	         * @param  {string} name
 	         * @return {module:zrender/Element}
 	         */
@@ -6606,7 +6606,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 添加子节点到最后
+	         * 添加�?节点到最�?�
 	         * @param {module:zrender/Element} child
 	         */
 	        add: function (child) {
@@ -6621,7 +6621,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 添加子节点在 nextSibling 之前
+	         * 添加�?节点在 nextSibling 之�?
 	         * @param {module:zrender/Element} child
 	         * @param {module:zrender/Element} nextSibling
 	         */
@@ -6663,7 +6663,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 移除子节点
+	         * 移除�?节点
 	         * @param {module:zrender/Element} child
 	         */
 	        remove: function (child) {
@@ -6694,7 +6694,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 移除所有子节点
+	         * 移除所有�?节点
 	         */
 	        removeAll: function () {
 	            var children = this._children;
@@ -6717,7 +6717,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 遍历所有子节点
+	         * �??历所有�?节点
 	         * @param  {Function} cb
 	         * @param  {}   context
 	         */
@@ -6731,7 +6731,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 深度优先遍历所有子孙节点
+	         * 深度优先�??历所有�?孙节点
 	         * @param  {Function} cb
 	         * @param  {}   context
 	         */
@@ -6858,14 +6858,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        type: 'element',
 
 	        /**
-	         * 元素名字
+	         * 元素�??字
 	         * Element name
 	         * @type {string}
 	         */
 	        name: '',
 
 	        /**
-	         * ZRender 实例对象，会在 element 添加到 zrender 实例中后自动赋值
+	         * ZRender 实例对象，会在 element 添加到 zrender 实例中�?�自动赋值
 	         * ZRender instance will be assigned when element is associated with zrender
 	         * @name module:/zrender/Element#__zr
 	         * @type {module:zrender/ZRender}
@@ -6873,7 +6873,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        __zr: null,
 
 	        /**
-	         * 图形是否忽略，为true时忽略图形的绘制以及事件触发
+	         * 图形是�?�忽略，为true时忽略图形的绘制以�?�事件触�?�
 	         * If ignore drawing and events of the element object
 	         * @name module:/zrender/Element#ignore
 	         * @type {boolean}
@@ -6882,8 +6882,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        ignore: false,
 
 	        /**
-	         * 用于裁剪的路径(shape)，所有 Group 内的路径在绘制时都会被这个路径裁剪
-	         * 该路径会继承被裁减对象的变换
+	         * 用于�?剪的路径(shape)，所有 Group 内的路径在绘制时都会被这个路径�?剪
+	         * 该路径会继承被�?�?对象的�?��?�
 	         * @type {module:zrender/graphic/Path}
 	         * @see http://www.w3.org/TR/2dcontext/#clipping-region
 	         * @readOnly
@@ -7084,7 +7084,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports) {
 
 	/**
-	 * zrender: 生成唯一id
+	 * zrender: 生�?唯一id
 	 *
 	 * @author errorrik (errorrik@gmail.com)
 	 */
@@ -7115,7 +7115,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var indexOf = zrUtil.indexOf;
 
 	    /**
-	     * 事件分发器
+	     * 事件分�?�器
 	     * @alias module:zrender/mixin/Eventful
 	     * @constructor
 	     */
@@ -7128,10 +7128,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        constructor: Eventful,
 
 	        /**
-	         * 单次触发绑定，trigger后销毁
+	         * �?�次触�?�绑定，trigger�?�销�?
 	         *
-	         * @param {string} event 事件名
-	         * @param {Function} handler 响应函数
+	         * @param {string} event 事件�??
+	         * @param {Function} handler �?应函数
 	         * @param {Object} context
 	         */
 	        one: function (event, handler, context) {
@@ -7160,8 +7160,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        /**
 	         * 绑定事件
-	         * @param {string} event 事件名
-	         * @param {Function} handler 事件处理函数
+	         * @param {string} event 事件�??
+	         * @param {Function} handler 事件处�?�函数
 	         * @param {Object} [context]
 	         */
 	        on: function (event, handler, context) {
@@ -7185,7 +7185,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 是否绑定了事件
+	         * 是�?�绑定了事件
 	         * @param  {string}  event
 	         * @return {boolean}
 	         */
@@ -7196,8 +7196,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        /**
 	         * 解绑事件
-	         * @param {string} event 事件名
-	         * @param {Function} [handler] 事件处理函数
+	         * @param {string} event 事件�??
+	         * @param {Function} [handler] 事件处�?�函数
 	         */
 	        off: function (event, handler) {
 	            var _h = this._$handlers;
@@ -7230,7 +7230,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 事件分发
+	         * 事件分�?�
 	         *
 	         * @param {string} type 事件类型
 	         */
@@ -7277,7 +7277,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 带有context的事件分发, 最后一个参数是事件回调的context
+	         * 带有context的事件分�?�, 最�?�一个�?�数是事件回调的context
 	         * @param {string} type 事件类型
 	         */
 	        triggerWithContext: function (type) {
@@ -7324,7 +7324,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 
-	    // 对象可以通过 onxxxx 绑定事件
+	    // 对象�?�以通过 onxxxx 绑定事件
 	    /**
 	     * @event module:zrender/mixin/Eventful#onclick
 	     * @type {Function}
@@ -7401,7 +7401,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 	/**
-	 * 提供变换扩展
+	 * �??供�?��?�扩展
 	 * @module zrender/mixin/Transformable
 	 * @author pissang (https://www.github.com/pissang)
 	 */
@@ -7460,8 +7460,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    transformableProto.transform = null;
 
 	    /**
-	     * 判断是否需要有坐标变换
-	     * 如果有坐标变换, 则从position, rotation, scale以及父节点的transform计算出自身的transform矩阵
+	     * 判断是�?�需�?有�??标�?��?�
+	     * 如果有�??标�?��?�, 则从position, rotation, scale以�?�父节点的transform计算出自身的transform矩阵
 	     */
 	    transformableProto.needLocalTransform = function () {
 	        return isNotAroundZero(this.rotation)
@@ -7491,7 +7491,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            mIdentity(m);
 	        }
 
-	        // 应用父节点变换
+	        // 应用父节点�?��?�
 	        if (parentHasTransform) {
 	            if (needLocalTransform) {
 	                matrix.mul(m, parent.transform, m);
@@ -7500,7 +7500,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                matrix.copy(m, parent.transform);
 	            }
 	        }
-	        // 保存这个变换矩阵
+	        // �?存这个�?��?�矩阵
 	        this.transform = m;
 
 	        this.invTransform = this.invTransform || matrix.create();
@@ -7606,7 +7606,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return [sx, sy];
 	    };
 	    /**
-	     * 变换坐标位置到 shape 的局部坐标空间
+	     * �?��?��??标�?置到 shape 的局部�??标空间
 	     * @method
 	     * @param {number} x
 	     * @param {number} y
@@ -7622,7 +7622,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    /**
-	     * 变换局部坐标位置到全局坐标空间
+	     * �?��?�局部�??标�?置到全局�??标空间
 	     * @method
 	     * @param {number} x
 	     * @param {number} y
@@ -7678,8 +7678,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        /**
 	         * 动画
 	         *
-	         * @param {string} path 需要添加动画的属性获取路径，可以通过a.b.c来获取深层的属性
-	         * @param {boolean} [loop] 动画是否循环
+	         * @param {string} path 需�?添加动画的属性获�?�路径，�?�以通过a.b.c�?�获�?�深层的属性
+	         * @param {boolean} [loop] 动画是�?�循环
 	         * @return {module:zrender/animation/Animator}
 	         * @example:
 	         *     el.animate('style', false)
@@ -7744,7 +7744,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 停止动画
+	         * �?�止动画
 	         * @param {boolean} forwardToLast If move to last frame before stop
 	         */
 	        stopAnimation: function (forwardToLast) {
@@ -8376,7 +8376,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Animator.prototype = {
 	        /**
 	         * 设置动画关键帧
-	         * @param  {number} time 关键帧时间，单位是ms
+	         * @param  {number} time 关键帧时间，�?��?是ms
 	         * @param  {Object} props 关键帧的属性值，key-value表示
 	         * @return {module:zrender/animation/Animator}
 	         */
@@ -8410,7 +8410,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return this;
 	        },
 	        /**
-	         * 添加动画每一帧的回调函数
+	         * 添加动画�?一帧的回调函数
 	         * @param  {Function} callback
 	         * @return {module:zrender/animation/Animator}
 	         */
@@ -8434,7 +8434,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        /**
 	         * 开始执行动画
 	         * @param  {string|Function} easing
-	         *         动画缓动函数，详见{@link module:zrender/animation/easing}
+	         *         动画缓动函数，详�?{@link module:zrender/animation/easing}
 	         * @return {module:zrender/animation/Animator}
 	         */
 	        start: function (easing) {
@@ -8486,7 +8486,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return this;
 	        },
 	        /**
-	         * 停止动画
+	         * �?�止动画
 	         * @param {boolean} forwardToLast If move to last frame before stop
 	         */
 	        stop: function (forwardToLast) {
@@ -8504,7 +8504,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 	        /**
 	         * 设置动画延迟开始的时间
-	         * @param  {number} time 单位ms
+	         * @param  {number} time �?��?ms
 	         * @return {module:zrender/animation/Animator}
 	         */
 	        delay: function (time) {
@@ -8512,7 +8512,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return this;
 	        },
 	        /**
-	         * 添加动画结束的回调
+	         * 添加动画结�?�的回调
 	         * @param  {Function} cb
 	         * @return {module:zrender/animation/Animator}
 	         */
@@ -8540,7 +8540,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	/**
 	 * 动画主控制器
-	 * @config target 动画对象，可以是数组，如果是数组的话会批量分发onframe等事件
+	 * @config target 动画对象，�?�以是数组，如果是数组的�?会批�?分�?�onframe等事件
 	 * @config life(1000) 动画时长
 	 * @config delay(0) 动画延迟时间
 	 * @config loop(true)
@@ -8565,10 +8565,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // 延时
 	        this._delay = options.delay || 0;
 	        // 开始时间
-	        // this._startTime = new Date().getTime() + this._delay;// 单位毫秒
+	        // this._startTime = new Date().getTime() + this._delay;// �?��?毫秒
 	        this._initialized = false;
 
-	        // 是否循环
+	        // 是�?�循环
 	        this.loop = options.loop == null ? false : options.loop;
 
 	        this.gap = options.gap || 0;
@@ -8609,17 +8609,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            this.fire('frame', schedule);
 
-	            // 结束
+	            // 结�?�
 	            if (percent == 1) {
 	                if (this.loop) {
 	                    this.restart();
-	                    // 重新开始周期
-	                    // 抛出而不是直接调用事件直到 stage.update 后再统一调用这些事件
+	                    // �?新开始周期
+	                    // 抛出而�?是直接调用事件直到 stage.update �?��?统一调用这些事件
 	                    return 'restart';
 	                }
 
-	                // 动画完成将这个控制器标识为待删除
-	                // 在Animation.update中进行批量删除
+	                // 动画完�?将这个控制器标识为待删除
+	                // 在Animation.update中进行批�?删除
 	                this._needsRemove = true;
 	                return 'destroy';
 	            }
@@ -8652,7 +8652,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports) {
 
 	/**
-	 * 缓动代码来自 https://github.com/sole/tween.js/blob/master/src/Tween.js
+	 * 缓动代�?�?�自 https://github.com/sole/tween.js/blob/master/src/Tween.js
 	 * @see http://sole.github.io/tween.js/examples/03_graphs.html
 	 * @exports zrender/animation/easing
 	 */
@@ -8850,7 +8850,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return 0.5 * (Math.sqrt(1 - (k -= 2) * k) + 1);
 	        },
 
-	        // 创建类似于弹簧在停止前来回振荡的动画
+	        // 创建类似于弹簧在�?�止�?�?�回振�?�的动画
 	        /**
 	        * @param {number} k
 	        * @return {number}
@@ -8926,7 +8926,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        },
 
-	        // 在某一动画开始沿指示的路径进行动画处理前稍稍收回该动画的移动
+	        // 在�?一动画开始沿指示的路径进行动画处�?��?�?�?收回该动画的移动
 	        /**
 	        * @param {number} k
 	        * @return {number}
@@ -9529,20 +9529,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	        dpr = Math.max(window.devicePixelRatio || 1, 1);
 	    }
 	    /**
-	     * config默认配置项
+	     * config默认�?置项
 	     * @exports zrender/config
 	     * @author Kener (@Kener-林峰, kener.linfeng@gmail.com)
 	     */
 	    var config = {
 	        /**
 	         * debug日志选项：catchBrushException为true下有效
-	         * 0 : 不生成debug数据，发布用
+	         * 0 : �?生�?debug数�?�，�?�布用
 	         * 1 : 异常抛出，调试用
-	         * 2 : 控制台输出，调试用
+	         * 2 : 控制�?�输出，调试用
 	         */
 	        debugMode: 0,
 
-	        // retina 屏幕优化
+	        // retina �?幕优化
 	        devicePixelRatio: dpr
 	    };
 	    module.exports = config;
@@ -10919,7 +10919,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        zrUtil.inherits(Sub, Path);
 
-	        // FIXME 不能 extend position, rotation 等引用对象
+	        // FIXME �?能 extend position, rotation 等引用对象
 	        for (var name in defaults) {
 	            // Extending prototype values and methods
 	            if (name !== 'style' && name !== 'shape') {
@@ -10940,7 +10940,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * 可绘制的图形基类
+	 * �?�绘制的图形基类
 	 * Base class of all displayable graphic objects
 	 * @module zrender/graphic/Displayable
 	 */
@@ -10996,7 +10996,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        type: 'displayable',
 
 	        /**
-	         * Displayable 是否为脏，Painter 中会根据该标记判断是否需要是否需要重新绘制
+	         * Displayable 是�?�为�?，Painter 中会根�?�该标记判断是�?�需�?是�?�需�?�?新绘制
 	         * Dirty flag. From which painter will determine if this displayable object needs brush
 	         * @name module:zrender/graphic/Displayable#__dirty
 	         * @type {boolean}
@@ -11004,7 +11004,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        __dirty: true,
 
 	        /**
-	         * 图形是否可见，为true时不绘制图形，但是仍能触发鼠标事件
+	         * 图形是�?��?��?，为true时�?绘制图形，但是�?能触�?�鼠标事件
 	         * If ignore drawing of the displayable object. Mouse event will still be triggered
 	         * @name module:/zrender/graphic/Displayable#invisible
 	         * @type {boolean}
@@ -11035,7 +11035,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        zlevel: 0,
 
 	        /**
-	         * 是否可拖拽
+	         * 是�?��?�拖拽
 	         * @name module:/zrender/graphic/Displayable#draggable
 	         * @type {boolean}
 	         * @default false
@@ -11043,7 +11043,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        draggable: false,
 
 	        /**
-	         * 是否正在拖拽
+	         * 是�?�正在拖拽
 	         * @name module:/zrender/graphic/Displayable#draggable
 	         * @type {boolean}
 	         * @default false
@@ -11051,7 +11051,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        dragging: false,
 
 	        /**
-	         * 是否相应鼠标事件
+	         * 是�?�相应鼠标事件
 	         * @name module:/zrender/graphic/Displayable#silent
 	         * @type {boolean}
 	         * @default false
@@ -11091,14 +11091,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        brush: function (ctx) {},
 
 	        /**
-	         * 获取最小包围盒
+	         * 获�?�最�?包围盒
 	         * @return {module:zrender/core/BoundingRect}
 	         */
 	        // Interface
 	        getBoundingRect: function () {},
 
 	        /**
-	         * 判断坐标 x, y 是否在图形上
+	         * 判断�??标 x, y 是�?�在图形上
 	         * If displayable element contain coord x, y
 	         * @param  {number} x
 	         * @param  {number} y
@@ -11117,7 +11117,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 判断坐标 x, y 是否在图形的包围盒上
+	         * 判断�??标 x, y 是�?�在图形的包围盒上
 	         * If bounding rect of element contain coord x, y
 	         * @param  {number} x
 	         * @param  {number} y
@@ -11130,7 +11130,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 标记图形元素为脏，并且在下一帧重绘
+	         * 标记图形元素为�?，并且在下一帧�?绘
 	         * Mark displayable element dirty and refresh next frame
 	         */
 	        dirty: function () {
@@ -11142,7 +11142,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 图形是否会触发事件
+	         * 图形是�?�会触�?�事件
 	         * If displayable object binded any event
 	         * @return {boolean}
 	         */
@@ -11602,8 +11602,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 	/**
-	 * Path 代理，可以在`buildPath`中用于替代`ctx`, 会保存每个path操作的命令到pathCommands属性中
-	 * 可以用于 isInsidePath 判断以及获取boundingRect
+	 * Path 代�?�，�?�以在`buildPath`中用于替代`ctx`, 会�?存�?个path�?作的命令到pathCommands属性中
+	 * �?�以用于 isInsidePath 判断以�?�获�?�boundingRect
 	 *
 	 * @module zrender/core/PathProxy
 	 * @author Yi Shen (http://www.github.com/pissang)
@@ -11670,7 +11670,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    /**
-	     * 快速计算Path包围盒（并不是最小包围盒）
+	     * 快速计算Path包围盒（并�?是最�?包围盒）
 	     * @return {Object}
 	     */
 	    PathProxy.prototype = {
@@ -11728,9 +11728,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._ctx && this._ctx.moveTo(x, y);
 
 	            // x0, y0, xi, yi 是记录在 _dashedXXXXTo 方法中使用
-	            // xi, yi 记录当前点, x0, y0 在 closePath 的时候回到起始点。
-	            // 有可能在 beginPath 之后直接调用 lineTo，这时候 x0, y0 需要
-	            // 在 lineTo 方法中记录，这里先不考虑这种情况，dashed line 也只在 IE10- 中不支持
+	            // xi, yi 记录当�?点, x0, y0 在 closePath 的时候回到起始点。
+	            // 有�?�能在 beginPath 之�?�直接调用 lineTo，这时候 x0, y0 需�?
+	            // 在 lineTo 方法中记录，这里先�?考虑这�?情况，dashed line 也�?�在 IE10- 中�?支�?
 	            this._x0 = x;
 	            this._y0 = y;
 
@@ -11858,8 +11858,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * Context 从外部传入，因为有可能是 rebuildPath 完之后再 fill。
-	         * stroke 同样
+	         * Context 从外部传入，因为有�?�能是 rebuildPath 完之�?��? fill。
+	         * stroke �?�样
 	         * @param {CanvasRenderingContext2D} ctx
 	         * @return {module:zrender/core/PathProxy}
 	         */
@@ -11878,7 +11878,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 必须在其它绘制命令前调用
+	         * 必须在其它绘制命令�?调用
 	         * Must be invoked before all other path drawing methods
 	         * @return {module:zrender/core/PathProxy}
 	         */
@@ -11898,7 +11898,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 必须在其它绘制命令前调用
+	         * 必须在其它绘制命令�?调用
 	         * Must be invoked before all other path drawing methods
 	         * @return {module:zrender/core/PathProxy}
 	         */
@@ -11916,7 +11916,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 直接设置 Path 数据
+	         * 直接设置 Path 数�?�
 	         */
 	        setData: function (data) {
 
@@ -11934,7 +11934,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 添加子路径
+	         * 添加�?路径
 	         * @param {module:zrender/core/PathProxy|Array.<module:zrender/core/PathProxy>} path
 	         */
 	        appendPath: function (path) {
@@ -11960,14 +11960,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 填充 Path 数据。
-	         * 尽量复用而不申明新的数组。大部分图形重绘的指令数据长度都是不变的。
+	         * 填充 Path 数�?�。
+	         * 尽�?�?用而�?申明新的数组。大部分图形�?绘的指令数�?�长度都是�?�?�的。
 	         */
 	        addData: function (cmd) {
 	            var data = this.data;
 	            if (this._len + arguments.length > data.length) {
-	                // 因为之前的数组已经转换成静态的 Float32Array
-	                // 所以不够用时需要扩展一个新的动态数组
+	                // 因为之�?的数组已�?转�?��?�?��?的 Float32Array
+	                // 所以�?够用时需�?扩展一个新的动�?数组
 	                this._expandData();
 	                data = this.data;
 	            }
@@ -12126,7 +12126,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 转成静态的 Float32Array 减少堆内存占用
+	         * 转�?�?��?的 Float32Array �?少堆内存�?�用
 	         * Convert dynamic array to static Float32Array
 	         */
 	        toStatic: function () {
@@ -12157,9 +12157,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                if (i == 1) {
 	                    // 如果第一个命令是 L, C, Q
-	                    // 则 previous point 同绘制命令的第一个 point
+	                    // 则 previous point �?�绘制命令的第一个 point
 	                    //
-	                    // 第一个命令为 Arc 的情况下会在后面特殊处理
+	                    // 第一个命令为 Arc 的情况下会在�?��?�特殊处�?�
 	                    xi = data[i];
 	                    yi = data[i + 1];
 
@@ -12169,7 +12169,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                switch (cmd) {
 	                    case CMD.M:
-	                        // moveTo 命令重新创建一个新的 subpath, 并且更新新的起点
+	                        // moveTo 命令�?新创建一个新的 subpath, 并且更新新的起点
 	                        // 在 closePath 的时候使用
 	                        x0 = data[i++];
 	                        y0 = data[i++];
@@ -12275,9 +12275,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                if (i == 1) {
 	                    // 如果第一个命令是 L, C, Q
-	                    // 则 previous point 同绘制命令的第一个 point
+	                    // 则 previous point �?�绘制命令的第一个 point
 	                    //
-	                    // 第一个命令为 Arc 的情况下会在后面特殊处理
+	                    // 第一个命令为 Arc 的情况下会在�?��?�特殊处�?�
 	                    xi = d[i];
 	                    yi = d[i + 1];
 
@@ -12373,7 +12373,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 	/**
-	 * 曲线辅助模块
+	 * 曲线辅助模�?�
 	 * @module zrender/core/curve
 	 * @author pissang(https://www.github.com/pissang)
 	 */
@@ -12391,7 +12391,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var THREE_SQRT = mathSqrt(3);
 	    var ONE_THIRD = 1 / 3;
 
-	    // 临时变量
+	    // 临时�?��?
 	    var _v0 = v2Create();
 	    var _v1 = v2Create();
 	    var _v2 = v2Create();
@@ -12404,7 +12404,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return val > EPSILON || val < -EPSILON;
 	    }
 	    /**
-	     * 计算三次贝塞尔值
+	     * 计算三次�?塞尔值
 	     * @memberOf module:zrender/core/curve
 	     * @param  {number} p0
 	     * @param  {number} p1
@@ -12420,7 +12420,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 计算三次贝塞尔导数值
+	     * 计算三次�?塞尔导数值
 	     * @memberOf module:zrender/core/curve
 	     * @param  {number} p0
 	     * @param  {number} p1
@@ -12438,7 +12438,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 计算三次贝塞尔方程根，使用盛金公式
+	     * 计算三次�?塞尔方程根，使用盛金公�?
 	     * @memberOf module:zrender/core/curve
 	     * @param  {number} p0
 	     * @param  {number} p1
@@ -12531,7 +12531,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 计算三次贝塞尔方程极限值的位置
+	     * 计算三次�?塞尔方程�?�?值的�?置
 	     * @memberOf module:zrender/core/curve
 	     * @param  {number} p0
 	     * @param  {number} p1
@@ -12575,7 +12575,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 细分三次贝塞尔曲线
+	     * 细分三次�?塞尔曲线
 	     * @memberOf module:zrender/core/curve
 	     * @param  {number} p0
 	     * @param  {number} p1
@@ -12606,8 +12606,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 投射点到三次贝塞尔曲线上，返回投射距离。
-	     * 投射点有可能会有一个或者多个，这里只返回其中距离最短的一个。
+	     * 投射点到三次�?塞尔曲线上，返回投射�?离。
+	     * 投射点有�?�能会有一个或者多个，这里�?�返回其中�?离最短的一个。
 	     * @param {number} x0
 	     * @param {number} y0
 	     * @param {number} x1
@@ -12637,7 +12637,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _v0[0] = x;
 	        _v0[1] = y;
 
-	        // 先粗略估计一下可能的最小距离的 t 值
+	        // 先粗略估计一下�?�能的最�?�?离的 t 值
 	        // PENDING
 	        for (var _t = 0; _t < 1; _t += 0.05) {
 	            _v1[0] = cubicAt(x0, x1, x2, x3, _t);
@@ -12692,7 +12692,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 计算二次方贝塞尔值
+	     * 计算二次方�?塞尔值
 	     * @param  {number} p0
 	     * @param  {number} p1
 	     * @param  {number} p2
@@ -12705,7 +12705,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 计算二次方贝塞尔导数值
+	     * 计算二次方�?塞尔导数值
 	     * @param  {number} p0
 	     * @param  {number} p1
 	     * @param  {number} p2
@@ -12717,7 +12717,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 计算二次方贝塞尔方程根
+	     * 计算二次方�?塞尔方程根
 	     * @param  {number} p0
 	     * @param  {number} p1
 	     * @param  {number} p2
@@ -12763,7 +12763,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 计算二次贝塞尔方程极限值
+	     * 计算二次�?塞尔方程�?�?值
 	     * @memberOf module:zrender/core/curve
 	     * @param  {number} p0
 	     * @param  {number} p1
@@ -12782,7 +12782,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 细分二次贝塞尔曲线
+	     * 细分二次�?塞尔曲线
 	     * @memberOf module:zrender/core/curve
 	     * @param  {number} p0
 	     * @param  {number} p1
@@ -12807,8 +12807,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 投射点到二次贝塞尔曲线上，返回投射距离。
-	     * 投射点有可能会有一个或者多个，这里只返回其中距离最短的一个。
+	     * 投射点到二次�?塞尔曲线上，返回投射�?离。
+	     * 投射点有�?�能会有一个或者多个，这里�?�返回其中�?离最短的一个。
 	     * @param {number} x0
 	     * @param {number} y0
 	     * @param {number} x1
@@ -12832,7 +12832,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _v0[0] = x;
 	        _v0[1] = y;
 
-	        // 先粗略估计一下可能的最小距离的 t 值
+	        // 先粗略估计一下�?�能的最�?�?离的 t 值
 	        // PENDING
 	        for (var _t = 0; _t < 1; _t += 0.05) {
 	            _v1[0] = quadraticAt(x0, x1, x2, _t);
@@ -12937,7 +12937,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    var PI2 = Math.PI * 2;
 	    /**
-	     * 从顶点数组中计算出最小包围盒，写入`min`和`max`中
+	     * 从顶点数组中计算出最�?包围盒，写入`min`和`max`中
 	     * @module zrender/core/bbox
 	     * @param {Array<Object>} points 顶点数组
 	     * @param {number} min
@@ -12987,7 +12987,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var xDim = [];
 	    var yDim = [];
 	    /**
-	     * 从三阶贝塞尔曲线(p0, p1, p2, p3)中计算出最小包围盒，写入`min`和`max`中
+	     * 从三阶�?塞尔曲线(p0, p1, p2, p3)中计算出最�?包围盒，写入`min`和`max`中
 	     * @memberOf module:zrender/core/bbox
 	     * @param {number} x0
 	     * @param {number} y0
@@ -13036,7 +13036,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    /**
-	     * 从二阶贝塞尔曲线(p0, p1, p2)中计算出最小包围盒，写入`min`和`max`中
+	     * 从二阶�?塞尔曲线(p0, p1, p2)中计算出最�?包围盒，写入`min`和`max`中
 	     * @memberOf module:zrender/core/bbox
 	     * @param {number} x0
 	     * @param {number} y0
@@ -13070,7 +13070,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    /**
-	     * 从圆弧中计算出最小包围盒，写入`min`和`max`中
+	     * 从圆弧中计算出最�?包围盒，写入`min`和`max`中
 	     * @method
 	     * @memberOf module:zrender/core/bbox
 	     * @param {number} x
@@ -13219,7 +13219,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }
 	                }
 	                if (nExtrema == 2) {
-	                    // 分成三段单调函数
+	                    // 分�?三段�?�调函数
 	                    if (t < extrema[0]) {
 	                        w += y0_ < y0 ? 1 : -1;
 	                    }
@@ -13231,7 +13231,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }
 	                }
 	                else {
-	                    // 分成两段单调函数
+	                    // 分�?两段�?�调函数
 	                    if (t < extrema[0]) {
 	                        w += y0_ < y0 ? 1 : -1;
 	                    }
@@ -13365,7 +13365,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                if (!isStroke) {
 	                    w += windingLine(xi, yi, x0, y0, x, y);
 	                }
-	                // 如果被任何一个 subpath 包含
+	                // 如果被任何一个 subpath 包�?�
 	                if (w !== 0) {
 	                    return true;
 	                }
@@ -13373,9 +13373,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            if (i == 1) {
 	                // 如果第一个命令是 L, C, Q
-	                // 则 previous point 同绘制命令的第一个 point
+	                // 则 previous point �?�绘制命令的第一个 point
 	                //
-	                // 第一个命令为 Arc 的情况下会在后面特殊处理
+	                // 第一个命令为 Arc 的情况下会在�?��?�特殊处�?�
 	                xi = data[i];
 	                yi = data[i + 1];
 
@@ -13385,7 +13385,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            switch (cmd) {
 	                case CMD.M:
-	                    // moveTo 命令重新创建一个新的 subpath, 并且更新新的起点
+	                    // moveTo 命令�?新创建一个新的 subpath, 并且更新新的起点
 	                    // 在 closePath 的时候使用
 	                    x0 = data[i++];
 	                    y0 = data[i++];
@@ -13456,7 +13456,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    var anticlockwise = 1 - data[i++];
 	                    var x1 = Math.cos(theta) * rx + cx;
 	                    var y1 = Math.sin(theta) * ry + cy;
-	                    // 不是直接使用 arc 命令
+	                    // �?是直接使用 arc 命令
 	                    if (i > 1) {
 	                        w += windingLine(xi, yi, x1, y1, x, y);
 	                    }
@@ -13465,7 +13465,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        x0 = x1;
 	                        y0 = y1;
 	                    }
-	                    // zr 使用scale来模拟椭圆, 这里也对x做一定的缩放
+	                    // zr 使用scale�?�模拟椭圆, 这里也对x�?�一定的缩放
 	                    var _x = (x - cx) * ry / rx + cx;
 	                    if (isStroke) {
 	                        if (arc.containStroke(
@@ -13517,7 +13517,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    else {
 	                        // Close a subpath
 	                        w += windingLine(xi, yi, x0, y0, x, y);
-	                        // 如果被任何一个 subpath 包含
+	                        // 如果被任何一个 subpath 包�?�
 	                        if (w !== 0) {
 	                            return true;
 	                        }
@@ -13551,7 +13551,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    module.exports = {
 	        /**
-	         * 线段包含判断
+	         * 线段包�?�判断
 	         * @param  {number}  x0
 	         * @param  {number}  y0
 	         * @param  {number}  x1
@@ -13602,7 +13602,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    module.exports = {
 	        /**
-	         * 三次贝塞尔曲线描边包含判断
+	         * 三次�?塞尔曲线�??边包�?�判断
 	         * @param  {number}  x0
 	         * @param  {number}  y0
 	         * @param  {number}  x1
@@ -13649,7 +13649,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    module.exports = {
 	        /**
-	         * 二次贝塞尔曲线描边包含判断
+	         * 二次�?塞尔曲线�??边包�?�判断
 	         * @param  {number}  x0
 	         * @param  {number}  y0
 	         * @param  {number}  x1
@@ -13695,7 +13695,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    module.exports = {
 	        /**
-	         * 圆弧描边包含判断
+	         * 圆弧�??边包�?�判断
 	         * @param  {number}  cx
 	         * @param  {number}  cy
 	         * @param  {number}  r
@@ -13970,7 +13970,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 
 	            if (image) {
-	                // 图片已经加载完成
+	                // 图片已�?加载完�?
 	                // if (image.nodeName.toUpperCase() == 'IMG') {
 	                //     if (!image.complete) {
 	                //         return;
@@ -14026,7 +14026,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    ctx.drawImage(image, x, y, width, height);
 	                }
 
-	                // 如果没设置宽和高的话自动根据图片宽高设置
+	                // 如果没设置宽和高的�?自动根�?�图片宽高设置
 	                if (style.width == null) {
 	                    style.width = width;
 	                }
@@ -14665,7 +14665,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * Catmull-Rom spline 插值折线
+	 * Catmull-Rom spline �?�值折线
 	 * @module zrender/shape/util/smoothSpline
 	 * @author pissang (https://www.github.com/pissang)
 	 *         Kener (@Kener-林峰, kener.linfeng@gmail.com)
@@ -14741,7 +14741,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * 贝塞尔平滑曲线
+	 * �?塞尔平滑曲线
 	 * @module zrender/shape/util/smoothBezier
 	 * @author pissang (https://www.github.com/pissang)
 	 *         Kener (@Kener-林峰, kener.linfeng@gmail.com)
@@ -14757,15 +14757,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var v2Add = vec2.add;
 
 	    /**
-	     * 贝塞尔平滑曲线
+	     * �?塞尔平滑曲线
 	     * @alias module:zrender/shape/util/smoothBezier
 	     * @param {Array} points 线段顶点数组
 	     * @param {number} smooth 平滑等级, 0-1
 	     * @param {boolean} isLoop
-	     * @param {Array} constraint 将计算出来的控制点约束在一个包围盒内
+	     * @param {Array} constraint 将计算出�?�的控制点约�?�在一个包围盒内
 	     *                           比如 [[0, 0], [100, 100]], 这个包围盒会与
-	     *                           整个折线的包围盒做一个并集用来约束控制点。
-	     * @param {Array} 计算出来的控制点数组
+	     *                           整个折线的包围盒�?�一个并集用�?�约�?�控制点。
+	     * @param {Array} 计算出�?�的控制点数组
 	     */
 	    module.exports = function (points, smooth, isLoop, constraint) {
 	        var cps = [];
@@ -14784,7 +14784,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                v2Min(min, min, points[i]);
 	                v2Max(max, max, points[i]);
 	            }
-	            // 与指定的包围盒做并集
+	            // 与指定的包围盒�?�并集
 	            v2Min(min, min, constraint[0]);
 	            v2Max(max, max, constraint[1]);
 	        }
@@ -14895,7 +14895,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        type: 'rect',
 
 	        shape: {
-	            // 左上、右上、右下、左下角的半径依次为r1、r2、r3、r4
+	            // 左上�?�?�上�?�?�下�?左下角的�?�径�?次为r1�?r2�?r3�?r4
 	            // r缩写为1         相当于 [1, 1, 1, 1]
 	            // r缩写为[1]       相当于 [1, 1, 1, 1]
 	            // r缩写为[1, 2]    相当于 [1, 2, 1, 2]
@@ -14997,7 +14997,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 	/**
-	 * 贝塞尔曲线
+	 * �?塞尔曲线
 	 * @module zrender/shape/BezierCurve
 	 */
 
@@ -15480,7 +15480,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	         */
 	        this._needsRefresh;
 
-	        // 修改 storage.delFromMap, 每次删除元素之前删除动画
+	        // 修改 storage.delFromMap, �?次删除元素之�?删除动画
 	        // FIXME 有点ugly
 	        var oldDelFromMap = storage.delFromMap;
 	        var oldAddToMap = storage.addToMap;
@@ -15504,7 +15504,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        constructor: ZRender,
 	        /**
-	         * 获取实例唯一标识
+	         * 获�?�实例唯一标识
 	         * @return {string}
 	         */
 	        getId: function () {
@@ -15695,7 +15695,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * echarts设备环境识别
 	 *
-	 * @desc echarts基于Canvas，纯Javascript图表库，提供直观，生动，可交互，可个性化定制的数据统计图表。
+	 * @desc echarts基于Canvas，纯Javascript图表库，�??供直观，生动，�?�交互，�?�个性化定制的数�?�统计图表。
 	 * @author firede[firede@firede.us]
 	 * @desc thanks zepto.
 	 */
@@ -15733,7 +15733,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var touchpad = webos && ua.match(/TouchPad/);
 	        var kindle = ua.match(/Kindle\/([\d.]+)/);
 	        var silk = ua.match(/Silk\/([\d._]+)/);
-	        var blacourorry = ua.match(/(BlackBerry).*Version\/([\d.]+)/);
+	        var blackberry = ua.match(/(BlackBerry).*Version\/([\d.]+)/);
 	        var bb10 = ua.match(/(BB10).*Version\/([\d.]+)/);
 	        var rimtabletos = ua.match(/(RIM\sTablet\sOS)\s([\d.]+)/);
 	        var playbook = ua.match(/PlayBook/);
@@ -15760,7 +15760,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (ipod) os.ios = os.ipod = true, os.version = ipod[3] ? ipod[3].replace(/_/g, '.') : null;
 	        if (webos) os.webos = true, os.version = webos[2];
 	        if (touchpad) os.touchpad = true;
-	        if (blacourorry) os.blacourorry = true, os.version = blacourorry[2];
+	        if (blackberry) os.blackberry = true, os.version = blackberry[2];
 	        if (bb10) os.bb10 = true, os.version = bb10[2];
 	        if (rimtabletos) os.rimtabletos = true, os.version = rimtabletos[2];
 	        if (playbook) browser.playbook = true;
@@ -15777,7 +15777,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        os.tablet = !!(ipad || playbook || (android && !ua.match(/Mobile/)) ||
 	            (firefox && ua.match(/Tablet/)) || (ie && !ua.match(/Phone/) && ua.match(/Touch/)));
-	        os.phone  = !!(!os.tablet && !os.ipod && (android || iphone || webos || blacourorry || bb10 ||
+	        os.phone  = !!(!os.tablet && !os.ipod && (android || iphone || webos || blackberry || bb10 ||
 	            (chrome && ua.match(/Android/)) || (chrome && ua.match(/CriOS\/([\d.]+)/)) ||
 	            (firefox && ua.match(/Mobile/)) || (ie && ua.match(/Touch/))));
 
@@ -15785,7 +15785,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            browser: browser,
 	            os: os,
 	            node: false,
-	            // 原生canvas支持，改极端点了
+	            // 原生canvas支�?，改�?端点了
 	            // canvasSupported : !(browser.ie && parseFloat(browser.version) < 9)
 	            canvasSupported : document.createElement('canvas').getContext ? true : false,
 	            // @see <http://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript>
@@ -15904,7 +15904,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var element = event.toElement || event.relatedTarget;
 	            if (element != this.root) {
 	                while (element && element.nodeType != 9) {
-	                    // 忽略包含在root中的dom引起的mouseOut
+	                    // 忽略包�?�在root中的dom引起的mouseOut
 	                    if (element === this.root) {
 	                        return;
 	                    }
@@ -15921,7 +15921,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * Touch开始响应函数
+	         * Touch开始�?应函数
 	         * @inner
 	         * @param {Event} event
 	         */
@@ -15935,7 +15935,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            processGesture(this, event, 'start');
 
-	            // 平板补充一次findHover
+	            // 平�?�补充一次findHover
 	            // this._mobileFindFixed(event);
 	            // Trigger mousemove and mousedown
 	            domHandlers.mousemove.call(this, event);
@@ -15946,12 +15946,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * Touch移动响应函数
+	         * Touch移动�?应函数
 	         * @inner
 	         * @param {Event} event
 	         */
 	        touchmove: function (event) {
-	            // eventTool.stop(event);// 阻止浏览器默认事件，重要
+	            // eventTool.stop(event);// 阻止�?览器默认事件，�?�?
 	            event = normalizeEvent(this.root, event);
 
 	            processGesture(this, event, 'change');
@@ -15965,12 +15965,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * Touch结束响应函数
+	         * Touch结�?��?应函数
 	         * @inner
 	         * @param {Event} event
 	         */
 	        touchend: function (event) {
-	            // eventTool.stop(event);// 阻止浏览器默认事件，重要
+	            // eventTool.stop(event);// 阻止�?览器默认事件，�?�?
 	            event = normalizeEvent(this.root, event);
 
 	            processGesture(this, event, 'end');
@@ -16043,7 +16043,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 为控制类实例初始化dom 事件处理函数
+	     * 为控制类实例�?始化dom 事件处�?�函数
 	     *
 	     * @inner
 	     * @param {module:zrender/Handler} instance 控制类实例
@@ -16213,11 +16213,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 事件分发代理
+	         * 事件分�?�代�?�
 	         *
 	         * @private
 	         * @param {Object} targetEl 目标图形元素
-	         * @param {string} eventName 事件名称
+	         * @param {string} eventName 事件�??称
 	         * @param {Object} event 事件对象
 	         */
 	        _dispatchProxy: function (targetEl, eventName, event) {
@@ -16242,8 +16242,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (!eventPacket.cancelBubble) {
 	                // 冒泡到顶级 zrender 对象
 	                this.trigger(eventName, eventPacket);
-	                // 分发事件到用户自定义层
-	                // 用户有可能在全局 click 事件中 dispose，所以需要判断下 painter 是否存在
+	                // 分�?�事件到用户自定义层
+	                // 用户有�?�能在全局 click 事件中 dispose，所以需�?判断下 painter 是�?�存在
 	                this.painter && this.painter.eachOtherLayer(function (layer) {
 	                    if (typeof(layer[eventHandler]) == 'function') {
 	                        layer[eventHandler].call(layer, eventPacket);
@@ -16358,7 +16358,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return el.getBoundingClientRect ? el.getBoundingClientRect() : { left: 0, top: 0};
 	    }
 	    /**
-	     * 如果存在第三方嵌入的一些dom触发的事件，或touch事件，需要转换一下事件坐标
+	     * 如果存在第三方嵌入的一些dom触�?�的事件，或touch事件，需�?转�?�一下事件�??标
 	     */
 	    function normalizeEvent(el, e) {
 
@@ -16383,7 +16383,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            : e.changedTouches[0];
 	            if (touch) {
 	                var rBounding = getBoundingClientRect(el);
-	                // touch事件坐标是全屏的~
+	                // touch事件�??标是全�?的~
 	                e.zrX = touch.clientX - rBounding.left;
 	                e.zrY = touch.clientY - rBounding.top;
 	            }
@@ -16411,7 +16411,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    /**
-	     * 停止冒泡和阻止默认行为
+	     * �?�止冒泡和阻止默认行为
 	     * @memberOf module:zrender/core/event
 	     * @method
 	     * @param {Event} e : event对象
@@ -16433,7 +16433,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        removeEventListener: removeEventListener,
 
 	        stop: stop,
-	        // 做向上兼容
+	        // �?��?�上兼容
 	        Dispatcher: Eventful
 	    };
 
@@ -16656,7 +16656,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 	/**
-	 * Storage内容仓库模块
+	 * Storage内容仓库模�?�
 	 * @module zrender/Storage
 	 * @author Kener (@Kener-林峰, kener.linfeng@gmail.com)
 	 * @author errorrik (errorrik@gmail.com)
@@ -16702,10 +16702,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        /**
 	         * 返回所有图形的绘制队列
-	         * @param {boolean} [update=false] 是否在返回前更新该数组
-	         * @param {boolean} [includeIgnore=false] 是否包含 ignore 的数组, 在 update 为 true 的时候有效
+	         * @param {boolean} [update=false] 是�?�在返回�?更新该数组
+	         * @param {boolean} [includeIgnore=false] 是�?�包�?� ignore 的数组, 在 update 为 true 的时候有效
 	         *
-	         * 详见{@link module:zrender/graphic/Displayable.prototype.updateDisplayList}
+	         * 详�?{@link module:zrender/graphic/Displayable.prototype.updateDisplayList}
 	         * @return {Array.<module:zrender/graphic/Displayable>}
 	         */
 	        getDisplayList: function (update, includeIgnore) {
@@ -16718,9 +16718,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        /**
 	         * 更新图形的绘制队列。
-	         * 每次绘制前都会调用，该方法会先深度优先遍历整个树，更新所有Group和Shape的变换并且把所有可见的Shape保存到数组中，
-	         * 最后根据绘制的优先级（zlevel > z > 插入顺序）排序得到绘制队列
-	         * @param {boolean} [includeIgnore=false] 是否包含 ignore 的数组
+	         * �?次绘制�?都会调用，该方法会先深度优先�??历整个树，更新所有Group和Shape的�?��?�并且把所有�?��?的Shape�?存到数组中，
+	         * 最�?�根�?�绘制的优先级（zlevel > z > �?�入顺�?）排�?得到绘制队列
+	         * @param {boolean} [includeIgnore=false] 是�?�包�?� ignore 的数组
 	         */
 	        updateDisplayList: function (includeIgnore) {
 	            this._displayListLen = 0;
@@ -16752,11 +16752,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            var clipPath = el.clipPath;
 	            if (clipPath) {
-	                // clipPath 的变换是基于 group 的变换
+	                // clipPath 的�?��?�是基于 group 的�?��?�
 	                clipPath.parent = el;
 	                clipPath.updateTransform();
 
-	                // FIXME 效率影响
+	                // FIXME 效率影�?
 	                if (clipPaths) {
 	                    clipPaths = clipPaths.slice();
 	                    clipPaths.push(clipPath);
@@ -16814,7 +16814,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	         */
 	        delRoot: function (elId) {
 	            if (elId == null) {
-	                // 不指定elId清空
+	                // �?指定elId清空
 	                for (var i = 0; i < this._roots.length; i++) {
 	                    var root = this._roots[i];
 	                    if (root instanceof Group) {
@@ -16903,7 +16903,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 	/**
-	 * 动画主类, 调度和管理所有动画控制器
+	 * 动画主类, 调度和管�?�所有动画控制器
 	 *
 	 * @module zrender/animation/Animation
 	 * @author pissang(https://github.com/pissang)
@@ -17064,7 +17064,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        },
 	        /**
-	         * 开始运行动画
+	         * 开始�?行动画
 	         */
 	        start: function () {
 	            var self = this;
@@ -17084,7 +17084,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            requestAnimationFrame(step);
 	        },
 	        /**
-	         * 停止运行动画
+	         * �?�止�?行动画
 	         */
 	        stop: function () {
 	            this._running = false;
@@ -17096,12 +17096,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._clips = [];
 	        },
 	        /**
-	         * 对一个目标创建一个animator对象，可以指定目标中的属性使用动画
+	         * 对一个目标创建一个animator对象，�?�以指定目标中的属性使用动画
 	         * @param  {Object} target
 	         * @param  {Object} options
-	         * @param  {boolean} [options.loop=false] 是否循环播放动画
+	         * @param  {boolean} [options.loop=false] 是�?�循环播放动画
 	         * @param  {Function} [options.getter=null]
-	         *         如果指定getter函数，会通过getter函数取属性值
+	         *         如果指定getter函数，会通过getter函数�?�属性值
 	         * @param  {Function} [options.setter=null]
 	         *         如果指定setter函数，会通过setter函数设置属性值
 	         * @return {module:zrender/animation/Animation~Animator}
@@ -17285,7 +17285,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._domRoot = domRoot;
 	            var domRootStyle = domRoot.style;
 
-	            // domRoot.onselectstart = returnFalse; // 避免页面选中的尴尬
+	            // domRoot.onselectstart = returnFalse; // �?��?页�?�选中的尴尬
 	            domRootStyle.position = 'relative';
 	            domRootStyle.overflow = 'hidden';
 	            domRootStyle.width = this._width + 'px';
@@ -17457,7 +17457,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 获取 zlevel 所在层，如果不存在则会创建一个新的层
+	         * 获�?� zlevel 所在层，如果�?存在则会创建一个新的层
 	         * @param {number} zlevel
 	         * @return {module:zrender/Layer}
 	         */
@@ -17584,7 +17584,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 获取所有已创建的层
+	         * 获�?�所有已创建的层
 	         * @param {Array.<module:zrender/Layer>} [prevLayer]
 	         */
 	        getLayers: function () {
@@ -17608,7 +17608,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var layer = layers[zlevel];
 	                if (layer) {
 	                    layer.elCount++;
-	                    // 已经被标记为需要刷新
+	                    // 已�?被标记为需�?刷新
 	                    if (layer.__dirty) {
 	                        continue;
 	                    }
@@ -17616,7 +17616,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            }
 
-	            // 层中的元素数量有发生变化
+	            // 层中的元素数�?有�?�生�?�化
 	            this.eachBuildinLayer(function (layer, z) {
 	                if (elCounts[z] !== layer.elCount) {
 	                    layer.__dirty = true;
@@ -17637,14 +17637,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 修改指定zlevel的绘制参数
+	         * 修改指定zlevel的绘制�?�数
 	         *
 	         * @param {string} zlevel
-	         * @param {Object} config 配置对象
-	         * @param {string} [config.clearColor=0] 每次清空画布的颜色
-	         * @param {string} [config.motionBlur=false] 是否开启动态模糊
+	         * @param {Object} config �?置对象
+	         * @param {string} [config.clearColor=0] �?次清空画布的颜色
+	         * @param {string} [config.motionBlur=false] 是�?�开�?�动�?模糊
 	         * @param {number} [config.lastFrameAlpha=0.7]
-	         *                 在开启动态模糊的时候使用，与上一帧混合的alpha值，值越大尾迹越明显
+	         *                 在开�?�动�?模糊的时候使用，与上一帧混�?�的alpha值，值越大尾迹越明显
 	         */
 	        configLayer: function (zlevel, config) {
 	            if (config) {
@@ -17682,7 +17682,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 区域大小变化后重绘
+	         * 区域大�?�?�化�?��?绘
 	         */
 	        resize: function (width, height) {
 	            var domRoot = this._domRoot;
@@ -17694,7 +17694,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            domRoot.style.display = '';
 
-	            // 优化没有实际改变的resize
+	            // 优化没有实际改�?�的resize
 	            if (this._width != width || height != this._height) {
 	                domRoot.style.width = width + 'px';
 	                domRoot.style.height = height + 'px';
@@ -17713,7 +17713,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        /**
-	         * 清除单独的一个层
+	         * 清除�?�独的一个层
 	         * @param {number} zlevel
 	         */
 	        clearLayer: function (zlevel) {
@@ -17769,14 +17769,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return imageLayer.dom;
 	        },
 	        /**
-	         * 获取绘图区域宽度
+	         * 获�?�绘图区域宽度
 	         */
 	        getWidth: function () {
 	            return this._width;
 	        },
 
 	        /**
-	         * 获取绘图区域高度
+	         * 获�?�绘图区域高度
 	         */
 	        getHeight: function () {
 	            return this._height;
@@ -17903,7 +17903,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        newDom.width = width * dpr;
 	        newDom.height = height * dpr;
 
-	        // id不作为索引用，避免可能造成的重名，定义为私有属性
+	        // id�?作为索引用，�?��?�?�能造�?的�?�??，定义为�?有属性
 	        newDom.setAttribute('data-zr-dom-id', id);
 	        return newDom;
 	    }
@@ -17932,7 +17932,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        var domStyle = dom.style;
 	        if (domStyle) { // Not in node
-	            dom.onselectstart = returnFalse; // 避免页面选中的尴尬
+	            dom.onselectstart = returnFalse; // �?��?页�?�选中的尴尬
 	            domStyle['-webkit-user-select'] = 'none';
 	            domStyle['user-select'] = 'none';
 	            domStyle['-webkit-touch-callout'] = 'none';
@@ -17948,19 +17948,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        // Configs
 	        /**
-	         * 每次清空画布的颜色
+	         * �?次清空画布的颜色
 	         * @type {string}
 	         * @default 0
 	         */
 	        this.clearColor = 0;
 	        /**
-	         * 是否开启动态模糊
+	         * 是�?�开�?�动�?模糊
 	         * @type {boolean}
 	         * @default false
 	         */
 	        this.motionBlur = false;
 	        /**
-	         * 在开启动态模糊的时候使用，与上一帧混合的alpha值，值越大尾迹越明显
+	         * 在开�?�动�?模糊的时候使用，与上一帧混�?�的alpha值，值越大尾迹越明显
 	         * @type {number}
 	         * @default 0.7
 	         */
@@ -18466,8 +18466,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        defaultOption: {
-	            zlevel: 0,                  // 一级层叠
-	            z: 2,                       // 二级层叠
+	            zlevel: 0,                  // 一级层�?�
+	            z: 2,                       // 二级层�?�
 	            coordinateSystem: 'cartesian2d',
 	            legendHoverLink: true,
 
@@ -18500,22 +18500,22 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            smooth: false,
 	            smoothMonotone: null,
-	            // 拐点图形类型
+	            // �?点图形类型
 	            symbol: 'emptyCircle',
-	            // 拐点图形大小
+	            // �?点图形大�?
 	            symbolSize: 4,
-	            // 拐点图形旋转控制
+	            // �?点图形旋转控制
 	            symbolRotate: null,
 
-	            // 是否显示 symbol, 只有在 tooltip hover 的时候显示
+	            // 是�?�显示 symbol, �?�有在 tooltip hover 的时候显示
 	            showSymbol: true,
-	            // 标志图形默认只有主轴显示（随主轴标签间隔隐藏策略）
+	            // 标志图形默认�?�有主轴显示（�?主轴标签间隔�?�?策略）
 	            showAllSymbol: false,
 
-	            // 是否连接断点
+	            // 是�?�连接断点
 	            connectNulls: false,
 
-	            // 数据过滤，'average', 'max', 'min', 'sum'
+	            // 数�?�过滤，'average', 'max', 'min', 'sum'
 	            sampling: 'none',
 
 	            animationEasing: 'linear'
@@ -18716,7 +18716,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        geo: function (data, seriesModel, ecModel) {
 	            // TODO Region
-	            // 多个散点图系列在同一个地区的时候
+	            // 多个散点图系列在�?�一个地区的时候
 	            return {
 	                dimensions: completeDimensions([
 	                    {name: 'lng'},
@@ -21250,7 +21250,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                symbolStyle.fill = '#fff';
 	            }
 	            else {
-	                // FIXME 判断图形默认是填充还是描边，使用 onlyStroke ?
+	                // FIXME 判断图形默认是填充还是�??边，使用 onlyStroke ?
 	                symbolStyle.fill && (symbolStyle.fill = color);
 	                symbolStyle.stroke && (symbolStyle.stroke = color);
 	            }
@@ -22002,7 +22002,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var ifAxisCrossZero = axisHelper.ifAxisCrossZero;
 	    var niceScaleExtent = axisHelper.niceScaleExtent;
 
-	    // 依赖 GridModel, AxisModel 做预处理
+	    // �?赖 GridModel, AxisModel �?�预处�?�
 	    __webpack_require__(120);
 
 	    /**
@@ -22559,7 +22559,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	    axisHelper.getAxisLabelInterval = function (tickCoords, labels, font, isAxisHorizontal) {
 	        // FIXME
-	        // 不同角的axis和label，不只是horizontal和vertical.
+	        // �?�?�角的axis和label，�?�?�是horizontal和vertical.
 
 	        var textSpaceTakenRect;
 	        var autoLabelInterval = 0;
@@ -23995,8 +23995,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	// Grid 是在有直角坐标系的时候必须要存在的
-	// 所以这里也要被 Cartesian2D 依赖
+	// Grid 是在有直角�??标系的时候必须�?存在的
+	// 所以这里也�?被 Cartesian2D �?赖
 
 
 	    __webpack_require__(121);
@@ -24216,55 +24216,55 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    var defaultOption = {
 	        show: true,
-	        zlevel: 0,                  // 一级层叠
-	        z: 0,                       // 二级层叠
-	        // 反向坐标轴
+	        zlevel: 0,                  // 一级层�?�
+	        z: 0,                       // 二级层�?�
+	        // �??�?��??标轴
 	        inverse: false,
-	        // 坐标轴名字，默认为空
+	        // �??标轴�??字，默认为空
 	        name: '',
-	        // 坐标轴名字位置，支持'start' | 'middle' | 'end'
+	        // �??标轴�??字�?置，支�?'start' | 'middle' | 'end'
 	        nameLocation: 'end',
-	        // 坐标轴文字样式，默认取全局样式
+	        // �??标轴文字样�?，默认�?�全局样�?
 	        nameTextStyle: {},
-	        // 文字与轴线距离
+	        // 文字与轴线�?离
 	        nameGap: 15,
-	        // 是否能触发鼠标事件
+	        // 是�?�能触�?�鼠标事件
 	        silent: true,
-	        // 坐标轴线
+	        // �??标轴线
 	        axisLine: {
-	            // 默认显示，属性show控制显示与否
+	            // 默认显示，属性show控制显示与�?�
 	            show: true,
 	            onZero: true,
-	            // 属性lineStyle控制线条样式
+	            // 属性lineStyle控制线�?�样�?
 	            lineStyle: {
 	                color: '#333',
 	                width: 1,
 	                type: 'solid'
 	            }
 	        },
-	        // 坐标轴小标记
+	        // �??标轴�?标记
 	        axisTick: {
-	            // 属性show控制显示与否，默认显示
+	            // 属性show控制显示与�?�，默认显示
 	            show: true,
-	            // 控制小标记是否在grid里
+	            // 控制�?标记是�?�在grid里
 	            inside: false,
 	            // 属性length控制线长
 	            length: 5,
-	            // 属性lineStyle控制线条样式
+	            // 属性lineStyle控制线�?�样�?
 	            lineStyle: {
 	                color: '#333',
 	                width: 1
 	            }
 	        },
-	        // 坐标轴文本标签，详见axis.axisLabel
+	        // �??标轴文本标签，详�?axis.axisLabel
 	        axisLabel: {
 	            show: true,
-	            // 控制文本标签是否在grid里
+	            // 控制文本标签是�?�在grid里
 	            inside: false,
 	            rotate: 0,
 	            margin: 8,
 	            // formatter: null,
-	            // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	            // 其余属性默认使用全局文本样�?，详�?TEXTSTYLE
 	            textStyle: {
 	                color: '#333',
 	                fontSize: 12
@@ -24272,9 +24272,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 	        // 分隔线
 	        splitLine: {
-	            // 默认显示，属性show控制显示与否
+	            // 默认显示，属性show控制显示与�?�
 	            show: true,
-	            // 属性lineStyle（详见lineStyle）控制线条样式
+	            // 属性lineStyle（详�?lineStyle）控制线�?�样�?
 	            lineStyle: {
 	                color: ['#ccc'],
 	                width: 1,
@@ -24283,9 +24283,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 	        // 分隔区域
 	        splitArea: {
-	            // 默认不显示，属性show控制显示与否
+	            // 默认�?显示，属性show控制显示与�?�
 	            show: false,
-	            // 属性areaStyle（详见areaStyle）控制区域样式
+	            // 属性areaStyle（详�?areaStyle）控制区域样�?
 	            areaStyle: {
 	                color: ['rgba(250,250,250,0.3)','rgba(200,200,200,0.3)']
 	            }
@@ -24293,30 +24293,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    var categoryAxis = zrUtil.merge({
-	        // 类目起始和结束两端空白策略
+	        // 类目起始和结�?�两端空白策略
 	        boundaryGap: true,
-	        // 坐标轴小标记
+	        // �??标轴�?标记
 	        axisTick: {
 	            interval: 'auto'
 	        },
-	        // 坐标轴文本标签，详见axis.axisLabel
+	        // �??标轴文本标签，详�?axis.axisLabel
 	        axisLabel: {
 	            interval: 'auto'
 	        }
 	    }, defaultOption);
 
 	    var valueAxis = zrUtil.defaults({
-	        // 数值起始和结束两端空白策略
+	        // 数值起始和结�?�两端空白策略
 	        boundaryGap: [0, 0],
-	        // 最小值, 设置成 'dataMin' 则从数据中计算最小值
+	        // 最�?值, 设置�? 'dataMin' 则从数�?�中计算最�?值
 	        // min: null,
-	        // 最大值，设置成 'dataMax' 则从数据中计算最大值
+	        // 最大值，设置�? 'dataMax' 则从数�?�中计算最大值
 	        // max: null,
 	        // Readonly prop, specifies start value of the range when using data zoom.
 	        // rangeStart: null
 	        // Readonly prop, specifies end value of the range when using data zoom.
 	        // rangeEnd: null
-	        // 脱离0值比例，放大聚焦到最终_min，_max区间
+	        // 脱离0值比例，放大�?�焦到最终_min，_max区间
 	        // scale: false,
 	        // 分割段数，默认为5
 	        splitNumber: 5
@@ -25209,8 +25209,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        defaultOption: {
-	            zlevel: 0,                  // 一级层叠
-	            z: 2,                       // 二级层叠
+	            zlevel: 0,                  // 一级层�?�
+	            z: 2,                       // 二级层�?�
 	            coordinateSystem: 'cartesian2d',
 	            legendHoverLink: true,
 	            // stack: null
@@ -25219,15 +25219,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	            xAxisIndex: 0,
 	            yAxisIndex: 0,
 
-	            // 最小高度改为0
+	            // 最�?高度改为0
 	            barMinHeight: 0,
 
 	            // barMaxWidth: null,
 	            // 默认自适应
 	            // barWidth: null,
-	            // 柱间距离，默认为柱形宽度的30%，可设固定值
+	            // 柱间�?离，默认为柱形宽度的30%，�?�设固定值
 	            // barGap: '30%',
-	            // 类目间柱形距离，默认为类目间距的20%，可设固定值
+	            // 类目间柱形�?离，默认为类目间�?的20%，�?�设固定值
 	            // barCategoryGap: '20%',
 	            // label: {
 	            //     normal: {
@@ -25236,17 +25236,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // },
 	            itemStyle: {
 	                normal: {
-	                    // color: '各异',
-	                    // 柱条边线
+	                    // color: '�?�异',
+	                    // 柱�?�边线
 	                    barBorderColor: '#fff',
-	                    // 柱条边线线宽，单位px，默认为1
+	                    // 柱�?�边线线宽，�?��?px，默认为1
 	                    barBorderWidth: 0
 	                },
 	                emphasis: {
-	                    // color: '各异',
-	                    // 柱条边线
+	                    // color: '�?�异',
+	                    // 柱�?�边线
 	                    barBorderColor: '#fff',
-	                    // 柱条边线线宽，单位px，默认为1
+	                    // 柱�?�边线线宽，�?��?px，默认为1
 	                    barBorderWidth: 0
 	                }
 	            }
@@ -25327,7 +25327,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	            data.diff(oldData)
 	                .add(function (dataIndex) {
-	                    // 空数据
+	                    // 空数�?�
 	                    if (!data.hasValue(dataIndex)) {
 	                        return;
 	                    }
@@ -25341,7 +25341,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                })
 	                .update(function (newIndex, oldIndex) {
 	                    var rect = oldData.getItemGraphicEl(oldIndex);
-	                    // 空数据
+	                    // 空数�?�
 	                    if (!data.hasValue(newIndex)) {
 	                        group.remove(rect);
 	                        return;
@@ -25665,7 +25665,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                size: columnWidth
 	            });
 	            data.each(valueAxis.dim, function (value, idx) {
-	                // 空数据
+	                // 空数�?�
 	                if (isNaN(value)) {
 	                    return;
 	                }
@@ -25842,16 +25842,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // 默认顺时针
 	            clockwise: true,
 	            startAngle: 90,
-	            // 最小角度改为0
+	            // 最�?角度改为0
 	            minAngle: 0,
-	            // 选中是扇区偏移量
+	            // 选中是扇区�??移�?
 	            selectedOffset: 10,
 
 	            // If use strategy to avoid label overlapping
 	            avoidLabelOverlap: true,
-	            // 选择模式，默认关闭，可选single，multiple
+	            // 选择模�?，默认关闭，�?�选single，multiple
 	            // selectedMode: false,
-	            // 南丁格尔玫瑰图模式，'radius'（半径） | 'area'（面积）
+	            // �?��?格尔玫瑰图模�?，'radius'（�?�径） | 'area'（�?�积）
 	            // roseType: null,
 
 	            label: {
@@ -25861,9 +25861,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    show: true,
 	                    // 'outer', 'inside', 'center'
 	                    position: 'outer'
-	                    // formatter: 标签文本格式器，同Tooltip.formatter，不支持异步回调
-	                    // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
-	                    // distance: 当position为inner时有效，为label位置到圆心的距离与圆半径(环状图为内外半径和)的比例系数
+	                    // formatter: 标签文本格�?器，�?�Tooltip.formatter，�?支�?异步回调
+	                    // textStyle: null      // 默认使用全局文本样�?，详�?TEXTSTYLE
+	                    // distance: 当position为inner时有效，为label�?置到圆心的�?离与圆�?�径(环状图为内外�?�径和)的比例系数
 	                },
 	                emphasis: {}
 	            },
@@ -25877,7 +25877,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    length2: 15,
 	                    smooth: false,
 	                    lineStyle: {
-	                        // color: 各异,
+	                        // color: �?�异,
 	                        width: 1,
 	                        type: 'solid'
 	                    }
@@ -25885,12 +25885,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            },
 	            itemStyle: {
 	                normal: {
-	                    // color: 各异,
+	                    // color: �?�异,
 	                    borderColor: 'rgba(0,0,0,0)',
 	                    borderWidth: 1
 	                },
 	                emphasis: {
-	                    // color: 各异,
+	                    // color: �?�异,
 	                    borderColor: 'rgba(0,0,0,0)',
 	                    borderWidth: 1
 	                }
@@ -26486,7 +26486,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var dir = clockwise ? 1 : -1;
 	            data.each('value', function (value, idx) {
 	                var angle;
-	                // FIXME 兼容 2.0 但是 roseType 是 area 的时候才是这样？
+	                // FIXME 兼容 2.0 但是 roseType 是 area 的时候�?是这样？
 	                if (roseType !== 'area') {
 	                    angle = sum === 0 ? unitRadian : (value * unitRadian);
 	                }
@@ -26596,7 +26596,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        function changeX(list, isDownList, cx, cy, r, dir) {
 	            var lastDeltaX = dir > 0
-	                ? isDownList                // 右侧
+	                ? isDownList                // �?�侧
 	                    ? Number.MAX_VALUE      // 下
 	                    : 0                     // 上
 	                : isDownList                // 左侧
@@ -26618,11 +26618,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                      )
 	                    : Math.abs(list[i].x - cx);
 	                if (isDownList && deltaX >= lastDeltaX) {
-	                    // 右下，左下
+	                    // �?�下，左下
 	                    deltaX = lastDeltaX - 10;
 	                }
 	                if (!isDownList && deltaX <= lastDeltaX) {
-	                    // 右上，左上
+	                    // �?�上，左上
 	                    deltaX = lastDeltaX + 10;
 	                }
 
@@ -26872,7 +26872,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            geoIndex: 0,
 
 	            // symbol: null,        // 图形类型
-	            symbolSize: 10,          // 图形大小，半宽（半径）参数，当图形为方向或菱形则总宽度为symbolSize * 2
+	            symbolSize: 10,          // 图形大�?，�?�宽（�?�径）�?�数，当图形为方�?�或�?�形则总宽度为symbolSize * 2
 	            // symbolRotate: null,  // 图形旋转控制
 
 	            large: false,
@@ -26883,16 +26883,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	                // normal: {
 	                    // show: false
 	                    // distance: 5,
-	                    // formatter: 标签文本格式器，同Tooltip.formatter，不支持异步回调
-	                    // position: 默认自适应，水平布局为'top'，垂直布局为'right'，可选为
+	                    // formatter: 标签文本格�?器，�?�Tooltip.formatter，�?支�?异步回调
+	                    // position: 默认自适应，水平布局为'top'，垂直布局为'right'，�?�选为
 	                    //           'inside'|'left'|'right'|'top'|'bottom'
-	                    // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+	                    // textStyle: null      // 默认使用全局文本样�?，详�?TEXTSTYLE
 	            //     }
 	            // },
 	            itemStyle: {
 	                normal: {
 	                    opacity: 0.8
-	                    // color: 各异
+	                    // color: �?�异
 	                }
 	            }
 	        }
@@ -28213,12 +28213,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        defaultOption: {
-	            // 一级层叠
+	            // 一级层�?�
 	            zlevel: 0,
-	            // 二级层叠
+	            // 二级层�?�
 	            z: 2,
 	            coordinateSystem: 'geo',
-	            // 各省的 map 暂时都用中文
+	            // �?��?的 map 暂时都用中文
 	            map: 'china',
 
 	            // 'center' | 'left' | 'right' | 'x%' | {number}
@@ -28230,17 +28230,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // width:
 	            // height   // 自适应
 
-	            // 数值合并方式，默认加和，可选为：
+	            // 数值�?�并方�?，默认加和，�?�选为：
 	            // 'sum' | 'average' | 'max' | 'min'
 	            // mapValueCalculation: 'sum',
-	            // 地图数值计算结果小数精度
+	            // 地图数值计算结果�?数精度
 	            // mapValuePrecision: 0,
-	            // 显示图例颜色标识（系列标识的小圆点），图例开启时有效
+	            // 显示图例颜色标识（系列标识的�?圆点），图例开�?�时有效
 	            showLegendSymbol: true,
-	            // 选择模式，默认关闭，可选single，multiple
+	            // 选择模�?，默认关闭，�?�选single，multiple
 	            // selectedMode: false,
 	            dataRangeHoverLink: true,
-	            // 是否开启缩放及漫游模式
+	            // 是�?�开�?�缩放�?�漫游模�?
 	            // roam: false,
 
 	            // Default on center of map
@@ -28267,12 +28267,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // scaleLimit: null,
 	            itemStyle: {
 	                normal: {
-	                    // color: 各异,
+	                    // color: �?�异,
 	                    borderWidth: 0.5,
 	                    borderColor: '#444',
 	                    areaColor: '#eee'
 	                },
-	                // 也是选中样式
+	                // 也是选中样�?
 	                emphasis: {
 	                    areaColor: 'rgba(255,215, 0, 0.8)'
 	                }
@@ -29325,7 +29325,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 164 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// Fix for 南海诸岛
+	// Fix for �?�海诸岛
 
 
 	    var Region = __webpack_require__(161);
@@ -29360,7 +29360,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    module.exports = function (geo) {
 	        if (geo.map === 'china') {
 	            geo.regions.push(new Region(
-	                '南海诸岛', points, geoCoord
+	                '�?�海诸岛', points, geoCoord
 	            ));
 	        }
 	    };
@@ -29375,7 +29375,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var zrUtil = __webpack_require__(3);
 
 	    var coordsOffsetMap = {
-	        '南海诸岛' : [32, 80],
+	        '�?�海诸岛' : [32, 80],
 	        // 全国
 	        '广东': [0, -10],
 	        '香港': [10, 5],
@@ -30558,7 +30558,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            leafDepth: null,                    // Nodes on depth from root are regarded as leaves.
 	                                                // Count from zero (zero represents only view root).
 	            drillDownIcon: '▶',                 // Use html character temporarily because it is complicated
-	                                                // to align specialized icon. ▷▶❒❐▼✚
+	                                                // to align specialized icon. ▷▶�?��??▼✚
 	            visualDimension: 0,                 // Can be 0, 1, 2, 3.
 	            zoomToNodeRatio: 0.32 * 0.32,       // Be effective when using zoomToNode. Specify the proportion of the
 	                                                // target node area in the view area.
@@ -30660,7 +30660,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            completeTreeValue(root, zrUtil.isArray(value0) ? value0.length : -1);
 
 	            // FIXME
-	            // sereis.mergeOption 的 getInitData是否放在merge后，从而能直接获取merege后的结果而非手动判断。
+	            // sereis.mergeOption 的 getInitData是�?�放在merge�?�，从而能直接获�?�merege�?�的结果而�?�手动判断。
 	            var levels = option.levels || [];
 
 	            levels = option.levels = setDefault(levels, ecModel);
@@ -31970,9 +31970,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	         */
 	        _initEvents: function (containerGroup) {
 	            // FIXME
-	            // 不用click以及silent的原因是，animate时视图设置silent true来避免click生效，
-	            // 但是animate中，按下鼠标，animate结束后（silent设回为false）松开鼠标，
-	            // 还是会触发click，期望是不触发。
+	            // �?用click以�?�silent的原因是，animate时视图设置silent true�?��?��?click生效，
+	            // 但是animate中，按下鼠标，animate结�?��?�（silent设回为false）�?�开鼠标，
+	            // 还是会触�?�click，期望是�?触�?�。
 
 	            // Mousedown occurs when drag start, and mouseup occurs when drag end,
 	            // click event should not be triggered in that case.
@@ -33643,7 +33643,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            seriesModel.setLayoutInfo(layoutInfo);
 
 	            // FIXME
-	            // 现在没有clip功能，暂时取ec高宽。
+	            // 现在没有clip功能，暂时�?�ec高宽。
 	            prunning(
 	                treeRoot,
 	                // Transform to base element coordinate system.
@@ -34464,7 +34464,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	    var Graph = function(directed) {
 	        /**
-	         * 是否是有向图
+	         * 是�?�是有�?�图
 	         * @type {boolean}
 	         * @private
 	         */
@@ -34864,13 +34864,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function Edge(n1, n2, dataIndex) {
 
 	        /**
-	         * 节点1，如果是有向图则为源节点
+	         * 节点1，如果是有�?�图则为�?节点
 	         * @type {module:echarts/data/Graph.Node}
 	         */
 	        this.node1 = n1;
 
 	        /**
-	         * 节点2，如果是有向图则为目标节点
+	         * 节点2，如果是有�?�图则为目标节点
 	         * @type {module:echarts/data/Graph.Node}
 	         */
 	        this.node2 = n2;
@@ -36485,43 +36485,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	            startAngle: 225,
 	            endAngle: -45,
 	            clockwise: true,
-	            // 最小值
+	            // 最�?值
 	            min: 0,
 	            // 最大值
 	            max: 100,
 	            // 分割段数，默认为10
 	            splitNumber: 10,
-	            // 坐标轴线
+	            // �??标轴线
 	            axisLine: {
-	                // 默认显示，属性show控制显示与否
+	                // 默认显示，属性show控制显示与�?�
 	                show: true,
-	                lineStyle: {       // 属性lineStyle控制线条样式
+	                lineStyle: {       // 属性lineStyle控制线�?�样�?
 	                    color: [[0.2, '#91c7ae'], [0.8, '#63869e'], [1, '#c23531']],
 	                    width: 30
 	                }
 	            },
 	            // 分隔线
 	            splitLine: {
-	                // 默认显示，属性show控制显示与否
+	                // 默认显示，属性show控制显示与�?�
 	                show: true,
 	                // 属性length控制线长
 	                length: 30,
-	                // 属性lineStyle（详见lineStyle）控制线条样式
+	                // 属性lineStyle（详�?lineStyle）控制线�?�样�?
 	                lineStyle: {
 	                    color: '#eee',
 	                    width: 2,
 	                    type: 'solid'
 	                }
 	            },
-	            // 坐标轴小标记
+	            // �??标轴�?标记
 	            axisTick: {
-	                // 属性show控制显示与否，默认不显示
+	                // 属性show控制显示与�?�，默认�?显示
 	                show: true,
-	                // 每份split细分多少段
+	                // �?份split细分多少段
 	                splitNumber: 5,
 	                // 属性length控制线长
 	                length: 8,
-	                // 属性lineStyle控制线条样式
+	                // 属性lineStyle控制线�?�样�?
 	                lineStyle: {
 	                    color: '#eee',
 	                    width: 1,
@@ -36531,7 +36531,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            axisLabel: {
 	                show: true,
 	                // formatter: null,
-	                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                textStyle: {       // 其余属性默认使用全局文本样�?，详�?TEXTSTYLE
 	                    color: 'auto'
 	                }
 	            },
@@ -36547,9 +36547,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            },
 	            title: {
 	                show: true,
-	                // x, y，单位px
+	                // x, y，�?��?px
 	                offsetCenter: [0, '-40%'],
-	                // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                // 其余属性默认使用全局文本样�?，详�?TEXTSTYLE
 	                textStyle: {
 	                    color: '#333',
 	                    fontSize: 15
@@ -36562,10 +36562,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                borderColor: '#ccc',
 	                width: 100,
 	                height: 40,
-	                // x, y，单位px
+	                // x, y，�?��?px
 	                offsetCenter: [0, '40%'],
 	                // formatter: null,
-	                // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                // 其余属性默认使用全局文本样�?，详�?TEXTSTYLE
 	                textStyle: {
 	                    color: 'auto',
 	                    fontSize: 30
@@ -37114,8 +37114,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        defaultOption: {
-	            zlevel: 0,                  // 一级层叠
-	            z: 2,                       // 二级层叠
+	            zlevel: 0,                  // 一级层�?�
+	            z: 2,                       // 二级层�?�
 	            legendHoverLink: true,
 	            left: 80,
 	            top: 60,
@@ -37124,7 +37124,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // width: {totalWidth} - left - right,
 	            // height: {totalHeight} - top - bottom,
 
-	            // 默认取数据最小最大值
+	            // 默认�?�数�?�最�?最大值
 	            // min: 0,
 	            // max: 100,
 	            minSize: '0%',
@@ -37136,8 +37136,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                normal: {
 	                    show: true,
 	                    position: 'outer'
-	                    // formatter: 标签文本格式器，同Tooltip.formatter，不支持异步回调
-	                    // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+	                    // formatter: 标签文本格�?器，�?�Tooltip.formatter，�?支�?异步回调
+	                    // textStyle: null      // 默认使用全局文本样�?，详�?TEXTSTYLE
 	                },
 	                emphasis: {
 	                    show: true
@@ -37148,7 +37148,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    show: true,
 	                    length: 20,
 	                    lineStyle: {
-	                        // color: 各异,
+	                        // color: �?�异,
 	                        width: 1,
 	                        type: 'solid'
 	                    }
@@ -37157,12 +37157,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            },
 	            itemStyle: {
 	                normal: {
-	                    // color: 各异,
+	                    // color: �?�异,
 	                    borderColor: '#fff',
 	                    borderWidth: 1
 	                },
 	                emphasis: {
-	                    // color: 各异,
+	                    // color: �?�异,
 	                }
 	            }
 	        }
@@ -37846,10 +37846,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                matrix.translate(transform, transform, position);
 
 	                // TODO
-	                // tick等排布信息。
+	                // tick等排布信�?�。
 
 	                // TODO
-	                // 根据axis order 更新 dimensions顺序。
+	                // 根�?�axis order 更新 dimensions顺�?。
 
 	                this._axesLayout[dim] = {
 	                    position: position,
@@ -38042,8 +38042,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        parallelAxisIndex: null,
 
 	        defaultOption: {
-	            zlevel: 0,                  // 一级层叠
-	            z: 0,                       // 二级层叠
+	            zlevel: 0,                  // 一级层�?�
+	            z: 0,                       // 二级层�?�
 	            left: 80,
 	            top: 60,
 	            right: 80,
@@ -38922,8 +38922,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        defaultOption: {
-	            zlevel: 0,                  // 一级层叠
-	            z: 2,                       // 二级层叠
+	            zlevel: 0,                  // 一级层�?�
+	            z: 2,                       // 二级层�?�
 
 	            coordinateSystem: 'parallel',
 	            parallelIndex: 0,
@@ -38932,17 +38932,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	            label: {
 	                normal: {
 	                    show: false
-	                    // formatter: 标签文本格式器，同Tooltip.formatter，不支持异步回调
-	                    // position: 默认自适应，水平布局为'top'，垂直布局为'right'，可选为
+	                    // formatter: 标签文本格�?器，�?�Tooltip.formatter，�?支�?异步回调
+	                    // position: 默认自适应，水平布局为'top'，垂直布局为'right'，�?�选为
 	                    //           'inside'|'left'|'right'|'top'|'bottom'
-	                    // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+	                    // textStyle: null      // 默认使用全局文本样�?，详�?TEXTSTYLE
 	                },
 	                emphasis: {
 	                    show: false
-	                    // formatter: 标签文本格式器，同Tooltip.formatter，不支持异步回调
-	                    // position: 默认自适应，水平布局为'top'，垂直布局为'right'，可选为
+	                    // formatter: 标签文本格�?器，�?�Tooltip.formatter，�?支�?异步回调
+	                    // position: 默认自适应，水平布局为'top'，垂直布局为'right'，�?�选为
 	                    //           'inside'|'left'|'right'|'top'|'bottom'
-	                    // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+	                    // textStyle: null      // 默认使用全局文本样�?，详�?TEXTSTYLE
 	                }
 	            },
 
@@ -38976,7 +38976,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            });
 	        }
 	        // FIXME
-	        // 如果没有设置axis data, 应自动算出，或者提示。
+	        // 如果没有设置axis data, 应自动算出，或者�??示。
 	    }
 
 
@@ -40120,8 +40120,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	         * @override
 	         */
 	        defaultOption: {
-	            zlevel: 0,                  // 一级层叠
-	            z: 2,                       // 二级层叠
+	            zlevel: 0,                  // 一级层�?�
+	            z: 2,                       // 二级层�?�
 	            coordinateSystem: 'cartesian2d',
 	            legendHoverLink: true,
 
@@ -40855,8 +40855,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	         * @override
 	         */
 	        defaultOption: {
-	            zlevel: 0,                  // 一级层叠
-	            z: 2,                       // 二级层叠
+	            zlevel: 0,                  // 一级层�?�
+	            z: 2,                       // 二级层�?�
 	            coordinateSystem: 'cartesian2d',
 	            legendHoverLink: true,
 
@@ -41222,7 +41222,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            geoIndex: 0,
 
 	            // symbol: null,        // 图形类型
-	            symbolSize: 10          // 图形大小，半宽（半径）参数，当图形为方向或菱形则总宽度为symbolSize * 2
+	            symbolSize: 10          // 图形大�?，�?�宽（�?�径）�?�数，当图形为方�?�或�?�形则总宽度为symbolSize * 2
 	            // symbolRotate: null,  // 图形旋转控制
 
 	            // large: false,
@@ -41586,7 +41586,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    show: false,
 	                    position: 'end'
 	                    // distance: 5,
-	                    // formatter: 标签文本格式器，同Tooltip.formatter，不支持异步回调
+	                    // formatter: 标签文本格�?器，�?�Tooltip.formatter，�?支�?异步回调
 	                }
 	            },
 	            // itemStyle: {
@@ -42405,13 +42405,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        },
 
 	        defaultOption: {
-	            // 一级层叠
+	            // 一级层�?�
 	            zlevel: 0,
-	            // 二级层叠
+	            // 二级层�?�
 	            z: 4,
 	            show: true,
 
-	            // 布局方式，默认为水平布局，可选为：
+	            // 布局方�?，默认为水平布局，�?�选为：
 	            // 'horizontal' | 'vertical'
 	            orient: 'horizontal',
 
@@ -42421,21 +42421,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	            top: 'top',
 	            // bottom: 'top',
 
-	            // 水平对齐
+	            // 水平对�?
 	            // 'auto' | 'left' | 'right'
-	            // 默认为 'auto', 根据 x 的位置判断是左对齐还是右对齐
+	            // 默认为 'auto', 根�?� x 的�?置判断是左对�?还是�?�对�?
 	            align: 'auto',
 
 	            backgroundColor: 'rgba(0,0,0,0)',
 	            // 图例边框颜色
 	            borderColor: '#ccc',
-	            // 图例边框线宽，单位px，默认为0（无边框）
+	            // 图例边框线宽，�?��?px，默认为0（无边框）
 	            borderWidth: 0,
-	            // 图例内边距，单位px，默认各方向内边距为5，
-	            // 接受数组分别设定上右下左边距，同css
+	            // 图例内边�?，�?��?px，默认�?�方�?�内边�?为5，
+	            // 接�?�数组分别设定上�?�下左边�?，�?�css
 	            padding: 5,
-	            // 各个item之间的间隔，单位px，默认为10，
-	            // 横向布局时为水平间隔，纵向布局时为纵向间隔
+	            // �?�个item之间的间隔，�?��?px，默认为10，
+	            // 横�?�布局时为水平间隔，纵�?�布局时为纵�?�间隔
 	            itemGap: 10,
 	            // 图例图形宽度
 	            itemWidth: 25,
@@ -42446,11 +42446,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                color: '#333'
 	            },
 	            // formatter: '',
-	            // 选择模式，默认开启图例开关
+	            // 选择模�?，默认开�?�图例开关
 	            selectedMode: true
-	            // 配置默认选中状态，可配合LEGEND.SELECTED事件做动态数据载入
+	            // �?置默认选中状�?，�?��?�?�LEGEND.SELECTED事件�?�动�?数�?�载入
 	            // selected: null,
-	            // 图例内容（详见legend.data，数组中每一项代表一个item
+	            // 图例内容（详�?legend.data，数组中�?一项代表一个item
 	            // data: [],
 	        }
 	    });
@@ -42935,67 +42935,67 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // tooltip主体内容
 	            showContent: true,
 
-	            // 触发类型，默认数据触发，见下图，可选为：'item' ¦ 'axis'
+	            // 触�?�类型，默认数�?�触�?�，�?下图，�?�选为：'item' ¦ 'axis'
 	            trigger: 'item',
 
-	            // 触发条件，支持 'click' | 'mousemove'
+	            // 触�?��?�件，支�? 'click' | 'mousemove'
 	            triggerOn: 'mousemove',
 
-	            // 是否永远显示 content
+	            // 是�?�永远显示 content
 	            alwaysShowContent: false,
 
-	            // 位置 {Array} | {Function}
+	            // �?置 {Array} | {Function}
 	            // position: null
 
-	            // 内容格式器：{string}（Template） ¦ {Function}
+	            // 内容格�?器：{string}（Template） ¦ {Function}
 	            // formatter: null
 
 	            showDelay: 0,
 
-	            // 隐藏延迟，单位ms
+	            // �?�?延迟，�?��?ms
 	            hideDelay: 100,
 
-	            // 动画变换时间，单位s
+	            // 动画�?��?�时间，�?��?s
 	            transitionDuration: 0.4,
 
 	            enterable: false,
 
-	            // 提示背景颜色，默认为透明度为0.7的黑色
+	            // �??示背景颜色，默认为�?明度为0.7的黑色
 	            backgroundColor: 'rgba(50,50,50,0.7)',
 
-	            // 提示边框颜色
+	            // �??示边框颜色
 	            borderColor: '#333',
 
-	            // 提示边框圆角，单位px，默认为4
+	            // �??示边框圆角，�?��?px，默认为4
 	            borderRadius: 4,
 
-	            // 提示边框线宽，单位px，默认为0（无边框）
+	            // �??示边框线宽，�?��?px，默认为0（无边框）
 	            borderWidth: 0,
 
-	            // 提示内边距，单位px，默认各方向内边距为5，
-	            // 接受数组分别设定上右下左边距，同css
+	            // �??示内边�?，�?��?px，默认�?�方�?�内边�?为5，
+	            // 接�?�数组分别设定上�?�下左边�?，�?�css
 	            padding: 5,
 
 	            // Extra css text
 	            extraCssText: '',
 
-	            // 坐标轴指示器，坐标轴触发有效
+	            // �??标轴指示器，�??标轴触�?�有效
 	            axisPointer: {
 	                // 默认为直线
-	                // 可选为：'line' | 'shadow' | 'cross'
+	                // �?�选为：'line' | 'shadow' | 'cross'
 	                type: 'line',
 
-	                // type 为 line 的时候有效，指定 tooltip line 所在的轴，可选
-	                // 可选 'x' | 'y' | 'angle' | 'radius' | 'auto'
-	                // 默认 'auto'，会选择类型为 cateogry 的轴，对于双数值轴，笛卡尔坐标系会默认选择 x 轴
-	                // 极坐标系会默认选择 angle 轴
+	                // type 为 line 的时候有效，指定 tooltip line 所在的轴，�?�选
+	                // �?�选 'x' | 'y' | 'angle' | 'radius' | 'auto'
+	                // 默认 'auto'，会选择类型为 cateogry 的轴，对于�?�数值轴，笛�?�尔�??标系会默认选择 x 轴
+	                // �?�??标系会默认选择 angle 轴
 	                axis: 'auto',
 
 	                animation: true,
 	                animationDurationUpdate: 200,
 	                animationEasingUpdate: 'exponentialOut',
 
-	                // 直线指示器样式设置
+	                // 直线指示器样�?设置
 	                lineStyle: {
 	                    color: '#555',
 	                    width: 1,
@@ -43011,7 +43011,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    textStyle: {}
 	                },
 
-	                // 阴影指示器样式设置
+	                // 阴影指示器样�?设置
 	                shadowStyle: {
 	                    color: 'rgba(150,150,150,0.3)'
 	                }
@@ -44473,7 +44473,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var axisHelper = __webpack_require__(109);
 	    var niceScaleExtent = axisHelper.niceScaleExtent;
 
-	    // 依赖 PolarModel 做预处理
+	    // �?赖 PolarModel �?�预处�?�
 	    __webpack_require__(280);
 
 	    /**
@@ -45561,12 +45561,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            itemStyle: {
 	                normal: {
-	                    // color: 各异,
+	                    // color: �?�异,
 	                    borderWidth: 0.5,
 	                    borderColor: '#444',
 	                    color: '#eee'
 	                },
-	                emphasis: {                 // 也是选中样式
+	                emphasis: {                 // 也是选中样�?
 	                    color: 'rgba(255,215,0,0.8)'
 	                }
 	            },
@@ -45675,34 +45675,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	        layoutMode: {type: 'box', ignoreSize: true},
 
 	        defaultOption: {
-	            // 一级层叠
+	            // 一级层�?�
 	            zlevel: 0,
-	            // 二级层叠
+	            // 二级层�?�
 	            z: 6,
 	            show: true,
 
 	            text: '',
 	            // 超链接跳转
 	            // link: null,
-	            // 仅支持self | blank
+	            // 仅支�?self | blank
 	            target: 'blank',
 	            subtext: '',
 
 	            // 超链接跳转
 	            // sublink: null,
-	            // 仅支持self | blank
+	            // 仅支�?self | blank
 	            subtarget: 'blank',
 
 	            // 'center' ¦ 'left' ¦ 'right'
-	            // ¦ {number}（x坐标，单位px）
+	            // ¦ {number}（x�??标，�?��?px）
 	            left: 0,
 	            // 'top' ¦ 'bottom' ¦ 'center'
-	            // ¦ {number}（y坐标，单位px）
+	            // ¦ {number}（y�??标，�?��?px）
 	            top: 0,
 
-	            // 水平对齐
+	            // 水平对�?
 	            // 'auto' | 'left' | 'right'
-	            // 默认根据 x 的位置判断是左对齐还是右对齐
+	            // 默认根�?� x 的�?置判断是左对�?还是�?�对�?
 	            //textAlign: null
 
 	            backgroundColor: 'rgba(0,0,0,0)',
@@ -45710,14 +45710,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // 标题边框颜色
 	            borderColor: '#ccc',
 
-	            // 标题边框线宽，单位px，默认为0（无边框）
+	            // 标题边框线宽，�?��?px，默认为0（无边框）
 	            borderWidth: 0,
 
-	            // 标题内边距，单位px，默认各方向内边距为5，
-	            // 接受数组分别设定上右下左边距，同css
+	            // 标题内边�?，�?��?px，默认�?�方�?�内边�?为5，
+	            // 接�?�数组分别设定上�?�下左边�?，�?�css
 	            padding: 5,
 
-	            // 主副标题纵向间隔，单位px，默认为10，
+	            // 主副标题纵�?�间隔，�?��?px，默认为10，
 	            itemGap: 10,
 	            textStyle: {
 	                fontSize: 18,
@@ -46130,8 +46130,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            if (autoAxisIndex) {
 	                // FIXME
-	                // 这里是兼容ec2的写法（没指定xAxisIndex和yAxisIndex时把scatter和双数值轴折柱纳入dataZoom控制），
-	                // 但是实际是否需要Grid.js#getScaleByOption来判断（考虑time，log等axis type）？
+	                // 这里是兼容ec2的写法（没指定xAxisIndex和yAxisIndex时把scatter和�?�数值轴折柱纳入dataZoom控制），
+	                // 但是实际是�?�需�?Grid.js#getScaleByOption�?�判断（考虑time，log等axis type）？
 
 	                // If both dataZoom.xAxisIndex and dataZoom.yAxisIndex is not specified,
 	                // dataZoom component auto adopts series that reference to
@@ -46169,7 +46169,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	         */
 	        _isSeriesHasAllAxesTypeOf: function (seriesModel, axisType) {
 	            // FIXME
-	            // 需要series的xAxisIndex和yAxisIndex都首先自动设置上。
+	            // 需�?series的xAxisIndex和yAxisIndex都首先自动设置上。
 	            // 例如series.type === scatter时。
 
 	            var is = true;
@@ -47360,7 +47360,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var labelTexts = ['', ''];
 
 	            // FIXME
-	            // date型，支持formatter，autoformatter（ec2 date.getAutoFormatter）
+	            // date型，支�?formatter，autoformatter（ec2 date.getAutoFormatter）
 	            if (dataZoomModel.get('showDetail')) {
 	                var dataInterval;
 	                var axis;
@@ -47516,7 +47516,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	            else { // Polar
 	                // FIXME
-	                // 暂时随便写的
+	                // 暂时�?便写的
 	                var width = this.api.getWidth();
 	                var height = this.api.getHeight();
 	                rect = {
@@ -47534,7 +47534,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    function getOtherDim(thisDim) {
 	        // FIXME
-	        // 这个逻辑和getOtherAxis里一致，但是写在这里是否不好
+	        // 这个逻辑和getOtherAxis里一致，但是写在这里是�?��?好
 	        return thisDim === 'x' ? 'y' : 'x';
 	    }
 
@@ -47554,35 +47554,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var RATE = '\0__throttleRate';
 
 	    /**
-	     * 频率控制 返回函数连续调用时，fn 执行频率限定为每多少时间执行一次
-	     * 例如常见效果：
+	     * 频率控制 返回函数连续调用时，fn 执行频率�?定为�?多少时间执行一次
+	     * 例如常�?效果：
 	     * notifyWhenChangesStop
-	     *      频繁调用时，只保证最后一次执行
-	     *      配成：trailing：true；debounce：true 即可
+	     *      频�?调用时，�?��?�?最�?�一次执行
+	     *      �?�?：trailing：true；debounce：true �?��?�
 	     * notifyAtFixRate
-	     *      频繁调用时，按规律心跳执行
-	     *      配成：trailing：true；debounce：false 即可
-	     * 注意：
-	     *     根据model更新view的时候，可以使用throttle，
-	     *     但是根据view更新model的时候，避免使用这种延迟更新的方式。
-	     *     因为这可能导致model和server同步出现问题。
+	     *      频�?调用时，按规律心跳执行
+	     *      �?�?：trailing：true；debounce：false �?��?�
+	     * 注�?：
+	     *     根�?�model更新view的时候，�?�以使用throttle，
+	     *     但是根�?�view更新model的时候，�?��?使用这�?延迟更新的方�?。
+	     *     因为这�?�能导致model和server�?�步出现问题。
 	     *
 	     * @public
-	     * @param {(Function|Array.<Function>)} fn 需要调用的函数
-	     *                                         如果fn为array，则表示可以对多个函数进行throttle。
-	     *                                         他们共享同一个timer。
-	     * @param {number} delay 延迟时间，单位毫秒
-	     * @param {bool} trailing 是否保证最后一次触发的执行
-	     *                        true：表示保证最后一次调用会触发执行。
-	     *                        但任何调用后不可能立即执行，总会delay。
-	     *                        false：表示不保证最后一次调用会触发执行。
-	     *                        但只要间隔大于delay，调用就会立即执行。
-	     * @param {bool} debounce 节流
-	     *                        true：表示：频繁调用（间隔小于delay）时，根本不执行
-	     *                        false：表示：频繁调用（间隔小于delay）时，按规律心跳执行
+	     * @param {(Function|Array.<Function>)} fn 需�?调用的函数
+	     *                                         如果fn为array，则表示�?�以对多个函数进行throttle。
+	     *                                         他们共享�?�一个timer。
+	     * @param {number} delay 延迟时间，�?��?毫秒
+	     * @param {bool} trailing 是�?��?�?最�?�一次触�?�的执行
+	     *                        true：表示�?�?最�?�一次调用会触�?�执行。
+	     *                        但任何调用�?��?�?�能立�?�执行，总会delay。
+	     *                        false：表示�?�?�?最�?�一次调用会触�?�执行。
+	     *                        但�?��?间隔大于delay，调用就会立�?�执行。
+	     * @param {bool} debounce 节�?
+	     *                        true：表示：频�?调用（间隔�?于delay）时，根本�?执行
+	     *                        false：表示：频�?调用（间隔�?于delay）时，按规律心跳执行
 	     * @return {(Function|Array.<Function>)} 实际调用函数。
 	     *                                       当输入的fn为array时，返回值也为array。
-	     *                                       每项是Function。
+	     *                                       �?项是Function。
 	     */
 	    lib.throttle = function (fn, delay, trailing, debounce) {
 
@@ -47659,7 +47659,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    /**
-	     * 按一定频率执行，最后一次调用总归会执行
+	     * 按一定频率执行，最�?�一次调用总归会执行
 	     *
 	     * @public
 	     */
@@ -47670,7 +47670,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    /**
-	     * 直到不频繁调用了才会执行，最后一次调用总归会执行
+	     * 直到�?频�?调用了�?会执行，最�?�一次调用总归会执行
 	     *
 	     * @public
 	     */
@@ -47887,7 +47887,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }, this);
 
 	            // TODO
-	            // polar支持
+	            // polar支�?
 	        },
 
 	        /**
@@ -48759,12 +48759,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            borderColor: '#ccc',       // 值域边框颜色
 	            contentColor: '#5793f3',
 	            inactiveColor: '#aaa',
-	            borderWidth: 0,            // 值域边框线宽，单位px，默认为0（无边框）
-	            padding: 5,                // 值域内边距，单位px，默认各方向内边距为5，
-	                                       // 接受数组分别设定上右下左边距，同css
+	            borderWidth: 0,            // 值域边框线宽，�?��?px，默认为0（无边框）
+	            padding: 5,                // 值域内边�?，�?��?px，默认�?�方�?�内边�?为5，
+	                                       // 接�?�数组分别设定上�?�下左边�?，�?�css
 	            textGap: 10,               //
-	            precision: 0,              // 小数精度，默认为0，无小数点
-	            color: ['#bf444c', '#d88273', '#f6efa6'], //颜色（deprecated，兼容ec2，顺序同pieces，不同于inRange/outOfRange）
+	            precision: 0,              // �?数精度，默认为0，无�?数点
+	            color: ['#bf444c', '#d88273', '#f6efa6'], //颜色（deprecated，兼容ec2，顺�?�?�pieces，�?�?�于inRange/outOfRange）
 
 	            formatter: null,
 	            text: null,                // 文本，如['高', '低']，兼容ec2，text[0]对应高值，text[1]对应低值
@@ -48921,10 +48921,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	            allSeriesIndex && this.ecModel.eachSeries(function (seriesModel, index) {
 	                var data = seriesModel.getData();
 	                // FIXME
-	                // 只考虑了list，还没有考虑map等。
+	                // �?�考虑了list，还没有考虑map等。
 
 	                // FIXME
-	                // 这里可能应该这么判断：data.dimensions中有超出其所属coordSystem的量。
+	                // 这里�?�能应该这么判断：data.dimensions中有超出其所属coordSystem的�?。
 	                if (data.type === 'list') {
 	                    thisOption.seriesIndex.push(index);
 	                }
@@ -50580,8 +50580,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        categories: function () {
 	            var thisOption = this.option;
 	            zrUtil.each(thisOption.categories, function (cate) {
-	                // FIXME category模式也使用pieceList，但在visualMapping中不是使用pieceList。
-	                // 是否改一致。
+	                // FIXME category模�?也使用pieceList，但在visualMapping中�?是使用pieceList。
+	                // 是�?�改一致。
 	                this._pieceList.push({
 	                    text: this.formatValueText(cate, true),
 	                    value: cate
@@ -51139,7 +51139,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var itemModel = mpData.getItemModel(idx);
 	                var symbolSize = itemModel.getShallow('symbolSize');
 	                if (typeof symbolSize === 'function') {
-	                    // FIXME 这里不兼容 ECharts 2.x，2.x 貌似参数是整个数据？
+	                    // FIXME 这里�?兼容 ECharts 2.x，2.x 貌似�?�数是整个数�?�？
 	                    symbolSize = symbolSize(
 	                        mpModel.getRawValue(idx), mpModel.getDataParams(idx)
 	                    );
@@ -52118,7 +52118,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            backgroundColor: 'rgba(0,0,0,0)',   // 时间轴背景颜色
 	            borderColor: '#ccc',               // 时间轴边框颜色
-	            borderWidth: 0,                    // 时间轴边框线宽，单位px，默认为0（无边框）
+	            borderWidth: 0,                    // 时间轴边框线宽，�?��?px，默认为0（无边框）
 
 	            orient: 'horizontal',              // 'vertical'
 	            inverse: false,
@@ -52145,13 +52145,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    interval: 'auto',
 	                    rotate: 0,
 	                    // formatter: null,
-	                    textStyle: {                // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    textStyle: {                // 其余属性默认使用全局文本样�?，详�?TEXTSTYLE
 	                        color: '#304654'
 	                    }
 	                },
 	                emphasis: {
 	                    show: true,
-	                    textStyle: {                // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    textStyle: {                // 其余属性默认使用全局文本样�?，详�?TEXTSTYLE
 	                        color: '#c23531'
 	                    }
 	                }
@@ -52235,11 +52235,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	         */
 	        defaultOption: {
 
-	            zlevel: 0,                  // 一级层叠
-	            z: 4,                       // 二级层叠
+	            zlevel: 0,                  // 一级层�?�
+	            z: 4,                       // 二级层�?�
 	            show: true,
 
-	            axisType: 'time',  // 模式是时间类型，支持 value, category
+	            axisType: 'time',  // 模�?是时间类型，支�? value, category
 
 	            realtime: true,
 
@@ -52253,9 +52253,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            controlPosition: 'left',           // 'left' 'right' 'top' 'bottom' 'none'
 	            autoPlay: false,
-	            rewind: false,                     // 反向播放
+	            rewind: false,                     // �??�?�播放
 	            loop: true,
-	            playInterval: 2000,                // 播放时间间隔，单位ms
+	            playInterval: 2000,                // 播放时间间隔，�?��?ms
 
 	            currentIndex: 0,
 
@@ -53689,14 +53689,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    SaveAsImage.defaultOption = {
 	        show: true,
 	        icon: 'M4.7,22.9L29.3,45.5L54.7,23.4M4.6,43.6L4.6,58L53.8,58L53.8,43.6M29.2,45.1L29.2,0',
-	        title: '保存为图片',
+	        title: '�?存为图片',
 	        type: 'png',
 	        // Default use option.backgroundColor
 	        // backgroundColor: '#fff',
 	        name: '',
 	        excludeComponents: ['toolbox'],
 	        pixelRatio: 1,
-	        lang: ['右键另存为图片']
+	        lang: ['�?�键�?�存为图片']
 	    };
 
 	    SaveAsImage.prototype.unusable = !env.canvasSupported;
@@ -53770,10 +53770,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	            tiled: 'M2.3,2.2h22.8V25H2.3V2.2z M35,2.2h22.8V25H35V2.2zM2.3,35h22.8v22.8H2.3V35z M35,35h22.8v22.8H35V35z'
 	        },
 	        title: {
-	            line: '切换为折线图',
-	            bar: '切换为柱状图',
-	            stack: '切换为堆叠',
-	            tiled: '切换为平铺'
+	            line: '切�?�为折线图',
+	            bar: '切�?�为柱状图',
+	            stack: '切�?�为堆�?�',
+	            tiled: '切�?�为平铺'
 	        },
 	        option: {},
 	        seriesIndex: {}
@@ -54203,8 +54203,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        contentToOption: null,
 
 	        icon: 'M17.5,17.3H33 M17.5,17.3H33 M45.4,29.5h-28 M11.5,2v56H51V14.8L38.4,2H11.5z M38.4,2.2v12.7H51 M45.4,41.7h-28',
-	        title: '数据视图',
-	        lang: ['数据视图', '关闭', '刷新'],
+	        title: '数�?�视图',
+	        lang: ['数�?�视图', '关闭', '刷新'],
 	        backgroundColor: '#fff',
 	        textColor: '#000',
 	        textareaColor: '#fff',
@@ -55042,7 +55042,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    var getZIndex = function (zlevel, z, z2) {
-	        // z 的取值范围为 [0, 1000]
+	        // z 的�?�值范围为 [0, 1000]
 	        return (parseFloat(zlevel) || 0) * ZLEVEL_BASE + (parseFloat(z) || 0) * Z_BASE + z2;
 	    };
 
@@ -55418,7 +55418,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    var p = points[k];
 
 	                    m && applyTransform(p, p, m);
-	                    // 不 round 会非常慢
+	                    // �? round 会�?�常慢
 	                    str.push(
 	                        round(p[0] * Z - Z2), comma, round(p[1] * Z - Z2),
 	                        k < nPoint - 1 ? comma : ''
@@ -55566,7 +55566,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        var vmlEl = this._vmlEl;
 	        if (!vmlEl) {
-	            // FIXME 使用 group 在 left, top 都不是 0 的时候就无法显示了。
+	            // FIXME 使用 group 在 left, top 都�?是 0 的时候就无法显示了。
 	            // vmlEl = vmlCore.createNode('group');
 	            vmlEl = vmlCore.doc.createElement('div');
 	            initRootElStyle(vmlEl);
@@ -55613,7 +55613,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        'Dy=', round(y * scaleY + m[5]));
 
 	            vmlElStyle.padding = '0 ' + round(maxX) + 'px ' + round(maxY) + 'px 0';
-	            // FIXME DXImageTransform 在 IE11 的兼容模式下不起作用
+	            // FIXME DXImageTransform 在 IE11 的兼容模�?下�?起作用
 	            vmlElStyle.filter = imageTransformPrefix + '.Matrix('
 	                + transformFilter.join('') + ', SizingMethod=clip)';
 
@@ -55933,7 +55933,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._textVmlEl = textVmlEl;
 	        }
 	        else {
-	            // 这里是在前面 appendChild 保证顺序的前提下
+	            // 这里是在�?�?� appendChild �?�?顺�?的�?�??下
 	            skewEl = textVmlEl.firstChild;
 	            pathEl = skewEl.nextSibling;
 	            textPathEl = pathEl.nextSibling;
@@ -56201,7 +56201,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                // Detached from document at first time
 	                // to avoid page refreshing too many times
 
-	                // FIXME 如果每次都先 removeChild 可能会导致一些填充和描边的效果改变
+	                // FIXME 如果�?次都先 removeChild �?�能会导致一些填充和�??边的效果改�?�
 	                this._vmlViewport.appendChild(vmlRoot);
 	                this._firstPaint = false;
 	            }

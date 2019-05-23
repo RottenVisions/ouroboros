@@ -16,7 +16,7 @@ namespace Ouroboros {
 	//#define OURO_USE_RDTSC
 #endif // unix
 
-	enum KBETimingMethod
+	enum OUROTimingMethod
 	{
 		RDTSC_TIMING_METHOD, // The number of clock cycles elapsed since the CPU was powered on, reaching nanosecond timing accuracy
 		GET_TIME_OF_DAY_TIMING_METHOD,
@@ -24,7 +24,7 @@ namespace Ouroboros {
 		NO_TIMING_METHOD,
 	};
 
-	extern KBETimingMethod g_timingMethod;
+	extern OUROTimingMethod g_timingMethod;
 
 	const char* getTimingMethodName();
 

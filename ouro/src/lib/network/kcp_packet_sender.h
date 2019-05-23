@@ -21,7 +21,7 @@ namespace Network
 class KCPPacketSender : public UDPPacketSender
 {
 public:
-	typedef KBEShared_ptr< SmartPoolObject< KCPPacketSender > > SmartPoolObjectPtr;
+	typedef OUROShared_ptr< SmartPoolObject< KCPPacketSender > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<KCPPacketSender>& ObjPool();
 	static KCPPacketSender* createPoolObject(const std::string& logPoint);

@@ -8,7 +8,7 @@ namespace Ouroboros{
 
 
 //-------------------------------------------------------------------------------------
-MoveToEntityHandler::MoveToEntityHandler(KBEShared_ptr<Controller>& pController, ENTITY_ID pTargetID, float velocity, float range, bool faceMovement, 
+MoveToEntityHandler::MoveToEntityHandler(OUROShared_ptr<Controller>& pController, ENTITY_ID pTargetID, float velocity, float range, bool faceMovement, 
 		bool moveVertically, PyObject* userarg, const Position3D& offsetPos):
 MoveToPointHandler(pController, pController->pEntity()->layer(), pController->pEntity()->position(), velocity, range, faceMovement, moveVertically, userarg),
 pTargetID_(pTargetID), 

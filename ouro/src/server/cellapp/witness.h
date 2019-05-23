@@ -74,7 +74,7 @@ public:
 	void addToStream(Ouroboros::MemoryStream& s);
 	void createFromStream(Ouroboros::MemoryStream& s);
 
-	typedef KBEShared_ptr< SmartPoolObject< Witness > > SmartPoolObjectPtr;
+	typedef OUROShared_ptr< SmartPoolObject< Witness > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 
 	static ObjectPool<Witness>& ObjPool();

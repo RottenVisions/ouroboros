@@ -16,7 +16,7 @@ namespace Network
 
 //-------------------------------------------------------------------------------------
 BlowfishFilter::BlowfishFilter(const Key & key):
-KBEBlowfish(key),
+OUROBlowfish(key),
 pPacket_(NULL),
 packetLen_(0),
 padSize_(0)
@@ -25,7 +25,7 @@ padSize_(0)
 
 //-------------------------------------------------------------------------------------
 BlowfishFilter::BlowfishFilter():
-KBEBlowfish(),
+OUROBlowfish(),
 pPacket_(NULL),
 packetLen_(0),
 padSize_(0)
@@ -273,7 +273,7 @@ void BlowfishFilter::encrypt(Packet * pInPacket, Packet * pOutPacket)
 	if(pInPacket != pOutPacket)
 	{
 		pOutPacket->data_resize(pInPacket->size() + pOutPacket->wpos());
-		int size = KBEBlowfish::encrypt(pInPacket->data(), pOutPacket->data() + pOutPacket->wpos(), (int)pInPacket->wpos());
+		int size = OUROBlowfish::encrypt(pInPacket->data(), pOutPacket->data() + pOutPacket->wpos(), (int)pInPacket->wpos());
 		pOutPacket->wpos((int)(size + pOutPacket->wpos()));
 	}
 	else
@@ -285,7 +285,7 @@ void BlowfishFilter::encrypt(Packet * pInPacket, Packet * pOutPacket)
 
 		pOutPacket->data_resize(pInPacket->size() + 1);
 
-		int size = KBEBlowfish::encrypt(pInPacket->data(), pOutPacket->data() + pOutPacket->wpos(), (int)pInPacket->wpos());
+		int size = OUROBlowfish::encrypt(pInPacket->data(), pOutPacket->data() + pOutPacket->wpos(), (int)pInPacket->wpos());
 		pOutPacket->wpos(size);
 
 		pInPacket->swap(*(static_cast<Ouroboros::MemoryStream*>(pOutPacket)));
@@ -302,7 +302,7 @@ void BlowfishFilter::decrypt(Packet * pInPacket, Packet * pOutPacket)
 	{
 		pOutPacket->data_resize(pInPacket->size());
 
-		int size = KBEBlowfish::decrypt(pInPacket->data() + pInPacket->rpos(), 
+		int size = OUROBlowfish::decrypt(pInPacket->data() + pInPacket->rpos(), 
 			pOutPacket->data() + pOutPacket->rpos(),  
 			(int)(pInPacket->wpos() - pInPacket->rpos()));
 
@@ -310,7 +310,7 @@ void BlowfishFilter::decrypt(Packet * pInPacket, Packet * pOutPacket)
 	}
 	else
 	{
-		KBEBlowfish::decrypt(pInPacket->data() + pInPacket->rpos(), pInPacket->data(),  
+		OUROBlowfish::decrypt(pInPacket->data() + pInPacket->rpos(), pInPacket->data(),  
 			(int)(pInPacket->wpos() - pInPacket->rpos()));
 
 		pInPacket->wpos((int)(pInPacket->wpos() - pInPacket->rpos()));

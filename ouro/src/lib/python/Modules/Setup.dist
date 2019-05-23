@@ -208,10 +208,10 @@ _symtable symtablemodule.c
 
 # Socket module helper for SSL support; you must comment out the other
 # socket line above, and possibly edit the SSL variable:
-#SSL=$(OURO_ROOT)/kbe/src/lib/dependencies/openssl
+#SSL=$(OURO_ROOT)/ouro/src/lib/dependencies/openssl
 #_ssl _ssl.c \
 #	-DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
-#	-L$(OURO_ROOT)/kbe/src/libs -lssl -lcrypto
+#	-L$(OURO_ROOT)/ouro/src/libs -lssl -lcrypto
 
 # The crypt module is now disabled by default because it breaks builds
 # on many systems (where -lcrypt is needed), e.g. Linux (I believe).
@@ -335,7 +335,7 @@ _symtable symtablemodule.c
 # Andrew Kuchling's zlib module.
 # This require zlib 1.1.3 (or later).
 # See http://www.gzip.org/zlib/
-#zlib zlibmodule.c -I$(OURO_ROOT)/kbe/src/lib/dependencies/zlib -L$(OURO_ROOT)/kbe/src/libs -lz
+#zlib zlibmodule.c -I$(OURO_ROOT)/ouro/src/lib/dependencies/zlib -L$(OURO_ROOT)/ouro/src/libs -lz
 
 # Interface to the Expat XML parser
 # More information on Expat can be found at www.libexpat.org.

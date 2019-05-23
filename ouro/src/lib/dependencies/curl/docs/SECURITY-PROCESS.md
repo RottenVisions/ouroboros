@@ -132,4 +132,4 @@ Then, if the issue is [critical](https://hackerone.com/ibb-data), you are
 eligible to apply for a bounty from Hackerone for your find.
 
 Once your reported vulnerability has been publicly disclosed by the curl
-project, you can submit a [report to them](https://hackerone.com/ibb-data).
+project, you can submit a [report to them](https://hackerone.com/ibb-data)

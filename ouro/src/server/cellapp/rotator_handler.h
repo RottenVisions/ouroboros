@@ -14,7 +14,7 @@ namespace Ouroboros{
 class RotatorHandler : public Updatable
 {
 public:
-	RotatorHandler(KBEShared_ptr<Controller> pController, const Direction3D& destDir, float velocity, PyObject* userarg);
+	RotatorHandler(OUROShared_ptr<Controller> pController, const Direction3D& destDir, float velocity, PyObject* userarg);
 
 	RotatorHandler();
 	virtual ~RotatorHandler();
@@ -26,7 +26,7 @@ public:
 
 	virtual const Direction3D& destDir();
 	virtual bool requestTurnOver();
-	void pController(KBEShared_ptr<Controller> pController){ pController_ = pController; }
+	void pController(OUROShared_ptr<Controller> pController){ pController_ = pController; }
 
 	float velocity() const {
 		return velocity_;
@@ -40,7 +40,7 @@ protected:
 	Direction3D destDir_;
 	float velocity_;
 	PyObject* pyuserarg_;
-	KBEShared_ptr<Controller> pController_;
+	OUROShared_ptr<Controller> pController_;
 };
  
 }

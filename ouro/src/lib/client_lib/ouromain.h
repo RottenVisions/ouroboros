@@ -31,7 +31,7 @@ inline void START_MSG(const char * name, uint64 appuid)
 			"AppID: {}. "
 			"UID: {}. "
 			"PID: {} ----\n",
-		name, KBEVersion::versionString(), KBEVersion::scriptVersionString(),
+		name, OUROVersion::versionString(), OUROVersion::scriptVersionString(),
 		Network::MessageHandlers::getDigestStr(),
 		OURO_CONFIG, __TIME__, __DATE__,
 		appuid, getUserUID(), getProcessPID()));

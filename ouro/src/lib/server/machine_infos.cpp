@@ -96,7 +96,7 @@ void MachineInfos::fetchLinuxCpuInfo()
 	char procLine[BUFSIZ];
 	char* pInterest;
 	float mhz;
-	typedef KBEUnordered_map<std::string, unsigned int> modelNameMap;
+	typedef OUROUnordered_map<std::string, unsigned int> modelNameMap;
 	modelNameMap modelNames;
 
 	pProcCpu = fopen( "/proc/cpuinfo", "r" );

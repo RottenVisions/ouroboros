@@ -13,15 +13,15 @@ public:
 	Controllers(ENTITY_ID entityID);
 	~Controllers();
 
-	bool add(KBEShared_ptr<Controller> pController);
-	bool remove(KBEShared_ptr<Controller> pController);
+	bool add(OUROShared_ptr<Controller> pController);
+	bool remove(OUROShared_ptr<Controller> pController);
 	bool remove(uint32 id);
 	
 	void clear();
 
 	uint32 freeID() { return ++lastid_; }
 
-	typedef std::map<uint32, KBEShared_ptr< Controller > > CONTROLLERS_MAP;
+	typedef std::map<uint32, OUROShared_ptr< Controller > > CONTROLLERS_MAP;
 	CONTROLLERS_MAP& objects() { return objects_; }
 
 	void addToStream(Ouroboros::MemoryStream& s);

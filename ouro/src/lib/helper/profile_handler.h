@@ -30,7 +30,7 @@ public:
 	virtual void timeout() = 0;
 	virtual void sendStream(MemoryStream* s) = 0;
 
-	static KBEUnordered_map<std::string, KBEShared_ptr< ProfileHandler > > profiles;
+	static OUROUnordered_map<std::string, OUROShared_ptr< ProfileHandler > > profiles;
 
 protected:
 	virtual void handleTimeout(TimerHandle handle, void * arg);
@@ -86,7 +86,7 @@ private:
 
 	// This ProfileVal only records the initial value of default.profiles at the beginning of the timer
 	// Take the difference at the end to get the result
-	typedef KBEUnordered_map<std::string,  ProfileVal> PROFILEVALS;
+	typedef OUROUnordered_map<std::string,  ProfileVal> PROFILEVALS;
 	PROFILEVALS profileVals_;
 };
 
@@ -125,9 +125,9 @@ private:
 
 	// This ProfileVal only records the initial value of default.profiles at the beginning of the timer
 	// Take the difference at the end to get the result
-	typedef KBEUnordered_map<std::string,  ProfileVal> PROFILEVALS;
+	typedef OUROUnordered_map<std::string,  ProfileVal> PROFILEVALS;
 
-	typedef KBEUnordered_map< std::string,  PROFILEVALS > PROFILEVALMAP;
+	typedef OUROUnordered_map< std::string,  PROFILEVALS > PROFILEVALMAP;
 	PROFILEVALMAP profileMaps_;
 	
 	static std::vector<EventProfileHandler*> eventProfileHandlers_;
@@ -184,7 +184,7 @@ private:
 		uint32			total_recv_count;
 	};
 
-	typedef KBEUnordered_map<std::string,  ProfileVal> PROFILEVALS;
+	typedef OUROUnordered_map<std::string,  ProfileVal> PROFILEVALS;
 	PROFILEVALS profileVals_;
 };
 

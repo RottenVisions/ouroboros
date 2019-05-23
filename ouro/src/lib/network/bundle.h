@@ -70,7 +70,7 @@ class Channel;
 class Bundle : public PoolObject
 {
 public:
-	typedef KBEShared_ptr< SmartPoolObject< Bundle > > SmartPoolObjectPtr;
+	typedef OUROShared_ptr< SmartPoolObject< Bundle > > SmartPoolObjectPtr;
 	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<Bundle>& ObjPool();
 	static Bundle* createPoolObject(const std::string& logPoint);

@@ -669,8 +669,8 @@ protected:
 
 	// Controller Manager
 	Controllers*											pControllers_;
-	KBEShared_ptr<Controller>								pMoveController_;
-	KBEShared_ptr<Controller>								pTurnController_;
+	OUROShared_ptr<Controller>								pMoveController_;
+	OUROShared_ptr<Controller>								pTurnController_;
 	
 	script::ScriptVector3::PYVector3ChangedCallback			pyPositionChangedCallback_;
 	script::ScriptVector3::PYVector3ChangedCallback			pyDirectionChangedCallback_;

@@ -99,7 +99,7 @@
 
             this.form.find("input:visible").each(function (index, input)
             {
-                //排除 hidden、button、submit、checkbox、radio、file
+                //排除 hidden�?button�?submit�?checkbox�?radio�?file
                 if (input.type != "hidden" && input.type != "button" && input.type != "submit" && input.type != "checkbox" && input.type != "radio" && input.type != "file")
                 {
                     var checker = $(input).easyinput({easytip: ev.easytip});
@@ -178,7 +178,7 @@
         this.rules = [];
 
         this.message = $(input).attr("message");
-        this.message = (!!this.message ? this.message : "格式错误!");
+        this.message = (!!this.message ? this.message : "格�?错误!");
 
         //Event
         this.error = null;
@@ -367,7 +367,7 @@
 
             "char-chinese": function (ei, v, p)
             {
-                if (false == /^([\w]|[\u4e00-\u9fa5]|[ 。，、？￥“‘！：【】《》（）——+-])+$/.test(v))
+                if (false == /^([\w]|[\u4e00-\u9fa5]|[ 。，�?？￥“‘�?：�?】《》（）——+-])+$/.test(v))
                     return ei._error("char-chinese");
                 else
                     return ei._success_rule("char-chinese");

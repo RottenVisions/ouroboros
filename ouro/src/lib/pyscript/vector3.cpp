@@ -203,13 +203,13 @@ PyObject* ScriptVector3::tp_str()
 //-------------------------------------------------------------------------------------
 PyObject* ScriptVector3::pyGetVectorLength()
 { 
-	return PyFloat_FromDouble(KBEVec3Length(&getVector())); 
+	return PyFloat_FromDouble(OUROVec3Length(&getVector())); 
 }
 
 //-------------------------------------------------------------------------------------
 PyObject* ScriptVector3::pyGetVectorLengthSquared()
 { 
-	return PyFloat_FromDouble(KBEVec3LengthSq(&getVector()));
+	return PyFloat_FromDouble(OUROVec3LengthSq(&getVector()));
 }
 
 //-------------------------------------------------------------------------------------
@@ -675,7 +675,7 @@ PyObject* ScriptVector3::__py_pyFlatDistTo(PyObject* self, PyObject* args)
 	
 	Vector3 v1;
 	convertPyObjectToVector3(v1, pyVal);
-	return PyFloat_FromDouble(KBEVec3CalcVec2Length(v, v1));
+	return PyFloat_FromDouble(OUROVec3CalcVec2Length(v, v1));
 }
 
 //-------------------------------------------------------------------------------------
@@ -701,7 +701,7 @@ PyObject* ScriptVector3::__py_pyDistTo(PyObject* self, PyObject* args)
 	convertPyObjectToVector3(v1, pyVal);
 	
 	Vector3 rv = (v - v1);
-	return PyFloat_FromDouble(KBEVec3Length(&rv)); //calculate the length and return
+	return PyFloat_FromDouble(OUROVec3Length(&rv)); //calculate the length and return
 }
 
 //-------------------------------------------------------------------------------------
@@ -727,7 +727,7 @@ PyObject* ScriptVector3::__py_pyDistSqrTo(PyObject* self, PyObject* args)
 	convertPyObjectToVector3(v1, pyVal);
 	
 	Vector3 rv = (v - v1);
-	return PyFloat_FromDouble(KBEVec3LengthSq(&rv)); //calculate point multiplication and return
+	return PyFloat_FromDouble(OUROVec3LengthSq(&rv)); //calculate point multiplication and return
 }
 
 //-------------------------------------------------------------------------------------
@@ -773,7 +773,7 @@ PyObject* ScriptVector3::__py_pyDot(PyObject* self, PyObject* args)
 		Py_DECREF(pyResult);
 
 	ScriptVector3* sv = static_cast<ScriptVector3*>(self);
-	float result = KBEVec3Dot(const_cast<Vector3*>(&sv->getVector()), const_cast<Vector3*>(&v->getVector()));
+	float result = OUROVec3Dot(const_cast<Vector3*>(&sv->getVector()), const_cast<Vector3*>(&v->getVector()));
 	Py_DECREF(v);
 	return PyFloat_FromDouble(result);
 }
@@ -790,7 +790,7 @@ PyObject* ScriptVector3::__py_pyNormalise(PyObject* self, PyObject* args)
 
 	ScriptVector3* sv = static_cast<ScriptVector3*>(self);
 	Vector3& v = sv->getVector();
-	KBEVec3Normalize(&v, &v);
+	OUROVec3Normalize(&v, &v);
 	S_Return;
 }
 

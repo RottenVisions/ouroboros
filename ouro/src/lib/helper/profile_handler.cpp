@@ -14,7 +14,7 @@
 
 namespace Ouroboros { 
 
-KBEUnordered_map<std::string, KBEShared_ptr< ProfileHandler > > ProfileHandler::profiles;
+OUROUnordered_map<std::string, OUROShared_ptr< ProfileHandler > > ProfileHandler::profiles;
 
 //-------------------------------------------------------------------------------------
 ProfileHandler::ProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen, 

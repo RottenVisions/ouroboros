@@ -39,4 +39,4 @@ __inline int c99_snprintf(char* str, size_t size, const char* format, ...)
 #endif
 
 #endif
-#endif
+#endi

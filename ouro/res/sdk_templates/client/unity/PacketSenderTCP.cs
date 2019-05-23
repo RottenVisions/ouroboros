@@ -20,8 +20,8 @@
 	{
 		private byte[] _buffer;
 
-		Int _wpos = 0; // written data location
-		Int _spos = 0; // sent data location
+		int _wpos = 0; // written data location
+		int _spos = 0; // sent data location
 
 		object _sendingObj = new object();
 		Boolean _sending = false;

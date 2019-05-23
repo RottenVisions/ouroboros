@@ -40,7 +40,7 @@ class SpaceViewer(ServerApp.ServerApp):
 	"""
 	Use the example:
 	import sys
-	sys.path.append(r"F:\ouroboros\kbe\tools\server")
+	sys.path.append(r"F:\ouroboros\ouro\tools\server")
 	import pycommon.SpaceViews
 	import pycommon.Define
 	w = pycommon.SpaceViews.SpaceViewer(4)
@@ -113,7 +113,7 @@ class CellAppMgrViewer(ServerApp.ServerApp):
 	Get space information in CellAppMgr
 	Use the example:
 	import sys
-	sys.path.append(r"F:\ouroboros\kbe\tools\server")
+	sys.path.append(r"F:\ouroboros\ouro\tools\server")
 	import pycommon.CellViews
 	import pycommon.Define
 	w = pycommon.CellViews.CellAppMgrViewer(4,1)
@@ -171,7 +171,7 @@ class CellViewer(ServerApp.ServerApp):
 	Get entity information in cellapp
 	Use the example:
 	import sys
-	sys.path.append(r"F:\ouroboros\kbe\tools\server")
+	sys.path.append(r"F:\ouroboros\ouro\tools\server")
 	import pycommon.CellViews
 	import pycommon.Define
 	w = pycommon.CellViews.CellViewer(4,5)

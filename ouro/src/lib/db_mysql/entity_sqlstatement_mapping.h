@@ -31,9 +31,9 @@ public:
 	SqlStatement* findInsertSqlStatement(const std::string& tableName);
 	SqlStatement* findUpdateSqlStatement(const std::string& tableName);
 protected:
-	KBEUnordered_map< std::string, KBEShared_ptr< SqlStatement > > query_sqlStatements_;
-	KBEUnordered_map< std::string, KBEShared_ptr< SqlStatement > > update_sqlStatements_;
-	KBEUnordered_map< std::string, KBEShared_ptr< SqlStatement > > insert_sqlStatements_;
+	OUROUnordered_map< std::string, OUROShared_ptr< SqlStatement > > query_sqlStatements_;
+	OUROUnordered_map< std::string, OUROShared_ptr< SqlStatement > > update_sqlStatements_;
+	OUROUnordered_map< std::string, OUROShared_ptr< SqlStatement > > insert_sqlStatements_;
 };
 
 

@@ -10,7 +10,7 @@
 namespace Ouroboros { 
 
 
-class KBEBlowfish
+class OUROBlowfish
 {
 public:
 	// per block size
@@ -25,9 +25,9 @@ public:
 
 	typedef std::string Key;
 
-	virtual ~KBEBlowfish();
-	KBEBlowfish(const Key & key);
-	KBEBlowfish(int keySize = DEFAULT_KEY_SIZE);
+	virtual ~OUROBlowfish();
+	OUROBlowfish(const Key & key);
+	OUROBlowfish(int keySize = DEFAULT_KEY_SIZE);
 
 	const Key & key() const { return key_; }
 	const char * strBlowFishKey() const;

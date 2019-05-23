@@ -50,7 +50,7 @@ INLINE void Entity::position(const Position3D& pos)
 { 
 	Vector3 movement = pos - position_;
 
-	if(KBEVec3Length(&movement) < 0.0004f)
+	if(OUROVec3Length(&movement) < 0.0004f)
 		return;
 		
 	position_ = pos; 

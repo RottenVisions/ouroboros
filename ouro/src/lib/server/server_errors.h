@@ -49,7 +49,7 @@ typedef uint16 SERVER_ERROR_CODE; // error code category
 #define SERVER_ERR_USER8 32 // User-defined error code 8
 #define SERVER_ERR_USER9 33 // User-defined error code 9
 #define SERVER_ERR_USER10 34 // User-defined error code 10
-#define SERVER_ERR_LOCAL_PROCESSING 35 // Local processing, usually for a thing not handled by a third party but by a KBE server
+#define SERVER_ERR_LOCAL_PROCESSING 35 // Local processing, usually for a thing not handled by a third party but by a OURO server
 #define SERVER_ERR_ACCOUNT_RESET_PASSWORD_NOT_AVAILABLE 36 // The account reset password function is not open.
 #define SERVER_ERR_ACCOUNT_LOGIN_ANOTHER_SERVER 37 // The current account is logged in on another server
 #define SERVER_ERR_MAX 38 // Please put this at the end of all errors. This is not an error flag. It only indicates how many error definitions are there.

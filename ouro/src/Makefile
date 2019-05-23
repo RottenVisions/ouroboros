@@ -1,5 +1,5 @@
 ifndef OURO_ROOT
-export OURO_ROOT := $(subst /kbe/src,,$(CURDIR))
+export OURO_ROOT := $(subst /ouro/src,,$(CURDIR))
 endif
 
 

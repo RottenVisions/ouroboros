@@ -269,7 +269,7 @@ namespace Ouroboros{
 
 #define ENTITY_HEADER(CLASS)																				\
 public:																										\
-	typedef KBEUnordered_map< std::string, std::vector<PyObjectPtr> > ENTITY_EVENTS;						\
+	typedef OUROUnordered_map< std::string, std::vector<PyObjectPtr> > ENTITY_EVENTS;						\
 protected:																									\
 	ENTITY_ID													id_;										\
 	ScriptDefModule*											pScriptModule_;								\

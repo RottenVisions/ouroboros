@@ -35,7 +35,7 @@ void Controllers::clear()
 }
 
 //-------------------------------------------------------------------------------------
-bool Controllers::add(KBEShared_ptr<Controller> pController)
+bool Controllers::add(OUROShared_ptr<Controller> pController)
 {
 	uint32 id = pController->id();
 	if(id == 0)
@@ -62,7 +62,7 @@ bool Controllers::add(KBEShared_ptr<Controller> pController)
 }
 
 //-------------------------------------------------------------------------------------
-bool Controllers::remove(KBEShared_ptr<Controller> pController)
+bool Controllers::remove(OUROShared_ptr<Controller> pController)
 {
 	return remove(pController->id());
 }
@@ -75,7 +75,7 @@ bool Controllers::remove(uint32 id)
 		return true;
 
 	// Make a reference to prevent problems in the destructor of the Controller from causing problems in the case where the erase is not finished in some cases.
-	KBEShared_ptr< Controller > pController = iter->second;
+	OUROShared_ptr< Controller > pController = iter->second;
 	objects_.erase(iter);
 	return pController != NULL;
 }
@@ -111,12 +111,12 @@ void Controllers::createFromStream(Ouroboros::MemoryStream& s)
 
 		Controller::ControllerType type = (Controller::ControllerType)itype;
 		
-		KBEShared_ptr<Controller> pController;
+		OUROShared_ptr<Controller> pController;
 
 		switch(type)
 		{
 		case Controller::CONTROLLER_TYPE_PROXIMITY:
-			pController = KBEShared_ptr<Controller>(new ProximityController(pEntity));
+			pController = OUROShared_ptr<Controller>(new ProximityController(pEntity));
 			break;
 		case Controller::CONTROLLER_TYPE_ROTATE:
 		case Controller::CONTROLLER_TYPE_MOVE:
