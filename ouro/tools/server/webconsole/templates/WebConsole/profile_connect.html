@@ -5,11 +5,19 @@
 <div class="container-win row placeholders">
   <div id="server-title"><h4>{{ request.GET.title }}</h4></div>
   <form class="form-inline" onkeypress="if(event.keyCode==13||event.which==13){return false;}">
+    <div class="form-group" style="margin-right: 1em">
+            <input class="form-control" type="text" name="second" id="second" placeholder="Enter the query duration (in seconds)" style="padding-left: 0.3em;padding-top: 0.2em;padding-bottom: 0.3em;" />
+            <div> Note: The default query duration is 10 seconds</div>
+    </div>
+    <div class="form-group" style="margin-right: 1em">
+                <input class="form-control" type="text" name="password" id="password" placeholder="Input Key?" style="padding-left: 0.3em;padding-top: 0.2em;padding-bottom: 0.3em; " />
+                <div> Note: telnet password is required, the default is pwd123456</div>
+    </div>
     <div class="form-group">
-      <input class="form-control" type="text" name="second" id="second" placeholder="The input query duration(unit: seconds)" style="padding-left: 0.3em;padding-top: 0.2em;padding-bottom: 0.3em " />
-      <input class="btn btn-default form-control" type="button" name="exec" value="The connection Assembly" id="exec" onClick="onProfile(this)"/>
-      <div id="output_block_area2" class="form-control" style="  border: none;background-color: none;box-shadow:none;"></div>
-      <div>Note: the default query time is 10 seconds long</div>
+                <input class="btn btn-default form-control" type="button" name="exec" value="Connection Component" id="exec" onClick="onProfile(this)" />
+        <div id="output_block_area2" class="form-control" style="border: none;background-color: none;box-shadow:none;"></div>
+        <div style="height: 1.5em"></div>
+    </div>
     </div>
   </form>
 
@@ -61,7 +69,7 @@
   </table>
   <br>
   <div id="execute-block">
-      <input name="component_ip" type="hidden" id="component_ip" value="{{ request.GET.ip }}">
+    <input name="component_ip" type="hidden" id="component_ip" value="{{ request.GET.ip }}">
     <input name="component_port" type="hidden" id="component_port" value="{{ request.GET.port }}">
     <input name="ws_url" type="hidden" id="ws_url" value="{{ ws_url }}">
   </div>
@@ -77,10 +85,10 @@
 
 <script>$(".profile-comps").addClass("active");</script>
 <script>
-  $(".ouro-list .dd").hide();
-  $(".ouro-list .statistics .dd").show();
-  $(".ouro-list .statistics").css({"background-color":"#317eb4"});
-  $(".ouro-list .statistics").find('li').addClass("menu_chioce");
+  $(".kbe-list .dd").hide();
+  $(".kbe-list .statistics .dd").show();
+  $(".kbe-list .statistics").css({"background-color":"#317eb4"});
+  $(".kbe-list .statistics").find('li').addClass("menu_chioce");
 
 var cmd = getUrlParam("cmd");
 
@@ -91,16 +99,22 @@ function onProfile(elm)
     {
         ws_url = "";
         var sec = $("#second").val();
+        var password = $("#password").val();
         if(sec == null || sec == "" || sec == 0){
           sec = "10";
         }
+
+        if(password == null || password == "") {
+          password = "pwd123456";
+        }
+
         if (sec > 0 )
         {
           // sec = $("#second").val();
 
-          ws_url = "{{ws_url}}"+"&sec="+sec;
+          ws_url = "{{ws_url}}"+"&sec="+sec+"&password="+password;
           $("#ws_url").val(ws_url);
-          elmm.val("Disconnect");
+                    Elmm.val("disconnected");
           $.data.profile_started = true;
           Ouroboros.resetPyTickProfileData();
           connect_to();
@@ -110,11 +124,11 @@ function onProfile(elm)
             show_echars();
         }
         else
-          alert("The query time must be greater than or equal to 0");
+                    Alert ("Query time must be greater than or equal to 0");
     }
     else
     {
-        elmm.val("The connection Assembly");
+                Elmm.val("connected component");
         $.data.profile_started = false;
         window.ouro_socket.close();
     }
@@ -124,12 +138,12 @@ function connect_to()
 {
     var socket = new WebSocket($("#ws_url").val());
     socket.onopen = function(evt) {
-        $('#output_block_area2').html("<p> Connection success! Welcome to use WebConsole to.</p>");
+                $('#output_block_area2').html("<p>Connection is successful! Welcome to WebConsole.</p>");
         if (cmd == 'pytickprofile')
           show_echars();
     };
     socket.onclose = function(evt) {
-        $('#output_block_area2').html("<p> The connection has been closed, please re-connect it!!! </p>");
+                $('#output_block_area2').html("<p> Connection is closed, please reconnect!!! </p>");
         $.data.connect_closed = true;
     };
     socket.onmessage = function(evt) {
@@ -138,7 +152,7 @@ function connect_to()
     };
     socket.onerror = function(evt) {
         //alert("websocket onerror: " + evt);
-        $('#output_block_area2').html("<p> Connection failed it!!! Please refresh and try again. </p>");
+                $('#output_block_area2').html("<p> Connection failed!!! Please refresh and try again. </p>");
     };
     window.ouro_socket = socket;
     $.data.connect_closed = false;
@@ -158,7 +172,6 @@ window.onload = function()
   {
     $("#tottime").removeClass("hide");
     $(".object-info").removeClass("hide");
-
   }
 
   if (cmd =="eventprofile")
@@ -178,7 +191,7 @@ function show_data(sec)
   var pytick_data = "";
   var layer_time = sec*1000+1000;
   layer.msg(
-    'Running……',
+        'Running...',
   {
     icon: 16,
     time: layer_time,
@@ -226,7 +239,7 @@ function show_echars(){
   var myChart = echarts.init(document.getElementById('tottime'));
   var option = {
     title : {
-        text: 'Components of the Object response time',
+                Text: 'Component Object Response Time',
         x: 'center',
         align: 'right'
     },
@@ -243,7 +256,7 @@ function show_echars(){
          }
     },
     legend: {
-        data:['Response time'],
+                Data:['response time'],
         x: 'left',
         top:'5%',
     },
@@ -267,13 +280,13 @@ function show_echars(){
     ],
     yAxis: [
         {
-            name: 'Response time',
+                        Name: 'response time',
             type: 'value',
         }
     ],
     series: [
         {
-            name:'Response time',
+                        Name: 'response time',
             type:'bar',
             hoverAnimation: false,
             areaStyle: {
@@ -291,13 +304,13 @@ function show_echars(){
 
   myChart.setOption(option);
 
-  //Real-time access to applicable state
+    // Get the status of dataZoom in real time
   myChart.on("dataZoom",function(params){
       start_num = params.start;
       end_num = params.end;
     })
 
-  //Real-time update of the timeline
+    // Real-time update timeline
   timeTicket = setInterval(function () {
     data_length = $.data.pyTickProfileDatas.length-1;
 
@@ -313,7 +326,7 @@ function show_echars(){
       }
     }
 
-    //Real-time updates to rewrite the data
+        // Real-time update rewrite data
     myChart.setOption({
         dataZoom : [{
          start:start_num,
@@ -349,9 +362,9 @@ function show_object_data(Array_num){
 
 function getUrlParam(name)
 {
-    var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)"); //Construct a containing the target parameter of the regular expression object
-    var r = window.location.search. substr (1).match(reg);  //Match the target parameters
-    if (r!=null) return unescape(r[2]); return null; //Returns the parameter value 
+        Var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)"); // Construct a regular expression object with the target argument
+        Var r = window.location.search. substr (1).match(reg); //match target parameters
+        If (r!=null) return unescape(r[2]); return null; //return the parameter value
 }
 
 </script>

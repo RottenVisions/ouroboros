@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_HTTP_CB_HANDLER_H
 #define OURO_HTTP_CB_HANDLER_H
@@ -26,7 +26,7 @@ protected:
 	
 	struct CLIENT
 	{
-		OUROShared_ptr< Network::EndPoint > endpoint;
+		KBEShared_ptr< Network::EndPoint > endpoint;
 		uint8 state;
 		std::string code;
 	};

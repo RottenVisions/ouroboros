@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SERVER_COMMON_H
 #define OURO_SERVER_COMMON_H
@@ -8,35 +8,35 @@
 #include "server/server_errors.h"
 
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
-// Message forwarded to a component
+// The message is forwarded to a component
 #define NETWORK_MESSAGE_FORWARD(SEND_INTERFACE, SENDBUNDLE, FORWARDBUNDLE, MYCOMPONENT_ID, FORWARD_COMPONENT_ID)						\
 	SENDBUNDLE.newMessage(SEND_INTERFACE::forwardMessage);																				\
 	SENDBUNDLE << MYCOMPONENT_ID << FORWARD_COMPONENT_ID;																				\
 	FORWARDBUNDLE.finiMessage(true);																									\
 	SENDBUNDLE.append(FORWARDBUNDLE);																									\
 
-// Cellapp forwards messages to the client
+// cellapp forwards the message to the client
 #define NETWORK_ENTITY_MESSAGE_FORWARD_CLIENT(ENTITYID, SENDBUNDLE, FORWARDBUNDLE)														\
 	SENDBUNDLE.newMessage(BaseappInterface::forwardMessageToClientFromCellapp);															\
 	SENDBUNDLE << ENTITYID;																												\
 	FORWARDBUNDLE.finiMessage(true);																									\
 	SENDBUNDLE.append(FORWARDBUNDLE);																									\
 
-// Cellapp forwards messages to cellapp
+// cellapp forwards the message to cellapp
 #define NETWORK_ENTITY_MESSAGE_FORWARD_CELLAPP(ENTITYID, SENDBUNDLE, FORWARDBUNDLE)														\
 	SENDBUNDLE.newMessage(BaseappInterface::forwardMessageToCellappFromCellapp);														\
 	SENDBUNDLE << ENTITYID;																												\
 	FORWARDBUNDLE.finiMessage(true);																									\
-	SENDBUNDLE.append(FORWARDBUNDLE);
+	SENDBUNDLE.append(FORWARDBUNDLE);	
 
-// Cellapp forwards the message to the client
+// cellapp forwards the message to the client to start
 #define NETWORK_ENTITY_MESSAGE_FORWARD_CLIENT_BEGIN(ENTITYID, SENDBUNDLE)																\
 	SENDBUNDLE.newMessage(BaseappInterface::forwardMessageToClientFromCellapp);															\
 	SENDBUNDLE << ENTITYID;																												\
 
-// Cellapp forwards message to client message packet append message
+// cellapp forwards the message to the client message packet append message
 #define NETWORK_ENTITY_MESSAGE_FORWARD_CLIENT_APPEND(SENDBUNDLE, FORWARDBUNDLE)															\
 	FORWARDBUNDLE.finiMessage(true);																									\
 	SENDBUNDLE.append(FORWARDBUNDLE);																									\
@@ -61,6 +61,7 @@ namespace Ouroboros {
 																																		\
 			pCurrPacket_##ACTIONNAME->insert(currMsgLengthPos_##ACTIONNAME + NETWORK_MESSAGE_LENGTH_SIZE, 								\
 											(uint8*)&ex_msg_length, NETWORK_MESSAGE_LENGTH1_SIZE);										\
+			SENDBUNDLE->currMsgLength(SENDBUNDLE->currMsgLength() + NETWORK_MESSAGE_LENGTH1_SIZE);										\
 		}																																\
 		else																															\
 		{																																\
@@ -80,7 +81,7 @@ namespace Ouroboros {
 }																																		\
 
 
-// Cellapp forwards message to client message packet append message (append directly to SENDDUNDLE)
+// cellapp forwards the message to the client message packet append message (added directly in SENDBUNDLE)
 #define ENTITY_MESSAGE_FORWARD_CLIENT_BEGIN(SENDBUNDLE, MESSAGEHANDLE, ACTIONNAME)														\
 	(*SENDBUNDLE) << MESSAGEHANDLE.msgID;																								\
 	size_t currMsgLengthPos_##ACTIONNAME = 0;																							\
@@ -102,7 +103,7 @@ namespace Ouroboros {
 	size_t messageLength_last_##ACTIONNAME = SENDBUNDLE->currMsgLength();																\
 
 
-// Public message
+// public message
 #define COMMON_NETWORK_MESSAGE(COMPONENTTYPE, BUNDLE, MESSAGENAME)											\
 		switch(COMPONENTTYPE)																				\
 		{																									\
@@ -176,37 +177,42 @@ namespace Ouroboros {
 
 /**
 Convert seconds to tick
-@lowerBound: At least not less than Ntick
+@lowerBound: at least no less than Ntick
 */
 int32 secondsToTicks(float seconds, int lowerBound);
 
 /**
-	Convert the time in seconds to stamps consumed per second
+	Converts the time in seconds to the stamps consumed per second
 */
 inline uint64 secondsToStamps(float seconds)
 {
 	return (uint64)(seconds * stampsPerSecondD());
 }
 
+void autoFixUserDigestUID();
+
 /*
- Maximum length of account and password
+ ?Maximum length of account and password
 */
 #define ACCOUNT_NAME_MAX_LENGTH						128
 #define ACCOUNT_PASSWD_MAX_LENGTH					255
 
-// Maximum length of information that is included when logging in to register
+// The maximum length of information attached to the login
 #define ACCOUNT_DATA_MAX_LENGTH						1024
 
-// Used to describe any option that is automatically set to not do once
+// is used to describe any option that is automatically set to not do after only one time.
 #define OURO_NEXT_ONLY								2
 
-/** c/c++Data category converted to OURODataTypeID */
-#define OURO_DATATYPE2ID_MAX							20
+/** c/c++ data category converted to KBEDataTypeID*/
+#define OURO_DATATYPE2ID_MAX							21
 uint16 datatype2id(std::string datatype);
 
-/** c/c++Data category is converted to native category UINT16 ... */
+/** c/c++ data categories are converted to native categories UINT16 ...*/
 std::string datatype2nativetype(std::string datatype);
 std::string datatype2nativetype(uint16 datatype);
+
+int getMacMD5();
+int getMD5(std::string data);
 
 }
 

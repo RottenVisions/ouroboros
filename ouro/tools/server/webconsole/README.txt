@@ -1,23 +1,23 @@
-Instructions:
-1.Please install the matching django module for the python you are using.
-  1.1.If you don't want to install django, there is another option:
-  1.1.1.If you are using python2.6.6: you can choose to go to the "ouro/tools/server/django_packages" directory and extract the Django-1.6.11.tar.gz file from that directory (unzip to the current directory)
-  1.1.2.If you are using python2.7 or above: you can choose to go to the "ouro/tools/server/django_packages" directory and extract the Django-1.8.9.tar.gz file from that directory (unzip to the current directory)
-2.Modify sync_db.bat, sync_db.sh, and run_server.bat, run_server.sh to point them to the path of the python you are using.
-3.First use, need to initialize data
-  3.1.Windows python3.3 django 1.8.9, run the "sync_db.bat" command
-  3.2.Linux python3.3 django 1.8.9, run the "sync_db.sh" command
-  3.3.Linux python2.6 django 1.6.11, run the "sync_db_dj-1.6.sh" command
-  3.4.Windows python2.6 django 1.6.11, please refer to "sync_db_dj-1.6.sh" to create a .bat file
-4.Running the server
-  4.1.Under Windows, run the "run_server.bat" command
-  4.2.Under Linux, run the "run_server.sh" command
-5.Enter "http://xxx.xxx.xxx.xxx:8000/wc/" in the browser to access, where "xxx.xxx.xxx.xxx" is the machine IP running webconsole
+使用方法:
+1.请自行为你所使用的python安装与之匹配的django模块；
+  1.1.如果不想安装django，有另一个选择:
+  1.1.1.如果使用的是python2.6.6：可以选择进入到“kbe/tools/server/django_packages”目录，并在该目录下解压Django-1.6.11.tar.gz文件（解压到当前目录）
+  1.1.2.如果使用的是python2.7或以上：可以选择进入到“kbe/tools/server/django_packages”目录，并在该目录下解压Django-1.8.9.tar.gz文件（解压到当前目录）
+2.修改sync_db.bat、sync_db.sh以及run_server.bat、run_server.sh，使其正确指向你所使用的python的路径
+3.第一次使用，需要初始化数据
+  3.1.windows下python3.3 + django 1.8.9，运行“sync_db.bat”命令
+  3.2.linux下python3.3 + django 1.8.9，运行“sync_db.sh”命令
+  3.3.linux下python2.6 + django 1.6.11，运行“sync_db_dj-1.6.sh”命令
+  3.4.windows下python2.6 + django 1.6.11，请参考“sync_db_dj-1.6.sh”自行创建.bat文件
+4.运行服务器
+  4.1.windows下，运行“run_server.bat”命令
+  4.2.linux下，运行“run_server.sh”命令
+5.在浏览器上输入“http://xxx.xxx.xxx.xxx:8000/wc/”进行访问，其中“xxx.xxx.xxx.xxx”为运行webconsole的机器IP
 
-Description:
-1.The first time you use this console, the default login account is “Admin” and the default password is “123456”. This account is also the only management account in the background. Please change the password in time after login.
-2.The first time you use Admin to enter the background, you need to create a new control user based on the user account name and user UID of the server you started. After the creation is complete, you need to log out of Admin and use the new user to log in to perform the actual background operation.
-3.Since the stage is a beta version, there are still many features that are not perfect and are not recommended for use in a production environment.
-4.The development environment of this platform is python3.3 django 1.8.9, which is tested under Linux using python 2.6.6 django-1.6.11.
-5.All of the tools in this tool are derived from Machine, so to use the functionality of this tool, you must ensure that the machine process is running correctly.
-6.Any use problems, please put forward on the official Ouroboros platform.
+说明：
+1.第一次使用此控制台时，默认的登录账号为“Admin”，默认密码为“123456”，此账号也是后台唯一的管理账号，登录后请及时修改密码；
+2.第一次使用Admin进入后台，需要根据自己启动服务器的用户账号名和用户uid创建新的控制用户，创建完成后，需要退出Admin使用新用户登录才能进行实际的后台操作；
+3.此后台为测试版，还有很多功能未完善，不建议使用在生产环境中。
+4.此后台的开发环境为python3.3 + django 1.8.9，在linux下使用python2.6.6 + django-1.6.11测试通过。
+5.此工具所有的操作都源于Machine，因此，想要使用这个工具的功能，必须确保machine进程正确运行。
+6.有任何使用问题，请在Ouroboros官方平台上提出。

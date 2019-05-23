@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_TELNET_HANDLER_H
 #define OURO_TELNET_HANDLER_H
@@ -64,6 +64,30 @@ public:
 	void sendEnter();
 	void sendDelChar();
 	void sendNewLine();
+	void sendBackSpace();
+
+	/** telnet protocol
+		IAC WILL SUPPRESS GO AHEAD, Suppression continues
+	*/
+	void sendWillSuppressGoAhead();
+
+	void sendDOTT();
+
+	/** telnet protocol
+		IAC DO 24, agree to ask the terminal type
+	*/
+	void sendQueryClientTerminalType();
+
+	/** telnet protocol
+		IAC SB 24 0'v' 't' '1' '0' '0' IAC SE, the type of terminal that sends the server
+	*/
+	void sendServerTerminalType();
+
+	/** telnet protocol
+		IAC WILL ECHO, echo
+	*/
+	void sendWillEcho();
+	
 	void resetStartPosition();
 
 	void onProfileEnd(const std::string& datas);
@@ -77,8 +101,10 @@ private:
 	void onRecvInput(const char *buffer, int size);
 	bool processCommand();
 	void processPythonCommand(std::string command);
+	void processBackSpace();
 
 	bool checkUDLR(const std::string &cmd);
+	void checkTerminalType(std::string &iac);
 
 	std::string getInputStartString();
 
@@ -101,6 +127,8 @@ private:
 	Network::NetworkInterface* pNetworkInterface_;
 
 	bool getingHistroyCmd_;
+
+	int clientTermialType_;
 };
 
 

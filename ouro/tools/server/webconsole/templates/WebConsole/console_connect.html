@@ -15,10 +15,10 @@
       <input name="component_ip" type="hidden" id="component_ip" value="{{ request.GET.ip }}">
     <input name="component_port" type="hidden" id="component_port" value="{{ request.GET.port }}">
     <input name="ws_url" type="hidden" id="ws_url" value="{{ ws_url }}">
-<input class="btn btn-default" type="button" name="exec" value="Perform" id="exec" onClick="execute_cmd()">
+<input class="btn btn-default" type="button" name="exec" value="Execute" id="exec" onClick="execute_cmd()">
     <label class="control-label">
     <input name="isMultiline" type="checkbox" class="" id="mutiline" onClick="console_input_toggle();">
-    多行输入
+        Multi-line input
     </label>
   </div>
 </div>
@@ -29,10 +29,10 @@
 <script src="/static/js/ouroboros.js"></script>
 <script>$(".py-coupling").addClass("active");</script>
 <script>
-  $(".ouro-list .dd").hide();
-  $(".ouro-list .pyconsole .dd").show();
-  $(".ouro-list .pyconsole").css({"background-color":"#317eb4"});
-  $(".ouro-list .pyconsole").find('li').addClass("menu_chioce");
+  $(".kbe-list .dd").hide();
+  $(".kbe-list .pyconsole .dd").show();
+  $(".kbe-list .pyconsole").css({"background-color":"#317eb4"});
+  $(".kbe-list .pyconsole").find('li').addClass("menu_chioce");
 
 $(document).ready(function() {
     console_input_toggle();
@@ -78,7 +78,7 @@ function execute_cmd()
 {
     if ($.data.connect_closed)
     {
-        alert("The connection has been closed, please re-connect it!!!");
+                Alert ("Connection is closed, please reconnect!!!");
         return;
     }
 
@@ -103,17 +103,18 @@ function execute_cmd()
     cmd += "\r\n";
 
     window.ouro_socket.send( cmd );
-    show_cmd( cmd );
+
+    //show_cmd( cmd );
 }
 
 function connect_to()
 {
     var socket = new WebSocket($("#ws_url").val());
     socket.onopen = function(evt) {
-        $('#output_block_area').append("<p> Connection success! Welcome to use WebConsole python console. </p>");
+                $('#output_block_area').append("<p> Successful connection! Welcome to the WebConsole python console. </p>");
     };
     socket.onclose = function(evt) {
-        $('#output_block_area').append("<p> The connection has been closed, please re-connect it!!! </p>");
+                $('#output_block_area').append("<p> Connection is closed, please reconnect!!! </p>");
         $.data.connect_closed = true;
     };
     socket.onmessage = function(evt) {
@@ -122,7 +123,7 @@ function connect_to()
     };
     socket.onerror = function(evt) {
         //alert("websocket onerror: " + evt);
-        $('#output_block_area').append("<p> Connecting the python console failed it!!! Please refresh and try again. </p>");
+                $('#output_block_area').append("<p> Failed to connect to python console!!! Please refresh and try again. </p>");
     };
     window.ouro_socket = socket;
     $.data.connect_closed = false;

@@ -1,16 +1,16 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "entity.h"
-#include "moveto_point_handler.h"
+#include "moveto_point_handler.h"	
 
-namespace Ouroboros{
+namespace Ouroboros{	
 namespace client
 {
 
 //-------------------------------------------------------------------------------------
-MoveToPointHandler::MoveToPointHandler(ScriptCallbacks& scriptCallbacks, client::Entity* pEntity,
-											int layer, const Position3D& destPos,
-											 float velocity, float distance, bool faceMovement,
+MoveToPointHandler::MoveToPointHandler(ScriptCallbacks& scriptCallbacks, client::Entity* pEntity, 
+											int layer, const Position3D& destPos, 
+											 float velocity, float distance, bool faceMovement, 
 											bool moveVertically, PyObject* userarg):
 ScriptCallbackHandler(scriptCallbacks, NULL),
 destPos_(destPos),
@@ -64,7 +64,7 @@ bool MoveToPointHandler::update(TimerHandle& handle)
 		handle.cancel();
 		return false;
 	}
-
+	
 	Entity* pEntity = pEntity_;
 	const Position3D& dstPos = destPos();
 	Position3D currpos = pEntity->position();
@@ -73,18 +73,18 @@ bool MoveToPointHandler::update(TimerHandle& handle)
 
 	Vector3 movement = dstPos - currpos;
 	if (!moveVertically_) movement.y = 0.f;
-
+	
 	bool ret = true;
 
-	if(OUROVec3Length(&movement) < velocity_ + distance_)
+	if(KBEVec3Length(&movement) < velocity_ + distance_)
 	{
 		float y = currpos.y;
 		currpos = dstPos;
 
 		if(distance_ > 0.0f)
 		{
-			// Unitary vector
-			OUROVec3Normalize(&movement, &movement);
+			// unitized vector
+			KBEVec3Normalize(&movement, &movement); 
 			movement *= distance_;
 			currpos -= movement;
 		}
@@ -96,29 +96,29 @@ bool MoveToPointHandler::update(TimerHandle& handle)
 	}
 	else
 	{
-		// Unitary vector
-		OUROVec3Normalize(&movement, &movement);
+		// unitized vector
+		KBEVec3Normalize(&movement, &movement); 
 
-		// move Place
+				// move Place
 		movement *= velocity_;
 		currpos += movement;
 	}
-
-	// Do you need to change the orientation?
+	
+	// Do you need to change your orientation?
 	if (faceMovement_ && (movement.x != 0.f || movement.z != 0.f))
 		direction.yaw(movement.yaw());
-
+	
 	// Set the new location and orientation of the entity
 	pEntity_->clientPos(currpos);
 	pEntity_->clientDir(direction);
 
-	// Non-navigate can't determine it on the ground
+	// non-navigate can't be sure it's on the ground
 	pEntity_->isOnGround(false);
 
-	// Notification script
+	// notification script
 	pEntity->onMove(scriptCallbacks_.getIDForHandle(handle), layer_, currpos_backup, pyuserarg_);
 
-	// True if the destination is reached
+	// return true if the destination is reached
 	if(!ret)
 	{
 		return !requestMoveOver(handle, currpos_backup);

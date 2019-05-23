@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_INTERFACES_TASKS_H
 #define OURO_INTERFACES_TASKS_H
 
-// common include
+// common include	
 #include "common/common.h"
 #include "common/memorystream.h"
 #include "thread/threadtask.h"
@@ -11,7 +11,7 @@
 #include "network/address.h"
 #include "server/server_errors.h"
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 
 class Orders;
 
@@ -25,12 +25,12 @@ class InterfacesTask
 public:
 	InterfacesTask();
 	virtual ~InterfacesTask();
-
-	std::string commitName;			// Name used when submitted
-	std::string accountName;		// The name bound to the account in the game server database
-	std::string password;			// password
-	std::string postDatas;			// Submitted data
-	std::string getDatas;			// Returned data to the client
+	
+	std::string commitName; // name used when submitting
+	std::string accountName; // name bound to account in the game server database
+	std::string password; // password
+	std::string postDatas; // Submitted data
+	std::string getDatas; // The attached data returned to the client
 	COMPONENT_ID baseappID;
 	COMPONENT_ID dbmgrID;
 	SERVER_ERROR_CODE retcode;
@@ -45,7 +45,7 @@ class CreateAccountTask : public InterfacesTask
 public:
 	CreateAccountTask();
 	virtual ~CreateAccountTask();
-
+	
 	virtual uint8 type(){ return INTERFACES_TASK_CREATEACCOUNT; }
 
 protected:
@@ -56,7 +56,7 @@ class LoginAccountTask : public CreateAccountTask
 public:
 	LoginAccountTask();
 	virtual ~LoginAccountTask();
-
+	
 	virtual uint8 type(){ return INTERFACES_TASK_LOGIN; }
 
 protected:
@@ -67,7 +67,7 @@ class ChargeTask : public InterfacesTask
 public:
 	ChargeTask();
 	virtual ~ChargeTask();
-
+	
 	virtual uint8 type(){ return INTERFACES_TASK_CHARGE; }
 
 	OrdersCharge* pOrders;

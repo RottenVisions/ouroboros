@@ -1,5 +1,5 @@
 ifndef OURO_ROOT
-export OURO_ROOT := $(subst /ouro/src/lib,,$(CURDIR))
+export OURO_ROOT := $(subst /kbe/src/lib,,$(CURDIR))
 endif
 
 ifndef OURO_CONFIG
@@ -16,14 +16,16 @@ else
 endif
 
 # This directory must match the directory in src/build/common.mak
-LIBDIR=$(OURO_ROOT)/ouro/src/lib/bin
+LIBDIR=$(OURO_ROOT)/kbe/src/lib/bin
 
 all install clean full:
 	test -d $(LIBDIR) || mkdir $(LIBDIR)
+	cd dependencies/zlib && $(MAKE) $@ && if ! test -e ../../../libs/libz.a; then \cp -f "libz.a" "../../../libs"; fi
+	cd dependencies/fmt/src && $(MAKE) $@
 	cd dependencies/jemalloc && $(MAKE) $@ && if ! test -e ../../../libs/libjemalloc.a; then \cp -f "./lib/libjemalloc.a" "../../../libs"; fi
 	cd dependencies/openssl && $(MAKE) $@ && if ! test -e ../../../libs/libssl.a; then \cp -f "libssl.a" "../../../libs"; fi && if ! test -e ../../../libs/libcrypto.a; then \cp -f "libcrypto.a" "../../../libs"; fi
+	cd dependencies/curl && $(MAKE) $@
 	cd dependencies/hiredis && $(MAKE) $@
-	cd dependencies/zip && $(MAKE) $@
 	cd dependencies/g3dlite && $(MAKE) $@
 	cd dependencies/tinyxml && $(MAKE) $@
 	cd dependencies/sigar/linux && $(MAKE) $@
@@ -33,7 +35,7 @@ all install clean full:
 	cd dependencies/expat && $(MAKE) $@ && if ! test -e ../../../libs/libexpat.a; then \cp -f "./.libs/libexpat.a" "../../../libs"; fi
 	cd dependencies/apr-util && $(MAKE) $@ && if ! test -e ../../../libs/libaprutil-1.a; then \cp -f ".libs/libaprutil-1.a" "../../../libs"; fi
 	cd dependencies/log4cxx && $(MAKE) $@ && if ! test -e ../../../libs/liblog4cxx.a; then \cp -f "src/main/cpp/.libs/liblog4cxx.a" "../../../libs"; fi
-	cd python && $(MAKE) $@
+	cd python && $(MAKE) $@ && cp -f "$(OURO_ROOT)/kbe/src/lib/python/libpython3.7m.a" "$(OURO_ROOT)/kbe/src/libs/libpython.a" && mkdir -p "$(OURO_ROOT)/kbe/res/scripts/common/lib-dynload/" && cp -rf $(OURO_ROOT)/kbe/src/lib/python/build/lib.*/* "$(OURO_ROOT)/kbe/res/scripts/common/lib-dynload/" && rm -rf "$(OURO_ROOT)/kbe/res/scripts/common/Lib/*" && cp -rf "$(OURO_ROOT)/kbe/src/lib/python/Lib" "$(OURO_ROOT)/kbe/res/scripts/common/Lib"  
 	cd client_lib && $(MAKE) $@
 	cd common && $(MAKE) $@
 	cd db_redis && $(MAKE) $@

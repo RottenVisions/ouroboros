@@ -35,7 +35,7 @@ public:
 
 // Implementation
 public:
-	/** The server executes the instruction and completes the echo */
+	/** The server execution instruction is echoed */
 	void onExecScriptCommandCB(Network::Channel* pChannel, std::string& command);
 
 	BOOL PreTranslateMessage(MSG* pMsg);
@@ -52,7 +52,7 @@ public:
 
 	void loadHistory();
 	void saveHistory();
-
+	
 	bool connectTo();
 
 	void autoShowWindow();
@@ -83,6 +83,9 @@ public:
 	bool startProfile(std::string name, int8 type, uint32 timinglen);
 
 	void addThreadTask(thread::TPTask* tptask);
+
+	void autoSelectLogger();
+
 protected:
 	HICON m_hIcon;
 
@@ -100,7 +103,7 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	CTreeCtrl m_tree;
 	afx_msg void OnNMRClickTree1(NMHDR *pNMHDR, LRESULT *pResult);
-
+	
 	afx_msg void OnMenu_Update();
 
 	afx_msg void OnToolBar_Find();
@@ -131,8 +134,8 @@ private:
 	CToolBar m_ToolBar;
 	CImageList m_ImageList;
 
-	// Thread Pool
-	thread::ThreadPool threadPool_;
+		// Thread Pool
+	thread::ThreadPool threadPool_;	
 
 public:
 	afx_msg void OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult);

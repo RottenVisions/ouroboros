@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_INTERFACES_HANDLER_H
 #define OURO_INTERFACES_HANDLER_H
 
-// common include
+// common include	
 // #define NDEBUG
 #include "dbtasks.h"
 #include "common/common.h"
@@ -12,30 +12,30 @@
 #include "helper/debug_helper.h"
 #include "thread/threadpool.h"
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 
 namespace Network{
 	class EndPoint;
 }
 
 /*
-	Handling billing, third-party operating account, registration login system, etc.
+	Handling billing, third-party operating accounts, registration login systems, etc.
 */
 class InterfacesHandler
 {
 public:
 	InterfacesHandler();
 	virtual ~InterfacesHandler();
-
+	
 	virtual bool initialize() = 0;
 
 	virtual void eraseClientReq(Network::Channel* pChannel, std::string& logkey) = 0;
 
-	virtual bool createAccount(Network::Channel* pChannel, std::string& registerName,
+	virtual bool createAccount(Network::Channel* pChannel, std::string& registerName, 
 		std::string& password, std::string& datas, ACCOUNT_TYPE uatype) = 0;
 
 
-	virtual bool loginAccount(Network::Channel* pChannel, std::string& loginName,
+	virtual bool loginAccount(Network::Channel* pChannel, std::string& loginName, 
 		std::string& password, std::string& datas) = 0;
 
 	virtual void onCreateAccountCB(Ouroboros::MemoryStream& s) = 0;
@@ -60,15 +60,15 @@ class InterfacesHandler_Dbmgr : public InterfacesHandler
 public:
 	InterfacesHandler_Dbmgr();
 	virtual ~InterfacesHandler_Dbmgr();
-
-	virtual bool initialize(){ return true; }
+	
+	virtual bool initialize() { return true; }
 
 	virtual void eraseClientReq(Network::Channel* pChannel, std::string& logkey);
 
-	virtual bool createAccount(Network::Channel* pChannel, std::string& registerName,
+	virtual bool createAccount(Network::Channel* pChannel, std::string& registerName, 
 		std::string& password, std::string& datas, ACCOUNT_TYPE uatype);
 
-	virtual bool loginAccount(Network::Channel* pChannel, std::string& loginName,
+	virtual bool loginAccount(Network::Channel* pChannel, std::string& loginName, 
 		std::string& password, std::string& datas);
 
 	virtual void onCreateAccountCB(Ouroboros::MemoryStream& s);
@@ -94,15 +94,20 @@ class InterfacesHandler_Interfaces : public InterfacesHandler_Dbmgr, public thre
 public:
 	InterfacesHandler_Interfaces();
 	virtual ~InterfacesHandler_Interfaces();
+	
+	void setAddr(const Network::Address& addr)
+	{
+		addr_ = addr;
+	}
 
 	virtual bool initialize();
 
 	virtual void eraseClientReq(Network::Channel* pChannel, std::string& logkey);
 
-	virtual bool createAccount(Network::Channel* pChannel, std::string& registerName,
+	virtual bool createAccount(Network::Channel* pChannel, std::string& registerName, 
 		std::string& password, std::string& datas, ACCOUNT_TYPE uatype);
 
-	virtual bool loginAccount(Network::Channel* pChannel, std::string& loginName,
+	virtual bool loginAccount(Network::Channel* pChannel, std::string& loginName, 
 		std::string& password, std::string& datas);
 
 	virtual void onCreateAccountCB(Ouroboros::MemoryStream& s);
@@ -125,6 +130,7 @@ public:
 	virtual bool process();
 
 protected:
+	Network::Address addr_;
 
 };
 

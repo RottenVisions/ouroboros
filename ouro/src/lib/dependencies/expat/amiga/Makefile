@@ -47,10 +47,10 @@ clean:
 package:
 	$(MAKE) all
 	-delete T:expat all force quiet
-	makedir all T:expat/Worouronch/Libs
-	copy clone libs/expat.library T:expat/Worouronch/Libs
-	makedir all T:expat/Worouronch/SObjs
-	copy clone so/libexpat.so T:expat/Worouronch/SObjs
+	makedir all T:expat/Workbench/Libs
+	copy clone libs/expat.library T:expat/Workbench/Libs
+	makedir all T:expat/Workbench/SObjs
+	copy clone so/libexpat.so T:expat/Workbench/SObjs
 	makedir all T:expat/SDK/Local/C
 	copy clone libs/xmlwf T:expat/SDK/Local/C
 	makedir all T:expat/SDK/Local/clib2/lib

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SCRIPT_STRUCT_H
 #define OURO_SCRIPT_STRUCT_H
@@ -9,29 +9,29 @@
 namespace Ouroboros{ namespace script{
 
 class PyStruct
-{
-public:
-	/**
-		proxy struct.pack
+{						
+public:	
+	/** 
+		Proxy struct.pack
 	*/
 	static std::string pack(PyObject* fmt, PyObject* args);
 
-	/**
-		proxy struct.unpack
+	/** 
+		Proxy struct.unpack
 	*/
 	static PyObject* unpack(PyObject* fmt, PyObject* args);
 
-	/**
+	/** 
 		Initialize pickler
 	*/
 	static bool initialize(void);
 	static void finalise(void);
-
+	
 private:
-	static PyObject* pack_;									// struct.Pack method pointer
-	static PyObject* unpack_;								// struct.Unpack method pointer
+	static PyObject* pack_; // struct.pack method pointer
+	static PyObject* unpack_; // struct.unpack method pointer
 
-	static bool	isInit;										// Has it been initialized
+	static bool isInit; // whether it has been initialized
 } ;
 
 }

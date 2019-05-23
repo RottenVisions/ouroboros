@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "cellappmgr.h"
@@ -14,7 +14,7 @@
 #include "helper/profile.h"
 #include "server/serverconfig.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 //-------------------------------------------------------------------------------------
 SpaceViewers::SpaceViewers():
@@ -77,7 +77,7 @@ void SpaceViewers::handleTimeout(TimerHandle handle, void * arg)
 	std::map< Network::Address, SpaceViewer>::iterator iter = spaceViews_.begin();
 	for (; iter != spaceViews_.end(); )
 	{
-		// Erase the viewer if it is not found
+		// If the viewer address is not found, then erase it
 		Network::Channel* pChannel = Cellappmgr::getSingleton().networkInterface().findChannel(iter->second.addr());
 		if (pChannel == NULL)
 		{
@@ -128,7 +128,7 @@ void SpaceViewer::sendStream(MemoryStream* s)
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	ConsoleInterface::ConsoleQuerySpacesHandler msgHandler;
 	(*pBundle).newMessage(msgHandler);
@@ -159,7 +159,7 @@ void SpaceViewer::updateClient()
 		for (; iter2 != allSpaces.end(); ++iter2)
 		{
 			Space& space = iter2->second;
-
+			
 			if (space.id() != spaceID_)
 				continue;
 
@@ -178,8 +178,8 @@ void SpaceViewer::updateClient()
 			{
 				s << iter3->first;
 
-				// Other information to be completed after the completion of the split function
-				// Such as cell size and shape information
+				// Other information is to be completed after the split function is implemented
+				// information such as cell size and shape
 			}
 		}
 	}

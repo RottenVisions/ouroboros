@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_OURO_TABLE_MYSQL_H
 #define OURO_OURO_TABLE_MYSQL_H
@@ -10,17 +10,17 @@
 #include "db_interface/entity_table.h"
 #include "db_interface/ouro_tables.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 /*
 	Kbe system table
 */
-class OUROEntityLogTableMysql : public OUROEntityLogTable
+class KBEEntityLogTableMysql : public KBEEntityLogTable
 {
 public:
-	OUROEntityLogTableMysql(EntityTables* pEntityTables);
-	virtual ~OUROEntityLogTableMysql(){}
-
+	KBEEntityLogTableMysql(EntityTables* pEntityTables);
+	virtual ~KBEEntityLogTableMysql(){}
+	
 	/**
 		Synchronize tables into the database
 	*/
@@ -33,17 +33,18 @@ public:
 	virtual bool queryEntity(DBInterface * pdbi, DBID dbid, EntityLog& entitylog, ENTITY_SCRIPT_UID entityType);
 
 	virtual bool eraseEntityLog(DBInterface * pdbi, DBID dbid, ENTITY_SCRIPT_UID entityType);
+	virtual bool eraseBaseappEntityLog(DBInterface * pdbi, COMPONENT_ID componentID);
 
 protected:
-
+	
 };
 
-class OUROServerLogTableMysql : public OUROServerLogTable
+class KBEServerLogTableMysql : public KBEServerLogTable
 {
 public:
-	OUROServerLogTableMysql(EntityTables* pEntityTables);
-	virtual ~OUROServerLogTableMysql(){}
-
+	KBEServerLogTableMysql(EntityTables* pEntityTables);
+	virtual ~KBEServerLogTableMysql(){}
+	
 	/**
 		Synchronize tables into the database
 	*/
@@ -53,21 +54,26 @@ public:
 	virtual bool updateServer(DBInterface * pdbi);
 
 	virtual bool queryServer(DBInterface * pdbi, ServerLog& serverlog);
+	virtual std::vector<COMPONENT_ID> queryServers(DBInterface * pdbi);
 
 	virtual std::vector<COMPONENT_ID> queryTimeOutServers(DBInterface * pdbi);
+	
+	virtual bool clearServers(DBInterface * pdbi, const std::vector<COMPONENT_ID>& cids);
 
-	virtual bool clearTimeoutLogs(DBInterface * pdbi, const std::vector<COMPONENT_ID>& cids);
+	virtual std::map<COMPONENT_ID, bool> queryAllServerShareDBState(DBInterface * pdbi);
 
+	virtual int isShareDB(DBInterface * pdbi);
+	
 protected:
-
+	
 };
 
-class OUROAccountTableMysql : public OUROAccountTable
+class KBEAccountTableMysql : public KBEAccountTable
 {
 public:
-	OUROAccountTableMysql(EntityTables* pEntityTables);
-	virtual ~OUROAccountTableMysql(){}
-
+	KBEAccountTableMysql(EntityTables* pEntityTables);
+	virtual ~KBEAccountTableMysql(){}
+	
 	/**
 		Synchronize tables into the database
 	*/
@@ -83,12 +89,12 @@ public:
 protected:
 };
 
-class OUROEmailVerificationTableMysql : public OUROEmailVerificationTable
+class KBEEmailVerificationTableMysql : public KBEEmailVerificationTable
 {
 public:
 
-	OUROEmailVerificationTableMysql(EntityTables* pEntityTables);
-	virtual ~OUROEmailVerificationTableMysql();
+	KBEEmailVerificationTableMysql(EntityTables* pEntityTables);
+	virtual ~KBEEmailVerificationTableMysql();
 
 	/**
 		Synchronize tables into the database
@@ -101,7 +107,7 @@ public:
 	virtual bool delAccount(DBInterface * pdbi, int8 type, const std::string& name);
 	virtual bool activateAccount(DBInterface * pdbi, const std::string& code, ACCOUNT_INFOS& info);
 	virtual bool bindEMail(DBInterface * pdbi, const std::string& name, const std::string& code);
-	virtual bool resetpassword(DBInterface * pdbi, const std::string& name,
+	virtual bool resetpassword(DBInterface * pdbi, const std::string& name, 
 		const std::string& password, const std::string& code);
 
 protected:

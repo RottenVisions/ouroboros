@@ -1,14 +1,16 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 /*
-Byte order exchange processing module: Since network communication generally uses BIG byte order, also known as network byte order.
-The PC or embedded system we use may use BIG byte order or may use LITTEN (small byte order). We must make an endian conversion between this.
+	Endian swap processing module:
+		 Because network communication generally uses BIG byte order \ also known as network byte order.
+ 		 ?The PC or embedded system we use may use BIG byte order or LITTEN (small endian)
+ 		 ?So we have to do an endian conversion between them.
 */
 #ifndef OURO_MEMORYSTREAMCONVERTER_H
 #define OURO_MEMORYSTREAMCONVERTER_H
 
 #include "common/common.h"
-
+	
 namespace Ouroboros{
 
 namespace MemoryStreamConverter
@@ -38,7 +40,7 @@ namespace MemoryStreamConverter
 	}
 }
 
-#if OUROBOROS_ENDIAN == OUROBOROS_BIG_ENDIAN			// Can use sys.isPlatformLittleEndian() to test
+#if OUROBOROS_ENDIAN == OUROBOROS_BIG_ENDIAN // can be tested with sys.isPlatformLittleEndian()
 template<typename T> inline void EndianConvert(T& val) { MemoryStreamConverter::apply<T>(&val); }
 template<typename T> inline void EndianConvertReverse(T&) { }
 #else

@@ -1,38 +1,38 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 /*
-	Reference counting implementation class
+	Reference count implementation class
 
-	Instructions:
+		Instructions:
 		class AA:public RefCountable
 		{
 		public:
 			AA(){}
-			~AA(){ printf("destruct"); }
+			~AA(){ printf("deconstruction"); }
 		};
-
+		
 		--------------------------------------------
 		AA* a = new AA();
 		RefCountedPtr<AA>* s = new RefCountedPtr<AA>(a);
 		RefCountedPtr<AA>* s1 = new RefCountedPtr<AA>(a);
-
+		
 		int i = (*s)->getRefCount();
-
+		
 		delete s;
 		delete s1;
-
-		Results of the:
-			destruct
+		
+				Results of the:
+						destruct
 */
 #ifndef OURO_REFCOUNTABLE_H
 #define OURO_REFCOUNTABLE_H
-
+	
 #include "common.h"
-
+	
 namespace Ouroboros{
 
-class RefCountable
+class RefCountable 
 {
 public:
 	inline void incRef(void) const
@@ -42,11 +42,11 @@ public:
 
 	inline void decRef(void) const
 	{
-
+		
 		int currRef = --refCount_;
 		assert(currRef >= 0 && "RefCountable:currRef maybe a error!");
 		if (0 >= currRef)
-			onRefOver();											// Reference ended
+			onRefOver(); // The reference is over
 	}
 
 	virtual void onRefOver(void) const
@@ -59,19 +59,19 @@ public:
 		refCount_ = n;
 	}
 
-	int getRefCount(void) const
-	{
-		return refCount_;
+	int getRefCount(void) const 
+	{ 
+		return refCount_; 
 	}
 
 protected:
-	RefCountable(void) : refCount_(0)
+	RefCountable(void) : refCount_(0) 
 	{
 	}
 
-	virtual ~RefCountable(void)
-	{
-		assert(0 == refCount_ && "RefCountable:currRef maybe a error!");
+	virtual ~RefCountable(void) 
+	{ 
+		assert(0 == refCount_ && "RefCountable:currRef maybe a error!"); 
 	}
 
 protected:
@@ -79,7 +79,7 @@ protected:
 };
 
 #if OURO_PLATFORM == PLATFORM_WIN32
-class SafeRefCountable
+class SafeRefCountable 
 {
 public:
 	inline void incRef(void) const
@@ -89,11 +89,11 @@ public:
 
 	inline void decRef(void) const
 	{
-
+		
 		long currRef =::InterlockedDecrement(&refCount_);
 		assert(currRef >= 0 && "RefCountable:currRef maybe a error!");
 		if (0 >= currRef)
-			onRefOver();											// Reference ended
+			onRefOver(); // The reference is over
 	}
 
 	virtual void onRefOver(void) const
@@ -106,26 +106,26 @@ public:
 		InterlockedExchange((long *)&refCount_, n);
 	}
 
-	int getRefCount(void) const
-	{
+	int getRefCount(void) const 
+	{ 
 		return InterlockedExchange((long *)&refCount_, refCount_);
 	}
 
 protected:
-	SafeRefCountable(void) : refCount_(0)
+	SafeRefCountable(void) : refCount_(0) 
 	{
 	}
 
-	virtual ~SafeRefCountable(void)
-	{
-		assert(0 == refCount_ && "SafeRefCountable:currRef maybe a error!");
+	virtual ~SafeRefCountable(void) 
+	{ 
+		assert(0 == refCount_ && "SafeRefCountable:currRef maybe a error!"); 
 	}
 
 protected:
 	volatile mutable long refCount_;
 };
 #else
-class SafeRefCountable
+class SafeRefCountable 
 {
 public:
 	inline void incRef(void) const
@@ -140,11 +140,11 @@ public:
 
 	inline void decRef(void) const
 	{
-
+		
 		long currRef = intDecRef();
 		assert(currRef >= 0 && "RefCountable:currRef maybe a error!");
 		if (0 >= currRef)
-			onRefOver();											// Reference ended
+			onRefOver(); // The reference is over
 	}
 
 	virtual void onRefOver(void) const
@@ -157,20 +157,20 @@ public:
 		//InterlockedExchange((long *)&refCount_, n);
 	}
 
-	int getRefCount(void) const
-	{
+	int getRefCount(void) const 
+	{ 
 		//return InterlockedExchange((long *)&refCount_, refCount_);
 		return refCount_;
 	}
 
 protected:
-	SafeRefCountable(void) : refCount_(0)
+	SafeRefCountable(void) : refCount_(0) 
 	{
 	}
 
-	virtual ~SafeRefCountable(void)
-	{
-		assert(0 == refCount_ && "SafeRefCountable:currRef maybe a error!");
+	virtual ~SafeRefCountable(void) 
+	{ 
+		assert(0 == refCount_ && "SafeRefCountable:currRef maybe a error!"); 
 	}
 
 protected:
@@ -195,40 +195,40 @@ private:
 #endif
 
 template<class T>
-class RefCountedPtr
+class RefCountedPtr 
 {
 public:
-	RefCountedPtr(T* ptr):ptr_(ptr)
+	RefCountedPtr(T* ptr):ptr_(ptr) 
 	{
 		if (ptr_)
 			ptr_->addRef();
 	}
 
-	RefCountedPtr(RefCountedPtr<T>* refptr):ptr_(refptr->getObject())
+	RefCountedPtr(RefCountedPtr<T>* refptr):ptr_(refptr->getObject()) 
 	{
 		if (ptr_)
 			ptr_->addRef();
 	}
-
-	~RefCountedPtr(void)
+	
+	~RefCountedPtr(void) 
 	{
 		if (0 != ptr_)
 			ptr_->decRef();
 	}
 
-	T& operator*() const
-	{
-		return *ptr_;
+	T& operator*() const 
+	{ 
+		return *ptr_; 
 	}
 
-	T* operator->() const
-	{
-		return (&**this);
+	T* operator->() const 
+	{ 
+		return (&**this); 
 	}
 
-	T* getObject(void) const
-	{
-		return ptr_;
+	T* getObject(void) const 
+	{ 
+		return ptr_; 
 	}
 
 private:

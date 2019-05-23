@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 #include "entityref.h"
 #include "entity.h"
 #include "cellapp.h"
@@ -38,9 +38,9 @@ ObjectPool<EntityRef>& EntityRef::ObjPool()
 }
 
 //-------------------------------------------------------------------------------------
-EntityRef* EntityRef::createPoolObject()
+EntityRef* EntityRef::createPoolObject(const std::string& logPoint)
 {
-	return _g_objPool.createObject();
+	return _g_objPool.createObject(logPoint);
 }
 
 //-------------------------------------------------------------------------------------
@@ -59,9 +59,9 @@ void EntityRef::destroyObjPool()
 }
 
 //-------------------------------------------------------------------------------------
-EntityRef::SmartPoolObjectPtr EntityRef::createSmartPoolObj()
+EntityRef::SmartPoolObjectPtr EntityRef::createSmartPoolObj(const std::string& logPoint)
 {
-	return SmartPoolObjectPtr(new SmartPoolObject<EntityRef>(ObjPool().createObject(), _g_objPool));
+	return SmartPoolObjectPtr(new SmartPoolObject<EntityRef>(ObjPool().createObject(logPoint), _g_objPool));
 }
 
 //-------------------------------------------------------------------------------------

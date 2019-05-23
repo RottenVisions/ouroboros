@@ -5,7 +5,7 @@ import traceback
 try:
 	import json
 except:
-	# If there is no json module, then try to import simplejson module for py2.5）
+	# If there is no json module, try to import the simplejson module (eg py2.5)
 	import simplejson as json
 
 from django.shortcuts import render
@@ -21,7 +21,7 @@ from .auth import login_check
 @login_check
 def show_components( request ):
 	"""
-	The console can be connected to the components display page
+	Console connectable component display page
 	"""
 	VALID_CT = set( [
 		Define.CELLAPPMGR_TYPE,
@@ -29,23 +29,23 @@ def show_components( request ):
 		] )
 
 	html_template = "WebConsole/spaceviewer.html"
-
+	
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	ouroComps = []
+	kbeComps = []
 	for mID, comps in interfaces_groups.items():
 		for comp in comps:
 			if comp.componentType in VALID_CT:
-				ouroComps.append( comp)
+				kbeComps.append( comp)
 	POST = request.POST
 	try:
-		intaddr = ouroComps[0].intaddr
-		intport = ouroComps[0].intport
-		extaddr = ouroComps[0].extaddr
-		extport = ouroComps[0].extport
-		componentType = ouroComps[0].componentType
-		componentName = ouroComps[0].componentName
+		intaddr = kbeComps[0].intaddr
+		intport = kbeComps[0].intport
+		extaddr = kbeComps[0].extaddr
+		extport = kbeComps[0].extport
+		componentType = kbeComps[0].componentType
+		componentName = kbeComps[0].componentName
 		uid = request.session["sys_uid"]
 	except:
 		context = {
@@ -55,7 +55,7 @@ def show_components( request ):
 	ws_url = "ws://%s/wc/spaceviewer/process_cmd?host=%s&port=%s&cp=%s" % ( request.META["HTTP_HOST"], intaddr, intport, componentType)
 	context = {
 		"http_host":request.META["HTTP_HOST"],
-		"ouroComps":ouroComps,
+		"kbeComps":kbeComps,
 		"intaddr": intaddr,
 		"intport": intport,
 		"extaddr":extaddr,
@@ -71,10 +71,10 @@ from dwebsocket import accept_websocket
 
 class spaceviewerDate(object):
 	def __init__(self, wInst, cp, host, port):
-	    self.wInst = wInst
-	    self.cp = cp
-	    self.port = port
-	    self.host = host
+		self.wInst = wInst
+		self.cp = cp
+		self.port = port
+		self.host = host
 
 	def do(self):
 		self.SpaceViews = SpaceViews.SpaceViewer(self.cp)
@@ -89,19 +89,19 @@ class spaceviewerDate(object):
 				self.test = self.SpaceViews.SpaceViewerData
 			self.SpaceViews.clearSpaceViewerData()
 
-	def close(self):
-		if self.wsInst:
+	def close(self): 
+		if self.wsInst: 
 			self.wsInst.close()
 		self.wsInst = None
 
 class CellSpace(object):
 	def __init__(self, wInst, cp, host, port, spaceID):
-	    self.wInst = wInst
-	    self.cp = cp
-	    self.port = port
-	    self.host = host
-	    self.spaceID = spaceID
-	    self.test = ""
+		self.wInst = wInst
+		self.cp = cp
+		self.port = port
+		self.host = host
+		self.spaceID = spaceID
+		self.test = ""
 	def do(self):
 		self.CellSpaceViewer = SpaceViews.CellViewer(self.cp, self.spaceID)
 		self.CellSpaceViewer.connect(self.host,self.port)
@@ -114,8 +114,8 @@ class CellSpace(object):
 				self.test = self.CellSpaceViewer.CellViewerData
 			self.CellSpaceViewer.clearCellViewerData()
 
-	def close(self):
-		if self.wsInst:
+	def close(self): 
+		if self.wsInst: 
 			self.wsInst.close()
 		self.wsInst = None
 
@@ -133,7 +133,7 @@ def process_cmd( request ):
 	except:
 		log = '\n'.join(traceback.format_exception(*(sys.exc_info())))
 		print(log)
-	return
+	return 
 
 @accept_websocket
 def cell_process_cmd( request ):
@@ -150,4 +150,4 @@ def cell_process_cmd( request ):
 	except:
 		log = '\n'.join(traceback.format_exception(*(sys.exc_info())))
 		print(log)
-	return
+	return 

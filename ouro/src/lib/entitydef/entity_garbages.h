@@ -1,39 +1,39 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_ENTITYGARBAGES_H
 #define OURO_ENTITYGARBAGES_H
-
-// common include
+	
+// common include	
 #include "helper/debug_helper.h"
 #include "common/common.h"
 #include "common/smartpointer.h"
 #include "pyscript/scriptobject.h"
 #include "pyscript/pyobject_pointer.h"
-
+	
 namespace Ouroboros{
 
 template<typename T>
 class EntityGarbages : public script::ScriptObject
 {
-	/**
-		Subclassing fills some py operations into derived classes
+	/** 
+		Subclassing populates some py operations into a derived class
 	*/
-	INSTANCE_SCRIPT_HREADER(EntityGarbages, ScriptObject)
+	INSTANCE_SCRIPT_HREADER(EntityGarbages, ScriptObject)	
 public:
-	typedef OUROUnordered_map<ENTITY_ID, PyObject*> ENTITYS_MAP;
+	typedef KBEUnordered_map<ENTITY_ID, PyObject*> ENTITYS_MAP;
 
 	EntityGarbages():
 	ScriptObject(getScriptType(), false),
 	_entities(),
 	_lastTime(0)
-	{
+	{			
 	}
 
 	~EntityGarbages()
 	{
 		if(size() > 0)
 		{
-			ERROR_MSG(fmt::format("EntityGarbages::~EntityGarbages(): leaked, size={}.\n",
+			ERROR_MSG(fmt::format("EntityGarbages::~EntityGarbages(): leaked, size={}.\n", 
 				size()));
 
 			int i = 0;
@@ -44,31 +44,31 @@ public:
 				if(i++ >= 256)
 					break;
 
-				ERROR_MSG(fmt::format("\t--> leaked: {}({}).\n",
+				ERROR_MSG(fmt::format("\t--> leaked: {}({}).\n", 
 					iter->second->ob_type->tp_name, iter->first));
 			}
 		}
 
 		finalise();
-	}
+	}	
 
 	void finalise()
 	{
 		clear();
 	}
 
-	/**
+	/** 
 		Expose some dictionary methods to python
 	*/
 	DECLARE_PY_MOTHOD_ARG1(pyHas_key, ENTITY_ID);
 	DECLARE_PY_MOTHOD_ARG0(pyKeys);
 	DECLARE_PY_MOTHOD_ARG0(pyValues);
 	DECLARE_PY_MOTHOD_ARG0(pyItems);
-
-	static PyObject* __py_pyGet(PyObject * self,
+	
+	static PyObject* __py_pyGet(PyObject * self, 
 		PyObject * args, PyObject* kwds);
 
-	/**
+	/** 
 		Map operation function related
 	*/
 	static PyObject* mp_subscript(PyObject* self, PyObject* key);
@@ -87,14 +87,14 @@ public:
 	T* find(ENTITY_ID id);
 
 	size_t size() const { return _entities.size(); }
-
+		
 private:
 	ENTITYS_MAP _entities;
 	uint64 _lastTime;
 };
 
-/**
-	Python EntityGarbages operation required method table
+/** 
+	Method table required for Python EntityGarbages operation
 */
 template<typename T>
 PyMappingMethods EntityGarbages<T>::mappingMethods =
@@ -104,10 +104,10 @@ PyMappingMethods EntityGarbages<T>::mappingMethods =
 	NULL											// mp_ass_subscript
 };
 
-// reference objects/dictobject.c
+// ²Î¿¼ objects/dictobject.c
 // Hack to implement "key in dict"
 template<typename T>
-PySequenceMethods EntityGarbages<T>::mappingSequenceMethods =
+PySequenceMethods EntityGarbages<T>::mappingSequenceMethods = 
 {
     0,											/* sq_length */
     0,											/* sq_concat */
@@ -134,7 +134,7 @@ SCRIPT_MEMBER_DECLARE_END()
 
 TEMPLATE_SCRIPT_GETSET_DECLARE_BEGIN(template<typename T>, EntityGarbages<T>, EntityGarbages)
 SCRIPT_GETSET_DECLARE_END()
-TEMPLATE_SCRIPT_INIT(template<typename T>, EntityGarbages<T>, EntityGarbages, 0, &EntityGarbages<T>::mappingSequenceMethods, &EntityGarbages<T>::mappingMethods, 0, 0)
+TEMPLATE_SCRIPT_INIT(template<typename T>, EntityGarbages<T>, EntityGarbages, 0, &EntityGarbages<T>::mappingSequenceMethods, &EntityGarbages<T>::mappingMethods, 0, 0)	
 
 //-------------------------------------------------------------------------------------
 template<typename T>
@@ -142,7 +142,7 @@ int EntityGarbages<T>::mp_length(PyObject * self)
 {
 	return (int)static_cast<EntityGarbages*>(self)->getEntities().size();
 }
-
+	
 //-------------------------------------------------------------------------------------
 template<typename T>
 PyObject* EntityGarbages<T>::mp_subscript(PyObject* self, PyObject* key /*entityID*/)
@@ -271,7 +271,7 @@ PyObject* EntityGarbages<T>::__py_pyGet(PyObject* self, PyObject * args, PyObjec
 //-------------------------------------------------------------------------------------
 template<typename T>
 void EntityGarbages<T>::add(ENTITY_ID id, T* entity)
-{
+{ 
 	ENTITYS_MAP::const_iterator iter = _entities.find(id);
 	if(iter != _entities.end())
 	{
@@ -285,19 +285,19 @@ void EntityGarbages<T>::add(ENTITY_ID id, T* entity)
 	}
 	else
 	{
-		// Error warning if garbage bags are not cleared within X seconds
+		// Error warning if there is no empty garbages in X seconds
 		if(_lastTime > 0 && timestamp() - _lastTime > uint64(stampsPerSecond()) * 3600)
 		{
-			// If it is not cleared, it will not be prompted again.
+			// If you don¡¯t clear it again, don¡¯t prompt it next time.
 			_lastTime = 0;
-
+			
 			ERROR_MSG(fmt::format("For a long time(3600s) not to empty the garbages, there may be a leak of the entitys(size:{}), "
-				"please use the \"Ouroboros.entities.garbages.items()\" command query!\n",
+				"please use the \"Ouroboros.entities.garbages.items()\" command query!\n", 
 				size()));
 		}
 	}
-
-	_entities[id] = entity;
+	
+	_entities[id] = entity; 
 }
 
 //-------------------------------------------------------------------------------------
@@ -317,7 +317,7 @@ T* EntityGarbages<T>::find(ENTITY_ID id)
 	{
 		return static_cast<T*>(iter->second);
 	}
-
+	
 	return NULL;
 }
 
@@ -326,10 +326,11 @@ template<typename T>
 void EntityGarbages<T>::erase(ENTITY_ID id)
 {
 	_entities.erase(id);
-
+	
 	if(_entities.size() == 0)
 		_lastTime = 0;
 }
 
 }
 #endif // OURO_ENTITYGARBAGES_H
+

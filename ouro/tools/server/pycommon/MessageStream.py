@@ -120,7 +120,7 @@ class MessageStreamReader(object):
 			if c == NULL_TERMINATOR:
 				break
 			b.append(c)
-		s = NULL_BYTES.join(b) # For compatibility with py2. 5, so no use b""
+		s = NULL_BYTES.join(b) # In order to be compatible with py2.5, do not use b""
 		return s.decode("utf-8")
 
 
@@ -214,7 +214,7 @@ class MessageStreamWriter(object):
 		"""
 		assert isinstance(val, (bytes, str, unicode)), "value type not match! current val type = %s" % type(val)
 		if isinstance(val, bytes):
-			self.stream.write( struct.pack("=%ss" % (len(val) + 1), val) ) # Plus 1 is to air The Terminator
+			Self.stream.write( struct.pack("=%ss" % (len(val) + 1), val) ) #加1 is for a null terminator
 		else:
 			val = val.encode("utf-8")
-			self.stream.write( struct.pack("=%ss" % (len(val) + 1), val) ) # Plus 1 is to air The Terminator
+			Self.stream.write( struct.pack("=%ss" % (len(val) + 1), val) ) #加1 is for a null terminator

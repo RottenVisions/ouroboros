@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_ADDRESS_H
 #define OURO_ADDRESS_H
@@ -7,7 +7,7 @@
 #include "common/objectpool.h"
 #include "network/common.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 class Address  : public PoolObject
@@ -15,10 +15,10 @@ class Address  : public PoolObject
 public:
 	static const Address NONE;
 
-	typedef OUROShared_ptr< SmartPoolObject< Address > > SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
+	typedef KBEShared_ptr< SmartPoolObject< Address > > SmartPoolObjectPtr;
+	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<Address>& ObjPool();
-	static Address* createPoolObject();
+	static Address* createPoolObject(const std::string& logPoint);
 	static void reclaimPoolObject(Address* obj);
 	static void destroyObjPool();
 	void onReclaimObject();
@@ -34,8 +34,9 @@ public:
 	Address();
 	Address(uint32 ipArg, uint16 portArg);
 	Address(std::string ipArg, uint16 portArg);
+	Address(const Address& addr);
 
-	virtual ~Address(){}
+	virtual ~Address();
 
 	uint32	ip;
 	uint16	port;
@@ -67,9 +68,9 @@ inline Address::Address(uint32 ipArg, uint16 portArg) :
 	ip(ipArg),
 	port(portArg)
 {
-}
+} 
 
-// Comparing operator overloads
+// comparison operator overloading
 inline bool operator==(const Address & a, const Address & b)
 {
 	return (a.ip == b.ip) && (a.port == b.port);

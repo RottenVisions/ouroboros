@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 #ifndef OURO_GLOBAL_DATA_CLIENT_H
 #define OURO_GLOBAL_DATA_CLIENT_H
 
@@ -10,28 +10,28 @@
 namespace Ouroboros{
 
 class GlobalDataClient : public script::Map
-{
-	/** Subclassing fills some py operations into derived classes */
+{	
+		/** Subclassing populates some py operations into derived classes*/
 	INSTANCE_SCRIPT_HREADER(GlobalDataClient, script::Map)
-
-public:
+		
+public:	
 	GlobalDataClient(COMPONENT_TYPE componentType, GlobalDataServer::DATA_TYPE dataType);
 	~GlobalDataClient();
-
-	/** Write data */
+	
+		/** Write data*/
 	bool write(PyObject* pyKey, PyObject* pyValue);
-
-	/** delete data */
+	
+		/** delete data */
 	bool del(PyObject* pyKey);
-
-	/** Data change notification */
+	
+		/** Data change notification*/
 	void onDataChanged(PyObject* key, PyObject* value, bool isDelete = false);
-
-	/** Set the server component type of this global data client */
+	
+		/** Set the server component type of the global data client*/
 	void setServerComponentType(COMPONENT_TYPE ct){ serverComponentType_ = ct; }
-
+	
 private:
-	COMPONENT_TYPE					serverComponentType_;				// The type of server component where GlobalDataServer is located
+	COMPONENT_TYPE serverComponentType_; // The type of server component where GlobalDataServer is located
 	GlobalDataServer::DATA_TYPE 	dataType_;
 } ;
 

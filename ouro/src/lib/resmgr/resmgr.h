@@ -1,7 +1,7 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 /*
-	Resource Manager.
+	Resource manager.
 */
 #ifndef OURO_RESMGR_H
 #define OURO_RESMGR_H
@@ -10,9 +10,9 @@
 #include "common/common.h"
 #include "common/singleton.h"
 #include "common/timer.h"
-#include "xml/xml.h"
+#include "xml/xml.h"	
 #include "common/smartpointer.h"
-
+	
 namespace Ouroboros{
 
 #define RESOURCE_NORMAL	0x00000000
@@ -24,8 +24,8 @@ namespace Ouroboros{
 class Resmgr : public Singleton<Resmgr>, public TimerHandler
 {
 public:
-	// Engine environment variables
-	struct OUROEnv
+	// engine environment variable
+	struct KBEEnv
 	{
 		std::string root_path;
 		std::string res_path;
@@ -39,22 +39,22 @@ public:
 public:
 	Resmgr();
 	~Resmgr();
-
+	
 	bool initialize();
 
 	void autoSetPaths();
 	void updatePaths();
 
-	const Resmgr::OUROEnv& getEnv() { return kb_env_; }
+	const Resmgr::KBEEnv& getEnv() { return kb_env_; }
 
 	/*
 		Match from the resource path (specified in the environment variable) to the full resource address
 	*/
 	std::string matchRes(const std::string& res);
 	std::string matchRes(const char* res);
-
+	
 	bool hasRes(const std::string& res);
-
+	
 	FILE* openRes(std::string res, const char* mode = "r");
 
 	/*
@@ -63,46 +63,52 @@ public:
 	bool listPathRes(std::wstring path, const std::wstring& extendName, std::vector<std::wstring>& results);
 
 	/*
-		Matches from the resource path (specified in the environment variable) to the directory
+		Match to directory from resource path (specified in environment variable)
 	*/
 	std::string matchPath(const std::string& path);
 	std::string matchPath(const char* path);
 
-	const std::vector<std::string>& respaths() {
-		return respaths_;
+	const std::vector<std::string>& respaths() { 
+		return respaths_; 
 	}
 
 	void print(void);
 
-	bool isInit(){
-		return isInit_;
+	bool isInit(){ 
+		return isInit_; 
 	}
 
 	/**
-		Get Engine System Level Resource Directory
-		ouro\\res\\*
+		Get the engine system level resource directory
+		kbe\\res\\*
 	*/
 	std::string getPySysResPath();
 
 	/**
-		Get a user-level resource directory
+		Obtain a user-level resource directory
 		assets\\res\\*
 	*/
 	std::string getPyUserResPath();
 
 	/**
-		Get a user-level script directory
+		Get the user-level script directory
 		assets\\scripts\\*
 	*/
 	std::string getPyUserScriptsPath();
 
 	/**
-		Get User Level Library Directory
+		Get the user-level process script directory
+		assets\\scripts\\cell¡¢base¡¢client
+	*/
+	std::string getPyUserComponentScriptsPath(COMPONENT_TYPE componentType = UNKNOWN_COMPONENT_TYPE);
+
+	/**
+		Get the user-level library directory
 		assets\\*
 	*/
 	std::string getPyUserAssetsPath();
 
-	ResourceObjectPtr openResource(const char* res, const char* model,
+	ResourceObjectPtr openResource(const char* res, const char* model, 
 		uint32 flags = RESOURCE_NORMAL);
 
 	bool initializeWatcher();
@@ -113,11 +119,11 @@ private:
 
 	virtual void handleTimeout(TimerHandle handle, void * arg);
 
-	OUROEnv kb_env_;
+	KBEEnv kb_env_;
 	std::vector<std::string> respaths_;
 	bool isInit_;
 
-	OUROUnordered_map< std::string, ResourceObjectPtr > respool_;
+	KBEUnordered_map< std::string, ResourceObjectPtr > respool_;
 
 	Ouroboros::thread::ThreadMutex mutex_;
 };

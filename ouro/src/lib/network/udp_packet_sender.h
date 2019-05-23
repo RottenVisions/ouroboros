@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_NETWORKUDPPACKET_SENDER_H
@@ -25,10 +25,10 @@ class EventDispatcher;
 class UDPPacketSender : public PacketSender
 {
 public:
-	typedef OUROShared_ptr< SmartPoolObject< UDPPacketSender > > SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
+	typedef KBEShared_ptr< SmartPoolObject< UDPPacketSender > > SmartPoolObjectPtr;
+	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<UDPPacketSender>& ObjPool();
-	static UDPPacketSender* createPoolObject();
+	static UDPPacketSender* createPoolObject(const std::string& logPoint);
 	static void reclaimPoolObject(UDPPacketSender* obj);
 	virtual void onReclaimObject();
 	static void destroyObjPool();
@@ -45,9 +45,12 @@ public:
 	}
 
 protected:
-	virtual void onGetError(Channel* pChannel);
+	virtual void onGetError(Channel* pChannel, const std::string& err);
 	virtual void onSent(Packet* pPacket);
 	virtual Reason processFilterPacket(Channel* pChannel, Packet * pPacket, int userarg);
+
+protected:
+	uint8 sendfailCount_;
 
 };
 }

@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_LOGGER_H
 #define OURO_LOGGER_H
-
-// common include
+	
+// common include	
 #include "server/ouromain.h"
 #include "server/python_app.h"
 #include "server/idallocate.h"
@@ -16,19 +16,24 @@
 #include "logwatcher.h"
 
 //#define NDEBUG
-#include <map>
-// windows include
+#include <map>	
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
 #endif
-
+	
 namespace Ouroboros{
 
 class TelnetServer;
 
 struct LOG_ITEM
 {
+	LOG_ITEM()
+	{
+		persistent = true;
+	}
+
 	int32 uid;
 	uint32 logtype;
 	COMPONENT_TYPE componentType;
@@ -36,11 +41,12 @@ struct LOG_ITEM
 	COMPONENT_ORDER componentGlobalOrder;
 	COMPONENT_ORDER componentGroupOrder;
 	int64 t;
-	GAME_TIME ourotime;
+	GAME_TIME kbetime;
 	std::stringstream logstream;
+	bool persistent;
 };
 
-class Logger:	public PythonApp,
+class Logger:	public PythonApp, 
 				public Singleton<Logger>
 {
 public:
@@ -52,27 +58,27 @@ public:
 		TIMEOUT_TICK = TIMEOUT_PYTHONAPP_MAX + 1
 	};
 
-	Logger(Network::EventDispatcher& dispatcher,
-		Network::NetworkInterface& ninterface,
+	Logger(Network::EventDispatcher& dispatcher, 
+		Network::NetworkInterface& ninterface, 
 		COMPONENT_TYPE componentType,
 		COMPONENT_ID componentID);
 
 	~Logger();
-
+	
 	bool run();
-
+	
 	virtual bool initializeWatcher();
 
 	void handleTimeout(TimerHandle handle, void * arg);
 	void handleTick();
 
-	/* Initialize related interfaces */
+		/*Initialize related interfaces*/
 	bool initializeBegin();
 	bool inInitialize();
 	bool initializeEnd();
 	void finalise();
 
-	virtual bool canShutdown();
+	virtual ShutdownHandler::CAN_SHUTDOWN_STATE canShutdown();
 	virtual void onShutdownBegin();
 	virtual void onShutdownEnd();
 
@@ -80,23 +86,23 @@ public:
 		return (uint32)buffered_logs_.size();
 	}
 
-	/** Network Interface
+		/** Network Interface
 		Write log
 	*/
 	void writeLog(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/** Network Interface
-		Register log listener
+		/** Network Interface
+		Registered log listener
 	*/
 	void registerLogWatcher(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/** Network Interface
+		/** Network Interface
 		Logout log listener
 	*/
 	void deregisterLogWatcher(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/** Network Interface
-		Log listener updates its own settings
+		/** Network Interface
+		Log listener updates its settings
 	*/
 	void updateLogWatcherSetting(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 

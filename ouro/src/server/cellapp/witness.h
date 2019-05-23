@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_WITNESS_H
 #define OURO_WITNESS_H
@@ -12,8 +12,8 @@
 #include "math/math.h"
 
 // #define NDEBUG
-// windows include
-#if OURO_PLATFORM == PLATFORM_WIN32
+// windows include	
+#if OURO_PLATFORM == PLATFORM_WIN32	
 #else
 // linux include
 #endif
@@ -31,7 +31,7 @@ class MemoryStream;
 class ViewTrigger;
 class SpaceMemory;
 
-/** Observer Information Structure */
+/** Observer information structure*/
 struct WitnessInfo
 {
 	WitnessInfo(const int8& lv, Entity* e, const float& r):
@@ -45,17 +45,17 @@ struct WitnessInfo
 			else
 				detailLevelLog[i] = false;
 	}
-
-	int8 detailLevel;							// Current level of detail
-	Entity* entity;								// Expressed entity
-	float range;								// Current distance from this entity
-	bool detailLevelLog[3];						// Indicates which level of detail this entity has entered into the entity, providing attribute broadcast optimization
-												// When you have not entered a certain level, it will update all the attributes of this level to him, otherwise it will only update the attributes that have been changed in the recent period of time.
-	std::vector<uint32> changeDefDataLogs[3];	// After the entity leaves a certain level of detail (without leaving the witness), a certain level of detail changes during this period are recorded here.
+	
+	int8 detailLevel; // current level of detail
+	Entity* entity; // the entity expressed
+	float range; // current distance from this entity
+	bool detailLevelLog[3]; // Indicates which level of detail the entity has entered the entity, providing attribute broadcast optimization.
+												// When you have not entered a certain level, all the attributes of this level will be updated to him, otherwise only the attributes that have changed in the recent time will be updated.
+	std::vector<uint32> changeDefDataLogs[3]; //After the entity leaves a level of detail (without leaving the witness), there is a level of detail change attribute recorded here.
 };
 
 /**
-	This module is used to monitor the entity data we are interested in, such as: view, property update, call the entity method
+	This module is used to monitor the entity data we are interested in, such as: view, property update, method of calling entity
 	And transmit it to the watcher.
 */
 class Witness : public PoolObject, public Updatable
@@ -66,7 +66,7 @@ public:
 
 	Witness();
 	~Witness();
-
+	
 	virtual uint8 updatePriority() const {
 		return 1;
 	}
@@ -74,11 +74,11 @@ public:
 	void addToStream(Ouroboros::MemoryStream& s);
 	void createFromStream(Ouroboros::MemoryStream& s);
 
-	typedef OUROShared_ptr< SmartPoolObject< Witness > > SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
+	typedef KBEShared_ptr< SmartPoolObject< Witness > > SmartPoolObjectPtr;
+	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 
 	static ObjectPool<Witness>& ObjPool();
-	static Witness* createPoolObject();
+	static Witness* createPoolObject(const std::string& logPoint);
 	static void reclaimPoolObject(Witness* obj);
 	static void destroyObjPool();
 	void onReclaimObject();
@@ -102,7 +102,7 @@ public:
 	void onAttach(Entity* pEntity);
 
 	void setViewRadius(float radius, float hyst = 5.0f);
-
+	
 	INLINE float viewRadius() const;
 	INLINE float viewHysteresisArea() const;
 
@@ -110,17 +110,17 @@ public:
 	bool pushBundle(Network::Bundle* pBundle);
 
 	/**
-		Base position, if there is a mount base position may be mount etc.
+		Basic position, if there is a mount base position, it may be a mount, etc.
 	*/
 	INLINE const Position3D& basePos();
 
 	/**
-	The basic orientation, if there is a mount base orientation may be a mount, etc.
+	Foundation orientation, if there is a mount base orientation, it may be a mount, etc.
 	*/
 	INLINE const Direction3D& baseDir();
 
 	bool update();
-
+	
 	void onEnterSpace(SpaceMemory* pSpace);
 	void onLeaveSpace(SpaceMemory* pSpace);
 
@@ -129,23 +129,23 @@ public:
 	void _onLeaveView(EntityRef* pEntityRef);
 
 	/**
-		Get tags for this time syncing Volatile data for the entity
+		Get the token of the entity's current synchronized Volatile data
 	*/
 	uint32 getEntityVolatileDataUpdateFlags(Entity* otherEntity);
+	
 
-
-	const Network::MessageHandler& getViewEntityMessageHandler(const Network::MessageHandler& normalMsgHandler,
+	const Network::MessageHandler& getViewEntityMessageHandler(const Network::MessageHandler& normalMsgHandler, 
 											   const Network::MessageHandler& optimizedMsgHandler, ENTITY_ID entityID, int& ialiasID);
 
 	bool entityID2AliasID(ENTITY_ID id, uint8& aliasID);
 
 	/**
-		What protocol to use to update the client
+		Which protocol is used to update the client
 	*/
 	void addUpdateToStream(Network::Bundle* pForwardBundle, uint32 flags, EntityRef* pEntityRef);
 
 	/**
-		Add base location to update package
+		Add the base location to the update package
 	*/
 	void addBaseDataToStream(Network::Bundle* pSendBundle);
 
@@ -154,44 +154,44 @@ public:
 	*/
 	bool sendToClient(const Network::MessageHandler& msgHandler, Network::Bundle* pBundle);
 	Network::Channel* pChannel();
-
+		
 	INLINE VIEW_ENTITIES_MAP& viewEntitiesMap();
 	INLINE VIEW_ENTITIES& viewEntities();
 
-	/** Get a reference to viewentity */
+		/** Get a reference to viewentity*/
 	INLINE EntityRef* getViewEntityRef(ENTITY_ID entityID);
 
-	/** Whether the entityID is in the view */
+		/** Whether the entityID is in the view*/
 	INLINE bool entityInView(ENTITY_ID entityID);
 
 	INLINE ViewTrigger* pViewTrigger();
 	INLINE ViewTrigger* pViewHysteresisAreaTrigger();
-
+	
 	void installViewTrigger();
 	void uninstallViewTrigger();
 
 	/**
-		Reset the View-scoped entities to bring them back to their original unsynchronized state
+		Reset the entities in the View range to restore their sync state to the original unsynchronized state
 	*/
 	void resetViewEntities();
 
 private:
 	/**
-		If the number of entities in the view is less than 256, only the index position is sent
+		if the number of entities in the view is less than 256, only the index position is sent.
 	*/
 	INLINE void _addViewEntityIDToBundle(Network::Bundle* pBundle, EntityRef* pEntityRef);
-
+	
 	/**
-		The update of the entityRef's aliasID is required when the view is changed when the update is executed
+		Need to update the aliasID of the entityRef when the view list has changed when the update is executed.
 	*/
 	void updateEntitiesAliasID();
-
+		
 private:
 	Entity*									pEntity_;
 
-	// The current entity's view radius
+	// The view radius of the current entity
 	float									viewRadius_;
-	// A lag range for the current entityView
+	// A lag range of the current entityView
 	float									viewHysteresisArea_;
 
 	ViewTrigger*							pViewTrigger_;

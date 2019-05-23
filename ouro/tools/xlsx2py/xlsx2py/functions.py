@@ -3,7 +3,7 @@
 import xlsxtool
 def funcPos2D(mapDict, dctData, chilidDict, data):
 	"""
-	返回int数据
+	Return int data
 	"""
 	if data is None or (type(data) == str and len(data) == 0):
 		return ()
@@ -14,7 +14,7 @@ def funcPos2D(mapDict, dctData, chilidDict, data):
 
 def funcInt(mapDict, dctData, chilidDict, data):
 	"""
-	返回int数据
+	Return int data
 	"""
 	try:
 		v = eval(data)
@@ -30,7 +30,7 @@ def funcInt(mapDict, dctData, chilidDict, data):
 
 def funcFloat(mapDict, dctData, chilidDict, data):
 	"""
-	返回float数据
+	Return float data
 	"""
 	if data is None or (type(data) == str and len(data) == 0):
 		return 0.0
@@ -39,7 +39,7 @@ def funcFloat(mapDict, dctData, chilidDict, data):
 
 def funcStr(mapDict, dctData, chilidDict, data):
 	"""
-	返回字符串数据
+	Return string data
 	"""
 	if data is None:
 		return ""
@@ -53,7 +53,7 @@ def funcStr(mapDict, dctData, chilidDict, data):
 
 def funcEval(mapDict, dctData, chilidDict, data):
 	"""
-	返回eval数据
+	Return eval data
 	"""
 	if data is None or (type(data) == str and len(data) == 0):
 		return ""
@@ -61,7 +61,7 @@ def funcEval(mapDict, dctData, chilidDict, data):
 
 def funcTupleInt(mapDict, dctData, chilidDict, data):
 	"""
-	返回tuple数据
+	Return tuple data
 	"""
 	if data is None or (type(data) == str and len(data) == 0):
 		return ()
@@ -72,7 +72,7 @@ def funcTupleInt(mapDict, dctData, chilidDict, data):
 
 def funcTupleFloat(mapDict, dctData, chilidDict, data):
 	"""
-	返回tuple数据
+	Return tuple data
 	"""
 	if data is None or (type(data) == str and len(data) == 0):
 		return ()
@@ -83,7 +83,7 @@ def funcTupleFloat(mapDict, dctData, chilidDict, data):
 	
 def funcDict(mapDict, dctData, chilidDict, data):
 	"""
-	返回dict数据
+	Return dict data
 	"xx:1'2'3;fff:2'3'4"
 	"""
 	if data is None or (type(data) == str and len(data) == 0):
@@ -103,7 +103,7 @@ def funcDict(mapDict, dctData, chilidDict, data):
 
 def funcTupleStr(mapDict, dctData, chilidDict, data):
 	"""
-	返回tuple数据
+	Return tuple data
 	"""
 	if data is None or (type(data) == str and len(data) == 0):
 		return ()
@@ -113,7 +113,7 @@ def funcTupleStr(mapDict, dctData, chilidDict, data):
 
 def funcTupleEval(mapDict, dctData, chilidDict, data):
 	"""
-	返回tuple数据
+	Return tuple data
 	"""
 	if data is None or (type(data) == str and len(data) == 0):
 		return ()
@@ -123,7 +123,7 @@ def funcTupleEval(mapDict, dctData, chilidDict, data):
 
 def funcTupleEvalMD(mapDict, dctData, chilidDict, data):
 	"""
-	返回tuple数据 使用代对表
+	Return tuple data using the pair table
 	"""
 	if data is None or (type(data) == str and len(data) == 0):
 		return ()
@@ -132,12 +132,12 @@ def funcTupleEvalMD(mapDict, dctData, chilidDict, data):
 	try:
 		return tuple([eval(mapDict[e.decode("gb2312")]) for e in data.split(",") if len(e) > 0])
 	except Exception as errstr:
-		print( "函数中发生错误:%s" % errstr)
+		Print( "An error occurred in the function: %s" % errstr)
 		return ()
 	
 def funcTupleEval1(mapDict, dctData, chilidDict, data):
 	"""
-	返回tuple数据
+	Return tuple data
 	1'100/2'100/3'54
 	"""
 	if data is None or (type(data) == str and len(data) == 0):
@@ -149,14 +149,14 @@ def funcTupleEval1(mapDict, dctData, chilidDict, data):
 		try:
 			i, v = e.split("'")
 		except Exception as errstr:
-			print( "函数中发生错误:%s" % errstr)
+			Print( "An error occurred in the function: %s" % errstr)
 			continue
 		ret.append((eval(i), eval(v)))
 	return tuple(ret)
 	
 def funcBool(mapDict, dctData, chilidDict, data):
 	"""
-	返回布尔值
+	Return boolean
 	"""
 	if data is None or (type(data) == str and len(data) == 0):
 		return False
@@ -164,19 +164,19 @@ def funcBool(mapDict, dctData, chilidDict, data):
 
 def funcNotBool(mapDict, dctData, chilidDict, data):
 	"""
-	返回取反的布尔值
+	Returns the negated boolean
 	"""
 	return not funcBool(mapDict, dctData, chilidDict, data)
 
 def funcNull(mapDict, dctData, chilidDict, data):
 	"""
-	什么也不做 直接返回
+	Do nothing, return directly
 	"""
 	return data
 
 def funcZipFloat(mapDict, dctData, chilidDict, data):
 	"""
-	返回float数据
+	Return float data
 	"""
 	if data is None or (type(data) == str and len(data) == 0):
 		return 0
@@ -185,7 +185,7 @@ def funcZipFloat(mapDict, dctData, chilidDict, data):
 
 def funcUNZipFloat(mapDict, dctData, chilidDict, data):
 	"""
-	返回float数据
+	Return float data
 	"""
 	if data is None or (type(data) == str and len(data) == 0):
 		return 0.0
@@ -194,12 +194,12 @@ def funcUNZipFloat(mapDict, dctData, chilidDict, data):
 	
 def funcFlags(mapDict, dctData, chilidDict, data):
 	"""
-	返回标记组合数据
-	比如： 想在excel上配置标记组合
-	近程攻击:0x00000001
-	远程攻击:0x00000002
-	暴击:0x00000004
-	用此函数可以输出多个标记组成一个uint32的数字
+	Return tag combination data
+	For example: I want to configure the tag combination on excel
+	Short-range attack: 0x00000001
+	Remote attack: 0x00000002
+	Crit: 0x00000004
+	Use this function to output multiple tokens to form a uint32 number
 	"""
 	val = 0
 	for x in data.split(","):

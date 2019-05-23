@@ -3,7 +3,7 @@
 
 
 #-----------------------------------------------------------------------------------------------------------------------------------
-# 物品
+# Item
 def funcItemOver(mapDict, allDatas, datas, dataName):
 	"""
 	"""
@@ -20,7 +20,7 @@ def funcItemOver(mapDict, allDatas, datas, dataName):
 	else:
 		noAlias = 1
 		for value in datas.values():
-			# 增加物品ID的别名
+			# Add an alias for the item ID
 			value["noAlias"] = noAlias
 			noAlias += 1
 
@@ -36,7 +36,7 @@ def funcItemOver(mapDict, allDatas, datas, dataName):
 		d = datas
 	return d
 
-# 掉落
+#落落
 def funcDropOver(mapDict, allDatas, datas, dataName):
 	"""
 	"""
@@ -104,7 +104,7 @@ def funcDropOver(mapDict, allDatas, datas, dataName):
 
 	return d
 
-# npc功能挂接表
+# npc function hook table
 NpcLinkFuncType = {
 			1 : "npcShop",
 			2 : "npcSkillStudy",
@@ -168,7 +168,7 @@ def funcNpcLink(mapDict, allDatas, datas, dataName):
 
 	return d
 
-# 装备强化表
+#装备强化表
 def funcEquipReinfoce(mapDict, allDatas, datas, dataName):
 	"""
 	"""
@@ -201,7 +201,7 @@ def funcEquipReinfoce(mapDict, allDatas, datas, dataName):
 
 	return d
 
-# 装备强化分解表
+#装备强化分解
 def funcEquipDecomposeR(mapDict, allDatas, datas, dataName):
 	"""
 	"""
@@ -221,7 +221,7 @@ def funcEquipDecomposeR(mapDict, allDatas, datas, dataName):
 
 	return d
 
-# 装备普通分解表
+#装备普通分解表
 def funcEquipDecomposeC(mapDict, allDatas, datas, dataName):
 	"""
 	"""
@@ -244,12 +244,12 @@ def funcEquipDecomposeC(mapDict, allDatas, datas, dataName):
 			d[eqTypeNo][eqSubTypeNo][dcTypeNo][dcTypeValue] = {}
 
 		dd = d[eqTypeNo][eqSubTypeNo][dcTypeNo][dcTypeValue]
-		# 物品等级
+		# Item level
 		if dcTypeNo == 1:
 			dcSubTypeNo = dcInfo["dcSubTypeNO"]
 			dd[dcSubTypeNo] = {}
 			dd = dd[dcSubTypeNo]
-		# 物品ID
+		# Item ID
 		elif dcTypeNo == 2:
 			dd = dd
 
@@ -265,7 +265,7 @@ def funcEquipDecomposeC(mapDict, allDatas, datas, dataName):
 
 	return d
 
-# 装备打造费用表
+#装备造费表
 def funcEquipBuildCost(mapDict, allDatas, datas, dataName):
 	"""
 	"""
@@ -290,7 +290,7 @@ def funcEquipBuildCost(mapDict, allDatas, datas, dataName):
 
 	return d
 
-# 套装属性索引表
+#套 attribute index table
 def funcSuitProp(mapDict, allDatas, datas, dataName):
 	"""
 	"""

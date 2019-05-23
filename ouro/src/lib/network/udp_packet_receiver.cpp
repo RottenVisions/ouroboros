@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "udp_packet_receiver.h"
@@ -15,7 +15,7 @@
 #include "network/event_poller.h"
 #include "network/error_reporter.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 
@@ -27,9 +27,9 @@ ObjectPool<UDPPacketReceiver>& UDPPacketReceiver::ObjPool()
 }
 
 //-------------------------------------------------------------------------------------
-UDPPacketReceiver* UDPPacketReceiver::createPoolObject()
+UDPPacketReceiver* UDPPacketReceiver::createPoolObject(const std::string& logPoint)
 {
-	return _g_objPool.createObject();
+	return _g_objPool.createObject(logPoint);
 }
 
 //-------------------------------------------------------------------------------------
@@ -41,16 +41,16 @@ void UDPPacketReceiver::reclaimPoolObject(UDPPacketReceiver* obj)
 //-------------------------------------------------------------------------------------
 void UDPPacketReceiver::destroyObjPool()
 {
-	DEBUG_MSG(fmt::format("UDPPacketReceiver::destroyObjPool(): size {}.\n",
+	DEBUG_MSG(fmt::format("UDPPacketReceiver::destroyObjPool(): size {}.\n", 
 		_g_objPool.size()));
 
 	_g_objPool.destroy();
 }
 
 //-------------------------------------------------------------------------------------
-UDPPacketReceiver::SmartPoolObjectPtr UDPPacketReceiver::createSmartPoolObj()
+UDPPacketReceiver::SmartPoolObjectPtr UDPPacketReceiver::createSmartPoolObj(const std::string& logPoint)
 {
-	return SmartPoolObjectPtr(new SmartPoolObject<UDPPacketReceiver>(ObjPool().createObject(), _g_objPool));
+	return SmartPoolObjectPtr(new SmartPoolObject<UDPPacketReceiver>(ObjPool().createObject(logPoint), _g_objPool));
 }
 
 //-------------------------------------------------------------------------------------
@@ -73,9 +73,9 @@ Channel* UDPPacketReceiver::findChannel(const Address& addr)
 
 //-------------------------------------------------------------------------------------
 bool UDPPacketReceiver::processRecv(bool expectingPacket)
-{
+{	
 	Address	srcAddr;
-	UDPPacket* pChannelReceiveWindow = UDPPacket::createPoolObject();
+	UDPPacket* pChannelReceiveWindow = UDPPacket::createPoolObject(OBJECTPOOL_POINT);
 	int len = pChannelReceiveWindow->recvFromEndPoint(*pEndpoint_, &srcAddr);
 
 	if (len <= 0)
@@ -84,16 +84,16 @@ bool UDPPacketReceiver::processRecv(bool expectingPacket)
 		PacketReceiver::RecvState rstate = this->checkSocketErrors(len, expectingPacket);
 		return rstate == PacketReceiver::RECV_STATE_CONTINUE;
 	}
-
+	
 	Channel* pSrcChannel = findChannel(srcAddr);
 
-	if(pSrcChannel == NULL)
+	if(pSrcChannel == NULL) 
 	{
-		EndPoint* pNewEndPoint = EndPoint::createPoolObject();
+		EndPoint* pNewEndPoint = EndPoint::createPoolObject(OBJECTPOOL_POINT);
 		pNewEndPoint->addr(srcAddr);
 		pNewEndPoint->setSocketRef(pEndpoint_->socket());
 
-		pSrcChannel = Network::Channel::createPoolObject();
+		pSrcChannel = Network::Channel::createPoolObject(OBJECTPOOL_POINT);
 		bool ret = pSrcChannel->initialize(*pNetworkInterface_, pNewEndPoint, Channel::EXTERNAL, PROTOCOL_UDP, protocolSubType());
 		if(!ret)
 		{
@@ -120,18 +120,15 @@ bool UDPPacketReceiver::processRecv(bool expectingPacket)
 			return false;
 		}
 	}
-
+	
 	OURO_ASSERT(pSrcChannel != NULL);
 
-	if(pSrcChannel->isCondemn())
+	if (pSrcChannel->condemn() > 0)
 	{
 		UDPPacket::reclaimPoolObject(pChannelReceiveWindow);
-		pNetworkInterface_->deregisterChannel(pSrcChannel);
-		pSrcChannel->destroy();
-		Network::Channel::reclaimPoolObject(pSrcChannel);
 		return false;
 	}
-
+	
 	return ((UDPPacketReceiver*)pSrcChannel->pPacketReceiver())->processRecv(pChannelReceiveWindow);
 }
 
@@ -149,7 +146,7 @@ bool UDPPacketReceiver::processRecv(UDPPacket* pReceiveWindow)
 //-------------------------------------------------------------------------------------
 Reason UDPPacketReceiver::processFilteredPacket(Channel* pChannel, Packet * pPacket)
 {
-	// If it is None, it may be filtered out by the filter (the filter is decrypted according to its own rules group package)
+	// If it is None, it may be filtered by the filter (the filter is being decrypted according to its own rules)
 	if(pPacket)
 	{
 		pChannel->addReceiveWindow(pPacket);
@@ -172,7 +169,7 @@ PacketReceiver::RecvState UDPPacketReceiver::checkSocketErrors(int len, bool exp
 
 		return RECV_STATE_CONTINUE;
 	}
-
+	
 #ifdef _WIN32
 	DWORD wsaErr = WSAGetLastError();
 #endif //def _WIN32
@@ -188,7 +185,7 @@ PacketReceiver::RecvState UDPPacketReceiver::checkSocketErrors(int len, bool exp
 		return RECV_STATE_BREAK;
 	}
 
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 	if (errno == EAGAIN ||
 		errno == ECONNREFUSED ||
 		errno == EHOSTUNREACH)
@@ -203,7 +200,7 @@ PacketReceiver::RecvState UDPPacketReceiver::checkSocketErrors(int len, bool exp
 			// exceptions is built into BaseApp::onClientNoSuchPort().
 			if (errno == ECONNREFUSED)
 			{
-				// Unrealized
+				// not implemented
 			}
 
 			this->dispatcher().errorReporter().reportException(

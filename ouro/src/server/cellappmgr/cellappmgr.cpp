@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "cellappmgr.h"
@@ -16,7 +16,7 @@
 #include "../../server/dbmgr/dbmgr_interface.h"
 
 namespace Ouroboros{
-
+	
 ServerConfig g_serverConfig;
 OURO_SINGLETON_INIT(Cellappmgr);
 
@@ -55,8 +55,8 @@ public:
 };
 
 //-------------------------------------------------------------------------------------
-Cellappmgr::Cellappmgr(Network::EventDispatcher& dispatcher,
-			 Network::NetworkInterface& ninterface,
+Cellappmgr::Cellappmgr(Network::EventDispatcher& dispatcher, 
+			 Network::NetworkInterface& ninterface, 
 			 COMPONENT_TYPE componentType,
 			 COMPONENT_ID componentID):
 	ServerApp(dispatcher, ninterface, componentType, componentID),
@@ -66,6 +66,7 @@ Cellappmgr::Cellappmgr(Network::EventDispatcher& dispatcher,
 	cellapps_(),
 	cellapp_cids_()
 {
+	Ouroboros::Network::MessageHandlers::pMainMessageHandlers = &CellappmgrInterface::messageHandlers;
 }
 
 //-------------------------------------------------------------------------------------
@@ -97,7 +98,7 @@ void Cellappmgr::removeCellapp(COMPONENT_ID cid)
 			cid, (cellapps_.size() - 1)));
 
 		cellapps_.erase(iter);
-
+		
 		std::vector<COMPONENT_ID>::iterator viter = cellapp_cids_.begin();
 		for (; viter != cellapp_cids_.end(); ++viter)
 		{
@@ -171,9 +172,9 @@ void Cellappmgr::updateBestCellapp()
 //-------------------------------------------------------------------------------------
 void Cellappmgr::handleGameTick()
 {
-	 //time_t t = ::time(NULL);
-	 //DEBUG_MSG("Cellappmgr::handleGameTick[%"PRTime"]:%u\n", t, time_);
-
+	//time_t t = ::time(NULL);
+	//DEBUG_MSG(fmt::format("Cellappmgr::handleGameTick[{}]:{}\n", t, g_ourotime));
+	
 	++g_ourotime;
 	threadPool_.onMainThreadTick();
 	networkInterface().processChannels(&CellappmgrInterface::messageHandlers);
@@ -206,7 +207,7 @@ void Cellappmgr::finalise()
 	gameTimer_.cancel();
 	forward_anywhere_cellapp_messagebuffer_.clear();
 	forward_cellapp_messagebuffer_.clear();
-
+	
 	ServerApp::finalise();
 }
 
@@ -219,7 +220,7 @@ void Cellappmgr::forwardMessage(Network::Channel* pChannel, MemoryStream& s)
 	Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(forward_componentID);
 	OURO_ASSERT(cinfos != NULL && cinfos->pChannel != NULL);
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).append((char*)s.data() + s.rpos(), (int)s.length());
 	cinfos->pChannel->send(pBundle);
 	s.done();
@@ -238,16 +239,16 @@ COMPONENT_ID Cellappmgr::findFreeCellapp(void)
 	{
 		if ((iter->second.flags() & APP_FLAGS_NOT_PARTCIPATING_LOAD_BALANCING) > 0)
 			continue;
-
+		
 		// First the process must be alive and initialized
 		if(!iter->second.isDestroyed() && iter->second.initProgress() > 1.f)
 		{
-			// If no entity is assigned unconditionally
+			// unconditionally allocated if there are no entities
 			if(iter->second.numEntities() == 0)
 				return iter->first;
 
-			// Comparing and recording the least loaded process is eventually assigned
-			if(minload > iter->second.load() ||
+			// Compare and record the least loaded process and eventually be assigned
+			if(minload > iter->second.load() || 
 				(minload == iter->second.load() && numEntities > iter->second.numEntities()))
 			{
 				cid = iter->first;
@@ -306,16 +307,16 @@ uint32 Cellappmgr::numLoadBalancingApp()
 }
 
 //-------------------------------------------------------------------------------------
-void Cellappmgr::reqCreateCellEntityInNewSpace(Network::Channel* pChannel, MemoryStream& s)
+void Cellappmgr::reqCreateCellEntityInNewSpace(Network::Channel* pChannel, MemoryStream& s) 
 {
 	std::string entityType;
 	ENTITY_ID id;
 	COMPONENT_ID componentID;
 	bool hasClient;
 
-	// If cellappIndex is 0, it means that the cellapp is not mandatory
-	// Non-zero case, the selected cellapp can be replaced by 1,2,3,4
-	// If 4 cellapps are expected, if there are not enough 4, only 3, then 4 represents 1
+	// If cellappIndex is 0, it means that cellapp is not mandatory.
+	// In case of non-zero, the selected cellapp can be replaced by 1, 2, 3, 4
+	// If there are 4 cellapps expected, if there are not enough 4, only 3, then 4 means 1
 	uint32 cellappIndex = 0;
 
 	s >> entityType;
@@ -326,7 +327,7 @@ void Cellappmgr::reqCreateCellEntityInNewSpace(Network::Channel* pChannel, Memor
 
 	static SPACE_ID spaceID = 1;
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(CellappInterface::onCreateCellEntityInNewSpaceFromBaseapp);
 	(*pBundle) << entityType;
 	(*pBundle) << id;
@@ -343,7 +344,7 @@ void Cellappmgr::reqCreateCellEntityInNewSpace(Network::Channel* pChannel, Memor
 	{
 		updateBestCellapp();
 
-		// Select a specific cellapp to create space
+		// Select a specific cellapp to create a space
 		if (cellappIndex > 0)
 		{
 			uint32 index = (cellappIndex - 1) % cellappSize;
@@ -392,7 +393,7 @@ void Cellappmgr::reqCreateCellEntityInNewSpace(Network::Channel* pChannel, Memor
 }
 
 //-------------------------------------------------------------------------------------
-void Cellappmgr::reqRestoreSpaceInCell(Network::Channel* pChannel, MemoryStream& s)
+void Cellappmgr::reqRestoreSpaceInCell(Network::Channel* pChannel, MemoryStream& s) 
 {
 	std::string entityType;
 	ENTITY_ID id;
@@ -406,7 +407,7 @@ void Cellappmgr::reqRestoreSpaceInCell(Network::Channel* pChannel, MemoryStream&
 	s >> spaceID;
 	s >> hasClient;
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(CellappInterface::onRestoreSpaceInCellFromBaseapp);
 	(*pBundle) << entityType;
 	(*pBundle) << id;
@@ -444,20 +445,24 @@ void Cellappmgr::reqRestoreSpaceInCell(Network::Channel* pChannel, MemoryStream&
 }
 
 //-------------------------------------------------------------------------------------
-void Cellappmgr::updateCellapp(Network::Channel* pChannel, COMPONENT_ID componentID,
+void Cellappmgr::updateCellapp(Network::Channel* pChannel, COMPONENT_ID componentID, 
 	ENTITY_ID numEntities, float load, uint32 flags)
 {
 	Cellapp& cellapp = getCellapp(componentID);
-
+	
 	cellapp.load(load);
 	cellapp.numEntities(numEntities);
 	cellapp.flags(flags);
 
+	Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(componentID);
+	if (cinfos)
+		cinfos->appFlags = flags;
+	
 	updateBestCellapp();
 }
 
 //-------------------------------------------------------------------------------------
-void Cellappmgr::onCellappInitProgress(Network::Channel* pChannel, COMPONENT_ID cid, float progress,
+void Cellappmgr::onCellappInitProgress(Network::Channel* pChannel, COMPONENT_ID cid, float progress, 
 	COMPONENT_ORDER componentGlobalOrder, COMPONENT_ORDER componentGroupOrder)
 {
 	if(progress > 1.f)
@@ -499,11 +504,11 @@ void Cellappmgr::addCellappComponentID(COMPONENT_ID cid)
 		}
 		++iter;
 	}
-
+	
 	if (!isInserted)
 		cellapp_cids_.push_back(cid);
 
-	// Output log, if you want to verify the correct order of cellapp insertion, you can open the following note to test
+	// Output log, if you want to verify that the order of cellapp insertion is correct, you can open the following comments to test
 	/*
 	{
 		std::string sCID = "";
@@ -525,7 +530,7 @@ void Cellappmgr::addCellappComponentID(COMPONENT_ID cid)
 //-------------------------------------------------------------------------------------
 void Cellappmgr::queryAppsLoads(Network::Channel* pChannel, MemoryStream& s)
 {
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	ConsoleInterface::ConsoleQueryAppsLoadsHandler msgHandler;
 	(*pBundle).newMessage(msgHandler);
 
@@ -547,7 +552,7 @@ void Cellappmgr::queryAppsLoads(Network::Channel* pChannel, MemoryStream& s)
 //-------------------------------------------------------------------------------------
 void Cellappmgr::querySpaces(Network::Channel* pChannel, MemoryStream& s)
 {
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	ConsoleInterface::ConsoleQuerySpacesHandler msgHandler;
 	(*pBundle).newMessage(msgHandler);
 
@@ -561,9 +566,9 @@ void Cellappmgr::querySpaces(Network::Channel* pChannel, MemoryStream& s)
 		Spaces& spaces = cellappref.spaces();
 
 		(*pBundle) << iter1->first;
-
-		// If not, it is 8 bytes under win64 and 4 bytes under win32
-		(*pBundle) << (uint32)spaces.size();
+		
+		// If not mandatory, then under win64, it is 8 bytes, and win32 is 4 bytes
+		(*pBundle) << (uint32)spaces.size(); 
 
 		std::map<SPACE_ID, Space>& allSpaces = spaces.spaces();
 		std::map<SPACE_ID, Space>::iterator iter2 = allSpaces.begin();
@@ -576,15 +581,15 @@ void Cellappmgr::querySpaces(Network::Channel* pChannel, MemoryStream& s)
 
 			Cells& cells = space.cells();
 			std::map<CELL_ID, Cell>& allCells = cells.cells();
-			(*pBundle) << (uint32)allCells.size();
+			(*pBundle) << (uint32)allCells.size(); 
 
 			std::map<CELL_ID, Cell>::iterator iter3 = allCells.begin();
 			for (; iter3 != allCells.end(); ++iter3)
 			{
 				(*pBundle) << iter3->first;
 
-				// Other information to be completed after the completion of the split function
-				// Such as cell size and shape information
+				// Other information is to be completed after the split function is implemented
+				// information such as cell size and shape
 			}
 		}
 	}

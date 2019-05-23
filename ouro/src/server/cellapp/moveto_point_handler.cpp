@@ -1,16 +1,16 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "cellapp.h"
 #include "entity.h"
-#include "moveto_point_handler.h"
-#include "move_controller.h"
+#include "moveto_point_handler.h"	
+#include "move_controller.h"	
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 
 //-------------------------------------------------------------------------------------
-MoveToPointHandler::MoveToPointHandler(OUROShared_ptr<Controller>& pController, int layer, const Position3D& destPos,
-											 float velocity, float distance, bool faceMovement,
+MoveToPointHandler::MoveToPointHandler(KBEShared_ptr<Controller>& pController, int layer, const Position3D& destPos, 
+											 float velocity, float distance, bool faceMovement, 
 											bool moveVertically, PyObject* userarg):
 destPos_(destPos),
 velocity_(velocity),
@@ -89,7 +89,7 @@ bool MoveToPointHandler::requestMoveOver(const Position3D& oldPos)
 		if(pController_->pEntity())
 			pController_->pEntity()->onMoveOver(pController_->id(), layer_, oldPos, pyuserarg_);
 
-		// Calling cancelController(id) in onMoveOver causes the MoveController to destruct and causes pController_ to be NULL
+		// If calling cancelController(id) in onMoveOver will cause the MoveController to destruct pController_ to be NULL
 		pController_->destroy();
 	}
 
@@ -104,7 +104,7 @@ bool MoveToPointHandler::update()
 		delete this;
 		return false;
 	}
-
+	
 	Entity* pEntity = pController_->pEntity();
 	Py_INCREF(pEntity);
 
@@ -115,9 +115,9 @@ bool MoveToPointHandler::update()
 
 	Vector3 movement = dstPos - currpos;
 	if (!moveVertically_) movement.y = 0.f;
-
+	
 	bool ret = true;
-	float dist_len = OUROVec3Length(&movement);
+	float dist_len = KBEVec3Length(&movement);
 
 	if (dist_len < velocity_ + distance_)
 	{
@@ -125,9 +125,9 @@ bool MoveToPointHandler::update()
 
 		if (distance_ > 0.0f)
 		{
-			// Unitary vector
-			OUROVec3Normalize(&movement, &movement);
-
+			// unitized vector
+			KBEVec3Normalize(&movement, &movement); 
+				
 			if(dist_len > distance_)
 			{
 				movement *= distance_;
@@ -146,15 +146,15 @@ bool MoveToPointHandler::update()
 	}
 	else
 	{
-		// Unitary vector
-		OUROVec3Normalize(&movement, &movement);
+		// unitized vector
+		KBEVec3Normalize(&movement, &movement); 
 
-		// move Place
+				// move Place
 		movement *= velocity_;
 		currpos += movement;
 	}
-
-	// Do you need to change the orientation?
+	
+	// Do you need to change your orientation?
 	if (faceMovement_)
 	{
 		if (movement.x != 0.f || movement.z != 0.f)
@@ -163,21 +163,21 @@ bool MoveToPointHandler::update()
 		if (movement.y != 0.f)
 			direction.pitch(movement.pitch());
 	}
-
+	
 	// Set the new location and orientation of the entity
 	if(!isDestroyed_)
 		pEntity->setPositionAndDirection(currpos, direction);
 
-	// Non-navigate can't determine it on the ground
+	// non-navigate can't be sure it's on the ground
 	if(!isDestroyed_)
 		pEntity->isOnGround(isOnGround());
 
-	// Notification script
+	// notification script
 	if(!isDestroyed_)
 		pEntity->onMove(pController_->id(), layer_, currpos_backup, pyuserarg_);
 
-	// If it was stopped in the onMove process, or reached the destination, it will be destroyed directly and return false
-	if (isDestroyed_ ||
+	// If it is stopped during the onMove process, or if it reaches its destination, it will be destroyed directly and will return false.
+	if (isDestroyed_ || 
 		(!ret && requestMoveOver(currpos_backup)))
 	{
 		Py_DECREF(pEntity);
@@ -191,3 +191,4 @@ bool MoveToPointHandler::update()
 
 //-------------------------------------------------------------------------------------
 }
+

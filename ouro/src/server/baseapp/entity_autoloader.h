@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_ENTITY_AUTOLOADER_H
 #define OURO_ENTITY_AUTOLOADER_H
@@ -13,14 +13,14 @@ class EntityAutoLoader
 public:
 	EntityAutoLoader(Network::NetworkInterface & networkInterface, InitProgressHandler* pInitProgressHandler);
 	~EntityAutoLoader();
-
+	
 	bool process();
 
 	void pInitProgressHandler(InitProgressHandler* p)
 		{ pInitProgressHandler_ = p; }
 
-	/** Network Interface
-		Automatic entity load information retrieved from the database returns
+		/** Network Interface
+		Automatic entity loading information returned in the database
 	*/
 	void onEntityAutoLoadCBFromDBMgr(Network::Channel* pChannel, MemoryStream& s);
 

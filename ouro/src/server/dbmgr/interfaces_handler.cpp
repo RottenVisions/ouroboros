@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 #include "dbmgr.h"
 #include "interfaces_handler.h"
 #include "buffered_dbtasks.h"
@@ -67,7 +67,7 @@ bool InterfacesHandler_Dbmgr::createAccount(Network::Channel* pChannel, std::str
 		return false;
 	}
 
-	// If it is email, first check whether the account exists and then register it in the database
+	// If it is email, first check if the account exists and then register it in the library.
 	if(uatype == ACCOUNT_TYPE_MAIL)
 	{
 		pThreadPool->addTask(new DBTaskCreateMailAccount(pChannel->addr(),
@@ -241,17 +241,18 @@ void InterfacesHandler_Dbmgr::accountNewPassword(Network::Channel* pChannel, ENT
 
 //-------------------------------------------------------------------------------------
 InterfacesHandler_Interfaces::InterfacesHandler_Interfaces() :
-InterfacesHandler_Dbmgr()
+InterfacesHandler_Dbmgr(),
+addr_()
 {
 }
 
 //-------------------------------------------------------------------------------------
 InterfacesHandler_Interfaces::~InterfacesHandler_Interfaces()
 {
-	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(g_ouroSrvConfig.interfacesAddr());
+	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(addr_);
 	if(pInterfacesChannel)
 	{
-		pInterfacesChannel->condemn();
+		pInterfacesChannel->condemn("");
 	}
 
 	pInterfacesChannel = NULL;
@@ -261,19 +262,22 @@ InterfacesHandler_Interfaces::~InterfacesHandler_Interfaces()
 bool InterfacesHandler_Interfaces::createAccount(Network::Channel* pChannel, std::string& registerName,
 											  std::string& password, std::string& datas, ACCOUNT_TYPE uatype)
 {
-	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(g_ouroSrvConfig.interfacesAddr());
-	OURO_ASSERT(pInterfacesChannel);
+	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(addr_);
 
-	if(pInterfacesChannel->isDestroyed())
+	if (!pInterfacesChannel || pInterfacesChannel->isDestroyed())
 	{
-		if(!this->reconnect())
+		if (!this->reconnect())
 		{
 			return false;
 		}
+
+		pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(addr_);
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	OURO_ASSERT(pInterfacesChannel);
 
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+	
 	(*pBundle).newMessage(InterfacesInterface::reqCreateAccount);
 	(*pBundle) << pChannel->componentID();
 
@@ -295,10 +299,8 @@ void InterfacesHandler_Interfaces::onCreateAccountCB(Ouroboros::MemoryStream& s)
 	s.readBlob(postdatas);
 	s.readBlob(getdatas);
 
-	if(success != SERVER_SUCCESS)
-	{
+	if (success != SERVER_SUCCESS && success != SERVER_ERR_LOCAL_PROCESSING)
 		accountName = "";
-	}
 
 	Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(LOGINAPP_TYPE, cid);
 	if(cinfos == NULL || cinfos->pChannel == NULL)
@@ -318,6 +320,39 @@ void InterfacesHandler_Interfaces::onCreateAccountCB(Ouroboros::MemoryStream& s)
 		return;
 	}
 
+	if (success == SERVER_ERR_LOCAL_PROCESSING)
+	{
+		ACCOUNT_TYPE type = ACCOUNT_TYPE(g_ouroSrvConfig.getLoginApp().account_type);
+		if (type == ACCOUNT_TYPE_SMART)
+		{
+			if (email_isvalid(accountName.c_str()))
+			{
+				pThreadPool->addTask(new DBTaskCreateMailAccount(cinfos->pChannel->addr(),
+					registerName, accountName, password, postdatas, getdatas));
+
+				return;
+			}
+			
+		}
+		else if (type == ACCOUNT_TYPE_MAIL)
+		{
+			if (!email_isvalid(accountName.c_str()))
+			{
+				WARNING_MSG(fmt::format("InterfacesHandler_Interfaces::onCreateAccountCB: invalid email={}\n",
+					accountName));
+
+				accountName = "";
+			}
+			else
+			{
+				pThreadPool->addTask(new DBTaskCreateMailAccount(cinfos->pChannel->addr(),
+					registerName, accountName, password, postdatas, getdatas));
+
+				return;
+			}
+		}
+	}
+
 	pThreadPool->addTask(new DBTaskCreateAccount(cinfos->pChannel->addr(),
 		registerName, accountName, password, postdatas, getdatas));
 }
@@ -326,16 +361,21 @@ void InterfacesHandler_Interfaces::onCreateAccountCB(Ouroboros::MemoryStream& s)
 bool InterfacesHandler_Interfaces::loginAccount(Network::Channel* pChannel, std::string& loginName,
 											 std::string& password, std::string& datas)
 {
-	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(g_ouroSrvConfig.interfacesAddr());
-	OURO_ASSERT(pInterfacesChannel);
+	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(addr_);
 
-	if(pInterfacesChannel->isDestroyed())
+	if (!pInterfacesChannel || pInterfacesChannel->isDestroyed())
 	{
-		if(!this->reconnect())
+		if (!this->reconnect())
+		{
 			return false;
+		}
+
+		pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(addr_);
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	OURO_ASSERT(pInterfacesChannel);
+
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	(*pBundle).newMessage(InterfacesInterface::onAccountLogin);
 	(*pBundle) << pChannel->componentID();
@@ -388,7 +428,9 @@ void InterfacesHandler_Interfaces::onLoginAccountCB(Ouroboros::MemoryStream& s)
 //-------------------------------------------------------------------------------------
 bool InterfacesHandler_Interfaces::initialize()
 {
-	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(g_ouroSrvConfig.interfacesAddr());
+	OURO_ASSERT(addr_ != Network::Address::NONE);
+
+	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(addr_);
 	if(pInterfacesChannel)
 		return true;
 
@@ -398,7 +440,9 @@ bool InterfacesHandler_Interfaces::initialize()
 //-------------------------------------------------------------------------------------
 bool InterfacesHandler_Interfaces::reconnect()
 {
-	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(g_ouroSrvConfig.interfacesAddr());
+	OURO_ASSERT(addr_ != Network::Address::NONE);
+
+	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(addr_);
 
 	if(pInterfacesChannel)
 	{
@@ -409,8 +453,8 @@ bool InterfacesHandler_Interfaces::reconnect()
 		Network::Channel::reclaimPoolObject(pInterfacesChannel);
 	}
 
-	Network::Address addr = g_ouroSrvConfig.interfacesAddr();
-	Network::EndPoint* pEndPoint = Network::EndPoint::createPoolObject();
+	Network::Address addr = addr_;
+	Network::EndPoint* pEndPoint = Network::EndPoint::createPoolObject(OBJECTPOOL_POINT);
 	pEndPoint->addr(addr);
 
 	pEndPoint->socket(SOCK_STREAM);
@@ -423,7 +467,7 @@ bool InterfacesHandler_Interfaces::reconnect()
 	pEndPoint->setnonblocking(true);
 	pEndPoint->setnodelay(true);
 
-	pInterfacesChannel = Network::Channel::createPoolObject();
+	pInterfacesChannel = Network::Channel::createPoolObject(OBJECTPOOL_POINT);
 	bool ret = pInterfacesChannel->initialize(Dbmgr::getSingleton().networkInterface(), pEndPoint, Network::Channel::INTERNAL);
 	if(!ret)
 	{
@@ -443,7 +487,7 @@ bool InterfacesHandler_Interfaces::reconnect()
 		FD_ZERO( &fwds );
 		FD_SET((int)(*pInterfacesChannel->pEndPoint()), &frds);
 		FD_SET((int)(*pInterfacesChannel->pEndPoint()), &fwds);
-
+		
 		bool connected = false;
 		int selgot = select((*pInterfacesChannel->pEndPoint())+1, &frds, &fwds, NULL, &tv);
 		if(selgot > 0)
@@ -461,7 +505,7 @@ bool InterfacesHandler_Interfaces::reconnect()
 
 		if(!connected)
 		{
-			ERROR_MSG(fmt::format("InterfacesHandler_Interfaces::reconnect(): couldn't connect to(interfaces server): {}! Check ouroboros[_defs].xml->interfaces->host and interfaces.*.log\n",
+			ERROR_MSG(fmt::format("InterfacesHandler_Interfaces::reconnect(): couldn't connect to(interfaces server): {}! Check ouroboros[_defs].xml->interfaces->host and interfaces.*.log\n", 
 				pInterfacesChannel->pEndPoint()->addr().c_str()));
 
 			pInterfacesChannel->destroy();
@@ -470,9 +514,23 @@ bool InterfacesHandler_Interfaces::reconnect()
 		}
 	}
 
-	// Do not check for timeout
+	// Do not check the timeout
 	pInterfacesChannel->stopInactivityDetection();
-	Dbmgr::getSingleton().networkInterface().registerChannel(pInterfacesChannel);
+
+	if (!Dbmgr::getSingleton().networkInterface().registerChannel(pInterfacesChannel))
+		return false;
+
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+	(*pBundle).newMessage(InterfacesInterface::onRegisterNewApp);
+
+	InterfacesInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(),
+		g_componentType, g_componentID,
+		g_componentGlobalOrder, g_componentGroupOrder,
+		Dbmgr::getSingleton().networkInterface().intTcpAddr().ip, Dbmgr::getSingleton().networkInterface().intTcpAddr().port,
+		Dbmgr::getSingleton().networkInterface().extTcpAddr().ip, Dbmgr::getSingleton().networkInterface().extTcpAddr().port, g_ouroSrvConfig.getConfig().externalAddress);
+
+	pInterfacesChannel->send(pBundle);
+
 	return true;
 }
 
@@ -485,14 +543,19 @@ bool InterfacesHandler_Interfaces::process()
 //-------------------------------------------------------------------------------------
 void InterfacesHandler_Interfaces::charge(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 {
-	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(g_ouroSrvConfig.interfacesAddr());
-	OURO_ASSERT(pInterfacesChannel);
+	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(addr_);
 
-	if(pInterfacesChannel->isDestroyed())
+	if (!pInterfacesChannel || pInterfacesChannel->isDestroyed())
 	{
-		if(!this->reconnect())
+		if (!this->reconnect())
+		{
 			return;
+		}
+
+		pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(addr_);
 	}
+
+	OURO_ASSERT(pInterfacesChannel);
 
 	std::string chargeID;
 	std::string datas;
@@ -507,7 +570,7 @@ void InterfacesHandler_Interfaces::charge(Network::Channel* pChannel, Ouroboros:
 	INFO_MSG(fmt::format("InterfacesHandler_Interfaces::charge: chargeID={0}, dbid={3}, cbid={1}, datas={2}!\n",
 		chargeID, cbid, datas, dbid));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	(*pBundle).newMessage(InterfacesInterface::charge);
 	(*pBundle) << pChannel->componentID();
@@ -541,10 +604,10 @@ void InterfacesHandler_Interfaces::onChargeCB(Ouroboros::MemoryStream& s)
 	Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(BASEAPP_TYPE, cid);
 	if (cid == 0 || cinfos == NULL || cinfos->pChannel == NULL || cinfos->pChannel->isDestroyed())
 	{
-		ERROR_MSG(fmt::format("InterfacesHandler_Interfaces::onChargeCB: baseapp not found!, chargeID={}, cid={}.\n",
+		ERROR_MSG(fmt::format("InterfacesHandler_Interfaces::onChargeCB: baseapp not found!, chargeID={}, cid={}.\n", 
 			chargeID, cid));
 
-		// At this point should be randomly find a baseapp call onLoseChargeCB
+		// At this point, you should randomly find a baseapp call onLoseChargeCB
 		bool found = false;
 
 		Components::COMPONENTS& components = Components::getSingleton().getComponents(BASEAPP_TYPE);
@@ -567,7 +630,7 @@ void InterfacesHandler_Interfaces::onChargeCB(Ouroboros::MemoryStream& s)
 			return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	(*pBundle).newMessage(BaseappInterface::onChargeCB);
 	(*pBundle) << chargeID;
@@ -582,16 +645,21 @@ void InterfacesHandler_Interfaces::onChargeCB(Ouroboros::MemoryStream& s)
 //-------------------------------------------------------------------------------------
 void InterfacesHandler_Interfaces::eraseClientReq(Network::Channel* pChannel, std::string& logkey)
 {
-	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(g_ouroSrvConfig.interfacesAddr());
-	OURO_ASSERT(pInterfacesChannel);
+	Network::Channel* pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(addr_);
 
-	if(pInterfacesChannel->isDestroyed())
+	if (!pInterfacesChannel || pInterfacesChannel->isDestroyed())
 	{
-		if(!this->reconnect())
+		if (!this->reconnect())
+		{
 			return;
+		}
+
+		pInterfacesChannel = Dbmgr::getSingleton().networkInterface().findChannel(addr_);
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	OURO_ASSERT(pInterfacesChannel);
+
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	(*pBundle).newMessage(InterfacesInterface::eraseClientReq);
 	(*pBundle) << logkey;
@@ -601,21 +669,21 @@ void InterfacesHandler_Interfaces::eraseClientReq(Network::Channel* pChannel, st
 //-------------------------------------------------------------------------------------
 void InterfacesHandler_Interfaces::accountActivate(Network::Channel* pChannel, std::string& scode)
 {
-	// This function does not support third-party systems, so it is performed as a local account system
+	// This feature does not support third-party systems, so it is executed as a local account system.
 	InterfacesHandler_Dbmgr::accountActivate(pChannel, scode);
 }
 
 //-------------------------------------------------------------------------------------
 void InterfacesHandler_Interfaces::accountReqResetPassword(Network::Channel* pChannel, std::string& accountName)
 {
-	// This function does not support third-party systems, so it is performed as a local account system
+	// This feature does not support third-party systems, so it is executed as a local account system.
 	InterfacesHandler_Dbmgr::accountReqResetPassword(pChannel, accountName);
 }
 
 //-------------------------------------------------------------------------------------
 void InterfacesHandler_Interfaces::accountResetPassword(Network::Channel* pChannel, std::string& accountName, std::string& newpassword, std::string& scode)
 {
-	// This function does not support third-party systems, so it is performed as a local account system
+	// This feature does not support third-party systems, so it is executed as a local account system.
 	InterfacesHandler_Dbmgr::accountResetPassword(pChannel, accountName, newpassword, scode);
 }
 
@@ -623,14 +691,14 @@ void InterfacesHandler_Interfaces::accountResetPassword(Network::Channel* pChann
 void InterfacesHandler_Interfaces::accountReqBindMail(Network::Channel* pChannel, ENTITY_ID entityID, std::string& accountName,
 												   std::string& password, std::string& email)
 {
-	// This function does not support third-party systems, so it is performed as a local account system
+	// This feature does not support third-party systems, so it is executed as a local account system.
 	InterfacesHandler_Dbmgr::accountReqBindMail(pChannel, entityID, accountName, password, email);
 }
 
 //-------------------------------------------------------------------------------------
 void InterfacesHandler_Interfaces::accountBindMail(Network::Channel* pChannel, std::string& username, std::string& scode)
 {
-	// This function does not support third-party systems, so it is performed as a local account system
+	// This feature does not support third-party systems, so it is executed as a local account system.
 	InterfacesHandler_Dbmgr::accountBindMail(pChannel, username, scode);
 }
 
@@ -638,7 +706,7 @@ void InterfacesHandler_Interfaces::accountBindMail(Network::Channel* pChannel, s
 void InterfacesHandler_Interfaces::accountNewPassword(Network::Channel* pChannel, ENTITY_ID entityID, std::string& accountName,
 												   std::string& password, std::string& newpassword)
 {
-	// This function does not support third-party systems, so it is performed as a local account system
+	// This feature does not support third-party systems, so it is executed as a local account system.
 	InterfacesHandler_Dbmgr::accountNewPassword(pChannel, entityID, accountName, password, newpassword);
 }
 

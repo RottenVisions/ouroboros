@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_CLIENT_APP_H
@@ -8,7 +8,7 @@
 #include "common/common.h"
 #include "helper/debug_helper.h"
 #include "helper/script_loglevel.h"
-#include "xml/xml.h"
+#include "xml/xml.h"	
 #include "common/singleton.h"
 #include "common/smartpointer.h"
 #include "common/timer.h"
@@ -19,7 +19,7 @@
 #include "thread/threadpool.h"
 #include "pyscript/script.h"
 #include "resmgr/resmgr.h"
-
+	
 namespace Ouroboros{
 
 namespace Network
@@ -29,10 +29,10 @@ class TCPPacketSender;
 class TCPPacketReceiver;
 }
 
-class ClientApp :
+class ClientApp : 
 	public Singleton<ClientApp>,
 	public ClientObjectBase,
-	public TimerHandler,
+	public TimerHandler, 
 	public Network::ChannelTimeOutHandler,
 	public Network::ChannelDeregisterHandler
 {
@@ -52,8 +52,8 @@ public:
 		C_STATE_PLAY = 5,
 	};
 public:
-	ClientApp(Network::EventDispatcher& dispatcher,
-			Network::NetworkInterface& ninterface,
+	ClientApp(Network::EventDispatcher& dispatcher, 
+			Network::NetworkInterface& ninterface, 
 			COMPONENT_TYPE componentType,
 			COMPONENT_ID componentID);
 
@@ -65,7 +65,7 @@ public:
 	virtual bool initializeEnd();
 	virtual void finalise();
 	virtual bool run();
-
+	
 	virtual void reset(void);
 
 	virtual int processOnce(bool shouldIdle = false);
@@ -83,7 +83,7 @@ public:
 	PyObjectPtr getEntryScript(){ return entryScript_; }
 
 	const char* name(){return COMPONENT_NAME_EX(componentType_);}
-
+	
 	virtual void handleTimeout(TimerHandle, void * pUser);
 	virtual void handleGameTick();
 
@@ -95,7 +95,7 @@ public:
 	bool login(std::string accountName, std::string passwd, std::string datas,
 		std::string ip, Ouroboros::uint32 port);
 
-	bool updateChannel(bool loginapp, std::string accountName, std::string passwd,
+	bool updateChannel(bool loginapp, std::string accountName, std::string passwd, 
 								   std::string ip, Ouroboros::uint32 port);
 
 	GAME_TIME time() const { return g_ourotime; }
@@ -106,7 +106,7 @@ public:
 
 	COMPONENT_ID componentID() const	{ return componentID_; }
 	COMPONENT_TYPE componentType() const	{ return componentType_; }
-
+		
 	Ouroboros::script::Script& getScript(){ return *pScript_; }
 	void setScript(Ouroboros::script::Script* p){ pScript_ = p; }
 
@@ -117,7 +117,7 @@ public:
 	virtual void onServerClosed();
 
 	/**
-		Set the script to the Output Type prefix
+		Set the script output type prefix
 	*/
 	static PyObject* __py_setScriptLogType(PyObject* self, PyObject* args);
 
@@ -125,107 +125,107 @@ public:
 	virtual void onChannelDeregister(Network::Channel * pChannel);
 
 	virtual void onHelloCB_(Network::Channel* pChannel, const std::string& verInfo,
-		const std::string& scriptVerInfo, const std::string& protocolMD5,
+		const std::string& scriptVerInfo, const std::string& protocolMD5, 
 		const std::string& entityDefMD5, COMPONENT_TYPE componentType);
 
-	/** The network interface
-		And server version do not match
+		/** Network Interface
+		Does not match the version of the server
 	*/
 	virtual void onVersionNotMatch(Network::Channel* pChannel, MemoryStream& s);
 
-	/** The network interface
-		And server-side scripting layer version mismatch
+		/** Network Interface
+		Does not match the script layer version of the server
 	*/
 	virtual void onScriptVersionNotMatch(Network::Channel* pChannel, MemoryStream& s);
 
-	/** The network interface
-			A successful login
-			@ip: ip address of the server
-			@port: the server port
+		/** Network Interface
+	   	   login successful
+	   @ip: Server ip address
+	   @port: server port
 	*/
 	virtual void onLoginSuccessfully(Network::Channel * pChannel, MemoryStream& s);
 
-	/** The network interface
-			Login failed callback
-			@failedcode: failed return code NETWORK_ERR_SRV_NO_READY:server not ready,
-			NETWORK_ERR_SRV_OVERLOAD:the server is under heavy load,
-			NETWORK_ERR_NAME_PASSWORD:username or password is incorrect
+		/** Network Interface
+	   Login failure callback
+	   @failedcode: Failure return code NETWORK_ERR_SRV_NO_READY: The server is not ready,
+									NETWORK_ERR_SRV_OVERLOAD: The server is overloaded,
+									NETWORK_ERR_NAME_PASSWORD: Username or password is incorrect
 	*/
 	virtual void onLoginFailed(Network::Channel * pChannel, MemoryStream& s);
 
-	/** The network interface
-			Login failed callback
-			@failedcode: failed return code NETWORK_ERR_SRV_NO_READY:server not ready,
-			NETWORK_ERR_ILLEGAL_LOGIN:illegal login,
-			NETWORK_ERR_NAME_PASSWORD:username or password is incorrect
+		/** Network Interface
+	   Login failure callback
+	   @failedcode: Failure return code NETWORK_ERR_SRV_NO_READY: The server is not ready,
+									NETWORK_ERR_ILLEGAL_LOGIN: illegal login,
+									NETWORK_ERR_NAME_PASSWORD: Username or password is incorrect
 	*/
 	virtual void onLoginBaseappFailed(Network::Channel * pChannel, SERVER_ERROR_CODE failedcode);
 	virtual void onReloginBaseappFailed(Network::Channel * pChannel, SERVER_ERROR_CODE failedcode);
 
-	/** The network interface
-	   Heavy landing baseap p success
+		/** Network Interface
+	   Re-login to baseapp successfully
 	*/
 	virtual void onReloginBaseappSuccessfully(Network::Channel * pChannel, MemoryStream& s);
 
 	virtual void onTargetChanged();
 
-	/**
-		Service end to add a space The geometric mapping
+	/** 
+		The server adds a geometric map of a space
 	*/
 	virtual void onAddSpaceGeometryMapping(SPACE_ID spaceID, std::string& respath);
 
 	static PyObject* __py_GetSpaceData(PyObject *self, PyObject* args)
 	{
-		return ClientObjectBase::__py_GetSpaceData(&ClientApp::getSingleton(), args);
+		return ClientObjectBase::__py_GetSpaceData(&ClientApp::getSingleton(), args);	
 	}
 
 	static PyObject* __py_callback(PyObject *self, PyObject* args)
 	{
-		return ClientObjectBase::__py_callback(&ClientApp::getSingleton(), args);
+		return ClientObjectBase::__py_callback(&ClientApp::getSingleton(), args);	
 	}
 
 	static PyObject* __py_cancelCallback(PyObject *self, PyObject* args)
 	{
-		return ClientObjectBase::__py_cancelCallback(&ClientApp::getSingleton(), args);
+		return ClientObjectBase::__py_cancelCallback(&ClientApp::getSingleton(), args);	
 	}
 
 	static PyObject* __py_getWatcher(PyObject *self, PyObject* args)
 	{
-		return ClientObjectBase::__py_getWatcher(&ClientApp::getSingleton(), args);
+		return ClientObjectBase::__py_getWatcher(&ClientApp::getSingleton(), args);	
 	}
 
 	static PyObject* __py_getWatcherDir(PyObject *self, PyObject* args)
 	{
-		return ClientObjectBase::__py_getWatcherDir(&ClientApp::getSingleton(), args);
+		return ClientObjectBase::__py_getWatcherDir(&ClientApp::getSingleton(), args);	
 	}
 
 	static PyObject* __py_disconnect(PyObject *self, PyObject* args)
 	{
-		return ClientObjectBase::__py_disconnect(&ClientApp::getSingleton(), args);
+		return ClientObjectBase::__py_disconnect(&ClientApp::getSingleton(), args);	
 	}
 
 	/**
-		By relative path get the resource full path
+		Get the full path of the resource through the relative path
 	*/
 	static PyObject* __py_getResFullPath(PyObject* self, PyObject* args);
 
 	/**
-		By the relative path to determine whether the resources exist
+		Determine whether a resource exists through a relative path
 	*/
 	static PyObject* __py_hasRes(PyObject* self, PyObject* args);
 
 	/**
-		open File
+		Open file
 	*/
 	static PyObject* __py_ouroOpen(PyObject* self, PyObject* args);
 
 	/**
-		Listed in the directory and all the files
+		List all files in the directory
 	*/
 	static PyObject* __py_listPathRes(PyObject* self, PyObject* args);
 
 	/**
-		Matching the relative path to get full path
+		Match the relative path to get the full path
 	*/
 	static PyObject* __py_matchPath(PyObject* self, PyObject* args);
 
@@ -237,17 +237,17 @@ protected:
 
 	COMPONENT_TYPE											componentType_;
 
-	// The present Assembly ID
-	COMPONENT_ID											componentID_;
+	// the ID of this component
+	COMPONENT_ID											componentID_;									
 
 	Network::EventDispatcher& 								dispatcher_;
 	Network::NetworkInterface&								networkInterface_;
-
+	
 	Network::TCPPacketSender*								pTCPPacketSender_;
 	Network::TCPPacketReceiver*								pTCPPacketReceiver_;
 	Network::BlowfishFilter*								pBlowfishFilter_;
 
-	// The thread pool
+		// Thread Pool
 	thread::ThreadPool										threadPool_;
 
 	PyObjectPtr												entryScript_;

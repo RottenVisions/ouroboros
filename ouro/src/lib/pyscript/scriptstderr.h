@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SCRIPTSTDERR_H
 #define OURO_SCRIPTSTDERR_H
@@ -12,14 +12,14 @@ namespace Ouroboros{ namespace script{
 class ScriptStdOutErr;
 class ScriptStdErr: public ScriptObject
 {
-	/** Subclassing fills some py operations into derived classes */
+		/** Subclassing populates some py operations into derived classes*/
 	INSTANCE_SCRIPT_HREADER(ScriptStdErr, ScriptObject)
-public:
+public:	
 	ScriptStdErr(ScriptStdOutErr* pScriptStdOutErr);
 	virtual ~ScriptStdErr();
 
-	/**
-		Python write operation 
+	/** 
+		Python write operation
 	*/
 	static PyObject* __py_write(PyObject* self, PyObject *args);
 	static PyObject* __py_flush(PyObject* self, PyObject *args);

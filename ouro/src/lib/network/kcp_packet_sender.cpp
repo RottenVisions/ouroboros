@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "kcp_packet_sender.h"
@@ -17,7 +17,7 @@
 #include "network/tcp_packet.h"
 #include "network/udp_packet.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 
@@ -29,9 +29,9 @@ ObjectPool<KCPPacketSender>& KCPPacketSender::ObjPool()
 }
 
 //-------------------------------------------------------------------------------------
-KCPPacketSender* KCPPacketSender::createPoolObject()
+KCPPacketSender* KCPPacketSender::createPoolObject(const std::string& logPoint)
 {
-	return _g_objPool.createObject();
+	return _g_objPool.createObject(logPoint);
 }
 
 //-------------------------------------------------------------------------------------
@@ -48,16 +48,16 @@ void KCPPacketSender::onReclaimObject()
 //-------------------------------------------------------------------------------------
 void KCPPacketSender::destroyObjPool()
 {
-	DEBUG_MSG(fmt::format("KCPPacketSender::destroyObjPool(): size {}.\n",
+	DEBUG_MSG(fmt::format("KCPPacketSender::destroyObjPool(): size {}.\n", 
 		_g_objPool.size()));
 
 	_g_objPool.destroy();
 }
 
 //-------------------------------------------------------------------------------------
-KCPPacketSender::SmartPoolObjectPtr KCPPacketSender::createSmartPoolObj()
+KCPPacketSender::SmartPoolObjectPtr KCPPacketSender::createSmartPoolObj(const std::string& logPoint)
 {
-	return SmartPoolObjectPtr(new SmartPoolObject<KCPPacketSender>(ObjPool().createObject(), _g_objPool));
+	return SmartPoolObjectPtr(new SmartPoolObject<KCPPacketSender>(ObjPool().createObject(logPoint), _g_objPool));
 }
 
 //-------------------------------------------------------------------------------------
@@ -76,20 +76,24 @@ KCPPacketSender::~KCPPacketSender()
 //-------------------------------------------------------------------------------------
 Reason KCPPacketSender::processFilterPacket(Channel* pChannel, Packet * pPacket, int userarg)
 {
-	if (pChannel->isCondemn())
+	if (pChannel->condemn() == Channel::FLAG_CONDEMN_AND_DESTROY)
 	{
 		return REASON_CHANNEL_CONDEMN;
 	}
 
 	if (userarg > 0)
 	{
-		//DEBUG_MSG(fmt::format("KCPPacketSender::processFilterPacket: kcp_sent={}, kcp={:p}, channel={:p}, this={:p}\n",
+		//DEBUG_MSG(fmt::format("KCPPacketSender::processFilterPacket: kcp_sent={}, kcp={:p}, channel={:p}, this={:p}\n", 
 		//	pPacket->length(), (void*)pChannel->pKCP(), (void*)pChannel, (void*)this));
 
-		if (ikcp_send(pChannel->pKCP(), (const char*)pPacket->data(), pPacket->length()) < 0)
+		pChannel->addKcpUpdate();
+
+
+				if (ikcp_waitsnd(pChannel->pKCP()) > (int)(pChannel->pKCP()->snd_wnd * 2)/* if the send queue exceeds the send window by 2 times, the resource is insufficient.*/ || 
+			ikcp_send(pChannel->pKCP(), (const char*)pPacket->data(), pPacket->length()) < 0)
 		{
-			ERROR_MSG(fmt::format("KCPPacketSender::ikcp_send: send error! currPacketSize={}, ikcp_waitsnd={}\n",
-				pPacket->length(), ikcp_waitsnd(pChannel->pKCP())));
+			ERROR_MSG(fmt::format("KCPPacketSender::ikcp_send: send error! currPacketSize={}, ikcp_waitsnd={}, snd_wndsize={}\n", 
+				pPacket->length(), ikcp_waitsnd(pChannel->pKCP()), pChannel->pKCP()->snd_wnd));
 
 			return REASON_RESOURCE_UNAVAILABLE;
 		}
@@ -112,7 +116,7 @@ Reason KCPPacketSender::processFilterPacket(Channel* pChannel, Packet * pPacket,
 
 		if (!sentCompleted)
 		{
-			// If only a part of the data is sent, an error has been sent
+			// If you only sent a portion of the data, the error is sent.
 			return checkSocketErrors(pEndpoint);
 		}
 	}
@@ -144,3 +148,4 @@ int KCPPacketSender::kcp_output(const char *buf, int len, ikcpcb *kcp, Channel* 
 //-------------------------------------------------------------------------------------
 }
 }
+

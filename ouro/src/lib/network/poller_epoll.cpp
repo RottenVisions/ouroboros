@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "poller_epoll.h"
@@ -98,9 +98,9 @@ int EpollPoller::processPendingEvents(double maxWait)
 	uint64 startTime = timestamp();
 #endif
 
-	OUROConcurrency::onStartMainThreadIdling();
+	KBEConcurrency::onStartMainThreadIdling();
 	int nfds = epoll_wait(epfd_, events, MAX_EVENTS, maxWaitInMilliseconds);
-	OUROConcurrency::onEndMainThreadIdling();
+	KBEConcurrency::onEndMainThreadIdling();
 
 
 #if ENABLE_WATCHERS

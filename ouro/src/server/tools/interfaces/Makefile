@@ -31,10 +31,10 @@ endif
 CPPFLAGS += -DOURO_INTERFACES
 
 ifndef OURO_ROOT
-export OURO_ROOT := $(subst /ouro/src/server/tools/$(BIN),,$(CURDIR))
+export OURO_ROOT := $(subst /kbe/src/server/tools/$(BIN),,$(CURDIR))
 endif
 
-#OURO_INCLUDES += -I $(OURO_ROOT)/ouro/src/lib/dependencies/mysql/include
+#OURO_INCLUDES += -I $(OURO_ROOT)/kbe/src/lib/dependencies/mysql/include
 
-include $(OURO_ROOT)/ouro/src/build/common.mak
+include $(OURO_ROOT)/kbe/src/build/common.mak
 

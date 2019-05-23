@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SHUTDOWNER_HANDLER_H
 #define OURO_SHUTDOWNER_HANDLER_H
@@ -19,6 +19,7 @@ public:
 	enum TimeOutType
 	{
 		TIMEOUT_SHUTDOWN_TICK,
+		TIMEOUT_SHUTDOWN_READY_END_TICK,
 		TIMEOUT_SHUTDOWN_END_TICK,
 		TIMEOUT_MAX
 	};
@@ -36,7 +37,7 @@ protected:
 	TimerHandle pTimerHandle_;
 	Network::EventDispatcher* pDispatcher_;
 	float tickPeriod_;
-
+	int	shutDownCount_;
 };
 
 }

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_PROFILE_HANDLER_H
 #define OURO_PROFILE_HANDLER_H
@@ -10,7 +10,7 @@
 #include "helper/eventhistory_stats.h"
 #include "network/interfaces.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 class NetworkInterface;
@@ -23,14 +23,14 @@ class MemoryStream;
 class ProfileHandler : public TimerHandler
 {
 public:
-	ProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen,
+	ProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen, 
 		std::string name, const Network::Address& addr);
 	virtual ~ProfileHandler();
-
+	
 	virtual void timeout() = 0;
 	virtual void sendStream(MemoryStream* s) = 0;
 
-	static OUROUnordered_map<std::string, OUROShared_ptr< ProfileHandler > > profiles;
+	static KBEUnordered_map<std::string, KBEShared_ptr< ProfileHandler > > profiles;
 
 protected:
 	virtual void handleTimeout(TimerHandle handle, void * arg);
@@ -38,22 +38,22 @@ protected:
 	Network::NetworkInterface& networkInterface_;
 
 	TimerHandle reportLimitTimerHandle_;
-
+	
 	std::string name_;
-
+	
 	Network::Address addr_;
 
 	uint32 timinglen_;
 };
 
-class CProfileHandler : public Task,
+class CProfileHandler : public Task, 
 						public ProfileHandler
 {
 public:
-	CProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen,
+	CProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen, 
 		std::string name, const Network::Address& addr);
 	virtual ~CProfileHandler();
-
+	
 	void timeout();
 	void sendStream(MemoryStream* s);
 	bool process();
@@ -64,11 +64,11 @@ private:
 		// name
 		std::string		name;
 
-		// Time after startd.
+		// The time after startd.
 		TimeStamp		lastTime;
 		TimeStamp		diff_lastTime;
 
-		// Count_ total time
+		// total time of count_ times
 		TimeStamp		sumTime;
 		TimeStamp		diff_sumTime;
 
@@ -76,7 +76,7 @@ private:
 		TimeStamp		lastIntTime;
 		TimeStamp		diff_lastIntTime;
 
-		// Count_ total internal time
+		// count_ times internal total time
 		TimeStamp		sumIntTime;
 		TimeStamp		diff_sumIntTime;
 
@@ -86,24 +86,24 @@ private:
 
 	// This ProfileVal only records the initial value of default.profiles at the beginning of the timer
 	// Take the difference at the end to get the result
-	typedef OUROUnordered_map<std::string,  ProfileVal> PROFILEVALS;
+	typedef KBEUnordered_map<std::string,  ProfileVal> PROFILEVALS;
 	PROFILEVALS profileVals_;
 };
 
 class EventProfileHandler : public ProfileHandler
 {
 public:
-	EventProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen,
+	EventProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen, 
 		std::string name, const Network::Address& addr);
 	virtual ~EventProfileHandler();
-
+	
 	void timeout();
 	void sendStream(MemoryStream* s);
 
-	void onTriggerEvent(const EventHistoryStats& eventHistory, const EventHistoryStats::Stats& stats,
+	void onTriggerEvent(const EventHistoryStats& eventHistory, const EventHistoryStats::Stats& stats, 
 		uint32 size);
 
-	static void triggerEvent(const EventHistoryStats& eventHistory, const EventHistoryStats::Stats& stats,
+	static void triggerEvent(const EventHistoryStats& eventHistory, const EventHistoryStats::Stats& stats, 
 		uint32 size);
 
 private:
@@ -125,11 +125,11 @@ private:
 
 	// This ProfileVal only records the initial value of default.profiles at the beginning of the timer
 	// Take the difference at the end to get the result
-	typedef OUROUnordered_map<std::string,  ProfileVal> PROFILEVALS;
+	typedef KBEUnordered_map<std::string,  ProfileVal> PROFILEVALS;
 
-	typedef OUROUnordered_map< std::string,  PROFILEVALS > PROFILEVALMAP;
+	typedef KBEUnordered_map< std::string,  PROFILEVALS > PROFILEVALMAP;
 	PROFILEVALMAP profileMaps_;
-
+	
 	static std::vector<EventProfileHandler*> eventProfileHandlers_;
 	int removeHandle_;
 };
@@ -137,10 +137,10 @@ private:
 class NetworkProfileHandler : public ProfileHandler, public Network::NetworkStatsHandler
 {
 public:
-	NetworkProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen,
+	NetworkProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen, 
 		std::string name, const Network::Address& addr);
 	virtual ~NetworkProfileHandler();
-
+	
 	void timeout();
 	void sendStream(MemoryStream* s);
 
@@ -184,7 +184,7 @@ private:
 		uint32			total_recv_count;
 	};
 
-	typedef OUROUnordered_map<std::string,  ProfileVal> PROFILEVALS;
+	typedef KBEUnordered_map<std::string,  ProfileVal> PROFILEVALS;
 	PROFILEVALS profileVals_;
 };
 

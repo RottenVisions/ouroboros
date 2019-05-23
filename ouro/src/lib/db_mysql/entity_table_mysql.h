@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_ENTITY_TABLE_MYSQL_H
 #define OURO_ENTITY_TABLE_MYSQL_H
@@ -9,7 +9,7 @@
 #include "helper/debug_helper.h"
 #include "db_interface/entity_table.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 class ScriptDefModule;
 class EntityTableMysql;
@@ -17,7 +17,7 @@ class EntityTableMysql;
 #define MYSQL_ENGINE_TYPE "InnoDB"
 
 /*
-	Maintaining a field in the database table in the entity table
+	Maintain a field in the database table
 */
 class EntityTableItemMysqlBase : public EntityTableItem
 {
@@ -39,9 +39,9 @@ public:
 	uint8 type() const{ return TABLE_ITEM_TYPE_UNKONWN; }
 
 	/**
-		initialization
+		Initialize
 	*/
-	virtual bool initialize(const PropertyDescription* pPropertyDescription,
+	virtual bool initialize(const PropertyDescription* pPropertyDescription, 
 		const DataType* pDataType, std::string name);
 
 	/**
@@ -50,12 +50,12 @@ public:
 	virtual bool syncToDB(DBInterface* pdbi, void* pData = NULL) = 0;
 
 	/**
-		update data
+				update data
 	*/
 	virtual bool writeItem(DBInterface* pdbi, DBID dbid, MemoryStream* s, ScriptDefModule* pModule){ return true; }
 
 	/**
-		Query table
+		Query list
 	*/
 	virtual bool queryTable(DBInterface* pdbi, DBID dbid, MemoryStream* s, ScriptDefModule* pModule){ return true; }
 
@@ -65,7 +65,7 @@ public:
 	virtual void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID){};
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context) = 0;
 	virtual void getReadSqlItem(mysql::DBContext& context) = 0;
@@ -83,7 +83,7 @@ protected:
 class EntityTableItemMysql_DIGIT : public EntityTableItemMysqlBase
 {
 public:
-	EntityTableItemMysql_DIGIT(std::string dataSType, std::string itemDBType,
+	EntityTableItemMysql_DIGIT(std::string dataSType, std::string itemDBType, 
 		uint32 datalength, uint32 flags, enum_field_types mysqlItemtype):
 	  EntityTableItemMysqlBase(itemDBType, datalength, flags, mysqlItemtype),
 		  dataSType_(dataSType)
@@ -105,7 +105,7 @@ public:
 	void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID);
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context);
 	virtual void getReadSqlItem(mysql::DBContext& context);
@@ -117,7 +117,7 @@ protected:
 class EntityTableItemMysql_STRING : public EntityTableItemMysqlBase
 {
 public:
-	EntityTableItemMysql_STRING(std::string itemDBType,
+	EntityTableItemMysql_STRING(std::string itemDBType, 
 		uint32 datalength, uint32 flags, enum_field_types mysqlItemtype):
 	  EntityTableItemMysqlBase(itemDBType, datalength, flags, mysqlItemtype)
 	  {
@@ -138,7 +138,7 @@ public:
 	void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID);
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context);
 	virtual void getReadSqlItem(mysql::DBContext& context);
@@ -147,7 +147,7 @@ public:
 class EntityTableItemMysql_UNICODE : public EntityTableItemMysqlBase
 {
 public:
-	EntityTableItemMysql_UNICODE(std::string itemDBType,
+	EntityTableItemMysql_UNICODE(std::string itemDBType, 
 		uint32 datalength, uint32 flags, enum_field_types mysqlItemtype):
 	  EntityTableItemMysqlBase(itemDBType, datalength, flags, mysqlItemtype)
 	  {
@@ -168,7 +168,7 @@ public:
 	void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID);
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context);
 	virtual void getReadSqlItem(mysql::DBContext& context);
@@ -177,7 +177,7 @@ public:
 class EntityTableItemMysql_PYTHON : public EntityTableItemMysqlBase
 {
 public:
-	EntityTableItemMysql_PYTHON(std::string itemDBType,
+	EntityTableItemMysql_PYTHON(std::string itemDBType, 
 		uint32 datalength, uint32 flags, enum_field_types mysqlItemtype):
 	  EntityTableItemMysqlBase(itemDBType, datalength, flags, mysqlItemtype)
 	  {
@@ -198,7 +198,7 @@ public:
 	void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID);
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context);
 	virtual void getReadSqlItem(mysql::DBContext& context);
@@ -207,7 +207,7 @@ public:
 class EntityTableItemMysql_BLOB : public EntityTableItemMysqlBase
 {
 public:
-	EntityTableItemMysql_BLOB(std::string itemDBType,
+	EntityTableItemMysql_BLOB(std::string itemDBType, 
 		uint32 datalength, uint32 flags, enum_field_types mysqlItemtype):
 	  EntityTableItemMysqlBase(itemDBType, datalength, flags, mysqlItemtype)
 	  {
@@ -228,7 +228,7 @@ public:
 	void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID);
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context);
 	virtual void getReadSqlItem(mysql::DBContext& context);
@@ -237,7 +237,7 @@ public:
 class EntityTableItemMysql_VECTOR2 : public EntityTableItemMysqlBase
 {
 public:
-	EntityTableItemMysql_VECTOR2(std::string itemDBType,
+	EntityTableItemMysql_VECTOR2(std::string itemDBType, 
 		uint32 datalength, uint32 flags, enum_field_types mysqlItemtype):
 	  EntityTableItemMysqlBase(itemDBType, datalength, flags, mysqlItemtype)
 	  {
@@ -246,7 +246,7 @@ public:
 	virtual ~EntityTableItemMysql_VECTOR2(){};
 
 	uint8 type() const{ return TABLE_ITEM_TYPE_VECTOR2; }
-
+	
 	virtual bool isSameKey(std::string key);
 
 	/**
@@ -260,7 +260,7 @@ public:
 	void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID);
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context);
 	virtual void getReadSqlItem(mysql::DBContext& context);
@@ -278,7 +278,7 @@ protected:
 class EntityTableItemMysql_VECTOR3 : public EntityTableItemMysqlBase
 {
 public:
-	EntityTableItemMysql_VECTOR3(std::string itemDBType,
+	EntityTableItemMysql_VECTOR3(std::string itemDBType, 
 		uint32 datalength, uint32 flags, enum_field_types mysqlItemtype):
 	  EntityTableItemMysqlBase(itemDBType, datalength, flags, mysqlItemtype)
 	  {
@@ -301,7 +301,7 @@ public:
 	void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID);
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context);
 	virtual void getReadSqlItem(mysql::DBContext& context);
@@ -319,7 +319,7 @@ protected:
 class EntityTableItemMysql_VECTOR4 : public EntityTableItemMysqlBase
 {
 public:
-	EntityTableItemMysql_VECTOR4(std::string itemDBType,
+	EntityTableItemMysql_VECTOR4(std::string itemDBType, 
 		uint32 datalength, uint32 flags, enum_field_types mysqlItemtype):
 	  EntityTableItemMysqlBase(itemDBType, datalength, flags, mysqlItemtype)
 	  {
@@ -342,7 +342,7 @@ public:
 	void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID);
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context);
 	virtual void getReadSqlItem(mysql::DBContext& context);
@@ -360,7 +360,7 @@ protected:
 class EntityTableItemMysql_ENTITYCALL : public EntityTableItemMysqlBase
 {
 public:
-	EntityTableItemMysql_ENTITYCALL(std::string itemDBType,
+	EntityTableItemMysql_ENTITYCALL(std::string itemDBType, 
 		uint32 datalength, uint32 flags, enum_field_types mysqlItemtype):
 	  EntityTableItemMysqlBase(itemDBType, datalength, flags, mysqlItemtype)
 	  {
@@ -381,7 +381,7 @@ public:
 	void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID);
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context);
 	virtual void getReadSqlItem(mysql::DBContext& context);
@@ -390,7 +390,7 @@ public:
 class EntityTableItemMysql_ARRAY : public EntityTableItemMysqlBase
 {
 public:
-	EntityTableItemMysql_ARRAY(std::string itemDBType,
+	EntityTableItemMysql_ARRAY(std::string itemDBType, 
 		uint32 datalength, uint32 flags, enum_field_types mysqlItemtype):
 	  EntityTableItemMysqlBase(itemDBType, datalength, flags, mysqlItemtype),
 	  pChildTable_(NULL)
@@ -402,9 +402,9 @@ public:
 	virtual bool isSameKey(std::string key);
 
 	/**
-		initialization
+		Initialize
 	*/
-	virtual bool initialize(const PropertyDescription* pPropertyDescription,
+	virtual bool initialize(const PropertyDescription* pPropertyDescription, 
 		const DataType* pDataType, std::string name);
 
 	uint8 type() const{ return TABLE_ITEM_TYPE_FIXEDARRAY; }
@@ -420,7 +420,7 @@ public:
 	void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID);
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context);
 	virtual void getReadSqlItem(mysql::DBContext& context);
@@ -434,7 +434,7 @@ protected:
 class EntityTableItemMysql_FIXED_DICT : public EntityTableItemMysqlBase
 {
 public:
-	EntityTableItemMysql_FIXED_DICT(std::string itemDBType,
+	EntityTableItemMysql_FIXED_DICT(std::string itemDBType, 
 		uint32 datalength, uint32 flags, enum_field_types mysqlItemtype):
 	  EntityTableItemMysqlBase(itemDBType, datalength, flags, mysqlItemtype)
 	  {
@@ -442,16 +442,16 @@ public:
 
 	virtual ~EntityTableItemMysql_FIXED_DICT(){};
 
-	typedef std::vector< std::pair< std::string, OUROShared_ptr<EntityTableItem> > > FIXEDDICT_KEYTYPES;
+	typedef std::vector< std::pair< std::string, KBEShared_ptr<EntityTableItem> > > FIXEDDICT_KEYTYPES;
 
 	uint8 type() const{ return TABLE_ITEM_TYPE_FIXEDDICT; }
 
 	virtual bool isSameKey(std::string key);
 
 	/**
-		initialization
+		Initialize
 	*/
-	virtual bool initialize(const PropertyDescription* pPropertyDescription,
+	virtual bool initialize(const PropertyDescription* pPropertyDescription, 
 		const DataType* pDataType, std::string name);
 
 	/**
@@ -465,7 +465,7 @@ public:
 	void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID);
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context);
 	virtual void getReadSqlItem(mysql::DBContext& context);
@@ -475,7 +475,7 @@ public:
 	uint32 getItemDatabaseLength(const std::string& name);
 
 protected:
-	EntityTableItemMysql_FIXED_DICT::FIXEDDICT_KEYTYPES			keyTypes_;		// The type of each key in this fixed dictionary
+	EntityTableItemMysql_FIXED_DICT::FIXEDDICT_KEYTYPES keyTypes_; // The type of each key in this fixed dictionary
 };
 
 
@@ -494,7 +494,7 @@ public:
 	virtual bool isSameKey(std::string key);
 
 	/**
-		initialization
+		Initialize
 	*/
 	virtual bool initialize(const PropertyDescription* pPropertyDescription,
 		const DataType* pDataType, std::string name);
@@ -512,7 +512,7 @@ public:
 	void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID);
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context);
 	virtual void getReadSqlItem(mysql::DBContext& context);
@@ -532,9 +532,9 @@ class EntityTableMysql : public EntityTable
 public:
 	EntityTableMysql(EntityTables* pEntityTables);
 	virtual ~EntityTableMysql();
-
+	
 	/**
-		initialization
+		Initialize
 	*/
 	virtual bool initialize(ScriptDefModule* sm, std::string name);
 
@@ -548,7 +548,7 @@ public:
 	*/
 	virtual bool syncIndexToDB(DBInterface* pdbi);
 
-	/**
+	/** 
 		Create a table item
 	*/
 	virtual EntityTableItem* createItem(std::string type, std::string defaultVal);
@@ -556,7 +556,7 @@ public:
 	DBID writeTable(DBInterface* pdbi, DBID dbid, int8 shouldAutoLoad, MemoryStream* s, ScriptDefModule* pModule);
 
 	/**
-		Delete entity from database
+		Remove entity from the database
 	*/
 	bool removeEntity(DBInterface* pdbi, DBID dbid, ScriptDefModule* pModule);
 
@@ -566,14 +566,14 @@ public:
 	virtual bool queryTable(DBInterface* pdbi, DBID dbid, MemoryStream* s, ScriptDefModule* pModule);
 
 	/**
-		Set whether to automatically load
+		Set whether to load automatically
 	*/
 	virtual void entityShouldAutoLoad(DBInterface* pdbi, DBID dbid, bool shouldAutoLoad);
 
 	/**
-		Query the automatically loaded entity
+		Query automatically loaded entities
 	*/
-	virtual void queryAutoLoadEntities(DBInterface* pdbi, ScriptDefModule* pModule,
+	virtual void queryAutoLoadEntities(DBInterface* pdbi, ScriptDefModule* pModule, 
 		ENTITY_ID start, ENTITY_ID end, std::vector<DBID>& outs);
 
 	/**
@@ -582,7 +582,7 @@ public:
 	void addToStream(MemoryStream* s, mysql::DBContext& context, DBID resultDBID);
 
 	/**
-		Get the name of the table that needs to be stored, the field name, and the string value converted to sql when stored
+		Get the name of the table to be stored, the name of the field and the string value when converting to sql storage
 	*/
 	virtual void getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, mysql::DBContext& context);
 	virtual void getReadSqlItem(mysql::DBContext& context);
@@ -590,7 +590,7 @@ public:
 	void init_db_item_name();
 
 protected:
-
+	
 };
 
 

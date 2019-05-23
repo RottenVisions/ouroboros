@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 #include "globaldata_client.h"
 #include "components.h"
 #include "serverapp.h"
@@ -6,7 +6,7 @@
 
 #include "../../server/dbmgr/dbmgr_interface.h"
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 
 
 SCRIPT_METHOD_DECLARE_BEGIN(GlobalDataClient)
@@ -19,7 +19,7 @@ SCRIPT_MEMBER_DECLARE_END()
 SCRIPT_GETSET_DECLARE_BEGIN(GlobalDataClient)
 SCRIPT_GETSET_DECLARE_END()
 SCRIPT_INIT(GlobalDataClient, 0, 0, &Map::mappingMethods, 0, 0)
-
+	
 //-------------------------------------------------------------------------------------
 GlobalDataClient::GlobalDataClient(COMPONENT_TYPE componentType, GlobalDataServer::DATA_TYPE dataType):
 script::Map(getScriptType(), false),
@@ -41,27 +41,27 @@ bool GlobalDataClient::write(PyObject* pyKey, PyObject* pyValue)
 	{
 		if (PyDict_SetItem(pyDict_, pyKey, pyValue) == -1)
 		{
-			ERROR_MSG(fmt::format("Map::write: is eror! key={}, val={}\n",
+			ERROR_MSG(fmt::format("Map::write: is eror! key={}, val={}\n", 
 				PyBytes_AsString(pyKey), PyBytes_AsString(pyValue)));
 		}
 		else
 		{
 			ret = true;
 
-			// Cannot be subtracted here because it needs to be referenced by pyDict_
+			// Cannot be dereferenced here because it needs to be referenced by pyDict_
 			// Py_XDECREF(pyKey);
 			// Py_XDECREF(pyValue);
 		}
 	}
 	else
 	{
-		ERROR_MSG(fmt::format("Map::write:unpickle is error. key={}, val={}\n",
+		ERROR_MSG(fmt::format("Map::write:unpickle error. key={}, val={}\n",
 			(pyKey ? PyBytes_AsString(pyKey) : "NULL"), (pyValue ? PyBytes_AsString(pyValue)  : "NULL")));
 
 		PyErr_Print();
 	}
 
-	return ret;
+	return ret;	
 }
 
 //-------------------------------------------------------------------------------------
@@ -87,11 +87,11 @@ bool GlobalDataClient::del(PyObject* pyKey)
 	}
 	else
 	{
-		ERROR_MSG(fmt::format("Map::del: delete key is error! key={}.\n", "NULL"));
+		ERROR_MSG(fmt::format("Map::del: delete key error! key={}.\n", "NULL"));
 		PyErr_Print();
 	}
 
-	return ret;
+	return ret;	
 }
 
 //-------------------------------------------------------------------------------------
@@ -112,11 +112,11 @@ void GlobalDataClient::onDataChanged(PyObject* key, PyObject* value, bool isDele
 	{
 		Network::Channel* lpChannel = iter1->pChannel;
 		OURO_ASSERT(lpChannel != NULL);
-
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
-
+		
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+		
 		(*pBundle).newMessage(DbmgrInterface::onBroadcastGlobalDataChanged);
-
+		
 		(*pBundle) << dataType;
 		(*pBundle) << isDelete;
 

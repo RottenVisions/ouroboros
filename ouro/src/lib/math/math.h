@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_MATH_H
@@ -7,7 +7,7 @@
 #include <string>
 #include "common/common.h"
 
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
@@ -27,51 +27,51 @@ typedef D3DXVECTOR4								Vector4;
 #define OURO_2PI									OURO_PI * 2
 #define OURO_DegreeToRadian						D3DXToRadian
 #define OURO_RadianToDegree						D3DXToDegree
-
-#define OUROVec2Length							D3DXVec2Length
-#define OUROVec2LengthSq							D3DXVec2LengthSq
-#define OUROVec2Normalize						D3DXVec2Normalize
-#define OUROVec2Dot								D3DXVec2Dot
-#define OUROVec3Length							D3DXVec3Length
-#define OUROVec3LengthSq							D3DXVec3LengthSq
-#define OUROVec3Dot								D3DXVec3Dot
-#define OUROVec3Cross							D3DXVec3Cross
-#define OUROVec3Normalize						D3DXVec3Normalize
-#define OUROVec3Lerp								D3DXVec3Lerp
-#define OUROVec3Transform						D3DXVec3Transform
-#define OUROVec3TransformCoord					D3DXVec3TransformCoord
-#define OUROVec3TransformNormal					D3DXVec3TransformNormal
-#define OUROVec4Transform						D3DXVec4Transform
-#define OUROVec4Length							D3DXVec4Length
-#define OUROVec4LengthSq							D3DXVec4LengthSq
-#define OUROVec4Normalize						D3DXVec4Normalize
-#define OUROVec4Lerp								D3DXVec4Lerp
-#define OUROVec4Dot								D3DXVec4Dot
-#define OUROMatrixIdentity						D3DXMatrixIdentity
-#define OUROMatrixInverse						D3DXMatrixInverse
-#define OUROMatrixRotationQuaternion				D3DXMatrixRotationQuaternion
-#define OUROMatrixTranspose						D3DXMatrixTranspose
-#define OUROMatrixfDeterminant					D3DXMatrixDeterminant
-#define OUROMatrixOrthoLH						D3DXMatrixOrthoLH
-#define OUROMatrixLookAtLH						D3DXMatrixLookAtLH
-#define OUROMatrixMultiply						D3DXMatrixMultiply
-#define OUROMatrixPerspectiveFovLH				D3DXMatrixPerspectiveFovLH
-#define OUROMatrixRotationX						D3DXMatrixRotationX
-#define OUROMatrixRotationY						D3DXMatrixRotationY
-#define OUROMatrixRotationZ						D3DXMatrixRotationZ
-#define OUROMatrixScaling						D3DXMatrixScaling
-#define OUROMatrixTranslation					D3DXMatrixTranslation
-#define OUROMatrixRotationYawPitchRoll			D3DXMatrixRotationYawPitchRoll
-#define OUROQuaternionDot						D3DXQuaternionDot
-#define OUROQuaternionNormalize					D3DXQuaternionNormalize
-#define OUROQuaternionRotationMatrix				D3DXQuaternionRotationMatrix
-#define OUROQuaternionSlerp						D3DXQuaternionSlerp
-#define OUROQuaternionRotationAxis				D3DXQuaternionRotationAxis
-#define OUROQuaternionMultiply					D3DXQuaternionMultiply
-#define OUROQuaternionInverse					D3DXQuaternionInverse
+	
+#define KBEVec2Length							D3DXVec2Length
+#define KBEVec2LengthSq							D3DXVec2LengthSq
+#define KBEVec2Normalize						D3DXVec2Normalize
+#define KBEVec2Dot								D3DXVec2Dot
+#define KBEVec3Length							D3DXVec3Length
+#define KBEVec3LengthSq							D3DXVec3LengthSq
+#define KBEVec3Dot								D3DXVec3Dot
+#define KBEVec3Cross							D3DXVec3Cross
+#define KBEVec3Normalize						D3DXVec3Normalize
+#define KBEVec3Lerp								D3DXVec3Lerp
+#define KBEVec3Transform						D3DXVec3Transform
+#define KBEVec3TransformCoord					D3DXVec3TransformCoord
+#define KBEVec3TransformNormal					D3DXVec3TransformNormal
+#define KBEVec4Transform						D3DXVec4Transform
+#define KBEVec4Length							D3DXVec4Length
+#define KBEVec4LengthSq							D3DXVec4LengthSq
+#define KBEVec4Normalize						D3DXVec4Normalize
+#define KBEVec4Lerp								D3DXVec4Lerp
+#define KBEVec4Dot								D3DXVec4Dot
+#define KBEMatrixIdentity						D3DXMatrixIdentity
+#define KBEMatrixInverse						D3DXMatrixInverse
+#define KBEMatrixRotationQuaternion				D3DXMatrixRotationQuaternion
+#define KBEMatrixTranspose						D3DXMatrixTranspose
+#define KBEMatrixfDeterminant					D3DXMatrixDeterminant
+#define KBEMatrixOrthoLH						D3DXMatrixOrthoLH
+#define KBEMatrixLookAtLH						D3DXMatrixLookAtLH
+#define KBEMatrixMultiply						D3DXMatrixMultiply
+#define KBEMatrixPerspectiveFovLH				D3DXMatrixPerspectiveFovLH
+#define KBEMatrixRotationX						D3DXMatrixRotationX
+#define KBEMatrixRotationY						D3DXMatrixRotationY
+#define KBEMatrixRotationZ						D3DXMatrixRotationZ
+#define KBEMatrixScaling						D3DXMatrixScaling
+#define KBEMatrixTranslation					D3DXMatrixTranslation
+#define KBEMatrixRotationYawPitchRoll			D3DXMatrixRotationYawPitchRoll
+#define KBEQuaternionDot						D3DXQuaternionDot
+#define KBEQuaternionNormalize					D3DXQuaternionNormalize
+#define KBEQuaternionRotationMatrix				D3DXQuaternionRotationMatrix
+#define KBEQuaternionSlerp						D3DXQuaternionSlerp
+#define KBEQuaternionRotationAxis				D3DXQuaternionRotationAxis
+#define KBEQuaternionMultiply					D3DXQuaternionMultiply
+#define KBEQuaternionInverse					D3DXQuaternionInverse
 
 template <class TYPE>
-inline TYPE OUROClamp(TYPE value, TYPE minValue, TYPE maxValue)
+inline TYPE KBEClamp(TYPE value, TYPE minValue, TYPE maxValue)
 {
 	return value < minValue ? minValue :
 	( value > maxValue ? maxValue : value);
@@ -95,53 +95,53 @@ typedef G3D::Vector4							Vector4;
 #define OURO_2PI									6.2831853071796
 #define OURO_DegreeToRadian						G3D::toRadians
 #define OURO_RadianToDegree						G3D::toRadians
-
-#define OUROVec2Length(v)						(v)->length()
-#define OUROVec2LengthSq(v)						(v)->squaredLength()
-#define OUROVec2Normalize(v, vv)					(v)->normalise()
-#define OUROVec2Dot(v, vv)						(v)->dot(static_cast<const G3D::Vector2 &>(*(vv)))
-#define OUROVec3Length(v)						(v)->length()
-#define OUROVec3LengthSq(v)						(v)->squaredLength()
-#define OUROVec3Dot(v, vv)						(v)->dot(static_cast<const G3D::Vector3 &>(*(vv)))
-#define OUROVec3Cross(v)							(v)->cross()
-#define OUROVec3Normalize(v, vv)					(v)->normalise()
-#define OUROVec3Lerp(v)							(v)->lerp()
-#define OUROVec3Transform(v)						D3DXVec3Transform
-#define OUROVec3TransformCoord(v)				D3DXVec3TransformCoord
-#define OUROVec3TransformNormal(v)				D3DXVec3TransformNormal
-#define OUROVec4Transform(v)						D3DXVec4Transform
-#define OUROVec4Length(v)						(v)->length()
-#define OUROVec4LengthSq(v)						(v)->squaredLength()
-#define OUROVec4Normalize(v, vv)					(v)->normalise()
-#define OUROVec4Lerp(v)							(v)->lerp()
-#define OUROVec4Dot(v, vv)						(v)->dot(static_cast<const G3D::Vector4 &>(*(vv)))
-#define OUROMatrixIdentity						Matrix3::identity()
-#define OUROMatrixInverse(v)						Matrix3::inverse()
-#define OUROMatrixRotationQuaternion(v)			D3DXMatrixRotationQuaternion
-#define OUROMatrixTranspose(v)					D3DXMatrixTranspose
-#define OUROMatrixfDeterminant(v)				D3DXMatrixDeterminant
-#define OUROMatrixOrthoLH(v)						D3DXMatrixOrthoLH
-#define OUROMatrixLookAtLH(v)					D3DXMatrixLookAtLH
-#define OUROMatrixMultiply(v)					D3DXMatrixMultiply
-#define OUROMatrixPerspectiveFovLH(v)			D3DXMatrixPerspectiveFovLH
-#define OUROMatrixRotationX(v)					D3DXMatrixRotationX
-#define OUROMatrixRotationY(v)					D3DXMatrixRotationY
-#define OUROMatrixRotationZ(v)					D3DXMatrixRotationZ
-#define OUROMatrixScaling(v)						D3DXMatrixScaling
-#define OUROMatrixTranslation(v)					D3DXMatrixTranslation
-#define OUROMatrixRotationYawPitchRoll(v)		D3DXMatrixRotationYawPitchRoll
-#define OUROQuaternionDot(v)						D3DXQuaternionDot
-#define OUROQuaternionNormalize(v)				D3DXQuaternionNormalize
-#define OUROQuaternionRotationMatrix(v)			D3DXQuaternionRotationMatrix
-#define OUROQuaternionSlerp(v)					D3DXQuaternionSlerp
-#define OUROQuaternionRotationAxis(v)			D3DXQuaternionRotationAxis
-#define OUROQuaternionMultiply(v)				D3DXQuaternionMultiply
-#define OUROQuaternionInverse(v)					D3DXQuaternionInverse
-#define OUROClamp								G3D::clamp
+	
+#define KBEVec2Length(v)						(v)->length()
+#define KBEVec2LengthSq(v)						(v)->squaredLength()
+#define KBEVec2Normalize(v, vv)					(v)->normalise()
+#define KBEVec2Dot(v, vv)						(v)->dot(static_cast<const G3D::Vector2 &>(*(vv)))
+#define KBEVec3Length(v)						(v)->length()
+#define KBEVec3LengthSq(v)						(v)->squaredLength()
+#define KBEVec3Dot(v, vv)						(v)->dot(static_cast<const G3D::Vector3 &>(*(vv)))
+#define KBEVec3Cross(v)							(v)->cross()
+#define KBEVec3Normalize(v, vv)					(v)->normalise()
+#define KBEVec3Lerp(v)							(v)->lerp()
+#define KBEVec3Transform(v)						D3DXVec3Transform
+#define KBEVec3TransformCoord(v)				D3DXVec3TransformCoord
+#define KBEVec3TransformNormal(v)				D3DXVec3TransformNormal
+#define KBEVec4Transform(v)						D3DXVec4Transform
+#define KBEVec4Length(v)						(v)->length()
+#define KBEVec4LengthSq(v)						(v)->squaredLength()
+#define KBEVec4Normalize(v, vv)					(v)->normalise()
+#define KBEVec4Lerp(v)							(v)->lerp()
+#define KBEVec4Dot(v, vv)						(v)->dot(static_cast<const G3D::Vector4 &>(*(vv)))
+#define KBEMatrixIdentity						Matrix3::identity()
+#define KBEMatrixInverse(v)						Matrix3::inverse()
+#define KBEMatrixRotationQuaternion(v)			D3DXMatrixRotationQuaternion
+#define KBEMatrixTranspose(v)					D3DXMatrixTranspose
+#define KBEMatrixfDeterminant(v)				D3DXMatrixDeterminant
+#define KBEMatrixOrthoLH(v)						D3DXMatrixOrthoLH
+#define KBEMatrixLookAtLH(v)					D3DXMatrixLookAtLH
+#define KBEMatrixMultiply(v)					D3DXMatrixMultiply
+#define KBEMatrixPerspectiveFovLH(v)			D3DXMatrixPerspectiveFovLH
+#define KBEMatrixRotationX(v)					D3DXMatrixRotationX
+#define KBEMatrixRotationY(v)					D3DXMatrixRotationY
+#define KBEMatrixRotationZ(v)					D3DXMatrixRotationZ
+#define KBEMatrixScaling(v)						D3DXMatrixScaling
+#define KBEMatrixTranslation(v)					D3DXMatrixTranslation
+#define KBEMatrixRotationYawPitchRoll(v)		D3DXMatrixRotationYawPitchRoll
+#define KBEQuaternionDot(v)						D3DXQuaternionDot
+#define KBEQuaternionNormalize(v)				D3DXQuaternionNormalize
+#define KBEQuaternionRotationMatrix(v)			D3DXQuaternionRotationMatrix
+#define KBEQuaternionSlerp(v)					D3DXQuaternionSlerp
+#define KBEQuaternionRotationAxis(v)			D3DXQuaternionRotationAxis
+#define KBEQuaternionMultiply(v)				D3DXQuaternionMultiply
+#define KBEQuaternionInverse(v)					D3DXQuaternionInverse
+#define KBEClamp								G3D::clamp
 #endif
 
-// Calculate 2d length by ignoring y from 2 3d vectors
-inline float OUROVec3CalcVec2Length(const Vector3& v1, const Vector3& v2)
+// Calculate 2d length from 2 3d vectors ignore y
+inline float KBEVec3CalcVec2Length(const Vector3& v1, const Vector3& v2)
 {
 	float x = v1.x - v2.x;
 	float z = v1.z - v2.z;
@@ -162,16 +162,16 @@ inline Ouroboros::int8 angle2int8(float v, bool half = false)
 	}
 	else
 	{
-		angle = (Ouroboros::int8)OUROClamp(floorf( (v * 254.f) / float(OURO_PI) + 0.5f ), -128.f, 127.f );
+		angle = (Ouroboros::int8)KBEClamp(floorf( (v * 254.f) / float(OURO_PI) + 0.5f ), -128.f, 127.f );
 	}
 
 	return angle;
 }
 
-typedef Vector3													Position3D;												// Indicates the 3D position variable type
-typedef OUROShared_ptr< std::vector<Position3D> >				VECTOR_POS3D_PTR;										// Smart Pointer Type Declaration Pointing to Position3D Array
+typedef Vector3 Position3D; // indicates the 3D position variable type
+typedef KBEShared_ptr< std::vector<Position3D> > VECTOR_POS3D_PTR; // smart pointer type declaration pointing to the Position3D array
 
-struct Direction3D																										// Indicates the direction position variable type
+struct Direction3D // indicates direction position variable type
 {
 	Direction3D():dir(0.f, 0.f, 0.f) {};
 	Direction3D(const Vector3 & v):dir(v){}
@@ -184,19 +184,19 @@ struct Direction3D																										// Indicates the direction position 
 		return *this;
 	}
 
-	float roll() const{ return dir.x; }
-	float pitch() const{ return dir.y; }
-	float yaw() const{ return dir.z; }
+	float roll() const{ return dir.x; }		
+	float pitch() const{ return dir.y; }		
+	float yaw() const{ return dir.z; }		
 
-	void roll(float v){ dir.x = v; }
-	void pitch(float v){ dir.y = v; }
-	void yaw(float v){ dir.z = v; }
+	void roll(float v){ dir.x = v; }		
+	void pitch(float v){ dir.y = v; }		
+	void yaw(float v){ dir.z = v; }	
 
 	// roll, pitch, yaw
 	Vector3 dir;
 };
 
-/** Floating point comparison */
+/** Comparison of floating point numbers*/
 #define floatEqual(v1, v3) (abs(v1 - v2) < std::numeric_limits<float>::epsilon())
 inline bool almostEqual(const float f1, const float f2, const float epsilon = 0.0004f)
 {

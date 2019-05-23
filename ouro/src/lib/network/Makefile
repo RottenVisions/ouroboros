@@ -12,6 +12,7 @@ SRCS =					\
 	event_poller		\
 	encryption_filter	\
 	fixed_messages		\
+	http_utility		\
 	interface_defs		\
 	message_handler		\
 	listener_receiver	\
@@ -43,7 +44,7 @@ SRCS =					\
 USE_OPENSSL = 1
 
 ifndef OURO_ROOT
-export OURO_ROOT := $(subst /ouro/src/lib/$(LIB),,$(CURDIR))
+export OURO_ROOT := $(subst /kbe/src/lib/$(LIB),,$(CURDIR))
 endif
 
-include $(OURO_ROOT)/ouro/src/build/common.mak
+include $(OURO_ROOT)/kbe/src/build/common.mak

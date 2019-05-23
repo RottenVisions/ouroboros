@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "script.h"
 #include "py_gc.h"
@@ -10,7 +10,7 @@ namespace Ouroboros{ namespace script {
 
 PyObject* PyGC::collectMethod_ = NULL;
 PyObject* PyGC::set_debugMethod_ = NULL;
-OUROUnordered_map<std::string, int> PyGC::tracingCountMap_;
+KBEUnordered_map<std::string, int> PyGC::tracingCountMap_;
 
 uint32 PyGC::DEBUG_STATS = 0;
 uint32 PyGC::DEBUG_COLLECTABLE = 0;
@@ -34,14 +34,14 @@ bool PyGC::initialize(void)
 		collectMethod_ = PyObject_GetAttrString(gcModule, "collect");
 		if (!collectMethod_)
 		{
-			ERROR_MSG("PyGC::initialize: get collect is error!\n");
+			ERROR_MSG("PyGC::initialize: get collect error!\n");
 			PyErr_PrintEx(0);
 		}
 
 		set_debugMethod_ = PyObject_GetAttrString(gcModule, "set_debug");
 		if(!set_debugMethod_)
 		{
-			ERROR_MSG("PyGC::init: get set_debug is error!\n");
+			ERROR_MSG("PyGC::init: get set_debug error!\n");
 			PyErr_PrintEx(0);
 		}
 
@@ -50,7 +50,7 @@ bool PyGC::initialize(void)
 		flag = PyObject_GetAttrString(gcModule, "DEBUG_STATS");
 		if(!flag)
 		{
-			ERROR_MSG("PyGC::init: get DEBUG_STATS is error!\n");
+			ERROR_MSG("PyGC::init: get DEBUG_STATS error!\n");
 			PyErr_PrintEx(0);
 		}
 		else
@@ -63,7 +63,7 @@ bool PyGC::initialize(void)
 		flag = PyObject_GetAttrString(gcModule, "DEBUG_COLLECTABLE");
 		if(!flag)
 		{
-			ERROR_MSG("PyGC::init: get DEBUG_COLLECTABLE is error!\n");
+			ERROR_MSG("PyGC::init: get DEBUG_COLLECTABLE error!\n");
 			PyErr_PrintEx(0);
 		}
 		else
@@ -76,7 +76,7 @@ bool PyGC::initialize(void)
 		flag = PyObject_GetAttrString(gcModule, "DEBUG_UNCOLLECTABLE");
 		if(!flag)
 		{
-			ERROR_MSG("PyGC::init: get DEBUG_UNCOLLECTABLE is error!\n");
+			ERROR_MSG("PyGC::init: get DEBUG_UNCOLLECTABLE error!\n");
 			PyErr_PrintEx(0);
 		}
 		else
@@ -89,7 +89,7 @@ bool PyGC::initialize(void)
 		flag = PyObject_GetAttrString(gcModule, "DEBUG_SAVEALL");
 		if(!flag)
 		{
-			ERROR_MSG("PyGC::init: get DEBUG_SAVEALL is error!\n");
+			ERROR_MSG("PyGC::init: get DEBUG_SAVEALL error!\n");
 			PyErr_PrintEx(0);
 		}
 		else
@@ -102,7 +102,7 @@ bool PyGC::initialize(void)
 		flag = PyObject_GetAttrString(gcModule, "DEBUG_LEAK");
 		if(!flag)
 		{
-			ERROR_MSG("PyGC::init: get DEBUG_LEAK is error!\n");
+			ERROR_MSG("PyGC::init: get DEBUG_LEAK error!\n");
 			PyErr_PrintEx(0);
 		}
 		else
@@ -177,7 +177,7 @@ void PyGC::set_debug(uint32 flags)
 //-------------------------------------------------------------------------------------
 void PyGC::incTracing(std::string name)
 {
-	OUROUnordered_map<std::string, int>::iterator iter = tracingCountMap_.find(name);
+	KBEUnordered_map<std::string, int>::iterator iter = tracingCountMap_.find(name);
 	if(iter == tracingCountMap_.end())
 	{
 		tracingCountMap_[name] = 0;
@@ -190,7 +190,7 @@ void PyGC::incTracing(std::string name)
 //-------------------------------------------------------------------------------------
 void PyGC::decTracing(std::string name)
 {
-	OUROUnordered_map<std::string, int>::iterator iter = tracingCountMap_.find(name);
+	KBEUnordered_map<std::string, int>::iterator iter = tracingCountMap_.find(name);
 	if(iter == tracingCountMap_.end())
 	{
 		return;
@@ -203,7 +203,7 @@ void PyGC::decTracing(std::string name)
 //-------------------------------------------------------------------------------------
 void PyGC::debugTracing(bool shuttingdown)
 {
-	OUROUnordered_map<std::string, int>::iterator iter = tracingCountMap_.begin();
+	KBEUnordered_map<std::string, int>::iterator iter = tracingCountMap_.begin();
 	for(; iter != tracingCountMap_.end(); ++iter)
 	{
 		if(shuttingdown)

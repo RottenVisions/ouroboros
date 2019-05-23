@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OUROBOROS_CLIENTS_REMOTE_ENTITY_METHOD_H
@@ -9,13 +9,13 @@
 #pragma warning (disable : 4910)
 #pragma warning (disable : 4251)
 #endif
-// common include
+// common include	
 #include "entitydef/datatype.h"
 #include "entitydef/datatypes.h"
 #include "helper/debug_helper.h"
-#include "pyscript/scriptobject.h"
+#include "pyscript/scriptobject.h"	
 //#define NDEBUG
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
@@ -25,39 +25,39 @@ namespace Ouroboros{
 
 class ClientsRemoteEntityMethod : public script::ScriptObject
 {
-	/** Subclassing fills some py operations into derived classes */
-	INSTANCE_SCRIPT_HREADER(ClientsRemoteEntityMethod, script::ScriptObject)
-public:
-	ClientsRemoteEntityMethod(PropertyDescription* pComponentPropertyDescription,
-		const ScriptDefModule* pScriptModule,
+		/** Subclassing populates some py operations into derived classes*/
+	INSTANCE_SCRIPT_HREADER(ClientsRemoteEntityMethod, script::ScriptObject)	
+public:	
+	ClientsRemoteEntityMethod(PropertyDescription* pComponentPropertyDescription, 
+		const ScriptDefModule* pScriptModule, 
 		MethodDescription* methodDescription,
 		bool otherClients,
 		ENTITY_ID id);
-
+	
 	virtual ~ClientsRemoteEntityMethod();
 
 	const char* getName(void) const
-	{
-		return methodDescription_->getName();
+	{ 
+		return methodDescription_->getName(); 
 	};
 
 	MethodDescription* getDescription(void) const
-	{
-		return methodDescription_;
+	{ 
+		return methodDescription_; 
 	}
 
-	static PyObject* tp_call(PyObject* self,
+	static PyObject* tp_call(PyObject* self, 
 			PyObject* args, PyObject* kwds);
 
 	PyObject* callmethod(PyObject* args, PyObject* kwds);
 
-protected:
+protected:	
 	PropertyDescription*	pComponentPropertyDescription_;
 
-	const ScriptDefModule*	pScriptModule_;			// The script module object used by this entity
-	MethodDescription*		methodDescription_;		// Description of this method
+	const ScriptDefModule* pScriptModule_; // The script module object used by the entity
+	MethodDescription* methodDescription_; // Description of this method
 
-	bool					otherClients_;			// Is it just another client, Does not include yourself
+	bool otherClients_; // Is it just another client, not including myself?
 
 	ENTITY_ID				id_;					// entityID
 };

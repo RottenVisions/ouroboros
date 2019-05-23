@@ -14,11 +14,11 @@ from .auth import login_check
 @login_check
 def show_components( request ):
 	"""
-	The console can be connected to the components display page
+	Console connectable component display page
 	"""
 	VALID_CT = set( [
-		Define.BASEAPPMGR_TYPE,
-		Define.CELLAPPMGR_TYPE,
+		Define.BASEAPPMGR_TYPE, 
+		Define.CELLAPPMGR_TYPE, 
 		Define.DBMGR_TYPE,
 		Define.LOGINAPP_TYPE,
 		Define.CELLAPP_TYPE,
@@ -28,19 +28,19 @@ def show_components( request ):
 		] )
 
 	html_template = "WebConsole/status_show_components.html"
-
+	
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	ouroComps = []
+	kbeComps = []
 	for mID, comps in interfaces_groups.items():
 		for comp in comps:
 			if comp.componentType in VALID_CT:
-				ouroComps.append( comp)
+				kbeComps.append( comp)
 
 	context = {
 		"http_host":request.META["HTTP_HOST"],
-		"OUROComps" : ouroComps,
+		"OUROComps" : kbeComps,
 	}
 	return render( request, html_template, context )
 
@@ -48,11 +48,11 @@ def show_components( request ):
 @login_check
 def connect( request ):
 	"""
-	The console can be connected to the components display page
+	Console connectable component display page
 	"""
 	VALID_CT = set( [
-		Define.BASEAPPMGR_TYPE,
-		Define.CELLAPPMGR_TYPE,
+		Define.BASEAPPMGR_TYPE, 
+		Define.CELLAPPMGR_TYPE, 
 		Define.DBMGR_TYPE,
 		Define.LOGINAPP_TYPE,
 		Define.CELLAPP_TYPE,
@@ -68,7 +68,7 @@ def connect( request ):
 		cp_host = GET["host"]
 	except:
 		context = {
-			"err" : "Process is not running"
+			"err" : "The process is not running"
 		}
 		return render(request, html_template, context)
 
@@ -80,17 +80,17 @@ def connect( request ):
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	ouroComps = []
+	kbeComps = []
 	for mID, comps in interfaces_groups.items():
 		for comp in comps:
 			if comp.componentType in VALID_CT:
-				ouroComps.append( comp)
+				kbeComps.append( comp)
 
 	ws_url = "ws://%s/wc/status/process_cmd?cp=%s&port=%s&host=%s" % ( request.META["HTTP_HOST"], cp_type, cp_port, cp_host )
 
 	context = {
 		"http_host": request.META["HTTP_HOST"],
-		"OUROComps" : ouroComps,
+		"OUROComps" : kbeComps,
 		"ws_url"   : ws_url,
 		"child_type" : child_type
 
@@ -102,11 +102,11 @@ from dwebsocket import accept_websocket
 
 class CSData(object):
 	def __init__(self, wInst, cp, host, port):
-	    self.wInst = wInst
-	    self.cp = cp
-	    self.port = port
-	    self.host = host
-	    self.Component_Status = Component_Status.ComponentStatus(cp)
+		self.wInst = wInst
+		self.cp = cp
+		self.port = port
+		self.host = host
+		self.Component_Status = Component_Status.ComponentStatus(cp)
 
 	def do(self):
 		self.Component_Status.connect(self.host,self.port)
@@ -120,8 +120,8 @@ class CSData(object):
 			self.Component_Status.clearCSData()
 			self.Component_Status.requireQueryCS()
 
-	def close(self):
-		if self.wsInst:
+	def close(self): 
+		if self.wsInst: 
 			self.wsInst.close()
 		self.wsInst = None
 
@@ -135,4 +135,4 @@ def process_cmd( request ):
 	cp_host = GET["host"]
 	components_stastus = CSData(request.websocket, cp_type, cp_host, cp_port)
 	components_stastus.do()
-	return
+	return 

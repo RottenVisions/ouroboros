@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "sys_info.h"
 
@@ -10,6 +10,15 @@ extern "C"
 
 #ifndef CODE_INLINE
 #include "sys_info.inl"
+#endif
+
+#if OURO_PLATFORM == PLATFORM_WIN32
+#include <Iphlpapi.h>
+#pragma comment (lib,"iphlpapi.lib") 
+#else
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <arpa/inet.h>
 #endif
 
 namespace Ouroboros
@@ -49,7 +58,7 @@ SystemInfo::SystemInfo()
 {
 	totalmem_ = 0;
 
-	// Do not do this in initialization because global static variables may be called once before main
+	// Don't do this in initialization, because global static variables may be called once before main
 	//_autocreate();
 	//getCPUPer();
 	//getProcessInfo();
@@ -86,7 +95,7 @@ bool SystemInfo::_autocreate()
 		sigar_open(&_g_sigarproclist);
 
 		int status = sigar_proc_list_get(_g_sigarproclist, &_g_proclist);
-		if (status != SIGAR_OK)
+		if (status != SIGAR_OK) 
 		{
 			DEBUG_MSG(fmt::format("SystemInfo::autocreate: error: {} ({}) sigar_proc_list_get\n",
 					   status, sigar_strerror(_g_sigarproclist, status)));
@@ -128,8 +137,8 @@ uint32 SystemInfo::countCPU()
 		sigar_cpu_list_t cpulist;
 		sigar_open(&sigarcpulist);
 		status = sigar_cpu_list_get(sigarcpulist, &cpulist);
-
-		if (status != SIGAR_OK)
+		
+		if (status != SIGAR_OK) 
 		{
 			DEBUG_MSG(fmt::format("error: {} ({}) cpu_list_get\n",
 				   status, sigar_strerror(sigarcpulist, status)));
@@ -155,7 +164,7 @@ SystemInfo::PROCESS_INFOS SystemInfo::getProcessInfo(uint32 pid)
 	infos.cpu = 0.f;
 	infos.memused = 0;
 	infos.error = false;
-
+	
 	bool tryed = false;
 
     if(!_autocreate())
@@ -165,7 +174,7 @@ _TRYGET:
 	if(!hasPID(pid, &_g_proclist))
 	{
 		//DEBUG_MSG(fmt::format("SystemInfo::getProcessInfo: error: not found pid({})\n", pid));
-
+		
 		if(!tryed)
 		{
 			clear();
@@ -202,25 +211,25 @@ _END:
 float SystemInfo::getCPUPer()
 {
 	sigar_cpu_t current;
-
+	 
 	if(_g_sigar_cpu == NULL)
 		sigar_open(&_g_sigar_cpu);
 
 	// sigar_cpu_get(_g_sigar_cpu, &_g_old_cpu);
-
+	 
 	sigar_cpu_perc_t perc;
 
 	// while(1)
 	{
 		sigar_cpu_get(_g_sigar_cpu, &current);
 		sigar_cpu_perc_calculate(&_g_old_cpu, &current, &perc);
-
+	 
 		// std::cout << "CPU " << perc.combined * 100 << "%\n";
 		_g_old_cpu = current;
 	//	sleep(1000);
 	}
-
-
+	 
+	 
 	float ret = float(perc.combined) * 100.f;
 	//sigar_close(sigar_cpu);
 	// DEBUG_MSG(fmt::format("SystemInfo::getCPUPer(): {}\n", ret));
@@ -262,7 +271,7 @@ _TRYGET:
         sigar_proc_cpu_t cpu;
         status = sigar_proc_cpu_get(_g_sigarproclist, pid, &cpu);
 
-		if (status != SIGAR_OK)
+		if (status != SIGAR_OK) 
 		{
 			DEBUG_MSG(fmt::format("error: {} ({}) proc_cpu_get({})\n",
 				   status, sigar_strerror(_g_sigarproclist, status), pid));
@@ -283,7 +292,7 @@ _TRYGET:
             sigar_proc_state_t procstate;
             status = sigar_proc_state_get(sigarproclist, pid, &procstate);
 
-			if (status != SIGAR_OK)
+			if (status != SIGAR_OK) 
 			{
 				DEBUG_MSG(fmt::format("error: {} ({}) proc_state({})\n",
 					   status, sigar_strerror(sigarproclist, status), pid));
@@ -366,22 +375,22 @@ _TRYGET:
 		return 0;
 	}
 
-    //for (i=0; i<(int)proclist.number; i++)
+    //for (i=0; i<(int)proclist.number; i++) 
 	{
         sigar_proc_state_t pstate;
         sigar_proc_time_t ptime;
 
         status = sigar_proc_state_get(_g_sigarproclist, pid, &pstate);
-        if (status != SIGAR_OK)
+        if (status != SIGAR_OK) 
 		{
 			DEBUG_MSG(fmt::format("error: {} ({}) proc_state({})\n",
                    status, sigar_strerror(_g_sigarproclist, status), pid));
-
+			
 			goto _END;
         }
 
         status = sigar_proc_time_get(_g_sigarproclist, pid, &ptime);
-        if (status != SIGAR_OK)
+        if (status != SIGAR_OK) 
 		{
 			DEBUG_MSG(fmt::format("error: {} ({}) proc_time({})\n",
                    status, sigar_strerror(_g_sigarproclist, status), pid));
@@ -392,11 +401,11 @@ _TRYGET:
 		sigar_proc_mem_t proc_mem;
 		status = sigar_proc_mem_get(_g_sigarproclist, pid, &proc_mem);
 
-        if (status != SIGAR_OK)
+        if (status != SIGAR_OK) 
 		{
 			DEBUG_MSG(fmt::format("error: {} ({}) sigar_proc_mem_get({})\n",
                    status, sigar_strerror(_g_sigarproclist, status), pid));
-
+            
 			goto _END;
         }
 
@@ -408,4 +417,99 @@ _END:
 }
 
 //-------------------------------------------------------------------------------------
+std::vector< std::string > SystemInfo::getMacAddresses()
+{
+	std::vector< std::string > mac_addresses;
+
+#if OURO_PLATFORM == PLATFORM_WIN32
+	PIP_ADAPTER_INFO pIpAdapterInfo = new IP_ADAPTER_INFO();
+	unsigned long size = sizeof(IP_ADAPTER_INFO);
+
+	int ret_info = ::GetAdaptersInfo(pIpAdapterInfo, &size);
+
+	if (ERROR_BUFFER_OVERFLOW == ret_info)
+	{
+		delete pIpAdapterInfo;
+		pIpAdapterInfo = (PIP_ADAPTER_INFO)new unsigned char[size];
+		ret_info = ::GetAdaptersInfo(pIpAdapterInfo, &size);
+	}
+
+	if (ERROR_SUCCESS == ret_info)
+	{
+		PIP_ADAPTER_INFO _pIpAdapterInfo = pIpAdapterInfo;
+		while (_pIpAdapterInfo)
+		{
+			char MAC_BUF[256];
+			std::string MAC;
+
+			for (UINT i = 0; i < _pIpAdapterInfo->AddressLength; i++)
+			{
+				sprintf(MAC_BUF, "%02x", _pIpAdapterInfo->Address[i]);
+				MAC += MAC_BUF;
+			}
+
+			std::transform(MAC.begin(), MAC.end(), MAC.begin(), tolower);
+			mac_addresses.push_back(MAC);
+			_pIpAdapterInfo = _pIpAdapterInfo->Next;
+		}
+	}
+
+	if (pIpAdapterInfo)
+	{
+		delete pIpAdapterInfo;
+	}
+
+#else
+
+	int fd;
+	int interfaceNum = 0;
+	struct ifreq buf[16];
+	struct ifconf ifc;
+
+	if ((fd = ::socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+	{
+		::close(fd);
+		return mac_addresses;
+	}
+
+	ifc.ifc_len = sizeof(buf);
+	ifc.ifc_buf = (caddr_t)buf;
+
+	if (!ioctl(fd, SIOCGIFCONF, (char *)&ifc))
+	{
+		interfaceNum = ifc.ifc_len / sizeof(struct ifreq);
+		while (interfaceNum-- > 0)
+		{
+			if (!ioctl(fd, SIOCGIFHWADDR, (char *)(&buf[interfaceNum])))
+			{
+				char MAC[19];
+				memset(&MAC[0], 0, sizeof(MAC));
+
+				sprintf(MAC, "%02x:%02x:%02x:%02x:%02x:%02x",
+					(unsigned char)buf[interfaceNum].ifr_hwaddr.sa_data[0],
+					(unsigned char)buf[interfaceNum].ifr_hwaddr.sa_data[1],
+					(unsigned char)buf[interfaceNum].ifr_hwaddr.sa_data[2],
+					(unsigned char)buf[interfaceNum].ifr_hwaddr.sa_data[3],
+					(unsigned char)buf[interfaceNum].ifr_hwaddr.sa_data[4],
+					(unsigned char)buf[interfaceNum].ifr_hwaddr.sa_data[5]);
+
+				mac_addresses.push_back(MAC);
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+
+	::close(fd);
+
+#endif
+
+	return mac_addresses;
 }
+
+
+//-------------------------------------------------------------------------------------
+} 
+

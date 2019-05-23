@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "cellapp.h"
 #include "initprogress_handler.h"
@@ -7,7 +7,7 @@
 
 #include "../../server/cellappmgr/cellappmgr_interface.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 //-------------------------------------------------------------------------------------
 InitProgressHandler::InitProgressHandler(Network::NetworkInterface & networkInterface):
@@ -55,15 +55,15 @@ bool InitProgressHandler::process()
 	if(PyObject_HasAttrString(Cellapp::getSingleton().getEntryScript().get(), "onReadyForLogin") > 0)
 	{
 		// All scripts are loaded
-		PyObject* pyResult = PyObject_CallMethod(Cellapp::getSingleton().getEntryScript().get(),
-											const_cast<char*>("onReadyForLogin"),
-											const_cast<char*>("i"),
+		PyObject* pyResult = PyObject_CallMethod(Cellapp::getSingleton().getEntryScript().get(), 
+											const_cast<char*>("onReadyForLogin"), 
+											const_cast<char*>("i"), 
 											g_componentGroupOrder);
 
 		if(pyResult != NULL)
 		{
 			completed = (pyResult == Py_True);
-
+			
 			if(!completed)
 			{
 				v = (float)PyFloat_AsDouble(pyResult);
@@ -92,14 +92,14 @@ bool InitProgressHandler::process()
 		v = 100.f;
 		completed = true;
 	}
-
+	
 	if(v >= 0.9999f)
 	{
 		v = 100.f;
 		completed = true;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	(*pBundle).newMessage(CellappmgrInterface::onCellappInitProgress);
 	(*pBundle) << g_componentID << v << g_componentGlobalOrder << g_componentGroupOrder;

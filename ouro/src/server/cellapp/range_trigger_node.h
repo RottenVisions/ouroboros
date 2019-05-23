@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_RANGE_TRIGGER_NODE_H
 #define OURO_RANGE_TRIGGER_NODE_H
@@ -25,8 +25,8 @@ public:
 	INLINE void pRangeTrigger(RangeTrigger* pRangeTrigger);
 
 	/**
-		(Extended coordinates)
-		x && z is implemented by different applications (obtained from different places)
+		(extended coordinates)
+		x && z is implemented by different applications (from different locations)
 	*/
 	virtual float xx() const;
 	virtual float yy() const;
@@ -41,14 +41,14 @@ public:
 	INLINE bool wasInZRange(CoordinateNode * pNode);
 
 	virtual void resetOld()
-	{
+	{ 
 		CoordinateNode::resetOld();
 		old_range_xz_ = range_xz_;
 		old_range_y_ = range_y_;
 	}
 
 	/**
-		Parent delete
+		Parent node deletion
 	*/
 	virtual void onParentRemove(CoordinateNode* pParentNode);
 
@@ -57,12 +57,14 @@ public:
 	void onTriggerUninstall();
 
 	/**
-		A node changes through this node
+		A node has passed this node
 		@isfront: Move forward or backward
 	*/
 	virtual void onNodePassX(CoordinateNode* pNode, bool isfront);
 	virtual void onNodePassY(CoordinateNode* pNode, bool isfront);
 	virtual void onNodePassZ(CoordinateNode* pNode, bool isfront);
+
+	INLINE bool isPositive() const;
 
 protected:
 	float range_xz_, range_y_, old_range_xz_, old_range_y_;

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_NETWORKTCPPACKET_RECEIVER_H
@@ -25,10 +25,10 @@ class EventDispatcher;
 class TCPPacketReceiver : public PacketReceiver
 {
 public:
-	typedef OUROShared_ptr< SmartPoolObject< TCPPacketReceiver > > SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
+	typedef KBEShared_ptr< SmartPoolObject< TCPPacketReceiver > > SmartPoolObjectPtr;
+	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<TCPPacketReceiver>& ObjPool();
-	static TCPPacketReceiver* createPoolObject();
+	static TCPPacketReceiver* createPoolObject(const std::string& logPoint);
 	static void reclaimPoolObject(TCPPacketReceiver* obj);
 	static void destroyObjPool();
 	
@@ -42,7 +42,7 @@ protected:
 	virtual bool processRecv(bool expectingPacket);
 	PacketReceiver::RecvState checkSocketErrors(int len, bool expectingPacket);
 
-	virtual void onGetError(Channel* pChannel);
+	virtual void onGetError(Channel* pChannel, const std::string& err);
 	
 };
 }

@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_BUFFERED_DBTASKS_H
 #define OURO_BUFFERED_DBTASKS_H
 
-// common include
+// common include	
 // #define NDEBUG
 #include "dbtasks.h"
 #include "common/common.h"
@@ -11,7 +11,7 @@
 #include "thread/threadtask.h"
 #include "helper/debug_helper.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 /*
 	Database thread task buffer
@@ -20,19 +20,19 @@ namespace Ouroboros {
 class Buffered_DBTasks
 {
 public:
-	typedef std::multimap<DBID, EntityDBTask*> DBID_TASKS_MAP;
-	typedef std::multimap<ENTITY_ID, EntityDBTask*> ENTITYID_TASKS_MAP;
-
+	typedef std::multimap<DBID, EntityDBTask*> DBID_TASKS_MAP;  
+	typedef std::multimap<ENTITY_ID, EntityDBTask*> ENTITYID_TASKS_MAP;  
+	
 	Buffered_DBTasks();
 	virtual ~Buffered_DBTasks();
-
+	
 	void addTask(EntityDBTask* pTask);
 
 	EntityDBTask* tryGetNextTask(EntityDBTask* pTask);
 
 	size_t size() { return dbid_tasks_.size() + entityid_tasks_.size(); }
 
-	std::string getTasksinfos()
+	std::string getTasksinfos() 
 	{
 		std::string ret;
 
@@ -89,29 +89,29 @@ public:
 	const std::string& dbInterfaceName() { return dbInterfaceName_; }
 
 	/**
-		Available to watcher
+		Provided to watcher
 	*/
 	uint32 dbid_tasksSize()
-	{
+	{ 
 		mutex_.lockMutex();
-		uint32 ret = (uint32)dbid_tasks_.size();
+		uint32 ret = (uint32)dbid_tasks_.size(); 
 		mutex_.unlockMutex();
 		return ret;
 	}
 
 	/**
-		Available to watcher
+		Provided to watcher
 	*/
 	uint32 entityid_tasksSize()
-	{
+	{ 
 		mutex_.lockMutex();
-		uint32 ret = (uint32)entityid_tasks_.size();
+		uint32 ret = (uint32)entityid_tasks_.size(); 
 		mutex_.unlockMutex();
 		return ret;
 	}
 
 	/**
-		Available to watcher
+		Provided to watcher
 	*/
 	std::string printBuffered_dbid();
 	std::string printBuffered_entityID();

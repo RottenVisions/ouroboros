@@ -50,21 +50,21 @@ BOOL CStartServerLayoutWindow::OnInitDialog()
 	loadHistory();
 
 	DWORD dwStyle = m_list.GetExtendedStyle();
-	dwStyle |= LVS_EX_FULLROWSELECT;					//Select an exercise line highlighting (listctrl with report style only)
-	dwStyle |= LVS_EX_GRIDLINES;						//Gridlines (only applicable with report style listctrl)
+	dwStyle |= LVS_EX_FULLROWSELECT; //Select one to exercise the entire line highlighting (only applicable to the list style of report style)
+	dwStyle |= LVS_EX_GRIDLINES; //Gridlines (only for list styles with report style)
 	//dwStyle |= LVS_EX_ONECLICKACTIVATE;
-	m_list.SetExtendedStyle(dwStyle);				//Set the extension style
+	m_list.SetExtendedStyle(dwStyle); //Set the extended style
 
 	int idx = 0;
-	m_list.InsertColumn(idx++, _T("ComponentType"),				LVCFMT_CENTER,	200);
-	m_list.InsertColumn(idx++, _T("Addr"),						LVCFMT_CENTER,	250);
+	m_list.InsertColumn(idx++, _T("componentType"),				LVCFMT_CENTER,	200);
+	m_list.InsertColumn(idx++, _T("addr"),						LVCFMT_CENTER,	250);
 
-	m_componentlist.AddString(L"CellApp");
-	m_componentlist.AddString(L"BaseApp");
-	m_componentlist.AddString(L"CellAppMgr");
-	m_componentlist.AddString(L"BaseAppMgr");
-	m_componentlist.AddString(L"LoginApp");
-	m_componentlist.AddString(L"DBMgr");
+	m_componentlist.AddString(L"cellapp");
+	m_componentlist.AddString(L"baseapp");
+	m_componentlist.AddString(L"cellappmgr");
+	m_componentlist.AddString(L"baseappmgr");
+	m_componentlist.AddString(L"loginapp");
+	m_componentlist.AddString(L"dbmgr");
 
 	m_port.SetWindowTextW(L"20099");
 
@@ -191,7 +191,7 @@ void CStartServerLayoutWindow::OnBnClickedButton1()
 
 	if(i < 0)
 	{
-		AfxMessageBox(L"No Selected componentType!");
+		AfxMessageBox(L"no select componentType!");
 		return;
 	}
 
@@ -202,7 +202,7 @@ void CStartServerLayoutWindow::OnBnClickedButton1()
 
 	if (0 == m_ip.GetAddress(ips[0],ips[1],ips[2],ips[3]))
 	{
-		AfxMessageBox(L"Error with the Address!");
+		AfxMessageBox(L"address error!");
 		return;
 	}
 
@@ -261,11 +261,11 @@ void CStartServerLayoutWindow::OnBnClickedButton2()
 	CString layoutname = dlg.m_name;
 	if(layoutname.GetLength() <= 0)
 	{
-		::AfxMessageBox(L"has Failed!");
+		::AfxMessageBox(L"is failed!");
 		return;
 	}
 
-	::AfxMessageBox(L"Successfully!");
+	::AfxMessageBox(L"successfully!");
 
 	char* cs = Ouroboros::strutil::wchar2char(layoutname.GetBuffer(0));
 	std::vector<CStartServerWindow::LAYOUT_ITEM>& vec = static_cast<CStartServerWindow*>(this->GetParent())->layouts_[cs];
@@ -310,7 +310,7 @@ void CStartServerLayoutWindow::OnCbnSelchangeCombo1()
 	m_list.DeleteAllItems();
 
 	char* cs = Ouroboros::strutil::wchar2char(s.GetBuffer(0));
-	OUROUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
+	KBEUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
 		static_cast<CStartServerWindow*>(this->GetParent())->layouts_.find(cs);
 
 	free(cs);
@@ -369,7 +369,7 @@ void CStartServerLayoutWindow::OnBnClickedButton3()
 		return;
 
 	cs = Ouroboros::strutil::wchar2char(s.GetBuffer(0));
-	OUROUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
+	KBEUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
 		static_cast<CStartServerWindow*>(this->GetParent())->layouts_.find(cs);
 
 	free(cs);
@@ -421,7 +421,7 @@ void CStartServerLayoutWindow::OnBnClickedButton4()
 	m_layoutlist.DeleteString(m_layoutlist.GetCurSel());
 
 	char* cs = Ouroboros::strutil::wchar2char(s.GetBuffer(0));
-	OUROUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
+	KBEUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
 		static_cast<CStartServerWindow*>(this->GetParent())->layouts_.find(cs);
 
 	free(cs);

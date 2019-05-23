@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SCRIPT_PICKLER_H
 #define OURO_SCRIPT_PICKLER_H
@@ -9,27 +9,27 @@
 namespace Ouroboros{ namespace script{
 
 class Pickler
-{
-public:
-	/**
-		proxy cPicket.dumps
+{						
+public:	
+	/** 
+		Agent cPicket.dumps
 	*/
 	static std::string pickle(PyObject* pyobj);
 	static std::string pickle(PyObject* pyobj, int8 protocol);
 
-	/**
-		proxy cPicket.loads
+	/** 
+		Proxy cPicket.loads
 	*/
 	static PyObject* unpickle(const std::string& str);
 
-	/**
+	/** 
 		Initialize pickler
 	*/
 	static bool initialize(void);
 	static void finalise(void);
-
-	/**
-		Get unpickle function table module object
+	
+	/** 
+		Get the unpickle function table module object
 	*/
 	static PyObject* getUnpickleFuncTableModule(void){ return pyPickleFuncTableModule_; }
 	static PyObject* getUnpickleFunc(const char* funcName);
@@ -37,12 +37,12 @@ public:
 	static void registerUnpickleFunc(PyObject* pyFunc, const char* funcName);
 
 private:
-	static PyObject* picklerMethod_;						// cPicket.Dumps method pointer
-	static PyObject* unPicklerMethod_;						// cPicket.The method method pointer
+	static PyObject* picklerMethod_; // cPicket.dumps method pointer
+	static PyObject* unPicklerMethod_; // cPicket.loads method pointer
 
-	static PyObject* pyPickleFuncTableModule_;				// Unpickle function table module object unpickle function of all custom classes need to register here
+	static PyObject* pyPickleFuncTableModule_; // unpickle function table module object All the unpick functions of the custom class need to be registered here
 
-	static bool	isInit;										// Has it been initialized
+	static bool isInit; // whether it has been initialized
 } ;
 
 }

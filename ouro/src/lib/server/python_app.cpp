@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "python_app.h"
@@ -10,7 +10,7 @@ namespace Ouroboros{
 Ouroboros::ScriptTimers Ouroboros::PythonApp::scriptTimers_;
 
 /**
-Internal timer processing class
+internal timer processing class
 */
 class ScriptTimerHandler : public TimerHandler
 {
@@ -52,8 +52,8 @@ private:
 };
 
 //-------------------------------------------------------------------------------------
-PythonApp::PythonApp(Network::EventDispatcher& dispatcher,
-					 Network::NetworkInterface& ninterface,
+PythonApp::PythonApp(Network::EventDispatcher& dispatcher, 
+					 Network::NetworkInterface& ninterface, 
 					 COMPONENT_TYPE componentType,
 					 COMPONENT_ID componentID):
 ServerApp(dispatcher, ninterface, componentType, componentID),
@@ -76,26 +76,26 @@ bool PythonApp::inInitialize()
 
 	if(!installPyModules())
 		return false;
-
+	
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 bool PythonApp::initializeEnd()
 {
 	gameTickTimerHandle_ = this->dispatcher().addTimer(1000000 / g_ouroSrvConfig.gameUpdateHertz(), this,
 		reinterpret_cast<void *>(TIMEOUT_GAME_TICK));
-
+	
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void PythonApp::onShutdownBegin()
 {
 	ServerApp::onShutdownBegin();
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void PythonApp::onShutdownEnd()
 {
 	ServerApp::onShutdownEnd();
@@ -130,21 +130,21 @@ void PythonApp::handleTimeout(TimerHandle handle, void * arg)
 
 //-------------------------------------------------------------------------------------
 int PythonApp::registerPyObjectToScript(const char* attrName, PyObject* pyObj)
-{
-	return script_.registerToModule(attrName, pyObj);
+{ 
+	return script_.registerToModule(attrName, pyObj); 
 }
 
 //-------------------------------------------------------------------------------------
 int PythonApp::unregisterPyObjectToScript(const char* attrName)
-{
-	return script_.unregisterToModule(attrName);
+{ 
+	return script_.unregisterToModule(attrName); 
 }
 
 //-------------------------------------------------------------------------------------
 bool PythonApp::installPyScript()
 {
-	if(Resmgr::getSingleton().respaths().size() <= 0 ||
-		Resmgr::getSingleton().getPyUserResPath().size() == 0 ||
+	if(Resmgr::getSingleton().respaths().size() <= 0 || 
+		Resmgr::getSingleton().getPyUserResPath().size() == 0 || 
 		Resmgr::getSingleton().getPySysResPath().size() == 0 ||
 		Resmgr::getSingleton().getPyUserScriptsPath().size() == 0)
 	{
@@ -205,7 +205,7 @@ bool PythonApp::installPyScript()
 		pyPaths += user_scripts_path + L"client/components;";
 		break;
 	};
-
+	
 	std::string ouro_res_path = Resmgr::getSingleton().getPySysResPath();
 	ouro_res_path += "scripts/common";
 
@@ -229,7 +229,7 @@ bool PythonApp::uninstallPyScript()
 //-------------------------------------------------------------------------------------
 bool PythonApp::installPyModules()
 {
-	// Install the entrance module
+	// Install the entry module
 	PyObject *entryScriptFileName = NULL;
 	if(componentType() == BASEAPP_TYPE)
 	{
@@ -270,29 +270,29 @@ bool PythonApp::installPyModules()
 
 	APPEND_SCRIPT_MODULE_METHOD(module, MemoryStream, script::PyMemoryStream::py_new, METH_VARARGS, 0);
 
-	// Register the method to create the entity to py
-	// Register app release status to script
+	// Register to create an entity method to py
+	// Register the app release status to the script
 	APPEND_SCRIPT_MODULE_METHOD(module, publish, __py_getAppPublish, METH_VARARGS, 0);
 
-	// Registration setup script output type
+	// registration settings script output type
 	APPEND_SCRIPT_MODULE_METHOD(module, scriptLogType, __py_setScriptLogType, METH_VARARGS, 0);
-
-	// Get full path to resources
+	
+	// Get the full path of the resource
 	APPEND_SCRIPT_MODULE_METHOD(module, getResFullPath, __py_getResFullPath, METH_VARARGS, 0);
 
-	// Is there a resource
+	// Is there a resource?
 	APPEND_SCRIPT_MODULE_METHOD(module, hasRes, __py_hasRes, METH_VARARGS, 0);
 
-	// Open a file
+	// open a file
 	APPEND_SCRIPT_MODULE_METHOD(module, open, __py_ouroOpen, METH_VARARGS, 0);
 
 	// List all files in the directory
 	APPEND_SCRIPT_MODULE_METHOD(module, listPathRes, __py_listPathRes, METH_VARARGS, 0);
 
-	// Match relative path to get full path
+	// Match the relative path to get the full path
 	APPEND_SCRIPT_MODULE_METHOD(module, matchPath, __py_matchPath, METH_VARARGS, 0);
 
-	// Debug traces py object counts for ouro packages
+	// debug trace kbe package py object count
 	APPEND_SCRIPT_MODULE_METHOD(module, debugTracing, script::PyGC::__py_debugTracing, METH_VARARGS, 0);
 
 	if (PyModule_AddIntConstant(module, "LOG_TYPE_NORMAL", log4cxx::ScriptLevel::SCRIPT_INT))
@@ -324,8 +324,8 @@ bool PythonApp::installPyModules()
 	{
 		ERROR_MSG( "PythonApp::installPyModules: Unable to set Ouroboros.NEXT_ONLY.\n");
 	}
-
-	// Register all common interfaces used by pythonApp
+	
+	// Register all common interfaces that PythonApp will use
 	APPEND_SCRIPT_MODULE_METHOD(module,		addTimer,						__py_addTimer,											METH_VARARGS,	0);
 	APPEND_SCRIPT_MODULE_METHOD(module,		delTimer,						__py_delTimer,											METH_VARARGS,	0);
 	APPEND_SCRIPT_MODULE_METHOD(module,		registerReadFileDescriptor,		PyFileDescriptor::__py_registerReadFileDescriptor,		METH_VARARGS,	0);
@@ -466,13 +466,13 @@ PyObject* PythonApp::__py_ouroOpen(PyObject* self, PyObject* args)
 	PyObject *ioMod = PyImport_ImportModule("io");
 
 	// SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-	PyObject *openedFile = PyObject_CallMethod(ioMod, const_cast<char*>("open"),
-		const_cast<char*>("ss"),
-		const_cast<char*>(sfullpath.c_str()),
+	PyObject *openedFile = PyObject_CallMethod(ioMod, const_cast<char*>("open"), 
+		const_cast<char*>("ss"), 
+		const_cast<char*>(sfullpath.c_str()), 
 		fargs);
 
 	Py_DECREF(ioMod);
-
+	
 	if(openedFile == NULL)
 	{
 		SCRIPT_ERROR_CHECK();
@@ -537,7 +537,7 @@ PyObject* PythonApp::__py_listPathRes(PyObject* self, PyObject* args)
 			PyErr_PrintEx(0);
 			S_Return;
 		}
-
+		
 		if(PyUnicode_Check(path_argsobj))
 		{
 			wchar_t* fargs = NULL;
@@ -560,7 +560,7 @@ PyObject* PythonApp::__py_listPathRes(PyObject* self, PyObject* args)
 						PyErr_PrintEx(0);
 						S_Return;
 					}
-
+					
 					wchar_t* wtemp = NULL;
 					wtemp = PyUnicode_AsWideCharString(pyobj, NULL);
 					wExtendName += wtemp;
@@ -636,12 +636,12 @@ PyObject* PythonApp::__py_listPathRes(PyObject* self, PyObject* args)
 }
 
 //-------------------------------------------------------------------------------------
-void PythonApp::startProfile_(Network::Channel* pChannel, std::string profileName,
+void PythonApp::startProfile_(Network::Channel* pChannel, std::string profileName, 
 	int8 profileType, uint32 timelen)
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	switch(profileType)
 	{
 	case 0:	// pyprofile
@@ -659,7 +659,7 @@ void PythonApp::onExecScriptCommand(Network::Channel* pChannel, Ouroboros::Memor
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	std::string cmd;
 	s.readBlob(cmd);
 
@@ -670,7 +670,7 @@ void PythonApp::onExecScriptCommand(Network::Channel* pChannel, Ouroboros::Memor
 		return;
 	}
 
-	DEBUG_MSG(fmt::format("PythonApp::onExecScriptCommand: size({}), command={}.\n",
+	DEBUG_MSG(fmt::format("PythonApp::onExecScriptCommand: size({}), command={}.\n", 
 		cmd.size(), cmd));
 
 	std::string retbuf = "";
@@ -682,8 +682,8 @@ void PythonApp::onExecScriptCommand(Network::Channel* pChannel, Ouroboros::Memor
 		retbuf = "\r\n";
 	}
 
-	// Return the result to the client
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	// return the result to the client
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	ConsoleInterface::ConsoleExecCommandCBMessageHandler msgHandler;
 	(*pBundle).newMessage(msgHandler);
 	ConsoleInterface::ConsoleExecCommandCBMessageHandlerArgs1::staticAddToBundle((*pBundle), retbuf);
@@ -708,7 +708,7 @@ void PythonApp::reloadScript(bool fullReload)
 	// All scripts are loaded
 	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
 										const_cast<char*>("onInit"),
-										const_cast<char*>("i"),
+										const_cast<char*>("i"), 
 										1);
 
 	if(pyResult != NULL)
@@ -728,7 +728,7 @@ PyObject* PythonApp::__py_addTimer(PyObject* self, PyObject* args)
 
 	if (!PyCallable_Check(pyCallback))
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::addTimer: '%.200s' object is not callable",
+		PyErr_Format(PyExc_TypeError, "Ouroboros::addTimer: '%.200s' object is not callable", 
 			(pyCallback ? pyCallback->ob_type->tp_name : "NULL"));
 
 		PyErr_PrintEx(0);

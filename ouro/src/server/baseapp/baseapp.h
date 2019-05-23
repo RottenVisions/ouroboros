@@ -1,10 +1,10 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_BASEAPP_H
 #define OURO_BASEAPP_H
-
-// common include
+	
+// common include	
 #include "entity.h"
 #include "proxy.h"
 #include "profile.h"
@@ -14,12 +14,12 @@
 #include "network/endpoint.h"
 
 //#define NDEBUG
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
 #endif
-
+	
 namespace Ouroboros{
 
 namespace Network{
@@ -43,21 +43,21 @@ public:
 		TIMEOUT_CHECK_STATUS = TIMEOUT_ENTITYAPP_MAX + 1,
 		TIMEOUT_MAX
 	};
-
-	Baseapp(Network::EventDispatcher& dispatcher,
-		Network::NetworkInterface& ninterface,
+	
+	Baseapp(Network::EventDispatcher& dispatcher, 
+		Network::NetworkInterface& ninterface, 
 		COMPONENT_TYPE componentType,
 		COMPONENT_ID componentID);
 
 	~Baseapp();
-
+	
 	virtual bool installPyModules();
 	virtual void onInstallPyModules();
 	virtual bool uninstallPyModules();
 
 	bool run();
-
-	/**
+	
+	/** 
 		Related processing interface
 	*/
 	virtual void handleTimeout(TimerHandle handle, void * arg);
@@ -66,14 +66,15 @@ public:
 	void handleBackup();
 	void handleArchive();
 
-	/**
+	/** 
 		Initialize related interfaces
 	*/
+	bool initialize();
 	bool initializeBegin();
 	bool initializeEnd();
 	void finalise();
-
-	virtual bool canShutdown();
+	
+	virtual ShutdownHandler::CAN_SHUTDOWN_STATE canShutdown();
 	virtual void onShutdownBegin();
 	virtual void onShutdown(bool first);
 	virtual void onShutdownEnd();
@@ -87,36 +88,36 @@ public:
 	virtual void onChannelDeregister(Network::Channel * pChannel);
 
 	/**
-		A cellapp died
+		Death of a cellapp
 	*/
 	void onCellAppDeath(Network::Channel * pChannel);
 
-	/** Network Interface
+		/** Network Interface
 		Dbmgr tells the address of other baseapp or cellapp that has been started
-		Current app needs to actively establish a connection with them
+		The current app needs to actively connect with them.
 	*/
-	virtual void onGetEntityAppFromDbmgr(Network::Channel* pChannel,
-							int32 uid,
-							std::string& username,
+	virtual void onGetEntityAppFromDbmgr(Network::Channel* pChannel, 
+							int32 uid, 
+							std::string& username, 
 							COMPONENT_TYPE componentType, COMPONENT_ID componentID, COMPONENT_ORDER globalorderID, COMPONENT_ORDER grouporderID,
 							uint32 intaddr, uint16 intport, uint32 extaddr, uint16 extport, std::string& extaddrEx);
-
-	/** Network Interface
+	
+		/** Network Interface
 		A client informs the app that it is active.
 	*/
 	void onClientActiveTick(Network::Channel* pChannel);
 
-	/** Network Interface
-		Automatic entity load information retrieved from the database returns
+		/** Network Interface
+		Automatic entity loading information returned in the database
 	*/
 	void onEntityAutoLoadCBFromDBMgr(Network::Channel* pChannel, MemoryStream& s);
 
-	/**
+	/** 
 		Created an entity callback
 	*/
 	virtual Entity* onCreateEntity(PyObject* pyEntity, ScriptDefModule* sm, ENTITY_ID eid);
 
-	/**
+	/** 
 		Create an entity
 	*/
 	static PyObject* __py_createEntity(PyObject* self, PyObject* args);
@@ -125,7 +126,7 @@ public:
 	static PyObject* __py_createEntityFromDBID(PyObject* self, PyObject* args);
 	static PyObject* __py_createEntityAnywhereFromDBID(PyObject* self, PyObject* args);
 	static PyObject* __py_createEntityRemotelyFromDBID(PyObject* self, PyObject* args);
-
+	
 	/**
 		Create a new space
 	*/
@@ -136,243 +137,248 @@ public:
 	*/
 	void restoreSpaceInCell(Entity* pEntity);
 
-	/**
-		Create a baseEntity on a lower-loaded baseapp
+	/** 
+		Create a baseEntity on a lower load baseapp
 	*/
 	void createEntityAnywhere(const char* entityType, PyObject* params, PyObject* pyCallback);
 
-	/** Received baseappmgr decided to request a baseapp request createEntityAnywhere executed on this baseapp
-		@param entityType	: The category of entity, defined in entities.xml.
-		@param strInitData	: After the entity is created, some data that should be initialized for him needs to be unwrapped using pickle.loads.
-		@param componentID	: The component ID of the baseapp requesting to create an entity
+	/** Received a baseappmgr decision to execute a baseapp request createEntityAnywhere request on this baseapp
+		@param entityType : The class of the entity, as defined in entities.xml.
+		@param strInitData : This entity should be initialized with some data after it is created. It needs to be unpacked using pickle.loads.
+		@param componentID : The component ID of the baseapp requesting to create an entity
 	*/
 	void onCreateEntityAnywhere(Network::Channel* pChannel, MemoryStream& s);
 
 	/**
-	baseapp createEntityAnywhere callbacks
+	Baseapp's createEntityAnywhere callback
 	*/
 	void onCreateEntityAnywhereCallback(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 	void _onCreateEntityAnywhereCallback(Network::Channel* pChannel, CALLBACK_ID callbackID,
 		std::string& entityType, ENTITY_ID eid, COMPONENT_ID componentID);
 
 	/**
-	Create a baseEntity on a lower-loaded baseapp
+	Create a baseEntity on a lower load baseapp
 	*/
 	void createEntityRemotely(const char* entityType, COMPONENT_ID componentID, PyObject* params, PyObject* pyCallback);
 
-	/** Received baseappmgr decided to request a baseapp request createEntityAnywhere executed on this baseapp
-	@param entityType	: The category of entity, defined in entities.xml.
-	@param strInitData	: After the entity is created, some data that should be initialized for him needs to be unwrapped using pickle.loads.
-	@param componentID	: The component ID of the baseapp requesting to create an entity
+	/** Received a baseappmgr decision to execute a baseapp request createEntityAnywhere request on this baseapp
+	@param entityType : The class of the entity, as defined in entities.xml.
+	@param strInitData : This entity should be initialized with some data after it is created. It needs to be unpacked using pickle.loads.
+	@param componentID : The component ID of the baseapp requesting to create an entity
 	*/
 	void onCreateEntityRemotely(Network::Channel* pChannel, MemoryStream& s);
 
 	/**
-	baseapp createEntityAnywhere callbacks
+	Baseapp's createEntityAnywhere callback
 	*/
 	void onCreateEntityRemotelyCallback(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 	void _onCreateEntityRemotelyCallback(Network::Channel* pChannel, CALLBACK_ID callbackID,
 		std::string& entityType, ENTITY_ID eid, COMPONENT_ID componentID);
 
-	/**
-		Create an entity by obtaining information from db
+	/** 
+		Create an entity from the db to get information
 	*/
 	void createEntityFromDBID(const char* entityType, DBID dbid, PyObject* pyCallback, const std::string& dbInterfaceName);
 
-	/** Network Interface
-		Callback for createEntityFromDBID.
+		/** Network Interface
+		Callback to createEntityFromDBID.
 	*/
 	void onCreateEntityFromDBIDCallback(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/**
-		Create an entity by obtaining information from db
+	/** 
+		Create an entity from the db to get information
 	*/
 	void createEntityAnywhereFromDBID(const char* entityType, DBID dbid, PyObject* pyCallback, const std::string& dbInterfaceName);
 
-	/** Network Interface
-		Callback for createEntityAnywhereFromDBID.
+		/** Network Interface
+		Callback to createEntityAnywhereFromDBID.
 	*/
-	// Query component id callback for creating entity from baseappmgr
+	// Query the component id callback used to create the entity from baseappmgr
 	void onGetCreateEntityAnywhereFromDBIDBestBaseappID(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/** Network Interface
-		Callback for createEntityAnywhereFromDBID.
+		/** Network Interface
+		Callback to createEntityAnywhereFromDBID.
 	*/
-	// Callbacks from the database
+	// callback from the database
 	void onCreateEntityAnywhereFromDBIDCallback(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	// Request to create this entity on this process
+	// request to create this entity on this process
 	void createEntityAnywhereFromDBIDOtherBaseapp(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
 	// Callback after creation
-	void onCreateEntityAnywhereFromDBIDOtherBaseappCallback(Network::Channel* pChannel, COMPONENT_ID createByBaseappID,
+	void onCreateEntityAnywhereFromDBIDOtherBaseappCallback(Network::Channel* pChannel, COMPONENT_ID createByBaseappID, 
 							std::string entityType, ENTITY_ID createdEntityID, CALLBACK_ID callbackID, DBID dbid);
-
+	
 	/**
-	Create an entity by obtaining information from db
+	Create an entity from the db to get information
 	*/
-	void createEntityRemotelyFromDBID(const char* entityType, DBID dbid, COMPONENT_ID createToComponentID,
+	void createEntityRemotelyFromDBID(const char* entityType, DBID dbid, COMPONENT_ID createToComponentID, 
 		PyObject* pyCallback, const std::string& dbInterfaceName);
 
-	/** Network Interface
-	Callback for createEntityRemotelyFromDBID.
+		/** Network Interface
+	Callback to createEntityRemotelyFromDBID.
 	*/
-	// Callbacks from the database
+	// callback from the database
 	void onCreateEntityRemotelyFromDBIDCallback(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	// Request to create this entity on this process
+	// request to create this entity on this process
 	void createEntityRemotelyFromDBIDOtherBaseapp(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
 	// Callback after creation
 	void onCreateEntityRemotelyFromDBIDOtherBaseappCallback(Network::Channel* pChannel, COMPONENT_ID createByBaseappID,
 		std::string entityType, ENTITY_ID createdEntityID, CALLBACK_ID callbackID, DBID dbid);
 
-	/**
-		Create a cellEntity on a specified cell for a baseEntity
+	/** 
+		Create a cellEntity on the specified cell for a baseEntity
 	*/
 	void createCellEntity(EntityCallAbstract* createToCellEntityCall, Entity* pEntity);
-
-	/** Network Interface
-		createCellEntity failed callback.
+	
+		/** Network Interface
+		The callback for createCellEntity failed.
 	*/
 	void onCreateCellFailure(Network::Channel* pChannel, ENTITY_ID entityID);
 
-	/** Network Interface
-		The createCellEntity cell entity creates a successful callback.
+		/** Network Interface
+		The cell entity of createCellEntity creates a successful callback.
 	*/
 	void onEntityGetCell(Network::Channel* pChannel, ENTITY_ID id, COMPONENT_ID componentID, SPACE_ID spaceID);
 
-	/**
+	/** 
 		Inform the client to create a proxy corresponding entity
 	*/
 	bool createClientProxies(Proxy* pEntity, bool reload = false);
 
-	/**
-		Execute a database command to dbmgr request
+	/** 
+		Request a database command to dbmgr
 	*/
 	static PyObject* __py_executeRawDatabaseCommand(PyObject* self, PyObject* args);
 	void executeRawDatabaseCommand(const char* datas, uint32 size, PyObject* pycallback, ENTITY_ID eid, const std::string& dbInterfaceName);
 	void onExecuteRawDatabaseCommandCB(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/** Network Interface
+		/** Network Interface
 		Dbmgr sends initial information
-		startID: Initial allocation of ENTITY_ID segment starting position
-		endID: Initial allocation of ENTITY_ID segment end position
-		startGlobalOrder: Global startup sequence Includes a variety of different components
-		startGroupOrder: Group startup sequence, For example, the first few start in all baseapp.
-		machineGroupOrder: Real group order in the machine, Provides a low level to use when determining if it is the first baseapp
+		startID: initial allocation ENTITY_ID segment start position
+		endID: initial allocation ENTITY_ID segment end position
+		startGlobalOrder: global startup sequence including various components
+		startGroupOrder: The startup order within the group, such as the first few starts in all baseapps.
+		machineGroupOrder: The actual group order in the machine, providing the underlying at some point to determine if it is the first baseapp
 	*/
-	void onDbmgrInitCompleted(Network::Channel* pChannel,
-		GAME_TIME gametime, ENTITY_ID startID, ENTITY_ID endID, COMPONENT_ORDER startGlobalOrder,
+	void onDbmgrInitCompleted(Network::Channel* pChannel, 
+		GAME_TIME gametime, ENTITY_ID startID, ENTITY_ID endID, COMPONENT_ORDER startGlobalOrder, 
 		COMPONENT_ORDER startGroupOrder, const std::string& digest);
 
-	/** Network Interface
-		Dbmgr broadcast global data changes
+		/** Network Interface
+		Dbmgr broadcast changes to global data
 	*/
 	void onBroadcastBaseAppDataChanged(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/** Network Interface
-		Register the account to be logged in. After registering, login to this gateway is allowed.
+		/** Network Interface
+		Register the account that will be logged in. After registration, you are allowed to log in to this gateway.
 	*/
 	void registerPendingLogin(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/** Network Interface
+		/** Network Interface
 		New user requests to log in to the gateway
 	*/
 	void loginBaseapp(Network::Channel* pChannel, std::string& accountName, std::string& password);
 
+		/** Network Interface
+		Log out to the gateway, just disconnect and trigger the entity's onClientDead, the entity is destroyed by the user
+	*/
+	void logoutBaseapp(Network::Channel* pChannel, uint64 key, ENTITY_ID entityID);
+
 	/**
-		Kicking out a Channel
+		Kick out a Channel
 	*/
 	void kickChannel(Network::Channel* pChannel, SERVER_ERROR_CODE failedcode);
 
-	/** Network Interface
-		Log in again quickly to establish an interactive relationship with the gateway (if you have logged in before,
-		Then the disconnection can quickly establish a connection with the server and achieve the purpose of controlling the entity if the server determines that the Entity of the front end does not time out and destroy.)
+		/** Network Interface
+		Re-login Quickly establish an interaction with the gateway (provided that you have logged in before,
+		After disconnecting, the server can quickly establish a connection with the server and achieve the purpose of manipulating the entity if the server determines that the front-end Entity has not expired.
 	*/
-	void reloginBaseapp(Network::Channel* pChannel, std::string& accountName,
+	void reloginBaseapp(Network::Channel* pChannel, std::string& accountName, 
 		std::string& password, uint64 key, ENTITY_ID entityID);
 
 	/**
-	   Login failed
-	   @failedcode: Failed return code NETWORK_ERR_SRV_NO_READY: The server is not ready
-									NETWORK_ERR_ILLEGAL_LOGIN:Illegal login,
-									NETWORK_ERR_NAME_PASSWORD:incorrect username or password
+	   	   Login failed
+	   @failedcode: Failure return code NETWORK_ERR_SRV_NO_READY: The server is not ready,
+									NETWORK_ERR_ILLEGAL_LOGIN: illegal login,
+									NETWORK_ERR_NAME_PASSWORD: Username or password is incorrect
 	*/
-	void loginBaseappFailed(Network::Channel* pChannel, std::string& accountName,
+	void loginBaseappFailed(Network::Channel* pChannel, std::string& accountName, 
 		SERVER_ERROR_CODE failedcode, bool relogin = false);
 
-	/** Network Interface
-		Get account Entity information from dbmgr
+		/** Network Interface
+		Obtain the account Entity information from dbmgr
 	*/
 	void onQueryAccountCBFromDbmgr(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
-
+	
 	/**
-		The client itself enters the world
+		The client itself has entered the world
 	*/
 	void onClientEntityEnterWorld(Proxy* pEntity, COMPONENT_ID componentID);
 
-	/** Network Interface
-		The entity receives a remote call request, initiated by an entityCall on the app (only used internally by the server, the client's entitycall call method
+		/** Network Interface
+		The entity receives the remote call request, which is initiated by the entityCall on an app (only used internally by the server, the client's entitycall call method is taken
 		onRemoteCellMethodCallFromClient)
 	*/
 	void onEntityCall(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
-
-	/** Network Interface
-		Client access entity cell method
+	
+		/** Network Interface
+		Client access cell method of entity
 	*/
 	void onRemoteCallCellMethodFromClient(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/** Network Interface
+		/** Network Interface
 		Client update data
 	*/
 	void onUpdateDataFromClient(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 	void onUpdateDataFromClientForControlledEntity(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
 
-	/** Network Interface
+		/** Network Interface
 		Cellapp backup cell data of entity
 	*/
 	void onBackupEntityCellData(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/** Network Interface
-		cellapp writeToDB complete
+		/** Network Interface
+		Cellapp writeToDB completed
 	*/
 	void onCellWriteToDBCompleted(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/** Network Interface
-		Cellapp forwards entity message to client
+		/** Network Interface
+		Cellapp forwards the entity message to the client
 	*/
 	void forwardMessageToClientFromCellapp(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/** Network Interface
-		Cellapp forwards the entity message to the cellEntity of a baseEntity
+		/** Network Interface
+		The cellapp forwards the entity message to the cellEntity of a baseEntity.
 	*/
 	void forwardMessageToCellappFromCellapp(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
-
+	
 	/**
 		Get game time
 	*/
 	static PyObject* __py_gametime(PyObject* self, PyObject* args);
 
-	/** Network Interface
+		/** Network Interface
 		Write entity to db callback
 	*/
-	void onWriteToDBCallback(Network::Channel* pChannel, ENTITY_ID eid, DBID entityDBID,
+	void onWriteToDBCallback(Network::Channel* pChannel, ENTITY_ID eid, DBID entityDBID, 
 		uint16 dbInterfaceIndex, CALLBACK_ID callbackID, bool success);
 
 	/**
-		Increase proxices count
+		Increase the results count
 	*/
 	void incProxicesCount() { ++numProxices_; }
 
 	/**
-		Reduce proxices count
+		Reduce the proxices count
 	*/
 	void decProxicesCount() { --numProxices_; }
 
 	/**
-		Get proxices count
+		Get the proxices count
 	*/
 	int32 numProxices() const { return numProxices_; }
 
@@ -380,8 +386,8 @@ public:
 		Get numClients count
 	*/
 	int32 numClients() { return this->networkInterface().numExtChannels(); }
-
-	/**
+	
+	/** 
 		Request recharge
 	*/
 	static PyObject* __py_charge(PyObject* self, PyObject* args);
@@ -393,9 +399,9 @@ public:
 	*/
 	RemoteEntityMethod* createEntityCallCallEntityRemoteMethod(MethodDescription* pMethodDescription, EntityCallAbstract* pEntityCall);
 
-	virtual void onHello(Network::Channel* pChannel,
-		const std::string& verInfo,
-		const std::string& scriptVerInfo,
+	virtual void onHello(Network::Channel* pChannel, 
+		const std::string& verInfo, 
+		const std::string& scriptVerInfo, 
 		const std::string& encryptedKey);
 
 	// Engine version does not match
@@ -404,32 +410,32 @@ public:
 	// Engine script layer version does not match
 	virtual void onScriptVersionNotMatch(Network::Channel* pChannel);
 
-	/** Network Interface
-		Request to return results on other APP disaster recovery
+		/** Network Interface
+		Request to return results in other APP disaster recovery
 	*/
 	void onRequestRestoreCB(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
 	/**
-		A cell's entity is restored
+		The cell's entity has been restored.
 	*/
 	void onRestoreEntitiesOver(RestoreEntityHandler* pRestoreEntityHandler);
 
-	/** Network Interface
-		The space on a baseapp restores the cell. Determines whether the current baseapp has related entities and needs to restore the cell.
+		/** Network Interface
+		The space on a baseapp restores the cell, and determines whether the current baseapp has an associated entity and needs to recover the cell.
 	*/
 	void onRestoreSpaceCellFromOtherBaseapp(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/** Network Interface
+		/** Network Interface
 		An app requests to view the app
 	*/
 	virtual void lookApp(Network::Channel* pChannel);
 
-	/** Network Interface
+		/** Network Interface
 		Client protocol export
 	*/
 	void importClientMessages(Network::Channel* pChannel);
 
-	/** Network Interface
+		/** Network Interface
 		Client entitydef export
 	*/
 	void importClientEntityDef(Network::Channel* pChannel);
@@ -442,57 +448,57 @@ public:
 	virtual void onReloadScript(bool fullReload);
 
 	/**
-		Get process is shutting down
+		Get the process is shutting down
 	*/
 	static PyObject* __py_isShuttingDown(PyObject* self, PyObject* args);
 
 	/**
-		Get process internal network address
+		Get the process internal network address
 	*/
 	static PyObject* __py_address(PyObject* self, PyObject* args);
 
 	/**
-		Delete an entity from the database by dbid
+		Delete an entity from the database via dbid
 
-		Delete the entity from the database, if the entity is not online, you can directly delete the callback to return true. If you are online, the callback returns the entity's entityCall, and any other reason returns false.
+		Delete the entity from the database. If the entity is not online, you can directly delete the callback and return true. If online, the callback returns the entityCall of the entity, and any other reason returns false.
 	*/
 	static PyObject* __py_deleteEntityByDBID(PyObject* self, PyObject* args);
 
-	/** Network Interface
-		Remove the callback of an entity from the database by dbid
+		/** Network Interface
+		Remove the callback of an entity from the database via dbid
 	*/
 	void deleteEntityByDBIDCB(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
 	/**
-		Check if an entity is checked out from the database by dbid
+		Query whether an entity is checked out from the database by dbid
 
-		If the entity returns a baseentitycall on an online callback, the callback returns true if the entity is offline and false for any other reason..
+		if the entity online callback returns baseentitycall, the callback returns true if the entity is not online, and returns false for any other reason.
 	*/
 	static PyObject* __py_lookUpEntityByDBID(PyObject* self, PyObject* args);
 
-	/** Network Interface
-		If the entity returns a baseentitycall on an online callback, the callback returns true if the entity is offline and false for any other reason..
+		/** Network Interface
+		if the entity online callback returns baseentitycall, the callback returns true if the entity is not online, and returns false for any other reason.
 	*/
 	void lookUpEntityByDBIDCB(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/** Network Interface
+		/** Network Interface
 		Request binding email
 	*/
 	void reqAccountBindEmail(Network::Channel* pChannel, ENTITY_ID entityID, std::string& password, std::string& email);
 
-	/** Network Interface
-		Request binding email, dbmgr returns results
+		/** Network Interface
+		Request to bind email, dbmgr returns results
 	*/
 	void onReqAccountBindEmailCBFromDBMgr(Network::Channel* pChannel, ENTITY_ID entityID, std::string& accountName, std::string& email,
 		SERVER_ERROR_CODE failedcode, std::string& code);
 
-	/** Network Interface
-		Request binding email, baseappmgr returns the address of the need to find loginapp
+		/** Network Interface
+		Request to bind email, baseappmgr returns the address where you need to find loginapp
 	*/
 	void onReqAccountBindEmailCBFromBaseappmgr(Network::Channel* pChannel, ENTITY_ID entityID, std::string& accountName, std::string& email,
 		SERVER_ERROR_CODE failedcode, std::string& code, std::string& loginappCBHost, uint16 loginappCBPort);
 
-	/** Network Interface
+		/** Network Interface
 		Request binding email
 	*/
 	void reqAccountNewPassword(Network::Channel* pChannel, ENTITY_ID entityID, std::string& oldpassworld, std::string& newpassword);
@@ -504,36 +510,36 @@ public:
 	void flags(uint32 v) { flags_ = v; }
 	static PyObject* __py_setFlags(PyObject* self, PyObject* args);
 	static PyObject* __py_getFlags(PyObject* self, PyObject* args);
-
+	
 protected:
 	TimerHandle												loopCheckTimerHandle_;
 
 	// globalBases
 	GlobalDataClient*										pBaseAppData_;
 
-	// Log accounts that have logged in to the server but have not been processed yet
+	// Record the account that was logged in to the server but has not been processed yet
 	PendingLoginMgr											pendingLoginMgr_;
 
 	ForwardComponent_MessageBuffer							forward_messagebuffer_;
 
-	// Backup archive related
-	OUROShared_ptr< Backuper >								pBackuper_;
-	OUROShared_ptr< Archiver >								pArchiver_;
+	// backup archive related
+	KBEShared_ptr< Backuper >								pBackuper_;	
+	KBEShared_ptr< Archiver >								pArchiver_;	
 
 	int32													numProxices_;
 
 	TelnetServer*											pTelnetServer_;
 
-	std::vector< OUROShared_ptr< RestoreEntityHandler > >	pRestoreEntityHandlers_;
+	std::vector< KBEShared_ptr< RestoreEntityHandler > >	pRestoreEntityHandlers_;
 
 	TimerHandle												pResmgrTimerHandle_;
 
 	InitProgressHandler*									pInitProgressHandler_;
-
+	
 	// APP logo
 	uint32													flags_;
 
-	// Dynamic import of entitydef protocol for clients
+	// For the client to dynamically import the entitydef protocol
 	Network::Bundle*										pBundleImportEntityDefDatas_;
 };
 

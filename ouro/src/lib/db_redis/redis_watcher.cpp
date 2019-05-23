@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "redis_watcher.h"
 #include "common.h"
@@ -10,10 +10,10 @@
 #include "common/memorystream.h"
 #include "helper/debug_helper.h"
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 
 static Ouroboros::thread::ThreadMutex _g_logMutex;
-static OUROUnordered_map< std::string, uint32 > g_querystatistics;
+static KBEUnordered_map< std::string, uint32 > g_querystatistics;
 static bool _g_installedWatcher = false;
 static bool _g_debug = false;
 
@@ -22,7 +22,7 @@ static uint32 watcher_query(std::string cmd)
 {
 	Ouroboros::thread::ThreadGuard tg(&_g_logMutex);
 
-	OUROUnordered_map< std::string, uint32 >::iterator iter = g_querystatistics.find(cmd);
+	KBEUnordered_map< std::string, uint32 >::iterator iter = g_querystatistics.find(cmd);
 	if (iter != g_querystatistics.end())
 	{
 		return iter->second;
@@ -595,7 +595,7 @@ static uint32 watcher_UNSUBSCRIBE()
 	return watcher_query("UNSUBSCRIBE");
 }
 
-// Affairs
+// transaction
 static uint32 watcher_DISCARD()
 {
 	return watcher_query("DISCARD");
@@ -762,7 +762,7 @@ void RedisWatcher::initializeWatcher()
 
 	_g_installedWatcher = true;
 	_g_debug = g_ouroSrvConfig.getDBMgr().debugDBMgr;
-
+	
 	// string
 	WATCH_OBJECT("db_querys/APPEND", &Ouroboros::watcher_APPEND);
 	WATCH_OBJECT("db_querys/BITCOUNT", &Ouroboros::watcher_BITCOUNT);
@@ -786,7 +786,7 @@ void RedisWatcher::initializeWatcher()
 	WATCH_OBJECT("db_querys/SETNX", &Ouroboros::watcher_SETNX);
 	WATCH_OBJECT("db_querys/SETRANGE", &Ouroboros::watcher_SETRANGE);
 	WATCH_OBJECT("db_querys/STRLEN", &Ouroboros::watcher_STRLEN);
-
+	
 	// keys
 	WATCH_OBJECT("db_querys/DEL", &Ouroboros::watcher_DEL);
 	WATCH_OBJECT("db_querys/DUMP", &Ouroboros::watcher_DUMP);
@@ -797,9 +797,9 @@ void RedisWatcher::initializeWatcher()
 	WATCH_OBJECT("db_querys/MOVE", &Ouroboros::watcher_MOVE);
 	WATCH_OBJECT("db_querys/OBJECT", &Ouroboros::watcher_OBJECT);
 	WATCH_OBJECT("db_querys/PEXPIRE", &Ouroboros::watcher_PEXPIRE);
-	WATCH_OBJECT("db_querys/PEXPIREAT", &Ouroboros::watcher_PEXPIREAT);
+	WATCH_OBJECT("db_querys/PEXPIREAT", &Ouroboros::watcher_PEXPIREAT);	
 	WATCH_OBJECT("db_querys/PERSIST", &Ouroboros::watcher_PERSIST);
-	WATCH_OBJECT("db_querys/PTTL", &Ouroboros::watcher_PTTL);
+	WATCH_OBJECT("db_querys/PTTL", &Ouroboros::watcher_PTTL);	
 	WATCH_OBJECT("db_querys/RANDOMKEY", &Ouroboros::watcher_RANDOMKEY);
 	WATCH_OBJECT("db_querys/RENAME", &Ouroboros::watcher_RENAME);
 	WATCH_OBJECT("db_querys/RENAMENX", &Ouroboros::watcher_RENAMENX);
@@ -808,7 +808,7 @@ void RedisWatcher::initializeWatcher()
 	WATCH_OBJECT("db_querys/TTL", &Ouroboros::watcher_TTL);
 	WATCH_OBJECT("db_querys/TYPE", &Ouroboros::watcher_TYPE);
 	WATCH_OBJECT("db_querys/SCAN", &Ouroboros::watcher_SCAN);
-
+	
 	// heshes
 	WATCH_OBJECT("db_querys/HDEL", &Ouroboros::watcher_HDEL);
 	WATCH_OBJECT("db_querys/HEXISTS", &Ouroboros::watcher_HEXISTS);
@@ -823,8 +823,8 @@ void RedisWatcher::initializeWatcher()
 	WATCH_OBJECT("db_querys/HSET", &Ouroboros::watcher_HSET);
 	WATCH_OBJECT("db_querys/HSETNX", &Ouroboros::watcher_HSETNX);
 	WATCH_OBJECT("db_querys/HVALS", &Ouroboros::watcher_HVALS);
-	WATCH_OBJECT("db_querys/HSCAN", &Ouroboros::watcher_HSCAN);
-
+	WATCH_OBJECT("db_querys/HSCAN", &Ouroboros::watcher_HSCAN);	
+	
 	// list
 	WATCH_OBJECT("db_querys/BLPOP", &Ouroboros::watcher_BLPOP);
 	WATCH_OBJECT("db_querys/BRPOP", &Ouroboros::watcher_BRPOP);
@@ -843,7 +843,7 @@ void RedisWatcher::initializeWatcher()
 	WATCH_OBJECT("db_querys/RPOPLPUSH", &Ouroboros::watcher_RPOPLPUSH);
 	WATCH_OBJECT("db_querys/RPUSH", &Ouroboros::watcher_RPUSH);
 	WATCH_OBJECT("db_querys/RPUSHX", &Ouroboros::watcher_RPUSHX);
-
+	
 	// set
 	WATCH_OBJECT("db_querys/SADD", &Ouroboros::watcher_SADD);
 	WATCH_OBJECT("db_querys/SCARD", &Ouroboros::watcher_SCARD);
@@ -860,7 +860,7 @@ void RedisWatcher::initializeWatcher()
 	WATCH_OBJECT("db_querys/SUNION", &Ouroboros::watcher_SUNION);
 	WATCH_OBJECT("db_querys/SUNIONSTORE", &Ouroboros::watcher_SUNIONSTORE);
 	WATCH_OBJECT("db_querys/SSCAN", &Ouroboros::watcher_SSCAN);
-
+	
 	// sortedSet
 	WATCH_OBJECT("db_querys/ZADD", &Ouroboros::watcher_ZADD);
 	WATCH_OBJECT("db_querys/ZCARD", &Ouroboros::watcher_ZCARD);
@@ -879,7 +879,7 @@ void RedisWatcher::initializeWatcher()
 	WATCH_OBJECT("db_querys/ZUNIONSTORE", &Ouroboros::watcher_ZUNIONSTORE);
 	WATCH_OBJECT("db_querys/ZINTERSTORE", &Ouroboros::watcher_ZINTERSTORE);
 	WATCH_OBJECT("db_querys/ZSCAN", &Ouroboros::watcher_ZSCAN);
-
+	
 	// pub/sub
 	WATCH_OBJECT("db_querys/PSUBSCRIBE", &Ouroboros::watcher_PSUBSCRIBE);
 	WATCH_OBJECT("db_querys/PUBLISH", &Ouroboros::watcher_PUBLISH);
@@ -887,18 +887,18 @@ void RedisWatcher::initializeWatcher()
 	WATCH_OBJECT("db_querys/PUNSUBSCRIBE", &Ouroboros::watcher_PUNSUBSCRIBE);
 	WATCH_OBJECT("db_querys/SUBSCRIBE", &Ouroboros::watcher_SUBSCRIBE);
 	WATCH_OBJECT("db_querys/UNSUBSCRIBE", &Ouroboros::watcher_UNSUBSCRIBE);
-
+	
 	// Transaction
 	WATCH_OBJECT("db_querys/DISCARD", &Ouroboros::watcher_DISCARD);
 	WATCH_OBJECT("db_querys/EXEC", &Ouroboros::watcher_EXEC);
 	WATCH_OBJECT("db_querys/MULTI", &Ouroboros::watcher_MULTI);
 	WATCH_OBJECT("db_querys/UNWATCH", &Ouroboros::watcher_UNWATCH);
 	WATCH_OBJECT("db_querys/WATCH", &Ouroboros::watcher_WATCH);
-
+	
 	// scrit
 	WATCH_OBJECT("db_querys/EVAL", &Ouroboros::watcher_EVAL);
 	WATCH_OBJECT("db_querys/EVALSHA", &Ouroboros::watcher_EVALSHA);
-	WATCH_OBJECT("db_querys/SCRIPT", &Ouroboros::watcher_SCRIPT);
+	WATCH_OBJECT("db_querys/SCRIPT", &Ouroboros::watcher_SCRIPT);	
 
 	// Connection (connection)
 	WATCH_OBJECT("db_querys/AUTH", &Ouroboros::watcher_AUTH);
@@ -906,8 +906,8 @@ void RedisWatcher::initializeWatcher()
 	WATCH_OBJECT("db_querys/PING", &Ouroboros::watcher_PING);
 	WATCH_OBJECT("db_querys/QUIT", &Ouroboros::watcher_QUIT);
 	WATCH_OBJECT("db_querys/SELECT", &Ouroboros::watcher_SELECT);
-
-	// Server (server)	
+	
+	// Server (server)
 	WATCH_OBJECT("db_querys/BGREWRITEAOF", &Ouroboros::watcher_BGREWRITEAOF);
 	WATCH_OBJECT("db_querys/BGSAVE", &Ouroboros::watcher_BGSAVE);
 	WATCH_OBJECT("db_querys/CLIENT", &Ouroboros::watcher_CLIENT);
@@ -925,7 +925,7 @@ void RedisWatcher::initializeWatcher()
 	WATCH_OBJECT("db_querys/SELECT", &Ouroboros::watcher_SLAVEOF);
 	WATCH_OBJECT("db_querys/SLOWLOG", &Ouroboros::watcher_SLOWLOG);
 	WATCH_OBJECT("db_querys/SYNC", &Ouroboros::watcher_SYNC);
-	WATCH_OBJECT("db_querys/TIME", &Ouroboros::watcher_TIME);
+	WATCH_OBJECT("db_querys/TIME", &Ouroboros::watcher_TIME);				
 }
 
 //-------------------------------------------------------------------------------------
@@ -947,7 +947,7 @@ void RedisWatcher::querystatistics(const char* strCommand, uint32 size)
 
 	_g_logMutex.lockMutex();
 
-	OUROUnordered_map< std::string, uint32 >::iterator iter = g_querystatistics.find(op);
+	KBEUnordered_map< std::string, uint32 >::iterator iter = g_querystatistics.find(op);
 	if(iter == g_querystatistics.end())
 	{
 		g_querystatistics[op] = 1;
@@ -963,3 +963,4 @@ void RedisWatcher::querystatistics(const char* strCommand, uint32 size)
 //-------------------------------------------------------------------------------------
 
 }
+

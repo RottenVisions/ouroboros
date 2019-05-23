@@ -38,7 +38,7 @@ public:
 		std::string addr;
 	};
 
-	OUROUnordered_map< std::string, std::vector<LAYOUT_ITEM> > layouts_;
+	KBEUnordered_map< std::string, std::vector<LAYOUT_ITEM> > layouts_;
 //	afx_msg void OnCbnSelchangeCombo3();
 	afx_msg void OnCbnSelchangeCombo3();
 	afx_msg void OnNMThemeChangedCombo3(NMHDR *pNMHDR, LRESULT *pResult);

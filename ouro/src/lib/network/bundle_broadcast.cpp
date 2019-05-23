@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "bundle_broadcast.h"
@@ -12,11 +12,11 @@
 #include "network/event_poller.h"
 
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 //-------------------------------------------------------------------------------------
-BundleBroadcast::BundleBroadcast(NetworkInterface & networkInterface,
+BundleBroadcast::BundleBroadcast(NetworkInterface & networkInterface, 
 								   uint16 bindPort, uint32 recvWindowSize):
 	Bundle(NULL, Network::PROTOCOL_UDP),
 	epListen_(),
@@ -31,7 +31,7 @@ BundleBroadcast::BundleBroadcast(NetworkInterface & networkInterface,
 
 	if (!epListen_.good() || !epBroadcast_.good())
 	{
-		ERROR_MSG(fmt::format("BundleBroadcast::BundleBroadcast: Socket initialization failed! {}\n",
+		ERROR_MSG(fmt::format("BundleBroadcast::BundleBroadcast: Socket initialization failed! {}\n", 
 			ouro_strerror()));
 
 		networkInterface_.dispatcher().breakProcessing();
@@ -101,7 +101,7 @@ bool BundleBroadcast::broadcast(uint16 port)
 {
 	if (!epBroadcast_.good())
 		return false;
-
+	
 	if(port == 0)
 		port = OURO_MACHINE_BROADCAST_SEND_PORT;
 
@@ -121,7 +121,7 @@ bool BundleBroadcast::broadcast(uint16 port)
 
 	epBroadcast_.sendto(packets()[0]->data(), packets()[0]->length(), htons(port), Network::BROADCAST);
 
-	// If an address pool is specified, messages are sent to all addresses
+	// Send a message to all addresses if an address pool is specified
 	std::vector< std::string >::iterator addr_iter = machine_addresses_.begin();
 	for (; addr_iter != machine_addresses_.end(); ++addr_iter)
 	{
@@ -151,11 +151,11 @@ bool BundleBroadcast::receive(MessageArgs* recvArgs, sockaddr_in* psin, int32 ti
 
 	struct timeval tv;
 	fd_set fds;
-
+	
 	int icount = 1;
 	tv.tv_sec = 0;
 	tv.tv_usec = timeout;
-
+	
 	if(!pCurrPacket())
 		newPacket();
 
@@ -174,12 +174,12 @@ bool BundleBroadcast::receive(MessageArgs* recvArgs, sockaddr_in* psin, int32 ti
 					ERROR_MSG("BundleBroadcast::receive: failed! It can be caused by the firewall, the broadcastaddr, etc."
 					"Maybe broadcastaddr is not a LAN ADDR, or the Machine process is not running.\n");
 				}
-
+				
 				return false;
 			}
 			else
 			{
-				//DEBUG_MSG(fmt::format("BundleBroadcast::receive: retries({}), bind_addr({}) ...\n",
+				//DEBUG_MSG(fmt::format("BundleBroadcast::receive: retries({}), bind_addr({}) ...\n", 
 				//	icount, epListen_.addr()));
 			}
 
@@ -200,7 +200,7 @@ bool BundleBroadcast::receive(MessageArgs* recvArgs, sockaddr_in* psin, int32 ti
 		{
 			sockaddr_in	sin;
 			pCurrPacket()->resetPacket();
-
+			
 			if(psin == NULL)
 				psin = &sin;
 
@@ -217,8 +217,8 @@ bool BundleBroadcast::receive(MessageArgs* recvArgs, sockaddr_in* psin, int32 ti
 
 				continue;
 			}
-
-			//DEBUG_MSG(fmt::format("BundleBroadcast::receive: from {}, datalen={}.\n",
+			
+			//DEBUG_MSG(fmt::format("BundleBroadcast::receive: from {}, datalen={}.\n", 
 			//	inet_ntoa((struct in_addr&)psin->sin_addr.s_addr), len));
 
 			pCurrPacket()->wpos(len);
@@ -241,7 +241,7 @@ bool BundleBroadcast::receive(MessageArgs* recvArgs, sockaddr_in* psin, int32 ti
 			break;
 		}
 	}
-
+	
 	return true;
 }
 
@@ -293,7 +293,7 @@ bool BundleBroadcast::receive(MessageArgs* recvArgs, sockaddr_in* psin, int32 ti
 			}
 			else
 			{
-				//DEBUG_MSG(fmt::format("BundleBroadcast::receive: retries({}), bind_addr({}) ...\n",
+				//DEBUG_MSG(fmt::format("BundleBroadcast::receive: retries({}), bind_addr({}) ...\n", 
 				//	icount, epListen_.addr()));
 			}
 
@@ -324,7 +324,7 @@ bool BundleBroadcast::receive(MessageArgs* recvArgs, sockaddr_in* psin, int32 ti
 					continue;
 				}
 
-				//DEBUG_MSG(fmt::format("BundleBroadcast::receive: from {}, datalen={}.\n",
+				//DEBUG_MSG(fmt::format("BundleBroadcast::receive: from {}, datalen={}.\n", 
 				//	inet_ntoa((struct in_addr&)psin->sin_addr.s_addr), len));
 
 				pCurrPacket()->wpos(len);

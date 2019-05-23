@@ -3,6 +3,7 @@ SRCS =					\
 	client_sdk			\
 	client_sdk_unity	\
 	client_sdk_ue4		\
+	server_assets		\
 	entity_component	\
 	obcmd				\
 	obcmd_interface		\
@@ -34,8 +35,8 @@ endif
 CPPFLAGS += -DOURO_CMD
 
 ifndef OURO_ROOT
-export OURO_ROOT := $(subst /ouro/src/server/tools/$(BIN),,$(CURDIR))
+export OURO_ROOT := $(subst /kbe/src/server/tools/$(BIN),,$(CURDIR))
 endif
 
-include $(OURO_ROOT)/ouro/src/build/common.mak
+include $(OURO_ROOT)/kbe/src/build/common.mak
 

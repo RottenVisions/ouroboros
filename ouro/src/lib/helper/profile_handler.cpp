@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "profile_handler.h"
@@ -12,12 +12,12 @@
 #include "helper/console_helper.h"
 #include "helper/profile.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
-OUROUnordered_map<std::string, OUROShared_ptr< ProfileHandler > > ProfileHandler::profiles;
+KBEUnordered_map<std::string, KBEShared_ptr< ProfileHandler > > ProfileHandler::profiles;
 
 //-------------------------------------------------------------------------------------
-ProfileHandler::ProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen,
+ProfileHandler::ProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen, 
 							   std::string name, const Network::Address& addr) :
 	networkInterface_(networkInterface),
 	reportLimitTimerHandle_(),
@@ -47,7 +47,7 @@ void ProfileHandler::handleTimeout(TimerHandle handle, void * arg)
 }
 
 //-------------------------------------------------------------------------------------
-CProfileHandler::CProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen,
+CProfileHandler::CProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen, 
 std::string name, const Network::Address& addr) :
 ProfileHandler(networkInterface, timinglen, name, addr)
 {
@@ -59,7 +59,7 @@ ProfileHandler(networkInterface, timinglen, name, addr)
 	for(; iter != defaultGroup.profiles().end(); ++iter)
 	{
 		std::string name = (*iter)->name();
-
+	
 		if(name == "RunningTime")
 		{
 			continue;
@@ -84,7 +84,7 @@ CProfileHandler::~CProfileHandler()
 void CProfileHandler::timeout()
 {
 	MemoryStream s;
-
+	
 	s << timinglen_;
 
 	ArraySize size = (ArraySize)profileVals_.size();
@@ -134,7 +134,7 @@ void CProfileHandler::sendStream(MemoryStream* s)
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	ConsoleInterface::ConsoleProfileHandler msgHandler;
 	(*pBundle).newMessage(msgHandler);
@@ -148,22 +148,22 @@ void CProfileHandler::sendStream(MemoryStream* s)
 //-------------------------------------------------------------------------------------
 bool CProfileHandler::process()
 {
-	// Each tick is checked here to prevent the newly added profileVal from being collected.
+	// Every tick is checked here, preventing the newly added profileVal from being collected in the middle.
 	ProfileGroup& defaultGroup = ProfileGroup::defaultGroup();
 	ProfileGroup::PROFILEVALS::const_iterator iter = defaultGroup.profiles().begin();
 
 	for(; iter != defaultGroup.profiles().end(); ++iter)
 	{
 		std::string name = (*iter)->name();
-
+	
 		if(name != "RunningTime")
 		{
 			OURO_ASSERT(!(*iter)->running());
 		}
 
 		CProfileHandler::PROFILEVALS::iterator iter1 = profileVals_.find(name);
-
-		// Ignored if already initialized
+		
+		// Ignore if it has already been initialized
 		if(iter1 != profileVals_.end())
 		{
 			CProfileHandler::ProfileVal& profileVal = iter1->second;
@@ -189,8 +189,8 @@ bool CProfileHandler::process()
 
 //-------------------------------------------------------------------------------------
 std::vector<EventProfileHandler*> EventProfileHandler::eventProfileHandlers_;
-
-EventProfileHandler::EventProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen,
+	
+EventProfileHandler::EventProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen, 
 							   std::string name, const Network::Address& addr) :
 ProfileHandler(networkInterface, timinglen, name, addr),
 profileMaps_(),
@@ -226,7 +226,7 @@ void EventProfileHandler::timeout()
 	{
 		std::string type_name = iter->first;
 		PROFILEVALS& vals = iter->second;
-
+		
 		s << type_name;
 
 		size = (ArraySize)vals.size();
@@ -257,7 +257,7 @@ void EventProfileHandler::sendStream(MemoryStream* s)
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	ConsoleInterface::ConsoleProfileHandler msgHandler;
 	(*pBundle).newMessage(msgHandler);
@@ -269,7 +269,7 @@ void EventProfileHandler::sendStream(MemoryStream* s)
 }
 
 //-------------------------------------------------------------------------------------
-void EventProfileHandler::onTriggerEvent(const EventHistoryStats& eventHistory, const EventHistoryStats::Stats& stats,
+void EventProfileHandler::onTriggerEvent(const EventHistoryStats& eventHistory, const EventHistoryStats::Stats& stats, 
 										 uint32 size)
 {
 	EventProfileHandler::PROFILEVALMAP::iterator iter = profileMaps_.find(eventHistory.name());
@@ -280,7 +280,7 @@ void EventProfileHandler::onTriggerEvent(const EventHistoryStats& eventHistory, 
 		PROFILEVALS& vals = profileMaps_[eventHistory.name()];
 		pval = &vals[stats.name];
 		pval->name = stats.name;
-	}
+	}	
 	else
 	{
 		PROFILEVALS& vals = iter->second;
@@ -302,7 +302,7 @@ void EventProfileHandler::onTriggerEvent(const EventHistoryStats& eventHistory, 
 }
 
 //-------------------------------------------------------------------------------------
-void EventProfileHandler::triggerEvent(const EventHistoryStats& eventHistory, const EventHistoryStats::Stats& stats,
+void EventProfileHandler::triggerEvent(const EventHistoryStats& eventHistory, const EventHistoryStats::Stats& stats, 
 									  uint32 size)
 {
 	std::vector<EventProfileHandler*>::iterator iter = eventProfileHandlers_.begin();
@@ -313,7 +313,7 @@ void EventProfileHandler::triggerEvent(const EventHistoryStats& eventHistory, co
 }
 
 //-------------------------------------------------------------------------------------
-NetworkProfileHandler::NetworkProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen,
+NetworkProfileHandler::NetworkProfileHandler(Network::NetworkInterface & networkInterface, uint32 timinglen, 
 							   std::string name, const Network::Address& addr) :
 ProfileHandler(networkInterface, timinglen, name, addr),
 profileVals_()
@@ -344,10 +344,10 @@ void NetworkProfileHandler::timeout()
 
 		s << profileVal.name;
 
-		s << profileVal.send_count << profileVal.send_size << profileVal.send_avgsize <<
+		s << profileVal.send_count << profileVal.send_size << profileVal.send_avgsize << 
 			profileVal.total_send_size << profileVal.total_send_count;
 
-		s << profileVal.recv_count << profileVal.recv_size << profileVal.recv_avgsize <<
+		s << profileVal.recv_count << profileVal.recv_size << profileVal.recv_avgsize << 
 			profileVal.total_recv_size << profileVal.total_recv_count;
 	}
 
@@ -365,7 +365,7 @@ void NetworkProfileHandler::sendStream(MemoryStream* s)
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	ConsoleInterface::ConsoleProfileHandler msgHandler;
 	(*pBundle).newMessage(msgHandler);
@@ -380,7 +380,7 @@ void NetworkProfileHandler::sendStream(MemoryStream* s)
 void NetworkProfileHandler::onSendMessage(const Network::MessageHandler& msgHandler, int size)
 {
 	NetworkProfileHandler::PROFILEVALS::iterator iter1 = profileVals_.find(msgHandler.name);
-
+	
 	NetworkProfileHandler::ProfileVal* pProfileVal = NULL;
 	if(iter1 == profileVals_.end())
 	{
@@ -395,7 +395,7 @@ void NetworkProfileHandler::onSendMessage(const Network::MessageHandler& msgHand
 
 	pProfileVal->send_size += size;
 	pProfileVal->send_count++;
-
+	
 	pProfileVal->send_avgsize = msgHandler.sendavgsize();
 	pProfileVal->total_send_size = msgHandler.sendsize();
 	pProfileVal->total_send_count = msgHandler.sendcount();
@@ -405,7 +405,7 @@ void NetworkProfileHandler::onSendMessage(const Network::MessageHandler& msgHand
 void NetworkProfileHandler::onRecvMessage(const Network::MessageHandler& msgHandler, int size)
 {
 	NetworkProfileHandler::PROFILEVALS::iterator iter1 = profileVals_.find(msgHandler.name);
-
+	
 	NetworkProfileHandler::ProfileVal* pProfileVal = NULL;
 	if(iter1 == profileVals_.end())
 	{
@@ -420,7 +420,7 @@ void NetworkProfileHandler::onRecvMessage(const Network::MessageHandler& msgHand
 
 	pProfileVal->recv_size += size;
 	pProfileVal->recv_count++;
-
+	
 	pProfileVal->recv_avgsize = msgHandler.recvavgsize();
 	pProfileVal->total_recv_size = msgHandler.recvsize();
 	pProfileVal->total_recv_count = msgHandler.recvcount();

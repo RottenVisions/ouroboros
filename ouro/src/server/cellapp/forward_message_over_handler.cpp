@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "cellapp.h"
 #include "forward_message_over_handler.h"
@@ -8,7 +8,7 @@
 #include "spacememory.h"
 #include "spacememorys.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 //-------------------------------------------------------------------------------------
 FMH_Baseapp_onEntityGetCellFrom_onCreateCellEntityInNewSpaceFromBaseapp::
@@ -30,9 +30,9 @@ FMH_Baseapp_onEntityGetCellFrom_onCreateCellEntityInNewSpaceFromBaseapp::~FMH_Ba
 void FMH_Baseapp_onEntityGetCellFrom_onCreateCellEntityInNewSpaceFromBaseapp::process()
 {
 	OURO_ASSERT(_e != NULL);
-
+	
 	SpaceMemory* space = SpaceMemorys::findSpace(_spaceID);
-
+	
 	if(space == NULL || !space->isGood())
 	{
 		ERROR_MSG(fmt::format("FMH_Baseapp_onEntityGetCell::process: not found space({}), {} {}.\n",
@@ -46,7 +46,7 @@ void FMH_Baseapp_onEntityGetCellFrom_onCreateCellEntityInNewSpaceFromBaseapp::pr
 	Py_XDECREF(_params);
 	_params = NULL;
 
-	// Space
+	// Ìí¼Óµ½space
 	space->addEntityToNode(_e);
 
 	if (_e->clientEntityCall())
@@ -62,7 +62,7 @@ void FMH_Baseapp_onEntityGetCellFrom_onCreateCellEntityInNewSpaceFromBaseapp::pr
 //-------------------------------------------------------------------------------------
 FMH_Baseapp_onEntityGetCellFrom_onCreateCellEntityFromBaseapp::
 	FMH_Baseapp_onEntityGetCellFrom_onCreateCellEntityFromBaseapp(
-			std::string& entityType, ENTITY_ID createToEntityID, ENTITY_ID entityID, MemoryStream* pCellData,
+			std::string& entityType, ENTITY_ID createToEntityID, ENTITY_ID entityID, MemoryStream* pCellData, 
 			 bool hasClient, bool inRescore, COMPONENT_ID componentID, SPACE_ID spaceID):
 _entityType(entityType),
 _createToEntityID(createToEntityID),
@@ -84,7 +84,7 @@ FMH_Baseapp_onEntityGetCellFrom_onCreateCellEntityFromBaseapp::~FMH_Baseapp_onEn
 //-------------------------------------------------------------------------------------
 void FMH_Baseapp_onEntityGetCellFrom_onCreateCellEntityFromBaseapp::process()
 {
-	Cellapp::getSingleton()._onCreateCellEntityFromBaseapp(_entityType, _createToEntityID, _entityID,
+	Cellapp::getSingleton()._onCreateCellEntityFromBaseapp(_entityType, _createToEntityID, _entityID, 
 		_pCellData, _hasClient, _inRescore, _componentID, _spaceID);
 
 	MemoryStream::reclaimPoolObject(_pCellData);

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "sequence.h"
@@ -38,7 +38,7 @@ SCRIPT_MEMBER_DECLARE_END()
 SCRIPT_GETSET_DECLARE_BEGIN(Sequence)
 SCRIPT_GETSET_DECLARE_END()
 SCRIPT_INIT(Sequence, 0, &Sequence::seqMethods, &Sequence::seqMapping, 0, 0)
-
+	
 //-------------------------------------------------------------------------------------
 Sequence::Sequence(PyTypeObject* pyType, bool isInitialised):
 ScriptObject(pyType, isInitialised)
@@ -81,7 +81,7 @@ int Sequence::findFrom(uint32 startIndex, PyObject* value)
 		if (value == &*values_[i]) return i;
 
 	for (uint32 i = startIndex; i < values_.size(); ++i)
-		if(PyObject_RichCompareBool(value, &*values_[i], Py_EQ))
+		if(PyObject_RichCompareBool(value, &*values_[i], Py_EQ)) 
 			return i;
 
 	return -1;
@@ -103,10 +103,10 @@ PyObject* Sequence::seq_concat(PyObject* self, PyObject* seq)
 		PyErr_PrintEx(0);
 		return NULL;
 	}
-
+	
 	Sequence* self_seq = static_cast<Sequence*>(self);
 	std::vector<PyObject*>& values = self_seq->getValues();
-
+	
 	int seqSize1 = (int)values.size();
 	int seqSize2 = (int)PySequence_Size(seq);
 	PyObject* pyList = PyList_New(seqSize1 + seqSize2);
@@ -125,7 +125,7 @@ PyObject* Sequence::seq_concat(PyObject* self, PyObject* seq)
 //-------------------------------------------------------------------------------------
 PyObject* Sequence::seq_repeat(PyObject* self, Py_ssize_t n)
 {
-	if (n <= 0)
+	if (n <= 0) 
 		return PyList_New(0);
 
 	Sequence* seq = static_cast<Sequence*>(self);
@@ -133,8 +133,8 @@ PyObject* Sequence::seq_repeat(PyObject* self, Py_ssize_t n)
 	int seqSize1 = (int)values.size();
 
 	PyObject* pyList = PyList_New(seqSize1 * n);
-	// May not have memory
-	if (pyList == NULL)
+	// There may be no memory
+	if (pyList == NULL) 
 		return NULL;
 
 	for (int j = 0; j < seqSize1; ++j)
@@ -160,6 +160,7 @@ PyObject* Sequence::seq_item(PyObject* self, Py_ssize_t index)
 {
 	Sequence* seq = static_cast<Sequence*>(self);
 	std::vector<PyObject*>& values = seq->getValues();
+
 	if (uint32(index) < values.size())
 	{
 		PyObject* pyobj = values[index];
@@ -179,8 +180,10 @@ PyObject* Sequence::seq_subscript(PyObject* self, PyObject* item)
 		i = PyNumber_AsSsize_t(item, PyExc_IndexError);
 		if (i == -1 && PyErr_Occurred())
 			return NULL;
-		if (i < 0)
-			i += PyList_GET_SIZE(self);
+		if (i < 0) {
+			Sequence* seq = static_cast<Sequence*>(self);
+			i += seq->length();
+		}
 		return seq_item(self, i);
 	}
 	else if (PySlice_Check(item)) {
@@ -225,7 +228,7 @@ PyObject* Sequence::seq_slice(PyObject* self, Py_ssize_t startIndex, Py_ssize_t 
 
 	int length = (int)(endIndex - startIndex);
 
-	if (length == int(values.size()))
+	if (length == int(values.size())) 
 	{
 		Py_INCREF(seq);
 		return seq;
@@ -263,7 +266,7 @@ int Sequence::seq_ass_item(PyObject* self, Py_ssize_t index, PyObject* value)
 		}
 		else
 		{
-			PyErr_SetString(PyExc_IndexError, "Sequence set to type is error!");
+			PyErr_SetString(PyExc_IndexError, "Sequence set to type error!");
 			PyErr_PrintEx(0);
 			return -1;
 		}
@@ -289,8 +292,8 @@ int Sequence::seq_ass_slice(PyObject* self, Py_ssize_t index1, Py_ssize_t index2
 {
 	Sequence* seq = static_cast<Sequence*>(self);
 	std::vector<PyObject*>& values = seq->getValues();
-
-	// Is it a delete element
+		
+	// Is it a delete element?
 	if (!oterSeq)
 	{
 		if (index1 < index2)
@@ -324,7 +327,7 @@ int Sequence::seq_ass_slice(PyObject* self, Py_ssize_t index1, Py_ssize_t index2
 	int sz = (int)values.size();
 	int osz = (int)PySequence_Size(oterSeq);
 
-	// Ensure that the index does not cross the border
+	// Ensure that the index will not cross the border
 	if (index1 > sz) index1 = sz;
 	if (index1 < 0) index1 = 0;
 	if (index2 > sz) index2 = sz;
@@ -355,7 +358,7 @@ int Sequence::seq_ass_slice(PyObject* self, Py_ssize_t index1, Py_ssize_t index2
 		values.erase(values.begin() + index1, values.begin() + index2);
 	}
 
-	// Let the vector allocate memory
+	// Let the vector allocate memory first
 	values.insert(values.begin() + index1, osz, (PyObject*)NULL);
 	for(int i = 0; i < osz; ++i)
 	{
@@ -365,7 +368,7 @@ int Sequence::seq_ass_slice(PyObject* self, Py_ssize_t index1, Py_ssize_t index2
 			PyErr_Format(PyExc_TypeError, "Sequence::seq_ass_slice::PySequence_GetItem %d is NULL.", i);
 			PyErr_PrintEx(0);
 		}
-
+		
 		values[index1 + i] = seq->createNewItemFromObj(pyTemp);
 
 		if (pyTemp)
@@ -394,17 +397,17 @@ PyObject* Sequence::seq_inplace_concat(PyObject* self, PyObject* oterSeq)
 
 	Sequence* seq = static_cast<Sequence*>(self);
 	std::vector<PyObject*>& values = seq->getValues();
-
+	
 	int szA = (int)values.size();
 	int szB = (int)PySequence_Size(oterSeq);
 
-	if (szB == 0)
+	if (szB == 0) 
 	{
 		Py_INCREF(seq);
 		return seq;
 	}
 
-	// Check the type is correct
+	// Check if the type is correct
 	for (int i = 0; i < szB; ++i)
 	{
 		PyObject * pyVal = PySequence_GetItem(oterSeq, i);
@@ -418,8 +421,8 @@ PyObject* Sequence::seq_inplace_concat(PyObject* self, PyObject* oterSeq)
 			return NULL;
 		}
 	}
-
-	// Let the vector allocate memory
+	
+	// Let the vector allocate memory first
 	values.insert(values.end(), szB, (PyObject*)NULL);
 
 	for (int i = 0; i < szB; ++i)
@@ -442,7 +445,7 @@ PyObject* Sequence::seq_inplace_concat(PyObject* self, PyObject* oterSeq)
 PyObject* Sequence::seq_inplace_repeat(PyObject* self, Py_ssize_t n)
 {
 	Sequence* seq = static_cast<Sequence*>(self);
-	if(n == 1)
+	if(n == 1) 
 	{
 		Py_INCREF(seq);
 		return seq;

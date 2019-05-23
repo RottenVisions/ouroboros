@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_ENDPOINT_H
 #define OURO_ENDPOINT_H
@@ -8,6 +8,7 @@
 #include "helper/debug_helper.h"
 #include "network/address.h"
 #include "network/common.h"
+#include "openssl/ssl.h"
 
 namespace Ouroboros { 
 namespace Network
@@ -17,17 +18,17 @@ class Bundle;
 class EndPoint : public PoolObject
 {
 public:
-	typedef OUROShared_ptr< SmartPoolObject< EndPoint > > SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
+	typedef KBEShared_ptr< SmartPoolObject< EndPoint > > SmartPoolObjectPtr;
+	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<EndPoint>& ObjPool();
-	static EndPoint* createPoolObject();
+	static EndPoint* createPoolObject(const std::string& logPoint);
 	static void reclaimPoolObject(EndPoint* obj);
 	static void destroyObjPool();
 	void onReclaimObject();
 
 	virtual size_t getPoolObjectBytes()
 	{
-		size_t bytes = sizeof(OUROSOCKET)
+		size_t bytes = sizeof(KBESOCKET)
 		 + address_.getPoolObjectBytes();
 
 		return bytes;
@@ -37,13 +38,13 @@ public:
 	EndPoint(u_int32_t networkAddr = 0, u_int16_t networkPort = 0);
 	virtual ~EndPoint();
 
-	INLINE operator OUROSOCKET() const;
+	INLINE operator KBESOCKET() const;
 	
 	static void initNetwork();
 	INLINE bool good() const;
 		
 	void socket(int type);
-	INLINE OUROSOCKET socket() const;
+	INLINE KBESOCKET socket() const;
 	
 	INLINE void setFileDescriptor(int fd);
 
@@ -116,15 +117,24 @@ public:
 
 	bool waitSend();
 
-	void setSocketRef(OUROSOCKET s) 
+	void setSocketRef(KBESOCKET s) 
 	{
 		socket_ = s;
 		isRefSocket_ = true;
 	}
 
+	bool setupSSL(int sslVersion, Packet* pPacket);
+	bool destroySSL();
+
+	bool isSSL() const {
+		return sslHandle_ != NULL;
+	}
+
 protected:
-	OUROSOCKET socket_;
+	KBESOCKET socket_;
 	Address address_;
+	SSL* sslHandle_;
+	SSL_CTX* sslContext_;
 	bool isRefSocket_;
 };
 

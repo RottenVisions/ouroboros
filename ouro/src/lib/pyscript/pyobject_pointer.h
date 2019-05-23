@@ -1,7 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_PYOBJECT_POINTER_H
 #define OURO_PYOBJECT_POINTER_H
+
+#include "common/smartpointer.h"
 
 namespace Ouroboros { 
 

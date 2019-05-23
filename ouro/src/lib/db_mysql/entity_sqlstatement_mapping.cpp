@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "entity_sqlstatement_mapping.h"
 #include "sqlstatement.h"
@@ -29,7 +29,7 @@ void EntitySqlStatementMapping::addUpdateSqlStatement(const std::string& tableNa
 //-------------------------------------------------------------------------------------
 SqlStatement* EntitySqlStatementMapping::findQuerySqlStatement(const std::string& tableName)
 {
-	OUROUnordered_map< std::string, OUROShared_ptr< SqlStatement > >::iterator iter = 
+	KBEUnordered_map< std::string, KBEShared_ptr< SqlStatement > >::iterator iter = 
 		query_sqlStatements_.find(tableName);
 
 	if(iter != query_sqlStatements_.end())
@@ -41,7 +41,7 @@ SqlStatement* EntitySqlStatementMapping::findQuerySqlStatement(const std::string
 //-------------------------------------------------------------------------------------
 SqlStatement* EntitySqlStatementMapping::findInsertSqlStatement(const std::string& tableName)
 {
-	OUROUnordered_map< std::string, OUROShared_ptr< SqlStatement > >::iterator iter = 
+	KBEUnordered_map< std::string, KBEShared_ptr< SqlStatement > >::iterator iter = 
 		insert_sqlStatements_.find(tableName);
 
 	if(iter != insert_sqlStatements_.end())
@@ -53,7 +53,7 @@ SqlStatement* EntitySqlStatementMapping::findInsertSqlStatement(const std::strin
 //-------------------------------------------------------------------------------------
 SqlStatement* EntitySqlStatementMapping::findUpdateSqlStatement(const std::string& tableName)
 {
-	OUROUnordered_map< std::string, OUROShared_ptr< SqlStatement > >::iterator iter = 
+	KBEUnordered_map< std::string, KBEShared_ptr< SqlStatement > >::iterator iter = 
 		update_sqlStatements_.find(tableName);
 
 	if(iter != update_sqlStatements_.end())

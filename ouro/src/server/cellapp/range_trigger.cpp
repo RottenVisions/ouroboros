@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "range_trigger.h"
 #include "coordinate_system.h"
@@ -9,7 +9,7 @@
 #include "range_trigger.inl"
 #endif
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 //-------------------------------------------------------------------------------------
 RangeTrigger::RangeTrigger(CoordinateNode* origin, float xz, float y):
@@ -54,17 +54,14 @@ bool RangeTrigger::install()
 
 	origin_->pCoordinateSystem()->insert(positiveBoundary_);
 	origin_->pCoordinateSystem()->insert(negativeBoundary_);
-
+	
 	/*
-	Note: It must be first installed negativeBoundary_ and then install positiveBoundary_. If the order is reversed, it will cause the View's BUG.
-	For example, the entity that enters the View is destroyed when an entity enterView is triggered.
-	At this point, the entity was destroyed without triggering the exit View event, and the destruction of the entity referenced
-	in the View list of other entities without triggering the View event is an invalid pointer.
+	Note: Here you must first install negativeBoundary_ and then install positiveBoundary_. If you change the order, it will cause a View BUG. For example, when an entity enterView is triggered, the entity entering the View is destroyed.
+	At this time, when the entity is destroyed, the View event is not triggered, and the View event that is not triggered causes the destroyed entity referenced in the View list of other entities to be an invalid pointer.
 
-	The reason is as follows:
-	Since it is always installed first in positiveBoundary_, the boundary causes another entity to enter the View during the installation process.
-	Then he may be destroyed in the process, and another boundary negativeBoundary_ has not been installed,
-	When the node is deleted, the node's xx will be set to -FLT_MAX, leaving it to the negativeBoundary_ direction, so the positiveBoundary_ can not check this boundary will not trigger the View exit event.
+	The reasons are as follows:
+	Since the priority is always installed in positiveBoundary_, and the boundary causes another entity to enter the View during the installation process, then it may be destroyed in the process, and another boundary negativeBoundary_ is not installed yet.
+	When the node is deleted, the node's xx is set to -FLT_MAX, which causes it to leave in the direction of negativeBoundary_, so the positiveBoundary_ cannot check the boundary and will not trigger the View leaving event.
 	*/
 	negativeBoundary_->old_xx(-FLT_MAX);
 	negativeBoundary_->old_yy(-FLT_MAX);
@@ -72,11 +69,12 @@ bool RangeTrigger::install()
 	negativeBoundary_->range(-range_xz_, -range_y_);
 	negativeBoundary_->old_range(-range_xz_, -range_y_);
 	negativeBoundary_->update();
-	negativeBoundary_->removeFlags(COORDINATE_NODE_FLAG_INSTALLING);
 
-	// Update may cause the entity to destroy indirectly causing itself to be reset, at which point the installation should fail
+	// update may cause the entity to be destroyed indirectly causing it to be reset. In this case, the installation should fail.
 	if (!negativeBoundary_)
 		return false;
+
+	negativeBoundary_->removeFlags(COORDINATE_NODE_FLAG_INSTALLING);
 
 	positiveBoundary_->old_xx(FLT_MAX);
 	positiveBoundary_->old_yy(FLT_MAX);
@@ -85,9 +83,14 @@ bool RangeTrigger::install()
 	positiveBoundary_->range(range_xz_, range_y_);
 	positiveBoundary_->old_range(range_xz_, range_y_);
 	positiveBoundary_->update();
-	positiveBoundary_->removeFlags(COORDINATE_NODE_FLAG_INSTALLING);
 
-	return positiveBoundary_ != NULL;
+	if (positiveBoundary_)
+	{
+		positiveBoundary_->removeFlags(COORDINATE_NODE_FLAG_INSTALLING);
+		return true;
+	}
+
+	return false;
 }
 
 //-------------------------------------------------------------------------------------
@@ -108,8 +111,8 @@ bool RangeTrigger::uninstall()
 		negativeBoundary_->pCoordinateSystem()->remove(negativeBoundary_);
 		negativeBoundary_->onTriggerUninstall();
 	}
-
-	// There is no need to release the node here. The release of the node is unified to the CoordinateSystem.
+	
+	// There is no need to release the node here, and the release of the node is handed over to CoordinateSystem.
 	positiveBoundary_ = NULL;
 	negativeBoundary_ = NULL;
 	removing_ = false;
@@ -125,14 +128,14 @@ void RangeTrigger::onNodePassX(RangeTriggerNode* pRangeTriggerNode, CoordinateNo
 	bool wasInZ = pRangeTriggerNode->wasInZRange(pNode);
 	bool isInZ = pRangeTriggerNode->isInZRange(pNode);
 
-	// If there is a change in the Z-axis condition, the Z-axis is evaluated again, and the priority is zyx, so that only one enter or leave can be guaranteed.
+	// If the Z-axis condition changes, the Z-axis is judged again, and the priority is zyx, so that only one enter or leave can be guaranteed.
 	if(wasInZ != isInZ)
 		return;
 
 	bool wasIn = false;
 	bool isIn = false;
 
-	// The other axes must be checked at the same time. If the x-axis of the node is within the range, other axes are theoretically also within the range.
+	// Must check other axes at the same time, if the node x axis is in range, theoretically the other axes are also in range
 	if(CoordinateSystem::hasY)
 	{
 		bool wasInY = pRangeTriggerNode->wasInYRange(pNode);
@@ -150,7 +153,7 @@ void RangeTrigger::onNodePassX(RangeTriggerNode* pRangeTriggerNode, CoordinateNo
 		isIn = pRangeTriggerNode->isInXRange(pNode) && isInZ;
 	}
 
-	// If the situation does not change, ignore
+	// Ignore if the situation has not changed
 	if(wasIn == isIn)
 		return;
 
@@ -173,7 +176,7 @@ void RangeTrigger::onNodePassY(RangeTriggerNode* pRangeTriggerNode, CoordinateNo
 	bool wasInZ = pRangeTriggerNode->wasInZRange(pNode);
 	bool isInZ = pRangeTriggerNode->isInZRange(pNode);
 
-	// If there is a change in the Z-axis condition, the Z-axis is evaluated again, and the priority is zyx, so that only one enter or leave can be guaranteed.
+	// If the Z-axis condition changes, the Z-axis is judged again, and the priority is zyx, so that only one enter or leave can be guaranteed.
 	if(wasInZ != isInZ)
 		return;
 
@@ -183,7 +186,7 @@ void RangeTrigger::onNodePassY(RangeTriggerNode* pRangeTriggerNode, CoordinateNo
 	if(wasInY == isInY)
 		return;
 
-	// The other axes must be checked at the same time. If the x-axis of the node is within the range, other axes are theoretically also within the range.
+	// Must check other axes at the same time, if the node x axis is in range, theoretically the other axes are also in range
 	bool wasIn = pRangeTriggerNode->wasInXRange(pNode) && wasInY && wasInZ;
 	bool isIn = pRangeTriggerNode->isInXRange(pNode) && isInY && isInZ;
 
@@ -214,12 +217,12 @@ void RangeTrigger::onNodePassZ(RangeTriggerNode* pRangeTriggerNode, CoordinateNo
 		if(wasInZ == isInZ)
 			return;
 
-		bool wasIn = pRangeTriggerNode->wasInXRange(pNode) &&
-			pRangeTriggerNode->wasInYRange(pNode) &&
+		bool wasIn = pRangeTriggerNode->wasInXRange(pNode) && 
+			pRangeTriggerNode->wasInYRange(pNode) && 
 			wasInZ;
 
-		bool isIn = pRangeTriggerNode->isInXRange(pNode) &&
-			pRangeTriggerNode->isInYRange(pNode) &&
+		bool isIn = pRangeTriggerNode->isInXRange(pNode) && 
+			pRangeTriggerNode->isInYRange(pNode) && 
 			isInZ;
 
 		if(wasIn == isIn)

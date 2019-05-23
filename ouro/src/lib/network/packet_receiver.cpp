@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "packet_receiver.h"
@@ -41,11 +41,10 @@ PacketReceiver::~PacketReceiver()
 //-------------------------------------------------------------------------------------
 int PacketReceiver::handleInputNotification(int fd)
 {
-	if (this->processRecv(/*expectingPacket:*/true))
+	if (this->processRecv(true))
 	{
-		while (this->processRecv(/*expectingPacket:*/false))
+		while (this->processRecv(false))
 		{
-			/* pass */;
 		}
 	}
 

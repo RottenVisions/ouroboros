@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_ENTITY_COORDINATE_NODE_H
 #define OURO_ENTITY_COORDINATE_NODE_H
@@ -17,8 +17,8 @@ public:
 	virtual ~EntityCoordinateNode();
 
 	/**
-		(Extended coordinates)
-		x && z is implemented by different applications (obtained from different places)
+		(extended coordinates)
+		x && z is implemented by different applications (from different locations)
 	*/
 	virtual float xx() const;
 	virtual float yy() const;
@@ -31,10 +31,10 @@ public:
 
 	bool addWatcherNode(CoordinateNode* pNode);
 	void onAddWatcherNode(CoordinateNode* pNode);
-
+	
 	bool delWatcherNode(CoordinateNode* pNode);
 
-	static void entitiesInRange(std::vector<Entity*>& foundEntities, CoordinateNode* rootNode,
+	static void entitiesInRange(std::vector<Entity*>& foundEntities, CoordinateNode* rootNode, 
 		const Position3D& orginPos, float radius, int entityUType = -1);
 
 	virtual void onRemove();

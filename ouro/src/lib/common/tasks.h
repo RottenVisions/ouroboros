@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_TASKS_H
 #define OURO_TASKS_H
@@ -10,7 +10,7 @@ namespace Ouroboros
 {
 
 /**
- *	Tasks
+ *	ÈÎÎñÈÝÆ÷
  */
 class Tasks
 {
@@ -22,7 +22,7 @@ public:
 	bool cancel(Task * pTask);
 	void process();
 private:
-
+	
 	typedef std::vector<Ouroboros::Task *> Container;
 	Container container_;
 };

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "timestamp.h"
 #include "helper/debug_helper.h"
@@ -8,10 +8,10 @@ namespace Ouroboros{
 #define OURO_USE_RDTSC
 
 #ifdef OURO_USE_RDTSC
-	OUROTimingMethod g_timingMethod = RDTSC_TIMING_METHOD;
+	KBETimingMethod g_timingMethod = RDTSC_TIMING_METHOD;
 #else // OURO_USE_RDTSC
 	#define DEFAULT_TIMING_METHOD GET_TIME_TIMING_METHOD
-	OUROTimingMethod g_timingMethod = NO_TIMING_METHOD;
+	KBETimingMethod g_timingMethod = NO_TIMING_METHOD;
 #endif // OURO_USE_RDTSC
 
 const char* getTimingMethodName()
@@ -35,7 +35,7 @@ const char* getTimingMethodName()
 	}
 }
 
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -89,7 +89,7 @@ static uint64 calcStampsPerSecond()
 
 #ifdef OURO_USE_RDTSC
 	return calcStampsPerSecond_rdtsc();
-#else
+#else 
 
 	if (g_timingMethod == RDTSC_TIMING_METHOD)
 		return calcStampsPerSecond_rdtsc();
@@ -163,7 +163,7 @@ double stampsPerSecondD_gettimeofday()
 
 #ifdef OURO_USE_RDTSC
 static uint64 calcStampsPerSecond()
-{
+{	
 	LARGE_INTEGER	tvBefore,	tvAfter;
 	DWORD			tvSleep = 500;
 	uint64 stampBefore,	stampAfter;
@@ -208,7 +208,7 @@ static uint64 calcStampsPerSecond()
 
 
 /**
- CPU time per second
+ ?Cpu time per second
 */
 uint64 stampsPerSecond()
 {
@@ -217,7 +217,7 @@ uint64 stampsPerSecond()
 }
 
 /**
- Cpu time spent per second double version
+ ?Cpu time per second double version
 */
 double stampsPerSecondD()
 {
@@ -226,3 +226,5 @@ double stampsPerSecondD()
 }
 
 }
+
+

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_OBJECTPOOL_H
 #define OURO_OBJECTPOOL_H
@@ -6,11 +6,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <iostream>
-#include <map>
-#include <list>
+#include <iostream>	
+#include <map>	
+#include <list>	
 #include <vector>
-#include <queue>
+#include <queue> 
 
 #include "common/timestamp.h"
 #include "thread/threadmutex.h"
@@ -20,16 +20,31 @@ namespace Ouroboros{
 #define OBJECT_POOL_INIT_SIZE			16
 #define OBJECT_POOL_INIT_MAX_SIZE		OBJECT_POOL_INIT_SIZE * 1024
 
-// Check for slimming every 5 minutes
+// Check your weight loss every 5 minutes
 #define OBJECT_POOL_REDUCING_TIME_OUT	300 * stampsPerSecondD()
+
+// Tracking object allocation
+#define OBJECTPOOL_POINT fmt::format("{}#{}", __FUNCTION__, __LINE__).c_str() 
 
 template< typename T >
 class SmartPoolObject;
 
+class ObjectPoolLogPoint
+{
+public:
+	ObjectPoolLogPoint() :
+		count(0)
+	{
+
+	}
+
+	int count;
+};
+
 /*
-	Some objects will be created very frequently. For example: MemoryStream, Bundle, TCPPacket, etc.
-	This object pool creates some object caches in advance through server-side spike estimates.
-	When used, it directly gets one from the object pool. Unused objects can be.
+	Some objects are created very frequently, for example: MemoryStream, Bundle, TCPPacket, etc.
+	This object pool creates some objects in advance to estimate the peaks that are valid through the server, and directly caches them from the object pool when they are used.
+	Get an object that is not being used.
 */
 template< typename T, typename THREADMUTEX = Ouroboros::thread::ThreadMutexNull >
 class ObjectPool
@@ -45,7 +60,8 @@ public:
 		name_(name),
 		total_allocs_(0),
 		obj_count_(0),
-		lastReducingCheckTime_(timestamp())
+		lastReducingCheckTime_(timestamp()),
+		logPoints_()
 	{
 	}
 
@@ -57,7 +73,8 @@ public:
 		name_(name),
 		total_allocs_(0),
 		obj_count_(0),
-		lastReducingCheckTime_(timestamp())
+		lastReducingCheckTime_(timestamp()),
+		logPoints_()
 	{
 	}
 
@@ -65,8 +82,8 @@ public:
 	{
 		destroy();
 		SAFE_RELEASE(pMutex_);
-	}
-
+	}	
+	
 	void destroy()
 	{
 		pMutex_->lockMutex();
@@ -82,15 +99,15 @@ public:
 				delete (*iter);
 			}
 		}
-
-		objects_.clear();
+				
+		objects_.clear();	
 		obj_count_ = 0;
 		pMutex_->unlockMutex();
 	}
 
-	const OBJECTS& objects(void) const
-	{
-		return objects_;
+	const OBJECTS& objects(void) const 
+	{ 
+		return objects_; 
 	}
 
 	void pMutex(Ouroboros::thread::ThreadMutexNull* pMutex)
@@ -116,12 +133,12 @@ public:
 		}
 	}
 
-	/**
-		Forces the creation of an object of the specified type.
-		If the buffer has already been created then return the existing one, otherwise create a new one, this object must be inherited from T.
+	/** 
+		Forces the creation of an object of the specified type. Return existing if the buffer has been created, otherwise
+		To create a new one, this object must be inherited from T.
 	*/
 	template<typename T1>
-	T* createObject(void)
+	T* createObject(const std::string& logPoint)
 	{
 		pMutex_->lockMutex();
 
@@ -132,6 +149,8 @@ public:
 				T* t = static_cast<T1*>(*objects_.begin());
 				objects_.pop_front();
 				--obj_count_;
+				incLogPoint(logPoint);
+				t->poolObjectCreatePoint(logPoint);
 				t->onEabledPoolObject();
 				t->isEnabledPoolObject(true);
 				pMutex_->unlockMutex();
@@ -146,11 +165,11 @@ public:
 		return NULL;
 	}
 
-	/**
-		Create an object. If the buffer has been created then return the existing one, otherwise
+	/** 
+		Create an object. Return existing if the buffer has been created, otherwise
 		Create a new one.
 	*/
-	T* createObject(void)
+	T* createObject(const std::string& logPoint)
 	{
 		pMutex_->lockMutex();
 
@@ -161,6 +180,8 @@ public:
 				T* t = static_cast<T*>(*objects_.begin());
 				objects_.pop_front();
 				--obj_count_;
+				incLogPoint(logPoint);
+				t->poolObjectCreatePoint(logPoint);
 				t->onEabledPoolObject();
 				t->isEnabledPoolObject(true);
 				pMutex_->unlockMutex();
@@ -197,7 +218,7 @@ public:
 		{
 			reclaimObject_((*iter));
 		}
-
+		
 		objs.clear();
 
 		pMutex_->unlockMutex();
@@ -215,7 +236,7 @@ public:
 		{
 			reclaimObject_((*iter));
 		}
-
+		
 		objs.clear();
 
 		pMutex_->unlockMutex();
@@ -239,14 +260,14 @@ public:
 	}
 
 	size_t size(void) const { return obj_count_; }
-
+	
 	std::string c_str()
 	{
 		char buf[1024];
 
 		pMutex_->lockMutex();
 
-		sprintf(buf, "ObjectPool::c_str(): name=%s, objs=%d/%d, isDestroyed=%s.\n",
+		sprintf(buf, "ObjectPool::c_str(): name=%s, objs=%d/%d, isDestroyed=%s.\n", 
 			name_.c_str(), (int)obj_count_, (int)max_, (isDestroyed() ? "true" : "false"));
 
 		pMutex_->unlockMutex();
@@ -259,6 +280,20 @@ public:
 
 	bool isDestroyed() const { return isDestroyed_; }
 
+	std::map<std::string, ObjectPoolLogPoint>& logPoints() {
+		return logPoints_;
+	}
+
+	void incLogPoint(const std::string& logPoint)
+	{
+		++logPoints_[logPoint].count;
+	}
+
+	void decLogPoint(const std::string& logPoint)
+	{
+		--logPoints_[logPoint].count;
+	}
+
 protected:
 	/**
 		Recycling an object
@@ -267,9 +302,12 @@ protected:
 	{
 		if(obj != NULL)
 		{
-			// Reset state first
+			decLogPoint(obj->poolObjectCreatePoint());
+
+			// Reset the state first
 			obj->onReclaimObject();
 			obj->isEnabledPoolObject(false);
+			obj->poolObjectCreatePoint("");
 
 			if(size() >= max_ || isDestroyed_)
 			{
@@ -287,15 +325,15 @@ protected:
 
 		if (obj_count_ <= OBJECT_POOL_INIT_SIZE)
 		{
-			// Less than or equal to refresh the inspection time
+			// Less than or equal to refresh check time
 			lastReducingCheckTime_ = now_timestamp;
 		}
 		else if (now_timestamp - lastReducingCheckTime_ > OBJECT_POOL_REDUCING_TIME_OUT)
 		{
-			// Unused objects that have been greater than OBJECT_POOL_INIT_SIZE for a long time begin cleaning up
+			// Objects that are longer than OBJECT_POOL_INIT_SIZE are used for cleaning up
 			size_t reducing = std::min(objects_.size(), std::min((size_t)OBJECT_POOL_INIT_SIZE, (size_t)(obj_count_ - OBJECT_POOL_INIT_SIZE)));
-
-			//printf("ObjectPool::reclaimObject_(): start reducing..., name=%s, currsize=%d, OBJECT_POOL_INIT_SIZE=%d\n",
+			
+			//printf("ObjectPool::reclaimObject_(): start reducing..., name=%s, currsize=%d, OBJECT_POOL_INIT_SIZE=%d\n", 
 			//	name_.c_str(), (int)objects_.size(), OBJECT_POOL_INIT_SIZE);
 
 			while (reducing-- > 0)
@@ -307,7 +345,7 @@ protected:
 				--obj_count_;
 			}
 
-			//printf("ObjectPool::reclaimObject_(): reducing over, name=%s, currsize=%d\n",
+			//printf("ObjectPool::reclaimObject_(): reducing over, name=%s, currsize=%d\n", 
 			//	name_.c_str(), (int)objects_.size());
 
 			lastReducingCheckTime_ = now_timestamp;
@@ -321,30 +359,33 @@ protected:
 
 	bool isDestroyed_;
 
-	// For some reason the lock is still necessary
-	// For example: log output in dbmgr task thread, log output due to thread callback after loading navmesh in cellapp
+	// Some reasons cause the lock to be necessary
+	// For example: output log in dbmgr task thread, log output caused by thread callback after loading navmesh in cellapp
 	THREADMUTEX* pMutex_;
 
 	std::string name_;
 
 	size_t total_allocs_;
 
-	// Linux environment, list.size()Using std::distance(begin(), end())Way to get
+	// In the Linux environment, list.size() uses the std::distance(begin(), end()) method to get
 	// Will have an impact on performance, here we make a record of size
 	size_t obj_count_;
 
-	// Last slimming check
-	// If OBJECT_POOL_REDUCING_TIME_OUT is greater than OBJECT_POOL_INIT_SIZE, then up to OBJECT_POOL_INIT_SIZE
+	// Last slimming check time
+	// If the longest OBJECT_POOL_REDUCING_TIME_OUT is greater than OBJECT_POOL_INIT_SIZE, then the most slimming OBJECT_POOL_INIT_SIZE
 	uint64 lastReducingCheckTime_;
+
+	// Record creation location information for tracking leaks
+	std::map<std::string, ObjectPoolLogPoint> logPoints_;
 };
 
 /*
-	Pool object, all objects using the pool must implement the recycling function.
+	Pool objects, all objects that use pools must implement reclamation.
 */
 class PoolObject
 {
 public:
-	PoolObject() :
+	PoolObject() : 
 		isEnabledPoolObject_(false)
 	{
 
@@ -356,12 +397,13 @@ public:
 	}
 
 	virtual size_t getPoolObjectBytes()
-	{
-		return 0;
+	{ 
+		return 0; 
 	}
 
 	/**
-		Notification of the pool object before it is destroyed Some objects can do some work here
+		Notification before the pool object is destroyed
+		Some objects can do some work here
 	*/
 	virtual bool destructorPoolObject()
 	{
@@ -378,10 +420,23 @@ public:
 		isEnabledPoolObject_ = v;
 	}
 
+	void poolObjectCreatePoint(const std::string& logPoint)
+	{
+		poolObjectCreatePoint_ = logPoint;
+	}
+
+	const std::string& poolObjectCreatePoint() const
+	{
+		return poolObjectCreatePoint_;
+	}
+
 protected:
 
-	// Pool object is active (removed from the pool) state
+	// Whether the pool object is active (has been taken out of the pool) status
 	bool isEnabledPoolObject_;
+
+	// Record the location where the object was created
+	std::string poolObjectCreatePoint_;
 };
 
 template< typename T >
@@ -435,7 +490,7 @@ private:
 };
 
 
-#define NEW_POOL_OBJECT(TYPE) TYPE::createPoolObject();
+#define NEW_POOL_OBJECT(TYPE) TYPE::createPoolObject(OBJECTPOOL_POINT);
 
 
 }

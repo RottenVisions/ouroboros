@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_NAVIGATETILEHANDLE_H
 #define OURO_NAVIGATETILEHANDLE_H
@@ -17,27 +17,27 @@ public:
 	static int currentLayer;
 
 	static void setMapLayer(int layer)
-	{
+	{ 
 		currentLayer = layer; 
 	}
 
 	enum TILE_STATE
 	{
-		TILE_STATE_OPENED_COST0 = 0,	// Open state, allow to pass
-		TILE_STATE_OPENED_COST1 = 1,	// Open state, allow to pass
-		TILE_STATE_OPENED_COST2 = 2,	// Open state, allow to pass
-		TILE_STATE_OPENED_COST3 = 3,	// Open state, allow to pass
-		TILE_STATE_OPENED_COST4 = 4,	// Open state, allow to pass
-		TILE_STATE_OPENED_COST5 = 5,	// Open state, allow to pass
-		TILE_STATE_CLOSED = 9			// Disabled
+		TILE_STATE_OPENED_COST0 = 0, // open state, allow pass
+		TILE_STATE_OPENED_COST1 = 1, // Open state, allow pass
+		TILE_STATE_OPENED_COST2 = 2, // open state, allow pass
+		TILE_STATE_OPENED_COST3 = 3, // open state, allow pass
+		TILE_STATE_OPENED_COST4 = 4, // open state, allow pass
+		TILE_STATE_OPENED_COST5 = 5, // open state, allow pass
+		TILE_STATE_CLOSED = 9 // Closed state
 	};
 
 	class MapSearchNode
 	{
 	public:
 		int x;	 // the (x,y) positions of the node
-		int y;
-
+		int y;	
+		
 
 		MapSearchNode() { x = y = 0; }
 		MapSearchNode(int px, int py) {x = px; y = py; }
@@ -48,9 +48,9 @@ public:
 		float GetCost( MapSearchNode &successor );
 		bool IsSameState( MapSearchNode &rhs );
 
-		void PrintNodeInfo();
+		void PrintNodeInfo(); 
 	};
-
+	
 	static MapSearchNode nodeGoal, nodeStart;
 	static AStarSearch<NavTileHandle::MapSearchNode> astarsearch;
 
@@ -71,14 +71,14 @@ public:
 
 	static NavigationHandle* create(std::string resPath, const std::map< int, std::string >& params);
 	static NavTileHandle* _create(const std::string& res);
-
+	
 	int getMap(int x, int y);
 
 	void bresenhamLine(const MapSearchNode& p0, const MapSearchNode& p1, std::vector<MapSearchNode>& results);
 	void bresenhamLine(int x0, int y0, int x1, int y1, std::vector<MapSearchNode>& results);
 
 	bool direction8() const{ return direction8_; }
-
+	
 	bool validTile(int x, int y) const;
 
 public:
@@ -89,3 +89,4 @@ public:
 
 }
 #endif // OURO_NAVIGATETILEHANDLE_H
+

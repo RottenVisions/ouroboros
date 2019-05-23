@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 #ifndef OURO_NAVIGATION_H
 #define OURO_NAVIGATION_H
 
@@ -12,14 +12,14 @@
 namespace Ouroboros
 {
 /*
-	Navi
+	µº∫Ω¿‡
 */
 class Navigation : public Singleton<Navigation>
 {
 public:
 	Navigation();
 	virtual ~Navigation();
-
+	
 	void finalise();
 
 	NavigationHandlePtr loadNavigation(std::string resPath, const std::map< int, std::string >& params);
@@ -31,7 +31,7 @@ public:
 	NavigationHandlePtr findNavigation(std::string resPath);
 
 private:
-	OUROUnordered_map<std::string, NavigationHandlePtr> navhandles_;
+	KBEUnordered_map<std::string, NavigationHandlePtr> navhandles_;
 	Ouroboros::thread::ThreadMutex mutex_;
 };
 

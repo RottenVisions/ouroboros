@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "packet_sender.h"
@@ -13,6 +13,7 @@
 #include "network/event_dispatcher.h"
 #include "network/network_interface.h"
 #include "network/event_poller.h"
+#include <openssl/err.h>
 
 namespace Ouroboros { 
 namespace Network
@@ -87,7 +88,7 @@ Reason PacketSender::checkSocketErrors(const EndPoint * pEndpoint)
 	int err;
 	Reason reason;
 
-	#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 		err = errno;
 
 		switch (err)
@@ -99,7 +100,7 @@ Reason PacketSender::checkSocketErrors(const EndPoint * pEndpoint)
 			case ENOBUFS:		reason = REASON_TRANSMIT_QUEUE_FULL; break;
 			default:			reason = REASON_GENERAL_NETWORK; break;
 		}
-	#else
+#else
 		err = WSAGetLastError();
 
 		if (err == WSAEWOULDBLOCK || err == WSAEINTR)
@@ -116,7 +117,16 @@ Reason PacketSender::checkSocketErrors(const EndPoint * pEndpoint)
 				default:reason = REASON_GENERAL_NETWORK;break;
 			}
 		}
-	#endif
+#endif
+
+	if (err == 0 && pEndpoint->isSSL())
+	{
+		long sslerr = ERR_get_error();
+		if (sslerr > 0)
+		{
+			return REASON_WEBSOCKET_ERROR;
+		}
+	}
 
 	return reason;
 }

@@ -1,0 +1,10 @@
+<root>
+	<!--
+		Entity registration file (<your asset library>/scripts/entities.xml)
+		For details, please refer to: http://ouroboros.org/cn/docs/configuration/entities.html
+					http://www.ouroboros.org/cn/docs/programming/entitydef.html
+	-->
+
+	<!-- <Avatar/> -->
+	<Account hasClient="true"></Account><!-- <Account hasCell="true" hasBase="true" hasClient="true"></Account> -->
+</root>

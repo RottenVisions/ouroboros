@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SOCKETTCPPACKET_H
 #define OURO_SOCKETTCPPACKET_H
@@ -13,10 +13,10 @@ namespace Network
 class TCPPacket : public Packet
 {
 public:
-	typedef OUROShared_ptr< SmartPoolObject< TCPPacket > > SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
+	typedef KBEShared_ptr< SmartPoolObject< TCPPacket > > SmartPoolObjectPtr;
+	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<TCPPacket>& ObjPool();
-	static TCPPacket* createPoolObject();
+	static TCPPacket* createPoolObject(const std::string& logPoint);
 	static void reclaimPoolObject(TCPPacket* obj);
 	static void destroyObjPool();
 

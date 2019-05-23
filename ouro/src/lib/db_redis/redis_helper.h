@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_REDIS_HELPER_H
 #define OURO_REDIS_HELPER_H
@@ -10,7 +10,7 @@
 #include "helper/debug_helper.h"
 #include "db_interface_redis.h"
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 
 class RedisHelper
 {
@@ -28,112 +28,112 @@ public:
 		if (!pdbi->query(printlog, "EXPIRE %s %d", key.c_str(), secs))
 			return false;
 	}
-
+	
 	static bool check_array_results(redisReply* pRedisReply)
 	{
-		for(size_t j = 0; j < pRedisReply->elements; ++j)
+		for(size_t j = 0; j < pRedisReply->elements; ++j) 
 		{
-			if(pRedisReply->element[j]->type != REDIS_REPLY_INTEGER &&
+			if(pRedisReply->element[j]->type != REDIS_REPLY_INTEGER && 
 				pRedisReply->element[j]->type != REDIS_REPLY_STRING)
 			{
 				return false;
 			}
 		}
-
+		
 		return true;
 	}
-
+	
 	static bool hasTable(DBInterfaceRedis* pdbi, const std::string& name, bool printlog = true)
 	{
 		redisReply* pRedisReply = NULL;
-
+		
 		if (!pdbi->query(fmt::format("scan 0 MATCH {}", name), &pRedisReply, printlog))
 			return false;
-
+		
 		size_t size = 0;
-
+		
 		if(pRedisReply)
 		{
 			if(pRedisReply->elements == 2 && pRedisReply->element[1]->type == REDIS_REPLY_ARRAY)
 			{
 				size = pRedisReply->element[1]->elements;
 			}
-
-			freeReplyObject(pRedisReply);
+			
+			freeReplyObject(pRedisReply); 
 		}
-
+		
 		return size > 0;
 	}
-
+	
 	static bool dropTable(DBInterfaceRedis* pdbi, const std::string& tableName, bool printlog = true)
 	{
 		uint64 index = 0;
-
+		
 		while(true)
 		{
 			redisReply* pRedisReply = NULL;
-
+			
 			pdbi->query(fmt::format("scan {} MATCH {}", index, tableName), &pRedisReply, printlog);
-
+			
 			if(pRedisReply)
 			{
 				if(pRedisReply->elements == 2)
 				{
 					OURO_ASSERT(pRedisReply->element[0]->type == REDIS_REPLY_STRING);
-
-					// The next time this index starts
+					
+					// The next time starts with this index
 					StringConv::str2value(index, pRedisReply->element[0]->str);
-
+					
 					redisReply* r0 = pRedisReply->element[1];
 					OURO_ASSERT(r0->type == REDIS_REPLY_ARRAY);
-
-					for(size_t j = 0; j < r0->elements; ++j)
+					
+					for(size_t j = 0; j < r0->elements; ++j) 
 					{
 						redisReply* r1 = r0->element[j];
 						OURO_ASSERT(r1->type == REDIS_REPLY_STRING);
-
+							
 						pdbi->query(fmt::format("del {}", r1->str), &pRedisReply, printlog);
 					}
 				}
-
-				freeReplyObject(pRedisReply);
+				
+				freeReplyObject(pRedisReply); 
 			}
 			else
 			{
 				return false;
 			}
-
+			
 			if(index == 0)
 				break;
 		}
-
+		
 		return true;
 	}
-
-	static bool dropTableItem(DBInterfaceRedis* pdbi, const std::string& tableName,
+	
+	static bool dropTableItem(DBInterfaceRedis* pdbi, const std::string& tableName, 
 		const std::string& itemName, bool printlog = true)
 	{
 		uint64 index = 0;
-
+		
 		while(true)
 		{
 			redisReply* pRedisReply = NULL;
-
+			
 			pdbi->query(fmt::format("scan {} MATCH {}", index, tableName), &pRedisReply, printlog);
-
+			
 			if(pRedisReply)
 			{
 				if(pRedisReply->elements == 2)
 				{
 					OURO_ASSERT(pRedisReply->element[0]->type == REDIS_REPLY_STRING);
-
-					// The next time this index starts
+					
+					// The next time starts with this index
 					StringConv::str2value(index, pRedisReply->element[0]->str);
-
+					
 					redisReply* r0 = pRedisReply->element[1];
 					OURO_ASSERT(r0->type == REDIS_REPLY_ARRAY);
-
-					for(size_t j = 0; j < r0->elements; ++j)
+					
+					for(size_t j = 0; j < r0->elements; ++j) 
 					{
 						redisReply* r1 = r0->element[j];
 						OURO_ASSERT(r1->type == REDIS_REPLY_STRING);
@@ -141,18 +141,18 @@ public:
 						pdbi->query(fmt::format("hdel {} {}", r1->str, itemName), &pRedisReply, printlog);
 					}
 				}
-
-				freeReplyObject(pRedisReply);
+				
+				freeReplyObject(pRedisReply); 
 			}
 			else
 			{
 				return false;
 			}
-
+			
 			if(index == 0)
 				break;
 		}
-
+		
 		return true;
 	}
 };

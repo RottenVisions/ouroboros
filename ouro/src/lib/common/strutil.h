@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_STRUTIL_H
@@ -9,23 +9,12 @@
 #include <sstream>
 #include <iomanip>
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 /*---------------------------------------------------------------------------------
 	Cross-platform interface definition
 ---------------------------------------------------------------------------------*/
-#if defined( unix )
+#if defined( __WIN32__ ) || defined( WIN32 ) || defined( _WIN32 )
 
-#define ouro_isnan isnan
-#define ouro_isinf isinf
-#define ouro_snprintf snprintf
-#define ouro_vsnprintf vsnprintf
-#define ouro_vsnwprintf vsnwprintf
-#define ouro_snwprintf swprintf
-#define ouro_stricmp strcasecmp
-#define ouro_strnicmp strncasecmp
-#define ouro_fileno fileno
-#define ouro_va_copy va_copy
-#else
 #define ouro_isnan _isnan
 #define ouro_isinf(x) (!_finite(x) && !_isnan(x))
 #define ouro_snprintf _snprintf
@@ -43,7 +32,20 @@ namespace Ouroboros{
 #define strtoull _strtoui64
 #define atoll    _atoi64
 
-#endif // unix
+#else
+
+#define ouro_isnan isnan
+#define ouro_isinf isinf
+#define ouro_snprintf snprintf
+#define ouro_vsnprintf vsnprintf
+#define ouro_vsnwprintf vsnwprintf
+#define ouro_snwprintf swprintf
+#define ouro_stricmp strcasecmp
+#define ouro_strnicmp strncasecmp
+#define ouro_fileno fileno
+#define ouro_va_copy va_copy
+
+#endif
 
 class MemoryStream;
 
@@ -73,7 +75,7 @@ namespace strutil {
 		 s++;
 	  };
 
-	  return s;
+	  return s; 
 	}
 
 	/*
@@ -89,7 +91,7 @@ namespace strutil {
 		 s++;
 	  };
 
-	  return s;
+	  return s; 
 	}
 
 	template<typename T>
@@ -119,15 +121,15 @@ namespace strutil {
 		}
 	}
 
-    std::vector< std::string > ouro_splits(const std::string& s, const std::string& delim, const bool keep_empty = true);
+	int ouro_splits(const std::string& s, const std::string& delim, std::vector< std::string >& out_result, const bool keep_empty = true);
 
 	int bytes2string(unsigned char *pSrc, int nSrcLen, unsigned char *pDst, int nDstMaxLen);
 	int string2bytes(unsigned char* szSrc, unsigned char* pDst, int nDstMaxLen);
-
+	  
 }
 
 namespace strutil {
-	// Vector <string> It's easy to use std::find_if to find out if there is a string
+	// vector<string> is easy to use std::find_if to find if a string exists
 	template<typename T>
 	class find_vec_string_exist_handle
 	{
@@ -178,7 +180,7 @@ namespace strutil {
 
 // utf-8
 namespace strutil {
-
+	
 	char* wchar2char(const wchar_t* ts, size_t* outlen = NULL);
 	void wchar2char(const wchar_t* ts, MemoryStream* pStream);
 	wchar_t* char2wchar(const char* cs, size_t* outlen = NULL);
@@ -186,7 +188,7 @@ namespace strutil {
 	/*
 	int wchar2utf8(const wchar_t* in, int in_len, char* out, int out_max);
 	int wchar2utf8(const std::wstring& in, std::string& out);
-
+  
 	int utf82wchar(const char* in, int in_len, wchar_t* out, int out_max);
 	int utf82wchar(const std::string& in, std::wstring& out);
 	*/
@@ -209,3 +211,4 @@ namespace strutil {
 }
 
 #endif // OURO_STRUTIL_H
+

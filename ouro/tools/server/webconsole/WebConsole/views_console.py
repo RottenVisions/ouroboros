@@ -15,7 +15,7 @@ from .auth import login_check
 @login_check
 def show_components( request ):
 	"""
-	The console can be connected to the components display page
+	Console connectable component display page
 	"""
 	VALID_CT = set( [
 			Define.DBMGR_TYPE,
@@ -27,18 +27,18 @@ def show_components( request ):
 		] )
 
 	html_template = "WebConsole/console_show_components.html"
-
+	
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	ouroComps = []
+	kbeComps = []
 	for mID, comps in interfaces_groups.items():
 		for comp in comps:
 			if comp.componentType in VALID_CT:
-				ouroComps.append( comp)
+				kbeComps.append( comp)
 
 	context = {
-		"OUROComps" : ouroComps,
+		"OUROComps" : kbeComps,
 	}
 	return render( request, html_template, context )
 
@@ -47,7 +47,7 @@ def connect( request ):
 	"""
 	Console page
 	"""
-	# By obtaining the parameters check whether the parameter exists
+	# Verify the existence of the parameter by obtaining the parameter.
 	GET = request.GET
 	port = int( GET["port"] )
 	ip = GET["ip"]
@@ -73,3 +73,4 @@ def process_cmd( request ):
 
 	console = TelnetConsole(request.websocket, host, port)
 	return console.run()
+

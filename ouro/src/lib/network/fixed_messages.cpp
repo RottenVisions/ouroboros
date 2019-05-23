@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 #include "fixed_messages.h"
-#include "xml/xml.h"
-#include "resmgr/resmgr.h"
+#include "xml/xml.h"	
+#include "resmgr/resmgr.h"	
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 OURO_SINGLETON_INIT(Network::FixedMessages);
 
@@ -53,11 +53,11 @@ bool FixedMessages::loadConfig(std::string fileName, bool notFoundError)
 
 		return false;
 	}
-
+	
 	rootNode = xml->getRootNode();
 	if(rootNode == NULL)
 	{
-		// There is no child node under the root node
+		// There are no children under the root node.
 		return true;
 	}
 
@@ -85,7 +85,7 @@ FixedMessages::MSGInfo* FixedMessages::isFixed(const char* msgName)
 		MSGInfo* infos = &iter->second;
 		return infos;
 	}
-
+	
 	return NULL;
 }
 

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "dbmgr.h"
 #include "dbtasks.h"
@@ -15,7 +15,7 @@ UpdateDBServerLogHandler::UpdateDBServerLogHandler() :
 pTimerHandle_(NULL)
 {
 	pTimerHandle_ = new TimerHandle();
-	(*pTimerHandle_) = Dbmgr::getSingleton().dispatcher().addTimer(OUROServerLogTable::TIMEOUT * 1000000, this,
+	(*pTimerHandle_) = Dbmgr::getSingleton().dispatcher().addTimer(KBEServerLogTable::TIMEOUT * 1000000, this,
 							NULL);
 }
 

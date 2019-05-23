@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_NETWORKKCPPACKET_SENDER_H
@@ -21,10 +21,10 @@ namespace Network
 class KCPPacketSender : public UDPPacketSender
 {
 public:
-	typedef OUROShared_ptr< SmartPoolObject< KCPPacketSender > > SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
+	typedef KBEShared_ptr< SmartPoolObject< KCPPacketSender > > SmartPoolObjectPtr;
+	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<KCPPacketSender>& ObjPool();
-	static KCPPacketSender* createPoolObject();
+	static KCPPacketSender* createPoolObject(const std::string& logPoint);
 	static void reclaimPoolObject(KCPPacketSender* obj);
 	virtual void onReclaimObject();
 	static void destroyObjPool();

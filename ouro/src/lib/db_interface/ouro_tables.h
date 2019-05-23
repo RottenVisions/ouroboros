@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_OURO_TABLES_H
 #define OURO_OURO_TABLES_H
@@ -8,32 +8,32 @@
 #include "common/memorystream.h"
 #include "helper/debug_helper.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
-class OUROTable : public EntityTable
+class KBETable : public EntityTable
 {
 public:
-	OUROTable(EntityTables* pEntityTables) :
+	KBETable(EntityTables* pEntityTables) :
 	EntityTable(pEntityTables)
 	{
 	}
-
-	virtual ~OUROTable()
+	
+	virtual ~KBETable()
 	{
 	}
-
+	
 	/**
 		Synchronize the entity table into the database
 	*/
 	virtual bool syncToDB(DBInterface* pdbi) = 0;
-
+	
 	/**
-		initialization
+		Initialize
 	*/
 	virtual bool initialize(ScriptDefModule* sm, std::string name) { return true; };
-
+	
 	virtual EntityTableItem* createItem(std::string type, std::string defaultVal) { return NULL; }
-
+	
 protected:
 
 };
@@ -41,7 +41,7 @@ protected:
 /*
 	Kbe system table
 */
-class OUROEntityLogTable : public OUROTable
+class KBEEntityLogTable : public KBETable
 {
 public:
 	struct EntityLog
@@ -52,35 +52,36 @@ public:
 		uint16 port;
 		COMPONENT_ID componentID;
 
-		// Who records
-		COMPONENT_ID logger;
+		// Who is recording
+		COMPONENT_ID serverGroupID;
 	};
 
-	OUROEntityLogTable(EntityTables* pEntityTables) :
-	OUROTable(pEntityTables)
+	KBEEntityLogTable(EntityTables* pEntityTables) :
+	KBETable(pEntityTables)
 	{
 		tableName(OURO_TABLE_PERFIX "_entitylog");
 	}
-
-	virtual ~OUROEntityLogTable()
+	
+	virtual ~KBEEntityLogTable()
 	{
 	}
-
+	
 	virtual bool logEntity(DBInterface * pdbi, const char* ip, uint32 port, DBID dbid,
 						COMPONENT_ID componentID, ENTITY_ID entityID, ENTITY_SCRIPT_UID entityType) = 0;
 
 	virtual bool queryEntity(DBInterface * pdbi, DBID dbid, EntityLog& entitylog, ENTITY_SCRIPT_UID entityType) = 0;
 
 	virtual bool eraseEntityLog(DBInterface * pdbi, DBID dbid, ENTITY_SCRIPT_UID entityType) = 0;
+	virtual bool eraseBaseappEntityLog(DBInterface * pdbi, COMPONENT_ID componentID) = 0;
 
 protected:
-
+	
 };
 
 /*
 	Kbe system table
 */
-class OUROServerLogTable : public OUROTable
+class KBEServerLogTable : public KBETable
 {
 public:
 	const static uint32 TIMEOUT = 3600;
@@ -89,43 +90,46 @@ public:
 	{
 		uint64 heartbeatTime;
 
-		// Who records
-		COMPONENT_ID logger;
+		// Who is recording
+		COMPONENT_ID serverGroupID;
+
+		uint8 isShareDB;
 	};
 
-	OUROServerLogTable(EntityTables* pEntityTables) :
-	OUROTable(pEntityTables)
+	KBEServerLogTable(EntityTables* pEntityTables) :
+	KBETable(pEntityTables)
 	{
 		tableName(OURO_TABLE_PERFIX "_serverlog");
 	}
-
-	virtual ~OUROServerLogTable()
+	
+	virtual ~KBEServerLogTable()
 	{
 	}
-
+	
 	virtual bool updateServer(DBInterface * pdbi) = 0;
 
 	virtual bool queryServer(DBInterface * pdbi, ServerLog& serverlog) = 0;
+	virtual std::vector<COMPONENT_ID> queryServers(DBInterface * pdbi) = 0;
 
 	virtual std::vector<COMPONENT_ID> queryTimeOutServers(DBInterface * pdbi) = 0;
 
-	virtual bool clearTimeoutLogs(DBInterface * pdbi, const std::vector<COMPONENT_ID>& cids) = 0;
-
+	virtual bool clearServers(DBInterface * pdbi, const std::vector<COMPONENT_ID>& cids) = 0;
+	
 protected:
-
+	
 };
 
-class OUROAccountTable : public OUROTable
+class KBEAccountTable : public KBETable
 {
 public:
-	OUROAccountTable(EntityTables* pEntityTables) :
-	OUROTable(pEntityTables),
+	KBEAccountTable(EntityTables* pEntityTables) :
+	KBETable(pEntityTables),
 	accountDefMemoryStream_()
 	{
 		tableName(OURO_TABLE_PERFIX "_accountinfos");
 	}
-
-	virtual ~OUROAccountTable()
+	
+	virtual ~KBEAccountTable()
 	{
 	}
 
@@ -137,21 +141,21 @@ public:
 	virtual bool updatePassword(DBInterface * pdbi, const std::string& name, const std::string& password) = 0;
 
 	MemoryStream& accountDefMemoryStream()
-	{
-		return accountDefMemoryStream_;
+	{ 
+		return accountDefMemoryStream_; 
 	}
 
 	void accountDefMemoryStream(MemoryStream& s)
 	{
 		accountDefMemoryStream_.clear(false);
-		accountDefMemoryStream_.append(s.data() + s.rpos(), s.length());
+		accountDefMemoryStream_.append(s.data() + s.rpos(), s.length()); 
 	}
 
 protected:
 	MemoryStream accountDefMemoryStream_;
 };
 
-class OUROEmailVerificationTable : public OUROTable
+class KBEEmailVerificationTable : public KBETable
 {
 public:
 	enum V_TYPE
@@ -161,13 +165,13 @@ public:
 		V_TYPE_BIND_MAIL = 3
 	};
 
-	OUROEmailVerificationTable(EntityTables* pEntityTables) :
-	OUROTable(pEntityTables)
+	KBEEmailVerificationTable(EntityTables* pEntityTables) :
+	KBETable(pEntityTables)
 	{
 		tableName(OURO_TABLE_PERFIX "_email_verification");
 	}
-
-	virtual ~OUROEmailVerificationTable()
+	
+	virtual ~KBEEmailVerificationTable()
 	{
 	}
 

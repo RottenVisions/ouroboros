@@ -40,12 +40,12 @@ void CProfileWindow::DoDataExchange(CDataExchange* pDX)
 BOOL CProfileWindow::OnInitDialog()
 {
 	CDialog::OnInitDialog();
-
+	
 	DWORD dwStyle = m_profileShowList.GetExtendedStyle();
-	dwStyle |= LVS_EX_FULLROWSELECT;					//Select an exercise line highlighting (listctrl with report style only)
-	dwStyle |= LVS_EX_GRIDLINES;						//Gridlines (only applicable with report style listctrl)
+	dwStyle |= LVS_EX_FULLROWSELECT; //Select one to exercise the entire line highlighting (only applicable to the list style of report style)
+	dwStyle |= LVS_EX_GRIDLINES; //Gridlines (only for list styles with report style)
 	//dwStyle |= LVS_EX_ONECLICKACTIVATE;
-	m_profileShowList.SetExtendedStyle(dwStyle);				//Set the extension style
+	m_profileShowList.SetExtendedStyle(dwStyle); //Set the extended style
 
 	std::stringstream ss;
 	ss << Ouroboros::genUUID64();
@@ -53,12 +53,12 @@ BOOL CProfileWindow::OnInitDialog()
 	profilename = ss.str();
 
 	int idx = 0;
-	m_profileShowList.InsertColumn(idx++, _T("NCalls "),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("TotTime"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("PerCall"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("CumTime"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("PerCall"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("Filename:lineno(function)"),	LVCFMT_CENTER,	300);
+	m_profileShowList.InsertColumn(idx++, _T("ncalls "),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("tottime"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("percall"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("cumtime"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("percall"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("filename:lineno(function)"),	LVCFMT_CENTER,	300);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -113,7 +113,7 @@ void CProfileWindow::OnBnClickedButton1()
 	m_cprofile.EnableWindow(TRUE);
 	m_eventprofile.EnableWindow(TRUE);
 	m_networkprofile.EnableWindow(TRUE);
-	::AfxMessageBox(L"Please Select the BaseApp|CellApp.");
+	::AfxMessageBox(L"please select the baseapp|cellapp.");
 }
 
 void CProfileWindow::OnBnClickedButton2()
@@ -143,7 +143,7 @@ void CProfileWindow::OnBnClickedButton2()
 	m_cprofile.EnableWindow(TRUE);
 	m_eventprofile.EnableWindow(TRUE);
 	m_networkprofile.EnableWindow(TRUE);
-	::AfxMessageBox(L"Please Select the BaseApp|CellApp.");
+	::AfxMessageBox(L"please select the baseapp|cellapp.");
 }
 
 void CProfileWindow::OnBnClickedButton3()
@@ -173,7 +173,7 @@ void CProfileWindow::OnBnClickedButton3()
 	m_cprofile.EnableWindow(TRUE);
 	m_eventprofile.EnableWindow(TRUE);
 	m_networkprofile.EnableWindow(TRUE);
-	::AfxMessageBox(L"Please Select the BaseApp|CellApp.");
+	::AfxMessageBox(L"please select the baseapp|cellapp.");
 }
 
 void CProfileWindow::OnBnClickedButton4()
@@ -203,7 +203,7 @@ void CProfileWindow::OnBnClickedButton4()
 	m_cprofile.EnableWindow(TRUE);
 	m_eventprofile.EnableWindow(TRUE);
 	m_networkprofile.EnableWindow(TRUE);
-	::AfxMessageBox(L"Please Select the BaseApp|CellApp.");
+	::AfxMessageBox(L"please select the baseapp|cellapp.");
 }
 
 void CProfileWindow::onReceiveData(Ouroboros::int8 type, Ouroboros::MemoryStream& s)
@@ -236,7 +236,7 @@ void CProfileWindow::onReceiveData(Ouroboros::int8 type, Ouroboros::MemoryStream
 		onReceiveNetworkProfileData(s);
 		break;
 	default:
-		ERROR_MSG(fmt::format("CProfileWindow::onReceiveData: type({}) not supported!\n",
+		ERROR_MSG(fmt::format("CProfileWindow::onReceiveData: type({}) not support!\n", 
 			type));
 		break;
 	};
@@ -265,20 +265,20 @@ void CProfileWindow::onReceiveCProfileData(Ouroboros::MemoryStream& s)
 
 	if(m_profileShowList.GetHeaderCtrl())
 	{
-		int nColumnCount = m_profileShowList.GetHeaderCtrl()->GetItemCount();
+		int nColumnCount = m_profileShowList.GetHeaderCtrl()->GetItemCount();       
 		for (int i=0;i < nColumnCount;i++)
 		{
 			m_profileShowList.DeleteColumn(0);
 		}
 	}
-
+	
 	int idx = 0;
-	m_profileShowList.InsertColumn(idx++, _T("NCalls "),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("TotTime"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("PerCall"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("CumTime"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("PerCall"),					LVCFMT_CENTER,	80);
-	m_profileShowList.InsertColumn(idx++, _T("Filename:lineno(function)"),	LVCFMT_CENTER,	300);
+	m_profileShowList.InsertColumn(idx++, _T("ncalls "),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("tottime"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("percall"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("cumtime"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("percall"),					LVCFMT_CENTER,	80);
+	m_profileShowList.InsertColumn(idx++, _T("filename:lineno(function)"),	LVCFMT_CENTER,	300);
 
 
 	uint32 timinglen;
@@ -335,10 +335,10 @@ void CProfileWindow::onReceiveEventProfileData(Ouroboros::MemoryStream& s)
 
 	Ouroboros::ArraySize size;
 	s >> size;
-
+	
 	CString outstr;
 	outstr.Format(L"Waiting %.2f secs...\r\n\r\n", (float)timinglen);
-
+	
 	if(size == 0)
 		outstr += L"\r\nresults is empty!";
 
@@ -348,7 +348,7 @@ void CProfileWindow::onReceiveEventProfileData(Ouroboros::MemoryStream& s)
 	{
 		std::string type_name;
 		s >> type_name;
-
+		
 		wchar_t* ws = Ouroboros::strutil::char2wchar(type_name.c_str());
 
 		str.Format(L"Event Type:%s\r\n\r\n(name|count|size)\r\n---------------------\r\n\r\n", ws);
@@ -365,7 +365,7 @@ void CProfileWindow::onReceiveEventProfileData(Ouroboros::MemoryStream& s)
 			std::string name;
 
 			s >> name >> count >> eventSize;
-
+			
 			if(count == 0)
 				continue;
 
@@ -388,35 +388,35 @@ void CProfileWindow::onReceiveNetworkProfileData(Ouroboros::MemoryStream& s)
 
 	if(m_profileShowList.GetHeaderCtrl())
 	{
-		int nColumnCount = m_profileShowList.GetHeaderCtrl()->GetItemCount();
+		int nColumnCount = m_profileShowList.GetHeaderCtrl()->GetItemCount();       
 		for (int i=0;i < nColumnCount;i++)
 		{
 			m_profileShowList.DeleteColumn(0);
 		}
 	}
-
+	
 	int idx = 0;
-	m_profileShowList.InsertColumn(idx++, _T("Name "),					LVCFMT_CENTER,	230);
-	m_profileShowList.InsertColumn(idx++, _T("Sent#"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("Size"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("Avg"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("Total#"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("TotalSize"),				LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("Recv#"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("Size"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("Avg"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("Total#"),					LVCFMT_CENTER,	50);
-	m_profileShowList.InsertColumn(idx++, _T("TotalSize"),				LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("name "),					LVCFMT_CENTER,	230);
+	m_profileShowList.InsertColumn(idx++, _T("sent#"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("size"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("avg"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("total#"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("totalsize"),				LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("recv#"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("size"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("avg"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("total#"),					LVCFMT_CENTER,	50);
+	m_profileShowList.InsertColumn(idx++, _T("totalsize"),				LVCFMT_CENTER,	50);
 
 	uint32 timinglen;
 	s >> timinglen;
 
 	Ouroboros::ArraySize size;
 	s >> size;
-
+	
 	CString outstr;
 	outstr.Format(L"Waiting %.2f secs...\r\n\r\n", (float)timinglen);
-
+	
 	if(size == 0)
 	{
 		outstr += L"\r\nresults is empty!";
@@ -449,7 +449,7 @@ void CProfileWindow::onReceiveNetworkProfileData(Ouroboros::MemoryStream& s)
 		s >> name >> send_count >> send_size >> send_avgsize >> total_send_size >> total_send_count;
 		s  >> recv_count >> recv_size >> recv_avgsize >> total_recv_size >> total_recv_count;
 
-
+		
 		idx = 1;
 		wchar_t* ws = Ouroboros::strutil::char2wchar(name.c_str());
 		str = ws;
@@ -485,8 +485,10 @@ void CProfileWindow::onReceiveNetworkProfileData(Ouroboros::MemoryStream& s)
 		m_profileShowList.SetItemText(0, idx++, str);
 
 		str.Format(L"%u", total_recv_size);
-		m_profileShowList.SetItemText(0, idx++, str);
+		m_profileShowList.SetItemText(0, idx++, str);	
 	};
 
-
+	
 }
+
+

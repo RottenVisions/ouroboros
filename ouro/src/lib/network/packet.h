@@ -2,7 +2,7 @@
 This source file is part of Ouroboros
 For the latest info, see http://www.ouroboros.org/
 
-Copyright (c) 2008-2016 ourogine Software Ltd
+Copyright (c) 2008-2016 ouroboros Software Ltd
 Also see acknowledgements in Readme.html
 
 You may use this sample code for anything you like, it is not covered by the

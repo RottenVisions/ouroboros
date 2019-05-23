@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #if defined(DEFINE_IN_INTERFACE)
@@ -9,15 +9,15 @@
 #ifndef OURO_CLIENT_INTERFACE_MACRO_H
 #define OURO_CLIENT_INTERFACE_MACRO_H
 
-// common include
+// common include	
 #include "network/interface_defs.h"
-
+	
 namespace Ouroboros{
 
 #define CLIENTAPP ClientApp
 
 /**
-	ClientMessage macro, The parameters for the stream, Need own unlock
+	Client message macro, the parameter is stream, you need to unlock it yourself.
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CLIENT_MESSAGE_HANDLER_STREAM
@@ -38,7 +38,7 @@ namespace Ouroboros{
 													Ouroboros::MemoryStream& s)	\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CLIENT_MESSAGE_HANDLER_STREAM(NAME)										\
@@ -58,7 +58,7 @@ namespace Ouroboros{
 																				\
 
 /**
-	ClientMessage macro, Only the zero parameter of the message
+	Client message macro, only zero parameter message
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CLIENT_MESSAGE_HANDLER_ARGS0
@@ -79,7 +79,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CLIENT_MESSAGE_HANDLER_ARGS0(NAME)										\
@@ -100,7 +100,7 @@ namespace Ouroboros{
 
 
 /**
-	ClientMessage macro, There is only one parameter of the message
+	Client message macro, message with only one parameter
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CLIENT_MESSAGE_HANDLER_ARGS1
@@ -123,7 +123,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CLIENT_MESSAGE_HANDLER_ARGS1(NAME, ARG_TYPE1, ARG_NAME1)				\
@@ -141,10 +141,10 @@ namespace Ouroboros{
 	NETWORK_MESSAGE_DECLARE_ARGS1(Client, NAME,									\
 				NAME##ClientMessagehandler1, MSG_LENGTH, ARG_TYPE1, ARG_NAME1)	\
 																				\
-
+	
 
 /**
-	ClientMessage macro, Only two parameters of the message
+	Client message macro, message with only two parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CLIENT_MESSAGE_HANDLER_ARGS2
@@ -172,7 +172,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CLIENT_MESSAGE_HANDLER_ARGS2(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -197,7 +197,7 @@ namespace Ouroboros{
 
 
 /**
-	ClientMessage macro, Only three parameters of the message
+	Client message macro, message with only three parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CLIENT_MESSAGE_HANDLER_ARGS3
@@ -230,7 +230,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CLIENT_MESSAGE_HANDLER_ARGS3(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -259,7 +259,7 @@ namespace Ouroboros{
 
 
 /**
-	ClientMessage macro,  Only four parameters of the message
+	Client message macro, message with only four parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CLIENT_MESSAGE_HANDLER_ARGS4
@@ -296,7 +296,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CLIENT_MESSAGE_HANDLER_ARGS4(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -327,7 +327,7 @@ namespace Ouroboros{
 											ARG_TYPE4, ARG_NAME4)				\
 
 /**
-	ClientMessage macro,  Only the five parameters of the message
+	Client message macro, message with only five parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CLIENT_MESSAGE_HANDLER_ARGS5
@@ -368,7 +368,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CLIENT_MESSAGE_HANDLER_ARGS5(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -404,7 +404,7 @@ namespace Ouroboros{
 
 
 /**
-	ClientMessage macro,  Only six parameters of the message
+	Client message macro, message with only six parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CLIENT_MESSAGE_HANDLER_ARGS6
@@ -449,7 +449,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CLIENT_MESSAGE_HANDLER_ARGS6(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -488,7 +488,7 @@ namespace Ouroboros{
 											ARG_TYPE6, ARG_NAME6)				\
 
 /**
-	ClientMessage macro,  Only eight parameters of the message
+	Client message macro, message with only eight parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CLIENT_MESSAGE_HANDLER_ARGS8
@@ -542,7 +542,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CLIENT_MESSAGE_HANDLER_ARGS8(NAME, ARG_TYPE1, ARG_NAME1,				\

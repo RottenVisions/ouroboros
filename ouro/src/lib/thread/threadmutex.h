@@ -1,17 +1,17 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 /*
 	Thread mutual complaint body:
-	usage:
+	Usage:
 		ThreadMutex tm;
 		tm.lockMutex();
-		....Security code
+		....security code
 		tm.unlockMutex();
-
-		It is best to use with ThreadGuard
-		Defining mutual partner members in a class
+		
+		It is best to use it with ThreadGuard
+		Defining a mutual complaint member in a class
 		ThreadMutex tm;
-		Where protection is needed:
+		Where you need protection:
 		void XXCLASS::func(void)
 		{
 			ThreadGuard tg(this->tm);
@@ -21,7 +21,7 @@
 */
 #ifndef __THREADMUTEX_H__
 #define __THREADMUTEX_H__
-
+	
 #include "common/common.h"
 
 
@@ -57,16 +57,16 @@ public:
 
 	ThreadMutex(const ThreadMutex& v)
 	{
-		// Copying constructor mutex is not allowed here, which is very dangerous
-		// Will cause multiple THREAD_MUTEX_DELETE
+		// This does not allow copying the construct mutex_, which is very dangerous
+		// will cause multiple THREAD_MUTEX_DELETE
 		THREAD_MUTEX_INIT(mutex_);
 	}
 
 	virtual ~ThreadMutex(void)
-	{
+	{ 
 		THREAD_MUTEX_DELETE(mutex_);
-	}
-
+	}	
+	
 	virtual void lockMutex(void)
 	{
 		THREAD_MUTEX_LOCK(mutex_);

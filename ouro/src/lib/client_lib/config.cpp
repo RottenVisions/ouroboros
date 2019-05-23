@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "config.h"
@@ -50,10 +50,10 @@ bool Config::loadConfig(std::string fileName)
 
 		return false;
 	}
-
+	
 	if(xml->getRootNode() == NULL)
 	{
-		// There is no child node under the root node
+		// There are no children under the root node.
 		return true;
 	}
 
@@ -89,7 +89,7 @@ bool Config::loadConfig(std::string fileName)
 					{
 						Network::g_trace_packet_disables.push_back(c);
 
-						// No encryption package
+						// no debug encryption package
 						if(c == "Encrypted::packets")
 							Network::g_trace_encrypted_packet = false;
 					}
@@ -103,7 +103,7 @@ bool Config::loadConfig(std::string fileName)
 	{
 		g_debugEntity = xml->getValInt(rootNode) > 0;
 	}
-
+	
 	rootNode = xml->getRootNode("publish");
 	if(rootNode != NULL)
 	{
@@ -116,7 +116,7 @@ bool Config::loadConfig(std::string fileName)
 		childnode = xml->enterNode(rootNode, "script_version");
 		if(childnode)
 		{
-			OUROVersion::setScriptVersion(xml->getValStr(childnode));
+			KBEVersion::setScriptVersion(xml->getValStr(childnode));
 		}
 	}
 
@@ -205,7 +205,7 @@ bool Config::loadConfig(std::string fileName)
 					TiXmlNode* childnode2 = xml->enterNode(childnode1, "internal");
 					if(childnode2)
 						Network::g_intSendWindowBytesOverflow = OURO_MAX(0, xml->getValInt(childnode2));
-
+				
 					childnode2 = xml->enterNode(childnode1, "external");
 					if(childnode2)
 						Network::g_extSendWindowBytesOverflow = OURO_MAX(0, xml->getValInt(childnode2));
@@ -249,7 +249,7 @@ bool Config::loadConfig(std::string fileName)
 					TiXmlNode* childnode2 = xml->enterNode(childnode1, "internal");
 					if(childnode2)
 						Network::g_intReceiveWindowBytesOverflow = OURO_MAX(0, xml->getValInt(childnode2));
-
+				
 					childnode2 = xml->enterNode(childnode1, "external");
 					if(childnode2)
 						Network::g_extReceiveWindowBytesOverflow = OURO_MAX(0, xml->getValInt(childnode2));
@@ -264,7 +264,7 @@ bool Config::loadConfig(std::string fileName)
 		}
 
 		TiXmlNode* rudpChildnode = xml->enterNode(rootNode, "reliableUDP");
-		if(rudpChildnode)
+		if (rudpChildnode)
 		{
 			childnode = xml->enterNode(rudpChildnode, "readPacketsQueueSize");
 			if (childnode)
@@ -383,13 +383,13 @@ bool Config::loadConfig(std::string fileName)
 	{
 		useLastAccountName_ = xml->getValStr(rootNode) != "false";
 	}
-
+	
 	rootNode = xml->getRootNode("encrypt_login");
 	if(rootNode != NULL)
 	{
 		encrypt_login_ = xml->getValInt(rootNode);
 	}
-
+	
 	rootNode = xml->getRootNode("aliasEntityID");
 	if(rootNode != NULL)
 	{
@@ -408,13 +408,13 @@ bool Config::loadConfig(std::string fileName)
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 uint32 Config::tcp_SOMAXCONN()
 {
 	return tcp_SOMAXCONN_;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void Config::writeAccountName(const char* name)
 {
 	if(!useLastAccountName_)
@@ -442,5 +442,5 @@ void Config::writeAccountName(const char* name)
 	SAFE_RELEASE(xml);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 }

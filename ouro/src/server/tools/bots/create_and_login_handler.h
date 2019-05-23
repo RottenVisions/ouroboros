@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_CREATE_AND_LOGIN_HANDLER_H
 #define OURO_CREATE_AND_LOGIN_HANDLER_H

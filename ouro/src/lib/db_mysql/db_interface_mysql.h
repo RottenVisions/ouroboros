@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_DB_INTERFACE_MYSQL_H
 #define OURO_DB_INTERFACE_MYSQL_H
@@ -34,7 +34,7 @@
 #endif
 #endif
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 struct MYSQL_TABLE_FIELD
 {
@@ -44,6 +44,8 @@ struct MYSQL_TABLE_FIELD
 	unsigned int flags;
 	enum_field_types type;
 };
+
+class DBException;
 
 /*
 	Database interface
@@ -55,7 +57,7 @@ public:
 	virtual ~DBInterfaceMysql();
 
 	static bool initInterface(DBInterface* pdbi);
-
+	
 	/**
 		Associated with a database
 	*/
@@ -63,8 +65,8 @@ public:
 	virtual bool attach(const char* databaseName = NULL);
 	virtual bool detach();
 
-	bool ping(){
-		return mysql_ping(pMysql_) == 0;
+	bool ping(){ 
+		return mysql_ping(pMysql_) == 0; 
 	}
 
 	void inTransaction(bool value)
@@ -80,10 +82,10 @@ public:
 		Check the environment
 	*/
 	virtual bool checkEnvironment();
-
+	
 	/**
-		Check for errors, correct the contents of the errors
-		If the correction fails to return failure
+		Check for errors and correct the contents of the error
+		if the correction fails, the return fails.
 	*/
 	virtual bool checkErrors();
 
@@ -92,7 +94,7 @@ public:
 	bool write_query_result(MemoryStream * result);
 
 	/**
-		Get all database table names
+		Get all the table names of the database
 	*/
 	virtual bool getTableNames( std::vector<std::string>& tableNames, const char * pattern);
 
@@ -101,14 +103,14 @@ public:
 	*/
 	virtual bool getTableItemNames(const char* tableName, std::vector<std::string>& itemNames);
 
-	/**
-		Delete the entity table field from the database
+	/** 
+		Remove the entity table field from the database
 	*/
 	virtual bool dropEntityTableItemFromDB(const char* tableName, const char* tableItemName);
 
 	MYSQL* mysql(){ return pMysql_; }
 
-	void throwError();
+	void throwError(DBException* pDBException);
 
 	my_ulonglong insertID()		{ return mysql_insert_id( pMysql_ ); }
 
@@ -116,31 +118,31 @@ public:
 
 	const char* info()			{ return mysql_info( pMysql_ ); }
 
-	const char* getLastError()
+	const char* getLastError()	
 	{
 		if(pMysql_ == NULL)
 			return "pMysql is NULL";
 
-		return mysql_error( pMysql_ );
+		return mysql_error( pMysql_ ); 
 	}
 
 	unsigned int getLastErrorNum() { return mysql_errno( pMysql_ ); }
 
-	typedef OUROUnordered_map<std::string, MYSQL_TABLE_FIELD> TABLE_FIELDS;
+	typedef KBEUnordered_map<std::string, MYSQL_TABLE_FIELD> TABLE_FIELDS;
 	void getFields(TABLE_FIELDS& outs, const char* tableName);
 
 	/**
-		Return the description of this interface
+		return a description of this interface
 	*/
 	virtual const char* c_str();
 
-	/**
+	/** 
 		Get error
 	*/
 	virtual const char* getstrerror();
 
-	/**
-		Get error number
+	/** 
+		Get the error number
 	*/
 	virtual int getlasterror();
 
@@ -148,19 +150,19 @@ public:
 		Create a database if the database does not exist
 	*/
 	virtual bool createDatabaseIfNotExist();
-
+	
 	/**
 		Create an entity storage table
 	*/
 	virtual EntityTable* createEntityTable(EntityTables* pEntityTables);
 
-	/**
-		Delete the entity table from the database
+	/** 
+		Remove the entity table from the database
 	*/
 	virtual bool dropEntityTableFromDB(const char* tableName);
 
 	/**
-		Lock the interface operation
+		Lock interface operation
 	*/
 	virtual bool lock();
 	virtual bool unlock();
@@ -171,7 +173,7 @@ public:
 	bool processException(std::exception & e);
 
 	/**
-		The maximum size of the SQL command
+		The longest size of the SQL command
 	*/
 	static size_t sql_max_allowed_packet(){ return sql_max_allowed_packet_; }
 

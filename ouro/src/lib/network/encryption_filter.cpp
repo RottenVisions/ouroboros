@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "helper/profile.h"
 #include "encryption_filter.h"
@@ -10,13 +10,13 @@
 #include "network/packet_receiver.h"
 #include "network/packet_sender.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 
 //-------------------------------------------------------------------------------------
 BlowfishFilter::BlowfishFilter(const Key & key):
-OUROBlowfish(key),
+KBEBlowfish(key),
 pPacket_(NULL),
 packetLen_(0),
 padSize_(0)
@@ -25,7 +25,7 @@ padSize_(0)
 
 //-------------------------------------------------------------------------------------
 BlowfishFilter::BlowfishFilter():
-OUROBlowfish(),
+KBEBlowfish(),
 pPacket_(NULL),
 packetLen_(0),
 padSize_(0)
@@ -48,7 +48,7 @@ Reason BlowfishFilter::send(Channel * pChannel, PacketSender& sender, Packet * p
 	if(!pPacket->encrypted())
 	{
 		AUTO_SCOPED_PROFILE("encryptSend")
-
+		
 		if (!isGood_)
 		{
 			WARNING_MSG(fmt::format("BlowfishFilter::send: "
@@ -102,7 +102,7 @@ Reason BlowfishFilter::send(Channel * pChannel, PacketSender& sender, Packet * p
 				DebugHelper::getSingleton().changeLogger(COMPONENT_NAME_EX(g_componentType));
 		}
 	}
-
+	
 	return sender.processFilterPacket(pChannel, pPacket, userarg);
 }
 
@@ -135,15 +135,15 @@ Reason BlowfishFilter::recv(Channel * pChannel, PacketReceiver & receiver, Packe
 
 		if(packetLen_ <= 0)
 		{
-			// If a minimum packet is satisfied, it is attempted to unwrap, otherwise the packet is cached and merged with the next packet and then unwrapped
+			// Try to unpack if a minimum packet is satisfied, otherwise cache this packet to be merged with the next packet and then unpacked
 			if(pPacket->length() >= (PACKET_LENGTH_SIZE + 1 + BLOCK_SIZE))
 			{
 				(*pPacket) >> packetLen_;
 				(*pPacket) >> padSize_;
-
+				
 				packetLen_ -= 1;
 
-				// If the package is complete, the process below will decrypt, if there is excess content it needs to be trimmed out and merged with the next package
+				// If the package is complete, the following process will decrypt, if there is extra content, it needs to be cut out to be merged with the next package.
 				if(pPacket->length() > packetLen_)
 				{
 					MALLOC_PACKET(pPacket_, pPacket->isTCPPacket());
@@ -174,8 +174,8 @@ Reason BlowfishFilter::recv(Channel * pChannel, PacketReceiver & receiver, Packe
 		}
 		else
 		{
-			// If the last time there was an unpacking but the package is not complete then continue processing
-			// If the package is complete, the process below will decrypt, if there is excess content it needs to be trimmed out and merged with the next package
+			// If the package was unpacked the last time but the package is not complete, continue processing
+			// If the package is complete, the following process will decrypt, if there is extra content, it needs to be cut out to be merged with the next package.
 			if(pPacket->length() > packetLen_)
 			{
 				MALLOC_PACKET(pPacket_, pPacket->isTCPPacket());
@@ -201,7 +201,7 @@ Reason BlowfishFilter::recv(Channel * pChannel, PacketReceiver & receiver, Packe
 		{
 			if(Network::g_trace_packet_use_logfile)
 				DebugHelper::getSingleton().changeLogger("packetlogs");
-
+			
 			DEBUG_MSG(fmt::format("====> BlowfishFilter::recv: encryptedLen={}, padSize={}\n",
 				(packetLen_ + 1), (int)padSize_));
 
@@ -217,15 +217,15 @@ Reason BlowfishFilter::recv(Channel * pChannel, PacketReceiver & receiver, Packe
 				pPacket->print_storage();
 				break;
 			};
-
+			
 			if(Network::g_trace_packet_use_logfile)
 				DebugHelper::getSingleton().changeLogger(COMPONENT_NAME_EX(g_componentType));
 		}
-
+		
 		decrypt(pPacket, pPacket);
 
 		// The above process can guarantee that there will be no extra packages after wpos
-		// If there is extra packet data will be put in pPacket_
+		// If there is extra package data will be placed in pPacket_
 		pPacket->wpos((int)(pPacket->wpos() - padSize_));
 
 		packetLen_ = 0;
@@ -252,40 +252,40 @@ Reason BlowfishFilter::recv(Channel * pChannel, PacketReceiver & receiver, Packe
 //-------------------------------------------------------------------------------------
 void BlowfishFilter::encrypt(Packet * pInPacket, Packet * pOutPacket)
 {
-	// BlowFish Can only encrypt and decrypt 8-byte data at a time
-	// Less than 8 bytes are filled with 0
+	// BlowFish can only encrypt and decrypt 8 bytes of data at a time
+	// less than 8 bytes, padding 0
 	uint8 padSize = 0;
 
 	if (pInPacket->length() % BLOCK_SIZE != 0)
 	{
-		// Get insufficient size
+		// get the undersize
 		padSize = BLOCK_SIZE - (pInPacket->length() % BLOCK_SIZE);
 
-		// Fill so many pPacket
+		// fill so much into pPacket
 		pInPacket->data_resize(pInPacket->size() + padSize);
 
-		// Fill 0
+		// padding 0
 		memset(pInPacket->data() + pInPacket->wpos(), 0, padSize);
 
 		pInPacket->wpos((int)(pInPacket->wpos() + padSize));
 	}
-
+	
 	if(pInPacket != pOutPacket)
 	{
 		pOutPacket->data_resize(pInPacket->size() + pOutPacket->wpos());
-		int size = OUROBlowfish::encrypt(pInPacket->data(), pOutPacket->data() + pOutPacket->wpos(), (int)pInPacket->wpos());
+		int size = KBEBlowfish::encrypt(pInPacket->data(), pOutPacket->data() + pOutPacket->wpos(), (int)pInPacket->wpos());
 		pOutPacket->wpos((int)(size + pOutPacket->wpos()));
 	}
 	else
 	{
 		if(pInPacket->isTCPPacket())
-			pOutPacket = TCPPacket::createPoolObject();
+			pOutPacket = TCPPacket::createPoolObject(OBJECTPOOL_POINT);
 		else
-			pOutPacket = UDPPacket::createPoolObject();
+			pOutPacket = UDPPacket::createPoolObject(OBJECTPOOL_POINT);
 
 		pOutPacket->data_resize(pInPacket->size() + 1);
 
-		int size = OUROBlowfish::encrypt(pInPacket->data(), pOutPacket->data() + pOutPacket->wpos(), (int)pInPacket->wpos());
+		int size = KBEBlowfish::encrypt(pInPacket->data(), pOutPacket->data() + pOutPacket->wpos(), (int)pInPacket->wpos());
 		pOutPacket->wpos(size);
 
 		pInPacket->swap(*(static_cast<Ouroboros::MemoryStream*>(pOutPacket)));
@@ -302,15 +302,15 @@ void BlowfishFilter::decrypt(Packet * pInPacket, Packet * pOutPacket)
 	{
 		pOutPacket->data_resize(pInPacket->size());
 
-		int size = OUROBlowfish::decrypt(pInPacket->data() + pInPacket->rpos(),
-			pOutPacket->data() + pOutPacket->rpos(),
+		int size = KBEBlowfish::decrypt(pInPacket->data() + pInPacket->rpos(), 
+			pOutPacket->data() + pOutPacket->rpos(),  
 			(int)(pInPacket->wpos() - pInPacket->rpos()));
 
 		pOutPacket->wpos((int)(size + pOutPacket->wpos()));
 	}
 	else
 	{
-		OUROBlowfish::decrypt(pInPacket->data() + pInPacket->rpos(), pInPacket->data(),
+		KBEBlowfish::decrypt(pInPacket->data() + pInPacket->rpos(), pInPacket->data(),  
 			(int)(pInPacket->wpos() - pInPacket->rpos()));
 
 		pInPacket->wpos((int)(pInPacket->wpos() - pInPacket->rpos()));
@@ -320,5 +320,5 @@ void BlowfishFilter::decrypt(Packet * pInPacket, Packet * pOutPacket)
 
 //-------------------------------------------------------------------------------------
 
-}
+} 
 }

@@ -1,11 +1,11 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_ENTITY_MACRO_H
 #define OURO_ENTITY_MACRO_H
 
 #include "common/common.h"
-#include "server/callbackmgr.h"
+#include "server/callbackmgr.h"		
 
 namespace Ouroboros{
 
@@ -23,7 +23,7 @@ namespace Ouroboros{
 	SCRIPT_METHOD_DECLARE("fireEvent",						pyFireEvent,						METH_VARARGS | METH_KEYWORDS,	0)	\
 	SCRIPT_METHOD_DECLARE("getComponent",					pyGetComponent,						METH_VARARGS | METH_KEYWORDS,	0)	\
 
-
+	
 #define ENTITY_METHOD_DECLARE_END()																									\
 	SCRIPT_METHOD_DECLARE_END()																										\
 
@@ -48,7 +48,7 @@ namespace Ouroboros{
 	SCRIPT_METHOD_DECLARE("deregisterEvent",				pyDeregisterEvent,					METH_VARARGS | METH_KEYWORDS,	0)	\
 	SCRIPT_METHOD_DECLARE("fireEvent",						pyFireEvent,						METH_VARARGS | METH_KEYWORDS,	0)	\
 
-
+	
 #define CLIENT_ENTITY_METHOD_DECLARE_END()																							\
 	SCRIPT_METHOD_DECLARE_END()																										\
 
@@ -65,7 +65,7 @@ namespace Ouroboros{
 	SCRIPT_GETSET_DECLARE_END()																				\
 
 
-#ifdef CLIENT_NO_FLOAT
+#ifdef CLIENT_NO_FLOAT																					
 	#define ADD_POS_DIR_TO_STREAM(s, pos, dir)																\
 		int32 x = (int32)pos.x;																				\
 		int32 y = (int32)pos.y;																				\
@@ -116,7 +116,7 @@ namespace Ouroboros{
 	}																										\
 
 
-#else
+#else																									
 	#define ADD_POS_DIR_TO_STREAM(s, pos, dir)																\
 		s << (ENTITY_PROPERTY_UID)0 << posuid << pos.x << pos.y << pos.z;									\
 		s << (ENTITY_PROPERTY_UID)0 << diruid << dir.x << dir.y << dir.z;									\
@@ -127,7 +127,7 @@ namespace Ouroboros{
 		s << (uint8)0 << aliasID << pos.x << pos.y << pos.z;												\
 		aliasID = ENTITY_BASE_PROPERTY_ALIASID_DIRECTION_ROLL_PITCH_YAW;									\
 		s << (uint8)0 << aliasID << dir.x << dir.y << dir.z;												\
-
+	
 
 	#define STREAM_TO_POS_DIR(s, pos, dir)																	\
 	{																										\
@@ -137,7 +137,7 @@ namespace Ouroboros{
 	}																										\
 
 
-#endif
+#endif	
 
 
 #define ADD_POSDIR_TO_STREAM(s, pos, dir)																	\
@@ -192,11 +192,9 @@ namespace Ouroboros{
 #define DEBUG_CREATE_ENTITY_NAMESPACE																		\
 		if(g_debugEntity)																					\
 		{																									\
-			wchar_t* PyUnicode_AsWideCharStringRet1 = PyUnicode_AsWideCharString(key, NULL);				\
-			char* ccattr_DEBUG_CREATE_ENTITY_NAMESPACE= strutil::wchar2char(PyUnicode_AsWideCharStringRet1);\
+			const char* ccattr_DEBUG_CREATE_ENTITY_NAMESPACE = PyUnicode_AsUTF8AndSize(key, NULL);			\
 			PyObject* pytsval = PyObject_Str(value);														\
-			wchar_t* cwpytsval = PyUnicode_AsWideCharString(pytsval, NULL);									\
-			char* cccpytsval = strutil::wchar2char(cwpytsval);												\
+			const char* cccpytsval = PyUnicode_AsUTF8AndSize(pytsval, NULL);								\
 			Py_DECREF(pytsval);																				\
 			DEBUG_MSG(fmt::format("{}(refc={}, id={})::debug_createNamespace:add {}({}).\n",				\
 												scriptName(),												\
@@ -204,24 +202,17 @@ namespace Ouroboros{
 												this->id(),													\
 																ccattr_DEBUG_CREATE_ENTITY_NAMESPACE,		\
 																cccpytsval));								\
-			free(ccattr_DEBUG_CREATE_ENTITY_NAMESPACE);														\
-			PyMem_Free(PyUnicode_AsWideCharStringRet1);														\
-			free(cccpytsval);																				\
-			PyMem_Free(cwpytsval);																			\
 		}																									\
 
 
 #define DEBUG_OP_ATTRIBUTE(op, ccattr)																		\
 		if(g_debugEntity)																					\
 		{																									\
-			wchar_t* PyUnicode_AsWideCharStringRet2 = PyUnicode_AsWideCharString(ccattr, NULL);				\
-			char* ccattr_DEBUG_OP_ATTRIBUTE = strutil::wchar2char(PyUnicode_AsWideCharStringRet2);			\
+			const char* ccattr_DEBUG_OP_ATTRIBUTE = PyUnicode_AsUTF8AndSize(ccattr, NULL);					\
 			DEBUG_MSG(fmt::format("{}(refc={}, id={})::debug_op_attr:op={}, {}.\n",							\
 												scriptName(),												\
 												static_cast<PyObject*>(this)->ob_refcnt, this->id(),		\
 															op, ccattr_DEBUG_OP_ATTRIBUTE));				\
-			free(ccattr_DEBUG_OP_ATTRIBUTE);																\
-			PyMem_Free(PyUnicode_AsWideCharStringRet2);														\
 		}																									\
 
 
@@ -249,7 +240,7 @@ namespace Ouroboros{
 
 
 #else
-	#define DEBUG_CREATE_ENTITY_NAMESPACE
+	#define DEBUG_CREATE_ENTITY_NAMESPACE			
 	#define DEBUG_OP_ATTRIBUTE(op, ccattr)
 	#define DEBUG_PERSISTENT_PROPERTY(op, ccattr)
 	#define DEBUG_REDUCE_EX(tentity)
@@ -268,16 +259,17 @@ namespace Ouroboros{
 }																											\
 
 
-// Entity logo
-#define ENTITY_FLAGS_UNKNOWN			0x00000000
-#define ENTITY_FLAGS_DESTROYING			0x00000001
-#define ENTITY_FLAGS_INITING			0x00000002
-#define ENTITY_FLAGS_TELEPORT_START		0x00000004
-#define ENTITY_FLAGS_TELEPORT_STOP		0x00000008
+// Entity's logo
+#define ENTITY_FLAGS_UNKNOWN						0x00000000
+#define ENTITY_FLAGS_DESTROYING						0x00000001
+#define ENTITY_FLAGS_INITING						0x00000002
+#define ENTITY_FLAGS_TELEPORT_START					0x00000004
+#define ENTITY_FLAGS_TELEPORT_STOP					0x00000008
+#define ENTITY_FLAGS_DESTROY_AFTER_GETCELL			0x00000010
 
 #define ENTITY_HEADER(CLASS)																				\
 public:																										\
-	typedef OUROUnordered_map< std::string, std::vector<PyObjectPtr> > ENTITY_EVENTS;						\
+	typedef KBEUnordered_map< std::string, std::vector<PyObjectPtr> > ENTITY_EVENTS;						\
 protected:																									\
 	ENTITY_ID													id_;										\
 	ScriptDefModule*											pScriptModule_;								\
@@ -346,6 +338,7 @@ public:																										\
 				if(PyObject_TypeCheck(pComponentProperty, EntityComponent::getScriptType()))				\
 				{																							\
 					EntityComponent* pEntityComponent = static_cast<EntityComponent*>(pComponentProperty);	\
+					pEntityComponent->updateOwner(id(), this);												\
 					pEntityComponent->onAttached();															\
 				}																							\
 				else																						\
@@ -366,9 +359,9 @@ public:																										\
 		onInitializeScript();																				\
 	}																										\
 																											\
-	void initializeEntity(PyObject* dictData)																\
+	void initializeEntity(PyObject* dictData, bool persistentData = false)									\
 	{																										\
-		createNamespace(dictData);																			\
+		createNamespace(dictData, persistentData);															\
 		initializeScript();																					\
 	}																										\
 																											\
@@ -395,7 +388,7 @@ public:																										\
 		return _reload(fullReload);																			\
 	}																										\
 																											\
-	void createNamespace(PyObject* dictData)																\
+	void createNamespace(PyObject* dictData, bool persistentData = false)									\
 	{																										\
 		if(dictData == NULL)																				\
 			return;																							\
@@ -417,7 +410,30 @@ public:																										\
 		if(cellDataDict == NULL)																			\
 		{																									\
 			PyErr_Clear();																					\
-			EntityComponent::convertDictDataToEntityComponent(id(), this, pScriptModule_, dictData);		\
+			EntityComponent::convertDictDataToEntityComponent(id(), this, pScriptModule_, dictData, persistentData); \
+		}																									\
+		else																								\
+		{																									\
+			PyObject* cellDataDictNew = PyDict_GetItemString(dictData, "cellData");							\
+			if (cellDataDictNew)																			\
+			{																								\
+				if(PyDict_Check(cellDataDictNew))															\
+				{																							\
+					PyDict_Update(cellDataDict, cellDataDictNew);											\
+				}																							\
+				else																						\
+				{																							\
+					ERROR_MSG(fmt::format(#CLASS"::createNamespace: create"#CLASS"[{}:{}] "					\
+						"cellData is not a dict.\n",														\
+						scriptName(), id_));																\
+				}																							\
+																											\
+				PyDict_DelItemString(dictData, "cellData");													\
+			}																								\
+			else																							\
+			{																								\
+				PyErr_Clear();																				\
+			}																								\
 		}																									\
 																											\
 		while(PyDict_Next(dictData, &pos, &key, &value))													\
@@ -425,16 +441,14 @@ public:																										\
 			DEBUG_CREATE_ENTITY_NAMESPACE																	\
 			if(PyObject_HasAttr(this, key) > 0)																\
 			{																								\
-				wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(key, NULL);			\
-				char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);							\
-				PyMem_Free(PyUnicode_AsWideCharStringRet0);													\
+				const char* ccattr = PyUnicode_AsUTF8AndSize(key, NULL);									\
 																											\
 				PropertyDescription* pCompPropertyDescription =												\
 					pScriptModule_->findComponentPropertyDescription(ccattr);								\
 																											\
 				if (pCompPropertyDescription)																\
 				{																							\
-					if(PyDict_Check(value) /* createDictDataFromPersistentStream Process leads to non-dictionary */)			\
+										if(PyDict_Check(value) /*createDictDataFromPersistentStream procedure causes non-dictionary*/)			\
 					{																						\
 						EntityComponent* pEntityComponent = (EntityComponent*)PyObject_GetAttr(this, key);	\
 						pEntityComponent->updateFromDict(this, value);										\
@@ -450,7 +464,6 @@ public:																										\
 					PyObject_SetAttr(this, key, value);														\
 				}																							\
 																											\
-				free(ccattr);																				\
 				continue;																					\
 			}																								\
 																											\
@@ -472,18 +485,15 @@ public:																										\
 			}																								\
 			else																							\
 			{																								\
-				wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(key, NULL);			\
-				char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);							\
-				PyMem_Free(PyUnicode_AsWideCharStringRet0);													\
+				const char* ccattr = PyUnicode_AsUTF8AndSize(key, NULL);									\
 																											\
 				PropertyDescription* pCompPropertyDescription =												\
 					pScriptModule_->findComponentPropertyDescription(ccattr);								\
 																											\
-				free(ccattr);																				\
 																											\
 				if (pCompPropertyDescription)																\
 				{																							\
-					/* Generally in the base may be placed in the cellData is a dictionary, and no cell entities need to pass this setting */				\
+										/*Generally, the base may be placed in the cellData as a dictionary, and the entity without the cell needs to pass this setting.*/					\
 					if(PyDict_Check(value))																	\
 						continue;																			\
 				}																							\
@@ -520,8 +530,7 @@ public:																										\
 			ScriptDefModule::PROPERTYDESCRIPTION_UIDMAP::iterator iter = propertyDescrs.begin();			\
 			for(; iter != propertyDescrs.end(); ++iter)														\
 			{																								\
-				/* Because there is a situation, there is no content in the component def, but there is a cell script,
-				at this time baseapp can not determine whether he has the cell attribute, so no data is written when writing celldata */ \
+								/*Because there is a situation, there is no content in the component def, but there is a cell script. At this time, the baseapp cannot determine whether it has a cell attribute, so no data is written when writing celldata.*/ \
 				if (iter->second->getDataType()->type() == DATA_TYPE_ENTITY_COMPONENT)						\
 				{																							\
 					EntityComponentType* pEntityComponentType = (EntityComponentType*)iter->second->getDataType();	\
@@ -536,7 +545,7 @@ public:																										\
 																											\
 		while(mstream->length() > 0 && count-- > 0)															\
 		{																									\
-			(*mstream) >> uid /* Parent attribute */ >> uid;															\
+						(*mstream) >> uid /*Parent attribute*/ >> uid;															\
 			ScriptDefModule::PROPERTYDESCRIPTION_UIDMAP::iterator iter = propertyDescrs.find(uid);			\
 			if(iter == propertyDescrs.end())																\
 			{																								\
@@ -739,9 +748,7 @@ public:																										\
 																											\
 	int onScriptDelAttribute(PyObject* attr)																\
 	{																										\
-		wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(attr, NULL);					\
-		char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);									\
-		PyMem_Free(PyUnicode_AsWideCharStringRet0);															\
+		const char* ccattr = PyUnicode_AsUTF8AndSize(attr, NULL);											\
 		DEBUG_OP_ATTRIBUTE("del", attr)																		\
 																											\
 		if(pPropertyDescrs_)																				\
@@ -753,7 +760,6 @@ public:																										\
 				ouro_snprintf(err, 255, "property[%s] defined in %s.def, del failed!", ccattr, scriptName());\
 				PyErr_SetString(PyExc_TypeError, err);														\
 				PyErr_PrintEx(0);																			\
-				free(ccattr);																				\
 				return 0;																					\
 			}																								\
 		}																									\
@@ -764,20 +770,16 @@ public:																										\
 			ouro_snprintf(err, 255, "method[%s] defined in %s.def, del failed!", ccattr, scriptName());		\
 			PyErr_SetString(PyExc_TypeError, err);															\
 			PyErr_PrintEx(0);																				\
-			free(ccattr);																					\
 			return 0;																						\
 		}																									\
 																											\
-		free(ccattr);																						\
 		return ScriptObject::onScriptDelAttribute(attr);													\
 	}																										\
 																											\
 	int onScriptSetAttribute(PyObject* attr, PyObject* value)												\
 	{																										\
 		DEBUG_OP_ATTRIBUTE("set", attr)																		\
-		wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(attr, NULL);					\
-		char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);									\
-		PyMem_Free(PyUnicode_AsWideCharStringRet0);															\
+		const char* ccattr = PyUnicode_AsUTF8AndSize(attr, NULL);											\
 																											\
 		if(pPropertyDescrs_)																				\
 		{																									\
@@ -792,7 +794,6 @@ public:																										\
 					PyErr_Format(PyExc_AssertionError, "can't set %s.%s to %s. entity is destroyed!",		\
 													scriptName(), ccattr, value->ob_type->tp_name);			\
 					PyErr_PrintEx(0);																		\
-					free(ccattr);																			\
 					return 0;																				\
 				}																							\
 																											\
@@ -801,7 +802,6 @@ public:																										\
 					PyErr_Format(PyExc_ValueError, "can't set %s.%s to %s.",								\
 													scriptName(), ccattr, value->ob_type->tp_name);			\
 					PyErr_PrintEx(0);																		\
-					free(ccattr);																			\
 					return 0;																				\
 				}																							\
 				else																						\
@@ -809,7 +809,7 @@ public:																										\
 					Py_ssize_t ob_refcnt = value->ob_refcnt;												\
 					PyObject* pySetObj = propertyDescription->onSetValue(this, value);						\
 																											\
-					/* If the def attribute data has changed then it may need to be broadcast */												\
+										/*if the def attribute data changes, you may need to broadcast*/												\
 					if(pySetObj != NULL)																	\
 					{																						\
 						onDefDataChanged(NULL, propertyDescription, pySetObj);								\
@@ -817,20 +817,17 @@ public:																										\
 							Py_DECREF(pySetObj);															\
 					}																						\
 																											\
-					free(ccattr);																			\
 					return pySetObj == NULL ? -1 : 0;														\
 				}																							\
 			}																								\
 		}																									\
 																											\
-		free(ccattr);																						\
 		return ScriptObject::onScriptSetAttribute(attr, value);												\
 	}																										\
 																											\
 	PyObject * onScriptGetAttribute(PyObject* attr);														\
 																											\
 	DECLARE_PY_MOTHOD_ARG3(pyAddTimer, float, float, int32);												\
-	DECLARE_PY_MOTHOD_ARG1(pyDelTimer, ScriptID);															\
 																											\
 	static PyObject* __py_pyWriteToDB(PyObject* self, PyObject* args)										\
 	{																										\
@@ -865,7 +862,7 @@ public:																										\
 		}																									\
 		else if(g_componentType == BASEAPP_TYPE)															\
 		{																									\
-			extra = -1;	/* shouldAutoLoad -1 does not change the setting by default */												\
+						extra = -1;	/*shouldAutoLoad -1 does not change the settings by default*/												\
 		}																									\
 																											\
 		if(currargsSize == 1)																				\
@@ -944,11 +941,7 @@ public:																										\
 																											\
 				if(pystr_extra)																				\
 				{																							\
-					wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pystr_extra, NULL);\
-					char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);						\
-					strextra = ccattr;																		\
-					PyMem_Free(PyUnicode_AsWideCharStringRet0);												\
-					free(ccattr);																			\
+					strextra = PyUnicode_AsUTF8AndSize(pystr_extra, NULL);									\
 				}																							\
 																											\
 				if(!g_ouroSrvConfig.dbInterface(strextra))													\
@@ -990,11 +983,7 @@ public:																										\
 																											\
 				if(pystr_extra)																				\
 				{																							\
-					wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pystr_extra, NULL);\
-					char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);						\
-					strextra = ccattr;																		\
-					PyMem_Free(PyUnicode_AsWideCharStringRet0);												\
-					free(ccattr);																			\
+					strextra = PyUnicode_AsUTF8AndSize(pystr_extra, NULL);									\
 				}																							\
 																											\
 				if(!g_ouroSrvConfig.dbInterface(strextra))													\
@@ -1066,7 +1055,7 @@ public:																										\
 																											\
 		if (!PyCallable_Check(pyCallback))																	\
 		{																									\
-			PyErr_Format(PyExc_TypeError, "{}::registerEvent: '%.200s' object is not callable! eventName=%s, entityID={}",\
+			PyErr_Format(PyExc_TypeError, "%s::registerEvent: '%.200s' object is not callable! eventName=%s, entityID=%d",\
 				scriptName(), (pyCallback ? pyCallback->ob_type->tp_name : "NULL"), evnName.c_str(), id());		\
 			PyErr_PrintEx(0);																				\
 			return false;																					\
@@ -1078,7 +1067,7 @@ public:																										\
 		{																									\
 			if((*iter).get() == pyCallback)																	\
 			{																								\
-				PyErr_Format(PyExc_TypeError, "{}::registerEvent: This callable('%.200s') has been registered! eventName=%s, entityID={}",\
+				PyErr_Format(PyExc_TypeError, "%s::registerEvent: This callable('%.200s') has been registered! eventName=%s, entityID=%d",\
 					scriptName(), (pyCallback ? pyCallback->ob_type->tp_name : "NULL"), evnName.c_str(), id());	\
 				PyErr_PrintEx(0);																			\
 				return false;																				\
@@ -1226,7 +1215,7 @@ public:																										\
 		{																									\
 			if(PyArg_ParseTuple(args, "s", &eventName) == -1)												\
 			{																								\
-				PyErr_Format(PyExc_AssertionError, "%s::fireEvent:: args error! entityID={}", pobj->scriptName(), pobj->id());		\
+				PyErr_Format(PyExc_AssertionError, "%s::fireEvent:: args error! entityID=%d", pobj->scriptName(), pobj->id());		\
 				PyErr_PrintEx(0);																			\
 				Py_RETURN_FALSE;																			\
 			}																								\
@@ -1245,7 +1234,7 @@ public:																										\
 			PyObject* pyobj = NULL;																			\
 			if (PyArg_ParseTuple(args, "sO", &eventName, &pyobj) == -1)										\
 			{																								\
-				PyErr_Format(PyExc_AssertionError, "%s::fireEvent:: args error! entityID={}", pobj->scriptName(), pobj->id());		\
+				PyErr_Format(PyExc_AssertionError, "%s::fireEvent:: args error! entityID=%d", pobj->scriptName(), pobj->id());		\
 				PyErr_PrintEx(0);																			\
 				Py_RETURN_FALSE;																			\
 			}																								\
@@ -1274,14 +1263,11 @@ public:																										\
 				Py_RETURN_FALSE;																			\
 			}																								\
 																											\
-			wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyEvnName, NULL);			\
-			eventName = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);								\
-			PyMem_Free(PyUnicode_AsWideCharStringRet0);														\
+			eventName = const_cast<char*>(PyUnicode_AsUTF8AndSize(pyEvnName, NULL));						\
 																											\
 			PyObject* pyargs = PyTuple_GetSlice(args, 1, currargsSize);										\
 			pobj->fireEvent(eventName, pyargs);																\
 			Py_DECREF(pyargs);																				\
-			free(eventName);																				\
 		}																									\
 																											\
 		Py_RETURN_TRUE;																						\
@@ -1418,9 +1404,78 @@ public:																										\
 		return PyLong_FromLong(id);																			\
 	}																										\
 																											\
-	PyObject* CLASS::pyDelTimer(ScriptID timerID)															\
+	static PyObject* __py_pyDelTimer(PyObject* self, PyObject* args)										\
 	{																										\
-		if(!ScriptTimersUtil::delTimer(&scriptTimers_, timerID))											\
+		uint16 currargsSize = PyTuple_Size(args);															\
+		CLASS* pobj = static_cast<CLASS*>(self);															\
+																											\
+		if (currargsSize != 1)																				\
+		{																									\
+			PyErr_Format(PyExc_AssertionError,																\
+				"%s::delTimer: args require 1 args(id|int or \"All\"|str), gived %d!\n",					\
+				pobj->scriptName(), currargsSize);															\
+																											\
+			PyErr_PrintEx(0);																				\
+			return PyLong_FromLong(-1);																		\
+		}																									\
+																											\
+		ScriptID timerID = 0;																				\
+		PyObject* pyargobj = NULL;																			\
+																											\
+		if (PyArg_ParseTuple(args, "O", &pyargobj) == -1)													\
+		{																									\
+			PyErr_Format(PyExc_TypeError,																	\
+				"%s::delTimer: args(id|int or \"All\"|str) error!",											\
+				pobj->scriptName());																		\
+																											\
+			PyErr_PrintEx(0);																				\
+			return PyLong_FromLong(-1);																		\
+		}																									\
+																											\
+		if (pyargobj == NULL)																				\
+		{																									\
+			PyErr_Format(PyExc_TypeError,																	\
+				"%s::delTimer: args(id|int or \"All\"|str) error!",											\
+				pobj->scriptName());																		\
+																											\
+			PyErr_PrintEx(0);																				\
+			return PyLong_FromLong(-1);																		\
+		}																									\
+																											\
+		if (PyUnicode_Check(pyargobj))																		\
+		{																									\
+			if (strcmp(PyUnicode_AsUTF8AndSize(pyargobj, NULL), "All") == 0)								\
+			{																								\
+				pobj->scriptTimers().cancelAll();															\
+			}																								\
+			else																							\
+			{																								\
+				PyErr_Format(PyExc_TypeError,																\
+					"%s::delTimer: args not is \"All\"!",													\
+					pobj->scriptName());																	\
+																											\
+				PyErr_PrintEx(0);																			\
+				return PyLong_FromLong(-1);																	\
+			}																								\
+																											\
+			return PyLong_FromLong(0);																		\
+		}																									\
+		else                                                                                                \
+		{																									\
+			if (!PyLong_Check(pyargobj))																	\
+			{																								\
+				PyErr_Format(PyExc_TypeError,																\
+					"%s::delTimer: args(id|int) error!",													\
+					pobj->scriptName());																	\
+																											\
+				PyErr_PrintEx(0);																			\
+				return PyLong_FromLong(-1);																	\
+			}																								\
+																											\
+			timerID = PyLong_AsLong(pyargobj);																\
+		}																									\
+																											\
+		if(!ScriptTimersUtil::delTimer(&pobj->scriptTimers(), timerID))										\
 		{																									\
 			return PyLong_FromLong(-1);																		\
 		}																									\
@@ -1559,6 +1614,10 @@ public:																										\
 			if(dataType)																					\
 			{																								\
 				PyObject* defObj = propertyDescription->newDefaultVal();									\
+																											\
+				if(dataType->type() == DATA_TYPE_ENTITY_COMPONENT)											\
+					((EntityComponent*)defObj)->updateOwner(id(), this);									\
+																											\
 				PyObject_SetAttrString(static_cast<PyObject*>(this),										\
 							propertyDescription->getName(), defObj);										\
 				Py_DECREF(defObj);																			\
@@ -1568,12 +1627,12 @@ public:																										\
 			}																								\
 			else																							\
 			{																								\
-				ERROR_MSG(fmt::format("{}::initProperty: {} dataType is NULL! entityID={}\n",				\
+				ERROR_MSG(fmt::format("{}::initProperty: {} dataType is NULL£¡ entityID={}\n",				\
 					scriptName(), propertyDescription->getName(), id()));									\
 			}																								\
 		}																									\
 																											\
-		/* Since the component initializes automatically when initProperty, only the initProperty of the calling component needs to be displayed when it is reloaded. */				\
+				/*Since the component is automatically initProperty when it is initialized, only the initProperty that needs to be displayed when reloading is called.*/				\
 		if(isReload)																						\
 		{																									\
 			const ScriptDefModule::COMPONENTDESCRIPTION_MAP* pComponentDescrs =								\

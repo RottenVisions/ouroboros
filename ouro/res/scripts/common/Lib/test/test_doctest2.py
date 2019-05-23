@@ -7,7 +7,7 @@ yup
 We include some (random) encoded (utf-8) text in the text surrounding
 the example.  It should be ignored:
 
-ЉЊЈЁЂ
+ЉЊЈ�?Ђ
 
 """
 
@@ -27,7 +27,7 @@ class C(object):
     We include some (random) encoded (utf-8) text in the text surrounding
     the example.  It should be ignored:
 
-        ЉЊЈЁЂ
+        ЉЊЈ�?Ђ
 
     """
 

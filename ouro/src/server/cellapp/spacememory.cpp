@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "cellapp.h"
-#include "spacememory.h"
+#include "spacememory.h"	
 #include "entity.h"
-#include "witness.h"
+#include "witness.h"	
 #include "navigation/navigation.h"
 #include "loadnavmesh_threadtasks.h"
 #include "entitydef/entities.h"
@@ -16,7 +16,7 @@
 #include "../../server/cellapp/cellapp_interface.h"
 #include "../../server/dbmgr/dbmgr_interface.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 //-------------------------------------------------------------------------------------
 SpaceMemory::SpaceMemory(SPACE_ID spaceID, const std::string& scriptModuleName) :
@@ -33,9 +33,9 @@ destroyTime_(0)
 	Network::Channel* pChannel = Components::getSingleton().getCellappmgrChannel();
 	if (pChannel != NULL)
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(CellappmgrInterface::updateSpaceData);
-
+		
 		(*pBundle) << g_componentID;
 		(*pBundle) << id_;
 		(*pBundle) << scriptModuleName_;
@@ -51,17 +51,17 @@ SpaceMemory::~SpaceMemory()
 {
 	_clearGhosts();
 	entities_.clear();
-
+	
 	this->coordinateSystem_.releaseNodes();
-
+	
 	pNavHandle_.clear();
 
-	SAFE_RELEASE(pCell_);
+	SAFE_RELEASE(pCell_);	
 
 	Network::Channel* pChannel = Components::getSingleton().getCellappmgrChannel();
 	if (pChannel != NULL)
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(CellappmgrInterface::updateSpaceData);
 
 		(*pBundle) << g_componentID;
@@ -77,12 +77,12 @@ SpaceMemory::~SpaceMemory()
 //-------------------------------------------------------------------------------------
 void SpaceMemory::_clearGhosts()
 {
-	// Because space was cleaned up at destroy, the only thing left here is the ghosts entity.
+	// Because space was cleaned up once in destroy, so the theoretical rest here is the ghosts entity.
 	if(entities_.size() == 0)
 		return;
-
+	
 	std::vector<ENTITY_ID> entitieslog;
-
+	
 	SPACE_ENTITIES::const_iterator log_iter = this->entities().begin();
 	for(; log_iter != this->entities().end(); ++log_iter)
 		entitieslog.push_back((*log_iter).get()->id());
@@ -104,8 +104,8 @@ void SpaceMemory::_clearGhosts()
 			}
 		}
 	}
-
-	entities_.clear();
+	
+	entities_.clear();	
 }
 
 //-------------------------------------------------------------------------------------
@@ -115,14 +115,14 @@ PyObject* SpaceMemory::__py_GetSpaceGeometryMapping(PyObject* self, PyObject* ar
 
 	if(PyTuple_Size(args) != 1)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceGeometryMapping: (argssize != 1) is error!");
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceGeometryMapping: (argssize != 1) error!");
 		PyErr_PrintEx(0);
 		return 0;
 	}
 
 	if(PyArg_ParseTuple(args, "I", &spaceID) == -1)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceGeometryMapping: args is error!");
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceGeometryMapping: args error!");
 		PyErr_PrintEx(0);
 		return 0;
 	}
@@ -130,7 +130,7 @@ PyObject* SpaceMemory::__py_GetSpaceGeometryMapping(PyObject* self, PyObject* ar
 	SpaceMemory* space = SpaceMemorys::findSpace(spaceID);
 	if(space == NULL)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceGeometryMapping: (spaceID=%u) not found!",
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceGeometryMapping: (spaceID=%u) not found!", 
 			spaceID);
 
 		PyErr_PrintEx(0);
@@ -149,11 +149,11 @@ PyObject* SpaceMemory::__py_AddSpaceGeometryMapping(PyObject* self, PyObject* ar
 	PyObject* mapper = NULL;
 	PyObject* py_params = NULL;
 	std::map< int, std::string > params;
-
+	
 	int argCount = PyTuple_Size(args);
 	if(argCount < 3 || argCount > 5)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::addSpaceGeometryMapping: (argssize[spaceID, mapper, path, shouldLoadOnServer] < 3 || > 5) is error!");
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::addSpaceGeometryMapping: (argssize[spaceID, mapper, path, shouldLoadOnServer] < 3 || > 5) error!");
 		PyErr_PrintEx(0);
 		return 0;
 	}
@@ -162,7 +162,7 @@ PyObject* SpaceMemory::__py_AddSpaceGeometryMapping(PyObject* self, PyObject* ar
 	{
 		if(PyArg_ParseTuple(args, "I|O|s|b", &spaceID, &mapper, &path, &shouldLoadOnServer) == -1)
 		{
-			PyErr_Format(PyExc_AssertionError, "Ouroboros::addSpaceGeometryMapping: args is error!");
+			PyErr_Format(PyExc_AssertionError, "Ouroboros::addSpaceGeometryMapping: args error!");
 			PyErr_PrintEx(0);
 			return 0;
 		}
@@ -171,11 +171,11 @@ PyObject* SpaceMemory::__py_AddSpaceGeometryMapping(PyObject* self, PyObject* ar
 	{
 		if(PyArg_ParseTuple(args, "I|O|s|b|O", &spaceID, &mapper, &path, &shouldLoadOnServer, &py_params) == -1)
 		{
-			PyErr_Format(PyExc_AssertionError, "Ouroboros::addSpaceGeometryMapping: args is error!");
+			PyErr_Format(PyExc_AssertionError, "Ouroboros::addSpaceGeometryMapping: args error!");
 			PyErr_PrintEx(0);
 			return 0;
 		}
-
+		
 		if(py_params)
 		{
 			PyObject *key, *value;
@@ -184,28 +184,22 @@ PyObject* SpaceMemory::__py_AddSpaceGeometryMapping(PyObject* self, PyObject* ar
 			if(!PyDict_Check(py_params))
 			{
 				PyErr_Format(PyExc_AssertionError, "Ouroboros::addSpaceGeometryMapping: args(params) not is PyDict!");
-				PyErr_PrintEx(0);
+				PyErr_PrintEx(0);					
 				return 0;
 			}
 
-			while(PyDict_Next(py_params, &pos, &key, &value))
+			while(PyDict_Next(py_params, &pos, &key, &value)) 
 			{
 				if(!PyLong_Check(key) || !PyUnicode_Check(value))
 				{
-					PyErr_Format(PyExc_AssertionError, "Ouroboros::addSpaceGeometryMapping: args(params) is error!");
-					PyErr_PrintEx(0);
+					PyErr_Format(PyExc_AssertionError, "Ouroboros::addSpaceGeometryMapping: args(params) error!");
+					PyErr_PrintEx(0);					
 					return 0;
 				}
-
-			    long i = PyLong_AsLong(key);
-
-				wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(value, NULL);
-				char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-				PyMem_Free(PyUnicode_AsWideCharStringRet0);
-				params[i] = ccattr;
-				free(ccattr);
+				
+				params[PyLong_AsLong(key)] = PyUnicode_AsUTF8AndSize(value, NULL);
 			}
-
+			
 			SCRIPT_ERROR_CHECK();
 		}
 	}
@@ -222,7 +216,7 @@ PyObject* SpaceMemory::__py_AddSpaceGeometryMapping(PyObject* self, PyObject* ar
 	SpaceMemory* space = SpaceMemorys::findSpace(spaceID);
 	if(space == NULL)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::addSpaceGeometryMapping: spaceID error! spaceID=%u respath=%s",
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::addSpaceGeometryMapping: spaceID error! spaceID=%u respath=%s", 
 			spaceID, path);
 
 		PyErr_PrintEx(0);
@@ -242,7 +236,7 @@ PyObject* SpaceMemory::__py_AddSpaceGeometryMapping(PyObject* self, PyObject* ar
 
 	if(!space->addSpaceGeometryMapping(path, shouldLoadOnServer, params))
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::addSpaceGeometryMapping: (spaceID=%u respath=%s) error!",
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::addSpaceGeometryMapping: (spaceID=%u respath=%s) error!", 
 			spaceID, path);
 
 		PyErr_PrintEx(0);
@@ -288,7 +282,7 @@ void SpaceMemory::unLoadSpaceGeometry()
 	Network::Channel* pChannel = Components::getSingleton().getCellappmgrChannel();
 	if (pChannel != NULL)
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(CellappmgrInterface::updateSpaceData);
 
 		(*pBundle) << g_componentID;
@@ -308,10 +302,10 @@ void SpaceMemory::onLoadedSpaceGeometryMapping(NavigationHandlePtr pNavHandle)
 	INFO_MSG(fmt::format("Ouroboros::onLoadedSpaceGeometryMapping: spaceID={}, respath={}!\n",
 			id(), getGeometryPath()));
 
-	//Notification script
+	// notification script
 	{
 		SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-		SCRIPT_OBJECT_CALL_ARGS2(Cellapp::getSingleton().getEntryScript().get(), const_cast<char*>("onSpaceGeometryLoaded"),
+		SCRIPT_OBJECT_CALL_ARGS2(Cellapp::getSingleton().getEntryScript().get(), const_cast<char*>("onSpaceGeometryLoaded"), 
 			const_cast<char*>("Is"), this->id(), getGeometryPath().c_str(), false);
 	}
 
@@ -320,7 +314,7 @@ void SpaceMemory::onLoadedSpaceGeometryMapping(NavigationHandlePtr pNavHandle)
 	Network::Channel* pChannel = Components::getSingleton().getCellappmgrChannel();
 	if (pChannel != NULL)
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(CellappmgrInterface::updateSpaceData);
 
 		(*pBundle) << g_componentID;
@@ -338,8 +332,8 @@ void SpaceMemory::onAllSpaceGeometryLoaded()
 {
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
-	//Notification script
-	SCRIPT_OBJECT_CALL_ARGS3(Cellapp::getSingleton().getEntryScript().get(), const_cast<char*>("onAllSpaceGeometryLoaded"),
+	// notification script
+	SCRIPT_OBJECT_CALL_ARGS3(Cellapp::getSingleton().getEntryScript().get(), const_cast<char*>("onAllSpaceGeometryLoaded"), 
 		const_cast<char*>("Iis"), this->id(), true, getGeometryPath().c_str(), false);
 }
 
@@ -360,7 +354,7 @@ bool SpaceMemory::update()
 		OURO_ASSERT(entities_.size() == 0);
 		this->coordinateSystem_.releaseNodes();
 	}
-
+		
 	return true;
 }
 
@@ -393,14 +387,14 @@ void SpaceMemory::removeEntity(Entity* pEntity)
 	OURO_ASSERT(pEntity->spaceID() == id());
 
 	pEntity->spaceID(0);
-
-	// Get to your location first
+	
+	// Get the location first
 	SPACE_ENTITIES::size_type idx = pEntity->spaceEntityIdx();
 
 	OURO_ASSERT(idx < entities_.size());
 	OURO_ASSERT(entities_[ idx ] == pEntity);
 
-	// If there are 2 or more entities then move the last entity to the deleted entity
+	// If there are 2 or more entities, move the last entity to the deleted location of the entity.
 	Entity* pBack = entities_.back().get();
 	pBack->spaceEntityIdx(idx);
 	entities_[idx] = pBack;
@@ -409,11 +403,11 @@ void SpaceMemory::removeEntity(Entity* pEntity)
 
 	onLeaveWorld(pEntity);
 
-	// This sentence must be after onLeaveWorld, because possibly rangeTrigger needs to reference pEntityCoordinateNode
+	// This sentence must be after onLeaveWorld, because it is possible that rangeTrigger needs to refer to pEntityCoordinateNode
 	pEntity->uninstallCoordinateNodes(&coordinateSystem_);
 	pEntity->onLeaveSpace(this);
 
-	// If there is no entity then you need to destroy space because there is at least one entity in space
+	// If there is no entity, you need to destroy the space, because there is at least one entity in the space.
 	if(entities_.empty() && state_ == STATE_NORMAL)
 	{
 		SpaceMemorys::destroySpace(this->id(), 0);
@@ -437,9 +431,9 @@ void SpaceMemory::_onEnterWorld(Entity* pEntity)
 void SpaceMemory::onEnterWorld(Entity* pEntity)
 {
 	OURO_ASSERT(pEntity != NULL);
-
-	// If there is a Witness (usually a player) then you need to broadcast to him the entity with the client part already created in the current scene.
-		// Otherwise it is an ordinary entity to enter the world, then the entity needs to be broadcast to all entities that see him with Witness.
+	
+	// If it is a Witness (usually a player), you need to broadcast the entity with the client part that the current scene has created to him.
+	// Otherwise an ordinary entity enters the world, then you need to broadcast this entity to all the entities that see him with Witness.
 	if(pEntity->hasWitness())
 	{
 		_onEnterWorld(pEntity);
@@ -458,9 +452,9 @@ void SpaceMemory::onLeaveWorld(Entity* pEntity)
 {
 	if(!pEntity->isReal() || !pEntity->pScriptModule()->hasClient())
 		return;
-
-		// Broadcast their departure to other clients
-		// Send onLeaveWorld message to client
+	
+	// Broadcast your departure to other people's clients
+	// Send onLeaveWorld message to the client
 	if(pEntity->hasWitness())
 	{
 		pEntity->pWitness()->onLeaveSpace(this);
@@ -474,7 +468,7 @@ Entity* SpaceMemory::findEntity(ENTITY_ID entityID)
 	for(; iter != this->entities().end(); ++iter)
 	{
 		const Entity* entity = (*iter).get();
-
+			
 		if(entity->id() == entityID)
 			return const_cast<Entity*>(entity);
 	}
@@ -490,9 +484,9 @@ bool SpaceMemory::destroy(ENTITY_ID entityID, bool ignoreGhost)
 
 	state_ = STATE_DESTROYING;
 	destroyTime_ = timestamp();
-
+	
 	std::vector<ENTITY_ID> entitieslog;
-
+	
 	{
 		SPACE_ENTITIES::const_iterator iter = this->entities().begin();
 		for(; iter != this->entities().end(); ++iter)
@@ -513,9 +507,9 @@ bool SpaceMemory::destroy(ENTITY_ID entityID, bool ignoreGhost)
 			}
 		}
 	}
-
+	
 	state_ = STATE_DESTROYED;
-
+	
 	if(this->entities().size() == 0)
 		return true;
 
@@ -545,14 +539,14 @@ bool SpaceMemory::destroy(ENTITY_ID entityID, bool ignoreGhost)
 
 //-------------------------------------------------------------------------------------
 void SpaceMemory::setGeometryPath(const std::string& path)
-{
-	return setSpaceData("_mapping", path);
+{ 
+	return setSpaceData("_mapping", path); 
 }
 
 //-------------------------------------------------------------------------------------
 const std::string& SpaceMemory::getGeometryPath()
-{
-	return getSpaceData("_mapping");
+{ 
+	return getSpaceData("_mapping"); 
 }
 
 //-------------------------------------------------------------------------------------
@@ -560,7 +554,7 @@ void SpaceMemory::setSpaceData(const std::string& key, const std::string& value)
 {
 	SPACE_DATA::iterator iter = datas_.find(key);
 	if(iter == datas_.end())
-		datas_.insert(SPACE_DATA::value_type(key, value));
+		datas_.insert(SPACE_DATA::value_type(key, value)); 
 	else
 		if(iter->second == value)
 			return;
@@ -608,17 +602,17 @@ void SpaceMemory::delSpaceData(const std::string& key)
 //-------------------------------------------------------------------------------------
 void SpaceMemory::onSpaceDataChanged(const std::string& key, const std::string& value, bool isdel)
 {
-	// Notification script
+	// notification script
 	if(!isdel)
 	{
 		SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-		SCRIPT_OBJECT_CALL_ARGS3(Cellapp::getSingleton().getEntryScript().get(), const_cast<char*>("onSpaceData"),
+		SCRIPT_OBJECT_CALL_ARGS3(Cellapp::getSingleton().getEntryScript().get(), const_cast<char*>("onSpaceData"), 
 			const_cast<char*>("Iss"), this->id(), key.c_str(), value.c_str(), false);
 	}
 	else
 	{
 		SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-		SCRIPT_OBJECT_CALL_ARGS3(Cellapp::getSingleton().getEntryScript().get(), const_cast<char*>("onSpaceData"),
+		SCRIPT_OBJECT_CALL_ARGS3(Cellapp::getSingleton().getEntryScript().get(), const_cast<char*>("onSpaceData"), 
 			const_cast<char*>("IsO"), this->id(), key.c_str(), Py_None, false);
 	}
 
@@ -630,9 +624,9 @@ void SpaceMemory::onSpaceDataChanged(const std::string& key, const std::string& 
 		if(pEntity == NULL || pEntity->isDestroyed() || !pEntity->hasWitness())
 			continue;
 
-		Network::Bundle* pSendBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pSendBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		NETWORK_ENTITY_MESSAGE_FORWARD_CLIENT_BEGIN(pEntity->id(), (*pSendBundle));
-
+		
 		if(!isdel)
 		{
 			ENTITY_MESSAGE_FORWARD_CLIENT_BEGIN(pSendBundle, ClientInterface::setSpaceData, set);
@@ -671,13 +665,13 @@ void SpaceMemory::_addSpaceDatasToEntityClient(const Entity* pEntity)
 
 	if(!pEntity->hasWitness())
 	{
-		WARNING_MSG(fmt::format("Space::_addSpaceDatasToEntityClient: entity {} no client!\n",
+		WARNING_MSG(fmt::format("Space::_addSpaceDatasToEntityClient: entity {} no client!\n", 
 			pEntity->id()));
 
 		return;
 	}
 
-	Network::Bundle* pSendBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pSendBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	NETWORK_ENTITY_MESSAGE_FORWARD_CLIENT_BEGIN(pEntity->id(), (*pSendBundle));
 
 	ENTITY_MESSAGE_FORWARD_CLIENT_BEGIN(pSendBundle, ClientInterface::initSpaceData, init);
@@ -702,22 +696,22 @@ PyObject* SpaceMemory::__py_SetSpaceData(PyObject* self, PyObject* args)
 
 	if(PyTuple_Size(args) != 3)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::setSpaceData: (argssize != (spaceID, key, value)) is error!");
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::setSpaceData: (argssize != (spaceID, key, value)) error!");
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+	
 	char* key = NULL, *value = NULL;
 	if(PyArg_ParseTuple(args, "Iss", &spaceID, &key, &value) == -1)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::setSpaceData: args is error!");
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::setSpaceData: args error!");
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+	
 	if(key == NULL || value == NULL)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::setSpaceData: key or value is error, not is string!");
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::setSpaceData: key or value error, not is string!");
 		PyErr_PrintEx(0);
 		return 0;
 	}
@@ -732,16 +726,16 @@ PyObject* SpaceMemory::__py_SetSpaceData(PyObject* self, PyObject* args)
 	SpaceMemory* space = SpaceMemorys::findSpace(spaceID);
 	if(space == NULL)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::setSpaceData: (spaceID=%u) not found!",
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::setSpaceData: (spaceID=%u) not found!", 
 			spaceID);
 
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+	
 	if(ouro_stricmp(key, "_mapping") == 0)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::setSpaceData: key{_mapping} is protected!",
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::setSpaceData: key{_mapping} is protected!", 
 			spaceID);
 
 		PyErr_PrintEx(0);
@@ -759,15 +753,15 @@ PyObject* SpaceMemory::__py_GetSpaceData(PyObject* self, PyObject* args)
 
 	if(PyTuple_Size(args) != 2)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceData: (argssize != (spaceID, key)) is error!");
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceData: (argssize != (spaceID, key)) error!");
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+	
 	char* key = NULL;
 	if(PyArg_ParseTuple(args, "Is", &spaceID, &key) == -1)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceData: args is error!");
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceData: args error!");
 		PyErr_PrintEx(0);
 		return 0;
 	}
@@ -789,16 +783,16 @@ PyObject* SpaceMemory::__py_GetSpaceData(PyObject* self, PyObject* args)
 	SpaceMemory* space = SpaceMemorys::findSpace(spaceID);
 	if(space == NULL)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceData: (spaceID=%u) not found!",
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceData: (spaceID=%u) not found!", 
 			spaceID);
 
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+	
 	if(!space->hasSpaceData(key))
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceData: (spaceID=%u, key=%s) not found!",
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::getSpaceData: (spaceID=%u, key=%s) not found!", 
 			spaceID, key);
 
 		PyErr_PrintEx(0);
@@ -815,15 +809,15 @@ PyObject* SpaceMemory::__py_DelSpaceData(PyObject* self, PyObject* args)
 
 	if(PyTuple_Size(args) != 2)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::delSpaceData: (argssize != (spaceID, key)) is error!");
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::delSpaceData: (argssize != (spaceID, key)) error!");
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+	
 	char* key = NULL;
 	if(PyArg_ParseTuple(args, "Is", &spaceID, &key) == -1)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::delSpaceData: args is error!");
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::delSpaceData: args error!");
 		PyErr_PrintEx(0);
 		return 0;
 	}
@@ -845,7 +839,7 @@ PyObject* SpaceMemory::__py_DelSpaceData(PyObject* self, PyObject* args)
 	SpaceMemory* space = SpaceMemorys::findSpace(spaceID);
 	if(space == NULL)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::delSpaceData: (spaceID=%u) not found!",
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::delSpaceData: (spaceID=%u) not found!", 
 			spaceID);
 
 		PyErr_PrintEx(0);
@@ -854,16 +848,16 @@ PyObject* SpaceMemory::__py_DelSpaceData(PyObject* self, PyObject* args)
 
 	if(!space->hasSpaceData(key))
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::delSpaceData: (spaceID=%u, key=%s) not found!",
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::delSpaceData: (spaceID=%u, key=%s) not found!", 
 			spaceID, key);
 
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+	
 	if(ouro_stricmp(key, "_mapping") == 0)
 	{
-		PyErr_Format(PyExc_AssertionError, "Ouroboros::delSpaceData: key{_mapping} is protected!",
+		PyErr_Format(PyExc_AssertionError, "Ouroboros::delSpaceData: key{_mapping} is protected!", 
 			spaceID);
 
 		PyErr_PrintEx(0);

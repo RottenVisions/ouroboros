@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_DEBUG_OPTION_H
@@ -10,21 +10,21 @@ namespace Ouroboros{
 namespace Network
 {
 
-/**
+/** 
 	This switch sets whether the packet always carries length information, which provides some convenience when coupling some front ends.
-	 If false, some fixed-length packets do not carry length information and are resolved by the peer.
+	 if it is false, some fixed-length data packets do not carry length information, which is resolved by the peer itself.
 */
 extern bool g_packetAlwaysContainLength;
 
 /**
-Do you need to output any received and sent packets as text to the log for debugging
+Is it necessary to output any received and sent packages to the log as text for debugging?
 		g_trace_packet:
-			0: Not output
-			1: Hex output
+			0: no output
+			1: hex output
 			2: Character stream output
-			3: Decimal output
+			3: decimal output
 		use_logfile:
-			Whether to log a separate log file to record the contents of the package, the file name is usually
+			Whether to separate a log file to record the contents of the package, the file name is usually
 			appname_packetlogs.log
 		g_trace_packet_disables:
 			Turn off the output of some packages
@@ -37,12 +37,12 @@ extern bool g_trace_packet_use_logfile;
 }
 
 /**
-	Whether to output the creation of the entity, the script to obtain attributes, initialization attributes, and other debugging information.
+	Whether to output the creation of the entity, the script to get the properties, the initialization properties and other debugging information.
 */
 extern bool g_debugEntity;
 
 /**
-	Apps publication status, this value can be obtained in the script
+	Apps release status, which can be obtained in the script
 		0 : debug
 		1 : release
 */

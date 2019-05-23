@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OUROBOROS_RSA_H
 #define OUROBOROS_RSA_H
@@ -10,19 +10,19 @@ namespace Ouroboros
 
 
 /**
- *	openssl rsa
+ *	openssl rsaµÄ·â×°
  */
 class OURO_RSA
 {
 public:
-	OURO_RSA(const std::string& pubkeyname,
+	OURO_RSA(const std::string& pubkeyname, 
 		const std::string& prikeyname);
 
 	OURO_RSA();
 
 	virtual ~OURO_RSA();
 
-	bool generateKey(const std::string& pubkeyname,
+	bool generateKey(const std::string& pubkeyname, 
 		const std::string& prikeyname, int keySize = 1024, int e = 65537);
 
 	std::string encrypt(const std::string& instr);

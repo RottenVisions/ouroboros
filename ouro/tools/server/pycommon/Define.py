@@ -2,7 +2,7 @@
 import sys, os, getpass
 
 
-# The server component type definition
+# server component type definition
 UNKNOWN_COMPONENT_TYPE	= 0
 DBMGR_TYPE				= 1
 LOGINAPP_TYPE			= 2
@@ -20,15 +20,15 @@ INTERFACES_TYPE			= 13
 COMPONENT_END_TYPE		= 14
 
 VALID_COMPONENT_TYPE_FOR_RUN = [
-	DBMGR_TYPE,
-	LOGINAPP_TYPE,
-	BASEAPPMGR_TYPE,
-	CELLAPPMGR_TYPE,
-	CELLAPP_TYPE,
-	BASEAPP_TYPE,
-	LOGGER_TYPE,
-	BOTS_TYPE,
-	INTERFACES_TYPE,
+	DBMGR_TYPE, 
+	LOGINAPP_TYPE, 
+	BASEAPPMGR_TYPE, 
+	CELLAPPMGR_TYPE, 
+	CELLAPP_TYPE, 
+	BASEAPP_TYPE, 
+	LOGGER_TYPE, 
+	BOTS_TYPE, 
+	INTERFACES_TYPE, 
 ]
 
 # ComponentName to type
@@ -86,23 +86,23 @@ try:
 	import pwd
 except:
 	pwd = lambda x : x
-
+	
 	class struct_passwd(object): pass
-
+	
 	pwd.struct_passwd = struct_passwd
-
+	
 	def _getpwnam(username):
 		v = struct_passwd()
 		v.pw_name = username
 		v.pw_uid = -1
 		return v
-
+	
 	def _getpwuid(uid):
 		v = struct_passwd()
 		v.pw_name = "unknown"
 		v.pw_uid = uid
 		return v
-
+	
 	pwd.getpwnam = _getpwnam
 	pwd.getpwuid = _getpwuid
 
@@ -123,7 +123,7 @@ def getDefaultUID():
 			uid = pw.pw_uid
 	except:
 		pass
-
+	
 	if uid == -1:
 		print("\n[ERROR]: UID is not set, The current is -1. Please refer to the http://ouroboros.org/docs/installation.html " \
 			"environment variable settings, about UID!\n Or manually specifying the UID parameter.\n")

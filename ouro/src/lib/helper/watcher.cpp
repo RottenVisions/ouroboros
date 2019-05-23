@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "watcher.h"
 #include "resmgr/resmgr.h"
@@ -122,13 +122,13 @@ void Watchers::readWatchers(MemoryStream* s)
 }
 
 //-------------------------------------------------------------------------------------
-OUROShared_ptr< WatcherObject > Watchers::getWatcher(const std::string& name)
+KBEShared_ptr< WatcherObject > Watchers::getWatcher(const std::string& name)
 {
 	WATCHER_MAP::iterator iter = watcherObjs_.find(name);
 	if(iter != watcherObjs_.end())
 		return iter->second;
 
-	return OUROShared_ptr< WatcherObject > ((WatcherObject*)NULL);
+	return KBEShared_ptr< WatcherObject > ((WatcherObject*)NULL);
 }
 
 //-------------------------------------------------------------------------------------
@@ -329,7 +329,7 @@ bool WatcherPaths::delWatcher(const std::string& fullpath)
 	for(std::vector<std::string>::iterator iter = vec.begin(); iter != vec.end(); ++iter)
 	{
 		WATCHER_PATHS& paths = pCurrWatcherPaths->watcherPaths();
-		OUROUnordered_map<std::string, OUROShared_ptr<WatcherPaths> >::iterator fiter = paths.find((*iter));
+		KBEUnordered_map<std::string, KBEShared_ptr<WatcherPaths> >::iterator fiter = paths.find((*iter));
 		if(fiter == paths.end())
 			return false;
 
@@ -356,7 +356,7 @@ bool WatcherPaths::hasWatcher(const std::string& fullpath)
 	for(std::vector<std::string>::iterator iter = vec.begin(); iter != vec.end(); ++iter)
 	{
 		WATCHER_PATHS& paths = pCurrWatcherPaths->watcherPaths();
-		OUROUnordered_map<std::string, OUROShared_ptr<WatcherPaths> >::iterator fiter = paths.find((*iter));
+		KBEUnordered_map<std::string, KBEShared_ptr<WatcherPaths> >::iterator fiter = paths.find((*iter));
 		if(fiter == paths.end())
 			return false;
 
@@ -369,19 +369,19 @@ bool WatcherPaths::hasWatcher(const std::string& fullpath)
 }
 
 //-------------------------------------------------------------------------------------
-OUROShared_ptr< WatcherObject > WatcherPaths::getWatcher(const std::string& fullpath)
+KBEShared_ptr< WatcherObject > WatcherPaths::getWatcher(const std::string& fullpath)
 {
 	if(hasWatcher(fullpath) == false)
 	{
 		DEBUG_MSG(fmt::format("WatcherPaths::delWatcher: not found {}\n", fullpath));
-		return OUROShared_ptr< WatcherObject > ((WatcherObject*)NULL);
+		return KBEShared_ptr< WatcherObject > ((WatcherObject*)NULL);
 	}
 
 	std::vector<std::string> vec;
 	Ouroboros::strutil::ouro_split(fullpath, '/', vec);
 	
 	if(vec.size() == 1)
-		return OUROShared_ptr< WatcherObject > ((WatcherObject*)NULL);
+		return KBEShared_ptr< WatcherObject > ((WatcherObject*)NULL);
 	
 	std::string name = (*(vec.end() - 1));
 	vec.erase(vec.end() - 1);
@@ -390,13 +390,13 @@ OUROShared_ptr< WatcherObject > WatcherPaths::getWatcher(const std::string& full
 	for(std::vector<std::string>::iterator iter = vec.begin(); iter != vec.end(); ++iter)
 	{
 		WATCHER_PATHS& paths = pCurrWatcherPaths->watcherPaths();
-		OUROUnordered_map<std::string, OUROShared_ptr<WatcherPaths> >::iterator fiter = paths.find((*iter));
+		KBEUnordered_map<std::string, KBEShared_ptr<WatcherPaths> >::iterator fiter = paths.find((*iter));
 		if(fiter == paths.end())
-			return OUROShared_ptr< WatcherObject > ((WatcherObject*)NULL);
+			return KBEShared_ptr< WatcherObject > ((WatcherObject*)NULL);
 
 		pCurrWatcherPaths = fiter->second.get();
 		if(pCurrWatcherPaths == NULL)
-			return OUROShared_ptr< WatcherObject > ((WatcherObject*)NULL);
+			return KBEShared_ptr< WatcherObject > ((WatcherObject*)NULL);
 	}
 
 	return pCurrWatcherPaths->watchers().getWatcher(name);

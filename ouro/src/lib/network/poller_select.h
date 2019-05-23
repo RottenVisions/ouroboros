@@ -1,11 +1,11 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SELECT_POLLER_H
 #define OURO_SELECT_POLLER_H
 
 #include "event_poller.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 
@@ -32,10 +32,10 @@ private:
 	fd_set						fdReadSet_;
 	fd_set						fdWriteSet_;
 
-	// Socket
+	// The last registered socket descriptor (read or write)
 	int							fdLargest_;
 
-	// Socket
+	// Registered number of socket descriptors written
 	int							fdWriteCount_;
 };
 

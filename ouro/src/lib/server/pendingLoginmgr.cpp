@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "pendingLoginmgr.h"
@@ -8,7 +8,7 @@
 #include "network/network_interface.h"
 #include "helper/profile.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 #define OP_TIME_OUT_MAX 120 * stampsPerSecondD()
 
@@ -55,7 +55,7 @@ bool PendingLoginMgr::add(PLInfos* infos)
 		//dispatcher().addTask(this);
 		start_ = true;
 	}
-
+	
 	pPLMap_[infos->accountName] = infos;
 	infos->lastProcessTime = timestamp();
 
@@ -74,7 +74,7 @@ PendingLoginMgr::PLInfos* PendingLoginMgr::remove(std::string& accountName)
 		DEBUG_MSG(fmt::format("PendingLoginMgr::remove: {}, size={}.\n", accountName, pPLMap_.size()));
 		return infos;
 	}
-
+	
 	//ERROR_MSG("PendingLoginMgr::remove::not found accountName[%s].\n", accountName);
 	return NULL;
 }
@@ -100,7 +100,7 @@ void PendingLoginMgr::removeNextTick(std::string& accountName)
 	{
 		PLInfos* infos = iter->second;
 
-		// The next tick has timed out
+		// Timed out when the next tick was processed
 		TimeStamp curr = timestamp();
 		infos->lastProcessTime = curr - OP_TIME_OUT_MAX - 1;
 	}
@@ -116,17 +116,17 @@ bool PendingLoginMgr::process()
 		start_ = false;
 		return false;
 	}
-
+	
 	PTINFO_MAP::iterator iter = pPLMap_.begin();
 	while (iter != pPLMap_.end())
 	{
 		PLInfos* infos = iter->second;
-
+		
 		TimeStamp curr = timestamp();
 		if(curr - infos->lastProcessTime >= OP_TIME_OUT_MAX)
 		{
 			iter = pPLMap_.erase(iter);
-			DEBUG_MSG(fmt::format("PendingLoginMgr::process: [{1}] is timeout, currsize={0}.\n",
+			DEBUG_MSG(fmt::format("PendingLoginMgr::process: [{1}] is timeout, currsize={0}.\n", 
 				pPLMap_.size(), infos->accountName));
 
 			SAFE_RELEASE(infos);

@@ -8,7 +8,7 @@ In this example, we'll rely on some silly setup:
 
 This test also has some (random) encoded (utf-8) unicode text:
 
-  ï»¿ÐÐÐÐÐ
+  ï»¿�?�?�?�?�?�?
 
 This doesn't cause a problem in the tect surrounding the examples, but
 we include it here (in this test text file) to make sure. :)

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef _SCRIPT_VECTOR4_H
 #define _SCRIPT_VECTOR4_H
@@ -6,61 +6,61 @@
 #include "math/math.h"
 #include "scriptobject.h"
 #include "pickler.h"
-
+	
 namespace Ouroboros{ namespace script{
-
+	
 class ScriptVector4 : public ScriptObject
-{
-	/** Subclassing fills some py operations into derived classes */
+{		
+		/** Subclassing populates some py operations into derived classes*/
 	INSTANCE_SCRIPT_HREADER(ScriptVector4, ScriptObject)
-public:
+public:	
 	static PySequenceMethods seqMethods;
 	static PyNumberMethods numberMethods;
-
+		
 	ScriptVector4(Vector4 v);
 	ScriptVector4(Vector4* v);
 	ScriptVector4(float x, float y, float z, float w);
 	virtual ~ScriptVector4();
 
-	/**
+	/** 
 		Get the description of the object
 	*/
 	PyObject* tp_repr();
 	PyObject* tp_str();
 
-	/**
+	/** 
 		Script module object created from python
 	*/
 	static PyObject* tp_new(PyTypeObject* type, PyObject* args, PyObject* kwds);
 
-	/**
+	/** 
 		Seq related operations
 	*/
 	static Py_ssize_t seq_length(PyObject* self);
 	static PyObject* seq_item(PyObject* self, Py_ssize_t index);
 	static PyObject* seq_slice(PyObject* self, Py_ssize_t startIndex, Py_ssize_t endIndex);
 	static int seq_ass_item(PyObject* self, Py_ssize_t index, PyObject* value);
-
-	/**
-		Add, subtract, multiply, divide and related operations
+	
+	/** 
+		Addition, subtraction, multiplication and division related operations
 	*/
 	static PyObject* py_add(PyObject *a, PyObject *b);
 	static PyObject* py_subtract(PyObject *a, PyObject *b);
 	static PyObject* py_multiply(PyObject *a, PyObject *b);
 	static PyObject* py_divide(PyObject *a, PyObject *b);
-
+	
 	static PyObject* py_negative(PyObject *self);
 	static PyObject* py_positive(PyObject *self);
-
+	
 	static int py_nonzero(PyObject *self);
-
+	
 	static PyObject* py_inplace_add(PyObject *self, PyObject *b);
 	static PyObject* py_inplace_subtract(PyObject *self, PyObject *b);
 	static PyObject* py_inplace_multiply(PyObject *self, PyObject *b);
 	static PyObject* py_inplace_divide(PyObject *self, PyObject *b);
-
-	/**
-		Blasting some methods
+	
+	/** 
+		Burst some methods
 	*/
 	static PyObject* __py_pyDistTo(PyObject* self, PyObject* args);
 	static PyObject* __py_pyDistSqrTo(PyObject* self, PyObject* args);
@@ -78,33 +78,33 @@ public:
 	DECLARE_PY_GETSET_MOTHOD(pyGetY, pySetY);
 	DECLARE_PY_GETSET_MOTHOD(pyGetZ, pySetZ);
 	DECLARE_PY_GETSET_MOTHOD(pyGetW, pySetW);
-
-	/**
-		Supports pickler method
+	
+	/** 
+		Support for the pickler method
 	*/
 	static PyObject* __reduce_ex__(PyObject* self, PyObject* protocol);
 
-	/**
-		Unpickle method
+	/** 
+		Unpick method
 	*/
 	static PyObject* __unpickle__(PyObject* self, PyObject* args);
 
-	/**
-		Script is called when it is installed
+	/** 
+		Called when the script is installed
 	*/
 	static void onInstallScript(PyObject* mod);
-
+	
 	int length(void){ return VECTOR_SIZE; }
 	Vector4& getVector(void){ return *val_; }
 	void setVector(const Vector4& v){ *val_ = v; }
-
-	/**
+	
+	/** 
 		Check if a python object can be converted to this type
 	*/
 	static bool check(PyObject* value, bool isPrintErr = true);
-
-	/**
-		Convert a checked python object to vector4 
+	
+	/** 
+		Convert a checked python object to vector4
 	*/
 	static bool convertPyObjectToVector4(Vector4& v, PyObject* obj);
 

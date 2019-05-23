@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "network/event_dispatcher.h"
 #include "network/event_poller.h"
@@ -46,7 +46,7 @@ PyObject* PyFileDescriptor::__py_registerReadFileDescriptor(PyObject* self, PyOb
 
 	if(PyArg_ParseTuple(args, "i|O", &fd, &pycallback) == -1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::registerReadFileDescriptor: args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::registerReadFileDescriptor: args error!");
 		PyErr_PrintEx(0);
 		return NULL;
 	}
@@ -83,7 +83,7 @@ PyObject* PyFileDescriptor::__py_deregisterReadFileDescriptor(PyObject* self, Py
 
 	if(PyArg_ParseTuple(args, "i", &fd) == -1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::deregisterReadFileDescriptor: args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::deregisterReadFileDescriptor: args error!");
 		PyErr_PrintEx(0);
 		return NULL;
 	}
@@ -119,7 +119,7 @@ PyObject* PyFileDescriptor::__py_registerWriteFileDescriptor(PyObject* self, PyO
 
 	if(PyArg_ParseTuple(args, "i|O", &fd, &pycallback) == -1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::registerWriteFileDescriptor: args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::registerWriteFileDescriptor: args error!");
 		PyErr_PrintEx(0);
 		return NULL;
 	}
@@ -156,7 +156,7 @@ PyObject* PyFileDescriptor::__py_deregisterWriteFileDescriptor(PyObject* self, P
 
 	if(PyArg_ParseTuple(args, "i", &fd) == -1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::deregisterWriteFileDescriptor: args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::deregisterWriteFileDescriptor: args error!");
 		PyErr_PrintEx(0);
 		return NULL;
 	}
@@ -213,7 +213,7 @@ void PyFileDescriptor::callback()
 	}
 	else
 	{
-		ERROR_MSG(fmt::format("PyFileDescriptor::callback: can't found callback:{}.\n", fd_));
+		ERROR_MSG(fmt::format("PyFileDescriptor::callback: not found callback:{}.\n", fd_));
 	}
 }
 

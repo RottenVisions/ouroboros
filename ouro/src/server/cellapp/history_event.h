@@ -1,10 +1,10 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_HISTORY_EVENT_H
 #define OURO_HISTORY_EVENT_H
 
 #include "helper/debug_helper.h"
-#include "common/common.h"
+#include "common/common.h"	
 
 
 namespace Ouroboros{

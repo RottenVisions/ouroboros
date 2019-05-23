@@ -1,13 +1,13 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "blowfish.h"
 #include "helper/debug_helper.h"
 #include "openssl/rand.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 //-------------------------------------------------------------------------------------
-OUROBlowfish::OUROBlowfish(const Key & key):
+KBEBlowfish::KBEBlowfish(const Key & key):
 key_(key),
 keySize_(key.size()),
 isGood_(false),
@@ -15,37 +15,37 @@ pBlowFishKey_(NULL)
 {
 	if (init())
 	{
-		//DEBUG_MSG(fmt::format("OUROBlowfish::OUROBlowfish(): Using Blowfish key: {}\n",
+		//DEBUG_MSG(fmt::format("KBEBlowfish::KBEBlowfish(): Using Blowfish key: {}\n", 
 		//	this->strBlowFishKey()));
 	}
 }
 
 //-------------------------------------------------------------------------------------
-OUROBlowfish::OUROBlowfish(int keySize):
+KBEBlowfish::KBEBlowfish(int keySize):
 	key_(keySize, 0),
 	keySize_(keySize),
 	isGood_(false),
 	pBlowFishKey_(NULL)
 {
-	RAND_bytes((unsigned char*)const_cast<char *>(key_.c_str()),
+	RAND_bytes((unsigned char*)const_cast<char *>(key_.c_str()), 
 		key_.size());
 
 	if (this->init())
 	{
-		DEBUG_MSG(fmt::format("OUROBlowfish::OUROBlowfish(): Using Blowfish key: {}\n",
+		DEBUG_MSG(fmt::format("KBEBlowfish::KBEBlowfish(): Using Blowfish key: {}\n", 
 			this->strBlowFishKey()));
 	}
 }
 
 //-------------------------------------------------------------------------------------
-OUROBlowfish::~OUROBlowfish()
+KBEBlowfish::~KBEBlowfish()
 {
 	delete pBlowFishKey();
 	pBlowFishKey_ = NULL;
 }
 
 //-------------------------------------------------------------------------------------
-bool OUROBlowfish::init()
+bool KBEBlowfish::init()
 {
 	pBlowFishKey_ = new BF_KEY;
 
@@ -56,7 +56,7 @@ bool OUROBlowfish::init()
 	}
 	else
 	{
-		ERROR_MSG(fmt::format("OUROBlowfish::init: "
+		ERROR_MSG(fmt::format("KBEBlowfish::init: "
 			"invalid length {}\n",
 			keySize_));
 
@@ -67,7 +67,7 @@ bool OUROBlowfish::init()
 }
 
 //-------------------------------------------------------------------------------------
-const char * OUROBlowfish::strBlowFishKey() const
+const char * KBEBlowfish::strBlowFishKey() const
 {
 	static char buf[1024];
 	char *c = buf;
@@ -82,10 +82,10 @@ const char * OUROBlowfish::strBlowFishKey() const
 }
 
 //-------------------------------------------------------------------------------------
-int OUROBlowfish::encrypt( const unsigned char * src, unsigned char * dest,
+int KBEBlowfish::encrypt( const unsigned char * src, unsigned char * dest,
 	int length )
 {
-	// BLOCK_SIZE
+	// BLOCK_SIZEµÄÕûÊý±¶
 	if(length % BLOCK_SIZE != 0)
 	{
 		CRITICAL_MSG(fmt::format("Blowfish::encrypt: "
@@ -113,7 +113,7 @@ int OUROBlowfish::encrypt( const unsigned char * src, unsigned char * dest,
 }
 
 //-------------------------------------------------------------------------------------
-int OUROBlowfish::decrypt( const unsigned char * src, unsigned char * dest,
+int KBEBlowfish::decrypt( const unsigned char * src, unsigned char * dest,
 	int length )
 {
 	if (length % BLOCK_SIZE != 0)

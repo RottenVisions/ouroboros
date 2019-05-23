@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_NETWORK_BUNDLE_H
 #define OURO_NETWORK_BUNDLE_H
@@ -15,7 +15,7 @@
 #include "network/udp_packet.h"
 #include "network/interface_defs.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 class NetworkInterface;
@@ -70,31 +70,31 @@ class Channel;
 class Bundle : public PoolObject
 {
 public:
-	typedef OUROShared_ptr< SmartPoolObject< Bundle > > SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
+	typedef KBEShared_ptr< SmartPoolObject< Bundle > > SmartPoolObjectPtr;
+	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<Bundle>& ObjPool();
-	static Bundle* createPoolObject();
+	static Bundle* createPoolObject(const std::string& logPoint);
 	static void reclaimPoolObject(Bundle* obj);
 	static void destroyObjPool();
 	virtual void onReclaimObject();
 	virtual size_t getPoolObjectBytes();
 
 	typedef std::vector<Packet*> Packets;
-
+	
 	Bundle(Channel * pChannel = NULL, ProtocolType pt = PROTOCOL_TCP);
 	Bundle(const Bundle& bundle);
 	virtual ~Bundle();
-
+	
 	void newMessage(const MessageHandler& msgHandler);
 	void finiMessage(bool isSend = true);
 
 	void clearPackets();
-
+	
 	INLINE void pCurrMsgHandler(const Network::MessageHandler* pMsgHandler);
 	INLINE const Network::MessageHandler* pCurrMsgHandler() const;
 
 	/**
-		Calculate the total length of all packages including packages that have not yet been written
+		Calculate the total length of all packages including the ones that have not been written yet
 	*/
 	int32 packetsLength(bool calccurr = true);
 
@@ -103,35 +103,37 @@ public:
 
 	void clear(bool isRecl);
 	bool empty() const;
+	
+	void copy(const Bundle& bundle);
 
 	INLINE int32 packetMaxSize() const;
 	int packetsSize() const;
 
 	/**
-		Undo some message bytes
+		Revoke some message bytes
 	*/
 	bool revokeMessage(int32 size);
-
+		
 	/**
-		Calculate packetMaxSize - remaining free space after the length of the last packet
+		Calculate the free space remaining after packetMaxSize - the length of the last packet
 	*/
 	INLINE int32 lastPacketSpace();
 	INLINE bool packetHaveSpace();
-
+	
 	INLINE Packets& packets();
 	INLINE Packet* pCurrPacket() const;
 	INLINE void pCurrPacket(Packet* p);
-
+	
 	INLINE void finiCurrPacket();
 
 	Packet* newPacket();
-
+	
 	INLINE void pChannel(Channel* p);
 	INLINE Channel* pChannel();
-
+	
 	INLINE MessageID messageID() const;
 	INLINE void messageID(MessageID id);
-
+	
 	INLINE int32 numMessages() const;
 
 	INLINE void currMsgPacketCount(uint32 v);
@@ -143,10 +145,10 @@ public:
 	INLINE void currMsgLengthPos(size_t v);
 	INLINE size_t currMsgLengthPos() const;
 
-	static void debugCurrentMessages(MessageID currMsgID, const Network::MessageHandler* pCurrMsgHandler,
+	static void debugCurrentMessages(MessageID currMsgID, const Network::MessageHandler* pCurrMsgHandler, 
 		Network::Packet* pCurrPacket, Network::Bundle::Packets& packets, Network::MessageLength1 currMsgLength,
 		Network::Channel* pChannel);
-
+	
 protected:
 	void _calcPacketMaxSize();
 	int32 onPacketAppend(int32 addsize, bool inseparable = true);
@@ -245,7 +247,7 @@ public:
 
     Bundle &operator<<(const std::string &value)
     {
-		int32 len = (int32)value.size() + 1; // 1 is the 0 position of the tail of the string
+		int32 len = (int32)value.size() + 1; // +1 is the 0 position of the end of the string
 		int32 addtotalsize = 0;
 
 		while(len > 0)
@@ -258,10 +260,10 @@ public:
 
         return *this;
     }
-
+	
     Bundle &operator<<(const char *str)
     {
-		int32 len = (int32)strlen(str) + 1;  // 1 is the 0 position of the tail of the string
+		int32 len = (int32)strlen(str) + 1; // +1 is the 0 position of the end of the string
 		int32 addtotalsize = 0;
 
 		while(len > 0)
@@ -274,7 +276,7 @@ public:
 
         return *this;
     }
-
+    
 	Bundle &append(Bundle* pBundle)
 	{
 		OURO_ASSERT(pBundle != NULL);
@@ -288,7 +290,7 @@ public:
 		{
 			append((*iter)->data() + (*iter)->rpos(), (int)(*iter)->length());
 		}
-
+		
 		if(bundle.pCurrPacket_ == NULL)
 			return *this;
 
@@ -343,7 +345,7 @@ public:
 			y = floorf(y + epsilon);
 			z = floorf(z + epsilon);
 		}
-
+		
 		*this << x << y << z;
 		return (*this);
 	}
@@ -366,8 +368,8 @@ public:
 		y -= minf / 2.f;
 		z -= minf;
 
-		// Do not exceed the maximum value-256~256
-		// y Do not exceed-128~128
+		// The maximum value should not exceed -256~256
+		// y don't exceed -128~128
         uint32 packed = 0;
         packed |= ((int)(x / 0.25f) & 0x7FF);
         packed |= ((int)(z / 0.25f) & 0x7FF) << 11;
@@ -378,16 +380,16 @@ public:
 
     Bundle &appendPackXZ(float x, float z)
     {
-		MemoryStream::PackFloatXType xPackData;
+		MemoryStream::PackFloatXType xPackData; 
 		xPackData.fv = x;
 
-		MemoryStream::PackFloatXType zPackData;
+		MemoryStream::PackFloatXType zPackData; 
 		zPackData.fv = z;
-
-		// 0-7-bit storage mantissa, 8-10 storage index, 11 storage mark
-		// Since 24 bits are used to store 2 floats, it is required to be able to achieve a number between -512 and 512
-		// The 8-bit mantissa can only have a maximum of 256, and the exponent only has 3 digits (determine the maximum floating-point number is 2^(2^3)=256)
-		// We give up the first place to reach the range (-512~-2), (2~512)
+		
+		// 0-7 digits store the mantissa, 8-10 digits store the index, 11 digits store the logo
+		// Since 24 bits are used to store 2 floats, and it is required to be able to reach a number between -512 and 512
+		// The 8-bit mantissa can only have a maximum of 256, and the exponent has only 3 digits (the maximum value of the floating-point number is 2^(2^3)=256).
+		// We give up the first place to make the range reach (-512~-2), (2~512)
 		// So here we guarantee that the minimum number is -2.f or 2.f
 		xPackData.fv += xPackData.iv < 0 ? -2.f : 2.f;
 		zPackData.fv += zPackData.iv < 0 ? -2.f : 2.f;
@@ -399,26 +401,26 @@ public:
 		const uint32 xCeilingValues[] = { 0, 0x7ff000 };
 		const uint32 zCeilingValues[] = { 0, 0x0007ff };
 
-		// Here if the float overflows then set the float to the maximum number
-		// Here, the exponent upper 4 bits and the flag bit are checked. If the upper 4 bits are not 0, the overflow is guaranteed. If the lower 4 bits and the 8 bit mantissa are not 0, the overflow occurs.
+		// Here, if this floating point number overflows, set the floating point number to the maximum number.
+		// This checks the upper 4 bits of the exponent and the flag bit. If the upper four bits are not 0, it will overflow. If the lower 4 bits and the 8-bit mantissa are not 0, then overflow.
 		// 0x7c000000 = 1111100000000000000000000000000
 		// 0x40000000 = 1000000000000000000000000000000
 		// 0x3ffc000  = 0000011111111111100000000000000
 		data |= xCeilingValues[((xPackData.uv & 0x7c000000) != 0x40000000) || ((xPackData.uv & 0x3ffc000) == 0x3ffc000)];
 		data |= zCeilingValues[((zPackData.uv & 0x7c000000) != 0x40000000) || ((zPackData.uv & 0x3ffc000) == 0x3ffc000)];
-
-		// Copy the 8-bit mantissa and 3-digit exponent, if the highest digit of the remaining mantissa of the float is 1 then 1 is rounded and stored in data
+		
+		// Copy the 8-bit mantissa and the 3-bit exponent, if the floating-point number of the remaining mantissa is 1 then +1 is rounded up and stored in data
 		// 0x7ff000 = 11111111111000000000000
 		// 0x0007ff = 00000000000011111111111
 		// 0x4000	= 00000000100000000000000
 		data |= ((xPackData.uv >>  3) & 0x7ff000) + ((xPackData.uv & 0x4000) >> 2);
 		data |= ((zPackData.uv >> 15) & 0x0007ff) + ((zPackData.uv & 0x4000) >> 14);
-
-		// Make sure the value is within range
+		
+		// Make sure the value is in range
 		// 0x7ff7ff = 11111111111011111111111
 		data &= 0x7ff7ff;
 
-		// Copy marker bits
+		// copy the flag bit
 		// 0x800000 = 100000000000000000000000
 		// 0x000800 = 000000000000100000000000
 		data |=  (xPackData.uv >>  8) & 0x800000;
@@ -434,7 +436,7 @@ public:
 
 	Bundle &appendPackY(float y)
 	{
-		MemoryStream::PackFloatXType yPackData;
+		MemoryStream::PackFloatXType yPackData; 
 		yPackData.fv = y;
 
 		yPackData.fv += yPackData.iv < 0 ? -2.f : 2.f;
@@ -445,7 +447,7 @@ public:
 		(*this) << data;
 		return (*this);
 	}
-
+	
 	Bundle &assign(const char *str, int n)
 	{
 		int32 len = (int32)n;
@@ -519,12 +521,12 @@ public:
 
     Bundle &operator>>(COMPONENT_TYPE &value)
     {
-        PACKET_OUT_VALUE(value, sizeof(int32/*Reference MemoryStream*/));
+        PACKET_OUT_VALUE(value, sizeof(int32/*PACKET_OUT_VALUE(value, sizeof(int32/*²Î¿¼MemoryStream*/));
     }
 
     Bundle &operator>>(ENTITYCALL_TYPE &value)
     {
-        PACKET_OUT_VALUE(value, sizeof(int32/*Reference MemoryStream*/));
+        PACKET_OUT_VALUE(value, sizeof(int32/*PACKET_OUT_VALUE(value, sizeof(int32/*²Î¿¼MemoryStream*/));
     }
 
     Bundle &operator>>(std::string& value)
@@ -623,7 +625,7 @@ private:
 	Packet* pCurrPacket_;
 	MessageID currMsgID_;
 	uint32 currMsgPacketCount_;
-	MessageLength1 currMsgLength_;
+	MessageLength1 currMsgLength_;	
 	int32 currMsgHandlerLength_;
 	size_t currMsgLengthPos_;
 

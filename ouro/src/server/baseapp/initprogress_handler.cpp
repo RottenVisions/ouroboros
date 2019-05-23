@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "baseapp.h"
 #include "initprogress_handler.h"
@@ -8,7 +8,7 @@
 
 #include "../../server/baseappmgr/baseappmgr_interface.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 //-------------------------------------------------------------------------------------
 InitProgressHandler::InitProgressHandler(Network::NetworkInterface & networkInterface):
@@ -38,8 +38,8 @@ InitProgressHandler::~InitProgressHandler()
 
 //-------------------------------------------------------------------------------------
 void InitProgressHandler::setAutoLoadState(int8 state)
-{
-	autoLoadState_ = state;
+{ 
+	autoLoadState_ = state; 
 
 	if(state == 1)
 		pEntityAutoLoader_ = NULL;
@@ -77,7 +77,7 @@ bool InitProgressHandler::process()
 	if(delayTicks_++ < 1)
 		return true;
 
-	// Only the first baseapp will create EntityAutoLoader to automatically load database entities
+	// Only EntityAutoLoader will be created on the first baseapp to automatically load the database entity
 	if(g_componentGroupOrder == 1)
 	{
 		if(autoLoadState_ == -1)
@@ -88,11 +88,11 @@ bool InitProgressHandler::process()
 		}
 		else if(autoLoadState_ == 0)
 		{
-			// Must wait for EntityAutoLoader to finish
-			// EntityAutoLoader is completed will set autoLoadState_ = 1
+			// must wait for EntityAutoLoader to finish executing
+			// EntityAutoLoader will set autoLoadState_ = 1 after execution
 			if(!pEntityAutoLoader_->process())
 				setAutoLoadState(1);
-
+			
 			return true;
 		}
 	}
@@ -106,9 +106,9 @@ bool InitProgressHandler::process()
 		SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
 		// All scripts are loaded
-		PyObject* pyResult = PyObject_CallMethod(Baseapp::getSingleton().getEntryScript().get(),
-											const_cast<char*>("onBaseAppReady"),
-											const_cast<char*>("O"),
+		PyObject* pyResult = PyObject_CallMethod(Baseapp::getSingleton().getEntryScript().get(), 
+											const_cast<char*>("onBaseAppReady"), 
+											const_cast<char*>("O"), 
 											PyBool_FromLong((g_componentGroupOrder == 1) ? 1 : 0));
 
 		if(pyResult != NULL)
@@ -126,16 +126,16 @@ bool InitProgressHandler::process()
 	{
 		SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
-		// Callbacks get login
-		PyObject* pyResult = PyObject_CallMethod(Baseapp::getSingleton().getEntryScript().get(),
-											const_cast<char*>("onReadyForLogin"),
-											const_cast<char*>("O"),
+		// Callback to get able to log in
+		PyObject* pyResult = PyObject_CallMethod(Baseapp::getSingleton().getEntryScript().get(), 
+											const_cast<char*>("onReadyForLogin"), 
+											const_cast<char*>("O"), 
 											PyBool_FromLong((g_componentGroupOrder == 1) ? 1 : 0));
 
 		if(pyResult != NULL)
 		{
 			completed = (pyResult == Py_True);
-
+			
 			if(!completed)
 			{
 				v = (float)PyFloat_AsDouble(pyResult);
@@ -164,14 +164,14 @@ bool InitProgressHandler::process()
 		v = 100.f;
 		completed = true;
 	}
-
+	
 	if(v >= 0.9999f)
 	{
 		v = 100.f;
 		completed = true;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	(*pBundle).newMessage(BaseappmgrInterface::onBaseappInitProgress);
 	(*pBundle) << g_componentID << v;

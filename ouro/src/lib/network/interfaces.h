@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_NETWORK_INTERFACES_H
 #define OURO_NETWORK_INTERFACES_H
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 class Channel;
@@ -18,7 +18,7 @@ public:
 	virtual int handleInputNotification(int fd) = 0;
 };
 
-/** This type of interface is used to receive normal Network output messages
+/** This type of interface is used to receive normal Network output messages.
 */
 class OutputNotificationHandler
 {
@@ -35,7 +35,7 @@ public:
 	virtual void onChannelTimeOut(Channel * pChannel) = 0;
 };
 
-/** This type of interface is used to receive an internal network channel deregistration
+/** This type of interface is used to receive an internal network channel to unregister
 */
 class ChannelDeregisterHandler
 {

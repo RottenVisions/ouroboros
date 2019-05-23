@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_CLIENT_ENTITY_ASPECT_H
 #define OURO_CLIENT_ENTITY_ASPECT_H

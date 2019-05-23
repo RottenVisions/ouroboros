@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_RESTORE_ENTITY_HANDLER_H
 #define OURO_RESTORE_ENTITY_HANDLER_H
@@ -25,18 +25,18 @@ class RestoreEntityHandler : public Task
 public:
 	RestoreEntityHandler(COMPONENT_ID cellappID, Network::NetworkInterface & networkInterface);
 	~RestoreEntityHandler();
-
+	
 	bool process();
-
+	
 	void pushEntity(ENTITY_ID id);
 
-	/**
-		The space on a baseapp restores the cell. Determines whether the current baseapp has related entities and needs to restore the cell.
+	/** 
+		The space on a baseapp restores the cell, and determines whether the current baseapp has an associated entity and needs to recover the cell.
 	*/
-	void onRestoreSpaceCellFromOtherBaseapp(COMPONENT_ID baseappID, COMPONENT_ID cellappID,
+	void onRestoreSpaceCellFromOtherBaseapp(COMPONENT_ID baseappID, COMPONENT_ID cellappID, 
 		SPACE_ID spaceID, ENTITY_ID spaceEntityID, ENTITY_SCRIPT_UID utype, bool destroyed);
 
-	/**
+	/** 
 		Whether to allow recovery
 	*/
 	bool canRestore() const{ return canRestore_; }
@@ -51,7 +51,7 @@ private:
 	std::vector<RestoreData> restoreSpaces_;
 	std::vector<RestoreData> otherRestoredSpaces_;
 
-	// Space broadcasts to other baseapp after creating cell
+	// space creates a good cell and broadcasts it to other baseapps
 	bool broadcastOtherBaseapps_;
 
 	uint64 tickReport_;

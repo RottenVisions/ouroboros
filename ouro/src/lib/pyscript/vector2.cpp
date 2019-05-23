@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "vector2.h"
@@ -23,7 +23,7 @@ PySequenceMethods ScriptVector2::seqMethods =
 	0,								/* sq_inplace_repeat */
 };
 
-PyNumberMethods ScriptVector2::numberMethods =
+PyNumberMethods ScriptVector2::numberMethods = 
 {
 	ScriptVector2::py_add,				//binaryfunc nb_add;
 	ScriptVector2::py_subtract,			//binaryfunc nb_subtract;
@@ -35,7 +35,7 @@ PyNumberMethods ScriptVector2::numberMethods =
 	ScriptVector2::py_negative,			//unaryfunc nb_negative;
 	ScriptVector2::py_positive,			//unaryfunc nb_positive;
 	0,									//unaryfunc nb_absolute;
-	ScriptVector2::py_nonzero,			//inquiry nb_nonzero  Renamed nb_nonzero to nb_bool,__nonzero__()Renamed to __bool__();
+	ScriptVector2::py_nonzero, //inquiry nb_nonzero nb_nonzero is renamed to nb_bool, __nonzero__() is renamed to __bool__();
 	0,									//unaryfunc nb_invert;
 	0,									//binaryfunc nb_lshift;
 	0,									//binaryfunc nb_rshift;
@@ -99,7 +99,7 @@ SCRIPT_GETSET_DECLARE("y",				pyGetY,							pySetY,				0,		0)
 SCRIPT_GET_DECLARE("length",			pyGetVectorLength,				0,					0)
 SCRIPT_GET_DECLARE("lengthSquared",		pyGetVectorLengthSquared,		0,					0)
 SCRIPT_GETSET_DECLARE_END()
-SCRIPT_INIT(ScriptVector2, 0, &ScriptVector2::seqMethods, 0, 0, 0)
+SCRIPT_INIT(ScriptVector2, 0, &ScriptVector2::seqMethods, 0, 0, 0)	
 
 //-------------------------------------------------------------------------------------
 ScriptVector2::ScriptVector2(Vector2* v):
@@ -139,7 +139,7 @@ ScriptVector2::~ScriptVector2()
 
 //-------------------------------------------------------------------------------------
 PyObject* ScriptVector2::tp_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
-{
+{					
 	ScriptVector2* v = new ScriptVector2(0,0);
 
 	if(PyTuple_Size(args) > 0)
@@ -182,14 +182,14 @@ PyObject* ScriptVector2::tp_str()
 
 //-------------------------------------------------------------------------------------
 PyObject* ScriptVector2::pyGetVectorLength()
-{
-	return PyFloat_FromDouble(OUROVec2Length(&getVector()));
+{ 
+	return PyFloat_FromDouble(KBEVec2Length(&getVector())); 
 }
 
 //-------------------------------------------------------------------------------------
 PyObject* ScriptVector2::pyGetVectorLengthSquared()
-{
-	return PyFloat_FromDouble(OUROVec2LengthSq(&getVector()));
+{ 
+	return PyFloat_FromDouble(KBEVec2LengthSq(&getVector()));
 }
 
 //-------------------------------------------------------------------------------------
@@ -249,7 +249,7 @@ PyObject* ScriptVector2::seq_slice(PyObject* self, Py_ssize_t startIndex, Py_ssi
 			case 2:
 			{
 				Vector2 v;
-
+				
 				for (int i = (int)startIndex; i < (int)endIndex; ++i){
 					v[i - static_cast<int>(startIndex)] = my_v[i];
 				}
@@ -295,28 +295,28 @@ int ScriptVector2::seq_ass_item(PyObject* self, Py_ssize_t index, PyObject* valu
 
 //-------------------------------------------------------------------------------------
 int ScriptVector2::pySetX(PyObject *value)
-{
-	getVector().x = float(PyFloat_AsDouble(value));
-	return 0;
+{ 
+	getVector().x = float(PyFloat_AsDouble(value)); 
+	return 0; 
 }
 
 //-------------------------------------------------------------------------------------
 PyObject* ScriptVector2::pyGetX()
-{
-	return PyFloat_FromDouble(getVector().x);
+{ 
+	return PyFloat_FromDouble(getVector().x); 
 }
 
 //-------------------------------------------------------------------------------------
 int ScriptVector2::pySetY(PyObject *value)
-{
-	getVector().y = float(PyFloat_AsDouble(value));
-	return 0;
+{ 
+	getVector().y = float(PyFloat_AsDouble(value)); 
+	return 0; 
 }
 
 //-------------------------------------------------------------------------------------
 PyObject* ScriptVector2::pyGetY()
-{
-	return PyFloat_FromDouble(getVector().y);
+{ 
+	return PyFloat_FromDouble(getVector().y); 
 }
 
 //-------------------------------------------------------------------------------------
@@ -331,7 +331,7 @@ PyObject* ScriptVector2::__reduce_ex__(PyObject* self, PyObject* protocol)
 	PyTuple_SET_ITEM(args1, 0, PyFloat_FromDouble(v.x));
 	PyTuple_SET_ITEM(args1, 1, PyFloat_FromDouble(v.y));
 	PyTuple_SET_ITEM(args, 1, args1);
-
+	
 	if(unpickleMethod == NULL){
 		Py_DECREF(args);
 		return NULL;
@@ -346,13 +346,13 @@ PyObject* ScriptVector2::__unpickle__(PyObject* self, PyObject* args)
 	Py_ssize_t size = PyTuple_Size(args);
 	if(size != VECTOR_SIZE)
 	{
-		ERROR_MSG("ScriptVector2::__unpickle__: args is error! size != 2");
+		ERROR_MSG("ScriptVector2::__unpickle__: args error! size != 2");
 		S_Return;
 	}
 
 	if(!PyArg_ParseTuple(args, "ff", &x, &y))
 	{
-		ERROR_MSG("ScriptVector2::__unpickle__: args is error!");
+		ERROR_MSG("ScriptVector2::__unpickle__: args error!");
 		S_Return;
 	}
 
@@ -396,7 +396,7 @@ bool ScriptVector2::check(PyObject* value, bool isPrintErr)
 
 		return false;
 	}
-
+	
 	return true;
 }
 
@@ -426,7 +426,7 @@ PyObject* ScriptVector2::py_add(PyObject *a, PyObject *b)
 		Py_INCREF(Py_NotImplemented);
 		return Py_NotImplemented;
 	}
-
+	
 	Vector2 av;
 	Vector2 bv;
 
@@ -444,7 +444,7 @@ PyObject* ScriptVector2::py_subtract(PyObject *a, PyObject *b)
 		Py_INCREF(Py_NotImplemented);
 		return Py_NotImplemented;
 	}
-
+	
 	Vector2 av;
 	Vector2 bv;
 
@@ -457,7 +457,7 @@ PyObject* ScriptVector2::py_subtract(PyObject *a, PyObject *b)
 PyObject* ScriptVector2::py_multiply(PyObject *a, PyObject *b)
 {
 	float f;
-
+	
 	if(check(a))
 	{
 		ScriptVector2* sv = static_cast<ScriptVector2*>(a);
@@ -510,7 +510,7 @@ PyObject* ScriptVector2::py_positive(PyObject *self)
 int ScriptVector2::py_nonzero(PyObject *self)
 {
 	ScriptVector2* sv = static_cast<ScriptVector2*>(self);
-	// Multiply
+	// point multiply
 	Vector2 v = sv->getVector();
 	float val = v.x * v.x + v.y * v.y;
 	return val > 0.f;
@@ -525,7 +525,7 @@ PyObject* ScriptVector2::py_inplace_add(PyObject *self, PyObject *b)
 		Py_INCREF(Py_NotImplemented);
 		return Py_NotImplemented;
 	}
-
+	
 	Vector2 bv;
 	convertPyObjectToVector2(bv, b);
 	ScriptVector2* sv = static_cast<ScriptVector2*>(self);
@@ -544,7 +544,7 @@ PyObject* ScriptVector2::py_inplace_subtract(PyObject *self, PyObject *b)
 		Py_INCREF(Py_NotImplemented);
 		return Py_NotImplemented;
 	}
-
+	
 	Vector2 bv;
 	convertPyObjectToVector2(bv, b);
 	ScriptVector2* sv = static_cast<ScriptVector2*>(self);
@@ -581,11 +581,11 @@ PyObject* ScriptVector2::__py_pyDistTo(PyObject* self, PyObject* args)
 {
 	if (PyTuple_Size(args) != 1)
 	{
-		PyErr_SetString(PyExc_TypeError, "args > 1 is error!\n");
+		PyErr_SetString(PyExc_TypeError, "args > 1 error!\n");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
-
+	
 	PyObject* pyVal = PyTuple_GET_ITEM(args, 0);
 	if(!check(pyVal))
 	{
@@ -594,12 +594,12 @@ PyObject* ScriptVector2::__py_pyDistTo(PyObject* self, PyObject* args)
 
 	ScriptVector2* sv = static_cast<ScriptVector2*>(self);
 	Vector2& v = sv->getVector();
-
+	
 	Vector2 v1;
 	convertPyObjectToVector2(v1, pyVal);
-
+	
 	Vector2 rv = (v - v1);
-	return PyFloat_FromDouble(OUROVec2Length(&rv)); //Calculate length and return
+	return PyFloat_FromDouble(KBEVec2Length(&rv)); //calculate the length and return
 }
 
 //-------------------------------------------------------------------------------------
@@ -607,11 +607,11 @@ PyObject* ScriptVector2::__py_pyDistSqrTo(PyObject* self, PyObject* args)
 {
 	if (PyTuple_Size(args) != 1)
 	{
-		PyErr_SetString(PyExc_TypeError, "args > 1 is error!\n");
+		PyErr_SetString(PyExc_TypeError, "args > 1 error!\n");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
-
+	
 	PyObject* pyVal = PyTuple_GET_ITEM(args, 0);
 	if(!check(pyVal))
 	{
@@ -620,12 +620,12 @@ PyObject* ScriptVector2::__py_pyDistSqrTo(PyObject* self, PyObject* args)
 
 	ScriptVector2* sv = static_cast<ScriptVector2*>(self);
 	Vector2& v = sv->getVector();
-
+	
 	Vector2 v1;
 	convertPyObjectToVector2(v1, pyVal);
-
+	
 	Vector2 rv = (v - v1);
-	return PyFloat_FromDouble(OUROVec2LengthSq(&rv)); //Calculate point multiplication and return
+	return PyFloat_FromDouble(KBEVec2LengthSq(&rv)); //calculate point multiplication and return
 }
 
 //-------------------------------------------------------------------------------------
@@ -671,7 +671,7 @@ PyObject* ScriptVector2::__py_pyDot(PyObject* self, PyObject* args)
 		Py_DECREF(pyResult);
 
 	ScriptVector2* sv = static_cast<ScriptVector2*>(self);
-	float result = OUROVec2Dot(const_cast<Vector2*>(&sv->getVector()), const_cast<Vector2*>(&v->getVector()));
+	float result = KBEVec2Dot(const_cast<Vector2*>(&sv->getVector()), const_cast<Vector2*>(&v->getVector()));
 	Py_DECREF(v);
 	return PyFloat_FromDouble(result);
 }
@@ -688,7 +688,7 @@ PyObject* ScriptVector2::__py_pyNormalise(PyObject* self, PyObject* args)
 
 	ScriptVector2* sv = static_cast<ScriptVector2*>(self);
 	Vector2& v = sv->getVector();
-	OUROVec2Normalize(&v, &v);
+	KBEVec2Normalize(&v, &v);
 	S_Return;
 }
 
@@ -725,7 +725,7 @@ PyObject* ScriptVector2::__py_pyList(PyObject* self, PyObject* args)
 	PyObject* pyList = PyList_New(VECTOR_SIZE);
 	ScriptVector2* sv = static_cast<ScriptVector2*>(self);
 	Vector2& v = sv->getVector();
-
+	
 	for (int i=0; i < VECTOR_SIZE; ++i)
 		PyList_SetItem(pyList, i, PyFloat_FromDouble(v[i]));
 

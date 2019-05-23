@@ -1,14 +1,14 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "ouroversion.h"
 #include "helper/debug_helper.h"
 namespace Ouroboros{
-namespace OUROVersion
+namespace KBEVersion
 {
 std::string g_versionString;
 
 /**
-	Versioning
+	½Å±¾²ã°æ±¾
 */
 std::string g_scriptVersion = "0.0.0";
 
@@ -36,4 +36,6 @@ const std::string & scriptVersionString()
 
 
 }
-}
+} 
+
+

@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_WRITE_ENTITY_HELPER_H
 #define OURO_WRITE_ENTITY_HELPER_H
 
-// common include
+// common include	
 // #define NDEBUG
 #include <sstream>
 #include "common.h"
@@ -15,7 +15,7 @@
 #include "db_interface/entity_table.h"
 #include "db_interface_mysql.h"
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 
 class WriteEntityHelper
 {
@@ -28,8 +28,8 @@ public:
 	{
 	}
 
-	static SqlStatement* createSql(DBInterface* pdbi, DB_TABLE_OP opType,
-		std::string tableName, DBID parentDBID,
+	static SqlStatement* createSql(DBInterface* pdbi, DB_TABLE_OP opType, 
+		std::string tableName, DBID parentDBID, 
 		DBID dbid, mysql::DBContext::DB_ITEM_DATAS& tableVal)
 	{
 		SqlStatement* pSqlcmd = NULL;
@@ -55,7 +55,7 @@ public:
 	}
 
 	/**
-		Update the data to the table
+		Update data to the table
 	*/
 	static bool writeDB(DB_TABLE_OP optype, DBInterface* pdbi, mysql::DBContext& context)
 	{
@@ -63,8 +63,8 @@ public:
 
 		if(!context.isEmpty)
 		{
-			SqlStatement* pSqlcmd = createSql(pdbi, optype, context.tableName,
-				context.parentTableDBID,
+			SqlStatement* pSqlcmd = createSql(pdbi, optype, context.tableName, 
+				context.parentTableDBID, 
 				context.dbid, context.items);
 
 			ret = pSqlcmd->query();
@@ -79,21 +79,21 @@ public:
 			for(; iter1 != context.optable.end(); ++iter1)
 			{
 				mysql::DBContext& wbox = *iter1->second.get();
-
-				// Binding table relationship
+				
+				// Bind table relationship
 				wbox.parentTableDBID = context.dbid;
 
-				// Updater table
+				// update the child table
 				writeDB(optype, pdbi, wbox);
 			}
 		}
 		else
 		{
-			// If there is a parent ID, first obtain the number of entries in the data of the same parent id in the attribute database, and take out the id of each data
-			// Then update the data in memory sequentially to the database, if there are entries in the database, then Overwrites existing entries, inserts the remaining data if the number of data
-			// is greater than what is already in the database, and deletes entries in the database if the data is less than the entry in the database
+			// If there is a parent ID, first get the number of entries in the property database with the same parent id, and take the id of each data.
+			// Then update the data in memory to the database sequentially, if there are existing entries in the database, the order will overwrite the existing entries, if the number of data
+			// Insert the remaining data if it is larger than the existing one in the database. If the data is less than the entry in the database, delete the entry in the database.
 			// select id from tbl_SpawnPoint_xxx_values where parentID = 7;
-			OUROUnordered_map< std::string, std::vector<DBID> > childTableDBIDs;
+			KBEUnordered_map< std::string, std::vector<DBID> > childTableDBIDs;
 
 			if(context.dbid > 0)
 			{
@@ -102,7 +102,7 @@ public:
 				{
 					mysql::DBContext& wbox = *iter1->second.get();
 
-					OUROUnordered_map<std::string, std::vector<DBID> >::iterator iter =
+					KBEUnordered_map<std::string, std::vector<DBID> >::iterator iter = 
 						childTableDBIDs.find(context.tableName);
 
 					if(iter == childTableDBIDs.end())
@@ -111,21 +111,21 @@ public:
 						childTableDBIDs.insert(std::pair< std::string, std::vector<DBID> >(wbox.tableName, v));
 					}
 				}
-
+				
 				if(childTableDBIDs.size() > 1)
 				{
 					std::string sqlstr_getids;
-					OUROUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
+					KBEUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
 					for(; tabiter != childTableDBIDs.end();)
 					{
 						char sqlstr[MAX_BUF * 10];
-						ouro_snprintf(sqlstr, MAX_BUF * 10, "select count(id) from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID " union all ",
+						ouro_snprintf(sqlstr, MAX_BUF * 10, "select count(id) from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID " union all ", 
 							tabiter->first.c_str(),
 							context.dbid);
-
+						
 						sqlstr_getids += sqlstr;
 
-						ouro_snprintf(sqlstr, MAX_BUF * 10, "select id from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID,
+						ouro_snprintf(sqlstr, MAX_BUF * 10, "select id from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID, 
 							tabiter->first.c_str(),
 							context.dbid);
 
@@ -133,7 +133,7 @@ public:
 						if(++tabiter != childTableDBIDs.end())
 							sqlstr_getids += " union all ";
 					}
-
+					
 					if(pdbi->query(sqlstr_getids.c_str(), sqlstr_getids.size(), false))
 					{
 						MYSQL_RES * pResult = mysql_store_result(static_cast<DBInterfaceMysql*>(pdbi)->mysql());
@@ -167,9 +167,9 @@ public:
 				}
 				else if(childTableDBIDs.size() == 1)
 				{
-					OUROUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
+					KBEUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
 						char sqlstr[MAX_BUF * 10];
-						ouro_snprintf(sqlstr, MAX_BUF * 10, "select id from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID,
+						ouro_snprintf(sqlstr, MAX_BUF * 10, "select id from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID, 
 							tabiter->first.c_str(),
 							context.dbid);
 
@@ -192,7 +192,7 @@ public:
 				}
 			}
 
-			// If it is to empty this table, it will loop through N times found dbid, so that the sub-table in the sub-table can also be effectively deleted
+			// If you want to clear this table, loop through the dreads that have been found N times, so that the child tables in the child table can also be deleted effectively.
 			if(!context.isEmpty)
 			{
 				// Start updating all child tables
@@ -200,16 +200,16 @@ public:
 				for(; iter1 != context.optable.end(); ++iter1)
 				{
 					mysql::DBContext& wbox = *iter1->second.get();
-
+					
 					if(wbox.isEmpty)
 						continue;
 
-					// Binding table relationship
+					// Bind table relationship
 					wbox.parentTableDBID = context.dbid;
 
-					OUROUnordered_map<std::string, std::vector<DBID> >::iterator iter =
+					KBEUnordered_map<std::string, std::vector<DBID> >::iterator iter = 
 						childTableDBIDs.find(wbox.tableName);
-
+					
 					if(iter != childTableDBIDs.end())
 					{
 						if(iter->second.size() > 0)
@@ -224,19 +224,19 @@ public:
 						}
 					}
 
-					// Updater table
+					// update the child table
 					writeDB(optype, pdbi, wbox);
 				}
 			}
-
-			// Delete obsolete items
-			OUROUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
+			
+			// delete obsolete data items
+			KBEUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
 			for(; tabiter != childTableDBIDs.end(); ++tabiter)
 			{
 				if(tabiter->second.size() == 0)
 					continue;
 
-				// Delete records in the database first
+				// First delete the records in the database
 				std::string sqlstr = "delete from " ENTITY_TABLE_PERFIX "_";
 				sqlstr += tabiter->first;
 				sqlstr += " where " TABLE_ID_CONST_STR " in (";
@@ -251,7 +251,7 @@ public:
 					sqlstr += sqlstr1;
 					sqlstr += ",";
 				}
-
+				
 				sqlstr.erase(sqlstr.size() - 1);
 				sqlstr += ")";
 				bool ret = pdbi->query(sqlstr.c_str(), sqlstr.size(), false);
@@ -267,12 +267,12 @@ public:
 						for(; iter != tabiter->second.end(); ++iter)
 						{
 							DBID dbid = (*iter);
-
+							
 							wbox.parentTableDBID = context.dbid;
 							wbox.dbid = dbid;
 							wbox.isEmpty = true;
 
-							// Updater table
+							// update the child table
 							writeDB(optype, pdbi, wbox);
 						}
 					}
@@ -288,3 +288,4 @@ protected:
 
 }
 #endif // OURO_WRITE_ENTITY_HELPER_H
+

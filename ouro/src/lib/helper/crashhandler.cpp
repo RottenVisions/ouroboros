@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "crashhandler.h"
 namespace Ouroboros{ namespace exception {
@@ -13,7 +13,7 @@ void installCrashHandler(int svnVer, const char* dumpType)
 }
 
 //-------------------------------------------------------------------------------------
-void createMiniDump(EXCEPTION_POINTERS* pep)
+void createMiniDump(EXCEPTION_POINTERS* pep) 
 {
 	if(pep == 0)
 	{
@@ -24,127 +24,127 @@ void createMiniDump(EXCEPTION_POINTERS* pep)
 		}
 		__except(Ouroboros::exception::createMiniDump(GetExceptionInformation()), EXCEPTION_CONTINUE_EXECUTION)
 		{
-		}
+		}		
 	}
-
-	// Try to create a CrashDump directory every time
+	
+	// Try to create a CrashDump directory each time
 	CreateDirectory(L"CrashDumps", 0);
 
-	// Open the file
-	HANDLE hFile = CreateFile(_g_fileName, GENERIC_READ | GENERIC_WRITE,
-		0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+	// Open the file 
+	HANDLE hFile = CreateFile(_g_fileName, GENERIC_READ | GENERIC_WRITE, 
+		0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL ); 
 
-	if( ( hFile != NULL ) && ( hFile != INVALID_HANDLE_VALUE ) )
+	if( ( hFile != NULL ) && ( hFile != INVALID_HANDLE_VALUE ) ) 
 	{
-		// Create the minidump
-		MINIDUMP_EXCEPTION_INFORMATION mdei;
+		// Create the minidump 
+		MINIDUMP_EXCEPTION_INFORMATION mdei; 
 
-		mdei.ThreadId           = GetCurrentThreadId();
-		mdei.ExceptionPointers  = pep;
-		mdei.ClientPointers     = FALSE;
+		mdei.ThreadId           = GetCurrentThreadId(); 
+		mdei.ExceptionPointers  = pep; 
+		mdei.ClientPointers     = FALSE; 
 
-		MINIDUMP_CALLBACK_INFORMATION mci;
+		MINIDUMP_CALLBACK_INFORMATION mci; 
 
-		mci.CallbackRoutine     = (MINIDUMP_CALLBACK_ROUTINE)dumpCallback;
-		mci.CallbackParam       = 0;
+		mci.CallbackRoutine     = (MINIDUMP_CALLBACK_ROUTINE)dumpCallback; 
+		mci.CallbackParam       = 0; 
 
-		MINIDUMP_TYPE mdt       = (MINIDUMP_TYPE)(MiniDumpWithIndirectlyReferencedMemory | MiniDumpScanMemory);
+		MINIDUMP_TYPE mdt       = (MINIDUMP_TYPE)(MiniDumpWithIndirectlyReferencedMemory | MiniDumpScanMemory); 
 
-		BOOL rv = MiniDumpWriteDump( GetCurrentProcess(), GetCurrentProcessId(),
-			hFile, mdt, (pep != 0) ? &mdei : 0, 0, &mci );
+		BOOL rv = MiniDumpWriteDump( GetCurrentProcess(), GetCurrentProcessId(), 
+			hFile, mdt, (pep != 0) ? &mdei : 0, 0, &mci ); 
 
-		if( !rv )
-			_tprintf( _T("DumpWriteDump failed. Error: %u \n"), GetLastError() );
-		else
-			_tprintf( _T("dump created.\n") );
+		if( !rv ) 
+			_tprintf( _T("DumpWriteDump failed. Error: %u \n"), GetLastError() ); 
+		else 
+			_tprintf( _T("dump created.\n") ); 
 
-		// Close the file
-		CloseHandle( hFile );
+		// Close the file 
+		CloseHandle( hFile ); 
 
 	}
-	else
+	else 
 	{
-		_tprintf( _T("CreateFile failed. Error: %u \n"), GetLastError() );
+		_tprintf( _T("CreateFile failed. Error: %u \n"), GetLastError() ); 
 	}
 
 }
 
 //-------------------------------------------------------------------------------------
 BOOL CALLBACK dumpCallback(
-	PVOID                            pParam,
-	const PMINIDUMP_CALLBACK_INPUT   pInput,
-	PMINIDUMP_CALLBACK_OUTPUT        pOutput
-)
+	PVOID                            pParam, 
+	const PMINIDUMP_CALLBACK_INPUT   pInput, 
+	PMINIDUMP_CALLBACK_OUTPUT        pOutput 
+) 
 {
-	BOOL bRet = FALSE;
+	BOOL bRet = FALSE; 
 
 
-	// Check parameters
-	if( pInput == 0 )
-		return FALSE;
+	// Check parameters 
+	if( pInput == 0 ) 
+		return FALSE; 
 
-	if( pOutput == 0 )
-		return FALSE;
+	if( pOutput == 0 ) 
+		return FALSE; 
 
-	// Process the callbacks
-	switch( pInput->CallbackType )
+	// Process the callbacks 
+	switch( pInput->CallbackType ) 
 	{
-		case IncludeModuleCallback:
+		case IncludeModuleCallback: 
 		{
-			// Include the module into the dump
-			bRet = TRUE;
+			// Include the module into the dump 
+			bRet = TRUE; 
 		}
-		break;
+		break; 
 
-		case IncludeThreadCallback:
+		case IncludeThreadCallback: 
 		{
-			// Include the thread into the dump
-			bRet = TRUE;
+			// Include the thread into the dump 
+			bRet = TRUE; 
 		}
-		break;
+		break; 
 
-		case ModuleCallback:
+		case ModuleCallback: 
 		{
-			// Does the module have ModuleReferencedByMemory flag set ?
+			// Does the module have ModuleReferencedByMemory flag set ? 
 
-			if( !(pOutput->ModuleWriteFlags & ModuleReferencedByMemory) )
+			if( !(pOutput->ModuleWriteFlags & ModuleReferencedByMemory) ) 
 			{
-				// No, it does not - exclude it
+				// No, it does not - exclude it 
 
-				wprintf( L"Excluding module: %s \n", pInput->Module.FullPath );
-				pOutput->ModuleWriteFlags &= (~ModuleWriteModule);
+				wprintf( L"Excluding module: %s \n", pInput->Module.FullPath ); 
+				pOutput->ModuleWriteFlags &= (~ModuleWriteModule); 
 			}
 
-			bRet = TRUE;
+			bRet = TRUE; 
 		}
-		break;
+		break; 
 
-		case ThreadCallback:
+		case ThreadCallback: 
 		{
-			// Include all thread information into the minidump
-			bRet = TRUE;
+			// Include all thread information into the minidump 
+			bRet = TRUE;  
 		}
-		break;
+		break; 
 
-		case ThreadExCallback:
+		case ThreadExCallback: 
 		{
-			// Include this information
-			bRet = TRUE;
+			// Include this information 
+			bRet = TRUE;  
 		}
-		break;
+		break; 
 
-		case MemoryCallback:
+		case MemoryCallback: 
 		{
-			// We do not include any information here -> return FALSE
-			bRet = FALSE;
+			// We do not include any information here -> return FALSE 
+			bRet = FALSE; 
 		}
-		break;
+		break; 
 
-		case CancelCallback:
-			break;
+		case CancelCallback: 
+			break; 
 	}
 
-	return bRet;
+	return bRet; 
 }
 
 //-------------------------------------------------------------------------------------

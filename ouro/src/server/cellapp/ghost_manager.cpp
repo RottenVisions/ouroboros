@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "cellapp.h"
 #include "ghost_manager.h"
@@ -6,7 +6,7 @@
 #include "network/bundle.h"
 #include "network/channel.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 //-------------------------------------------------------------------------------------
 GhostManager::GhostManager():
@@ -44,7 +44,7 @@ Network::Bundle* GhostManager::createSendBundle(COMPONENT_ID componentID)
 			Network::Bundle* pBundle = iter->second.back();
 			if (pBundle->packetHaveSpace())
 			{
-				// Remove from queue first
+				// Remove from the queue first
 				iter->second.pop_back();
 				pBundle->pChannel(NULL);
 				pBundle->pCurrMsgHandler(NULL);
@@ -56,7 +56,7 @@ Network::Bundle* GhostManager::createSendBundle(COMPONENT_ID componentID)
 		}
 	}
 
-	return Network::Bundle::createPoolObject();
+	return Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 }
 
 //-------------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ void GhostManager::pushRouteMessage(ENTITY_ID entityID, COMPONENT_ID componentID
 void GhostManager::addRoute(ENTITY_ID entityID, COMPONENT_ID componentID)
 {
 	ROUTE_INFO& info = ghost_route_[entityID];
-
+	
 	info.componentID = componentID;
 	info.lastTime = timestamp();
 
@@ -147,7 +147,7 @@ void GhostManager::syncMessages()
 		if(cinfos == NULL || cinfos->pChannel == NULL)
 		{
 			ERROR_MSG(fmt::format("GhostManager::syncMessages: not found cellapp({})!\n", iter->first));
-
+			
 			for(; iter1 != iter->second.end(); ++iter1)
 				Network::Bundle::reclaimPoolObject((*iter1));
 
@@ -157,10 +157,10 @@ void GhostManager::syncMessages()
 
 		for(; iter1 != iter->second.end(); ++iter1)
 		{
-			// Synchronize messages to ghost
+			// Synchronize the message to ghost
 			cinfos->pChannel->send((*iter1));
 		}
-
+			
 		iter->second.clear();
 	}
 
@@ -199,8 +199,8 @@ void GhostManager::handleTimeout(TimerHandle, void * arg)
 {
 	if(timestamp() - checkTime_ > uint64( stampsPerSecond() * 0.1 ))
 	{
-		if(messages_.size() == 0 &&
-			ghost_route_.size() == 0 &&
+		if(messages_.size() == 0 && 
+			ghost_route_.size() == 0 && 
 			realEntities_.size() == 0)
 		{
 			cancel();

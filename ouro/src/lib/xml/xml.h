@@ -1,8 +1,8 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 /*
-	xml Read and write:
-		example:
+	Xml read and write:
+		Example:
 				<root>
 					<server>
 						<ip>172.16.0.12</ip>
@@ -18,24 +18,24 @@
 					printf("%s--%s\n", xml->getKey(node).c_str(), xml->getValStr(node->FirstChild()).c_str());
 				}
 				XML_FOR_END(node);
-
+				
 				delete xml;
 		Output:
 				---ip---172.16.0.12
 				---port---6000
-
+				
 
 		Example 2:
 				XML* xml = new XML("Ouroboros.xml");
 				TiXmlNode* serverNode = xml->getRootNode("server");
-
+				
 				TiXmlNode* node;
-				node = xml->enterNode(serverNode, "ip");
-				printf("%s\n", xml->getValStr(node).c_str() );
+				node = xml->enterNode(serverNode, "ip");	
+				printf("%s\n", xml->getValStr(node).c_str() );	
 
-				node = xml->enterNode(serverNode, "port");
-				printf("%s\n", xml->getValStr(node).c_str() );
-
+				node = xml->enterNode(serverNode, "port");		
+				printf("%s\n", xml->getValStr(node).c_str() );	
+			
 		Output:
 			172.16.0.12
 			6000
@@ -57,10 +57,10 @@ namespace Ouroboros{
 		{																				\
 		if(node->Type() != TiXmlNode::TINYXML_ELEMENT)									\
 				continue;																\
-
+			
 #define XML_FOR_END(node)																\
 	}while((node = node->NextSibling()));												\
-
+			
 class  XML : public RefCountable
 {
 public:
@@ -78,7 +78,7 @@ public:
 	{
 		openSection(xmlFile);
 	}
-
+	
 	~XML(void){
 		if(txdoc_){
 			txdoc_->Clear();
@@ -116,10 +116,10 @@ public:
 		return true;
 	}
 
-	/**Get the root element*/
+		/**Get the root element*/
 	TiXmlElement* getRootElement(void){return rootElement_;}
 
-	/**Get the root node with the parameter key as a subnode root under the scope root*/
+		/**Get the root node, with the parameter key as a subnode root under the root node of the range*/
 	TiXmlNode* getRootNode(const char* key = "")
 	{
 		if(rootElement_ == NULL)
@@ -134,7 +134,7 @@ public:
 		return rootElement_->FirstChild();
 	}
 
-	/**Return directly to the key node pointer to enter*/
+		/** directly return the key node pointer to enter*/
 	TiXmlNode* enterNode(TiXmlNode* node, const char* key)
 	{
 		do
@@ -161,7 +161,7 @@ public:
 		return NULL;
 	}
 
-	/**Is there such a key*/
+		/** Is there such a key?*/
 	bool hasNode(TiXmlNode* node, const char* key)
 	{
 		do{
@@ -173,9 +173,9 @@ public:
 
 		}while((node = node->NextSibling()));
 
-		return false;
+		return false;	
 	}
-
+	
 	TiXmlDocument* getTxdoc() const { return txdoc_; }
 
 	std::string getKey(const TiXmlNode* node)
@@ -246,5 +246,5 @@ protected:
 };
 
 }
-
+ 
 #endif // OURO_XMLP_H

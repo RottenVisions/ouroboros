@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "telnet_handler.h"
@@ -12,7 +12,7 @@
 #include "telnet_handler.inl"
 #endif
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 char _g_state_str[][256] = {
 	"password",
@@ -22,75 +22,97 @@ char _g_state_str[][256] = {
 };
 
 /*
-	Format: echo &quot;\033[word background color; font color m string\033[0m&quot;
+	Format: echo "\033[word background color; font color m string \033[0m"
 
-	E.g:
-	echo "\033[41;36m something here \033[0m"
+		E.g: 
+	echo "\033[41;36m something here \033[0m"  
 
 	The position of 41 represents the background color, and the position of 36 represents the color of the word.
 
 
-	Those ascii code is the beginning and end of the call to the color.
-	\033[ ; m .... \033[0m
+	Those ascii code are the beginning and end of the color call.
+	\033[ ; m …… \033[0m  
 
 
 
-	Word background color range:40----49
-	40:black
-	41:Dark red
-	42:green
-	43:yellow
-	44:blue
-	45:purple
-	46:Dark green
-	47:white
+	Word background color range: 40----49
+	40: Black
+	41: Deep red
+	42: Green
+	43: yellow
+	44: blue
+	45: Purple
+	46: Dark green
+	47: white
 
-	Word color:30-----------39
-	30:black
-	31:red
-	32:green
-	33:yellow
-	34:blue
-	35:purple
-	36:Dark green
-	37:white
+	Word color: 30-----------39
+	30: Black
+	31: Red
+	32: Green
+	33: yellow
+	34: blue
+	35: Purple
+	36: Dark green
+	37: white
 
-	\33[0m Close all properties
-	\33[1m Set high brightness
-	\33[4m Underline
-	\33[5m Blinking
-	\33[7m Reverse display
-	\33[8m Blanking
-	\33[30m -- \33[37m Set the foreground
-	\33[40m -- \33[47m Set the background color
-	\33[nA Move cursor up n rows
-	\33[nB Cursor down n rows
-	\33[nC Cursor moves right by n lines
-	\33[nD Cursor left shift n lines
+	\33[0m close all properties
+	\33[1m set high brightness
+	\33[4m underline
+	\33[5m flashing
+	\33[7m reverse display
+	\33[8m blanking
+	\33[30m -- \33[37m set the foreground color
+	\33[40m -- \33[47m set background color
+	\33[nA cursor moves up n lines
+	\33[nB cursor down n lines
+	\33[nC cursor right shift n lines
+	\33[nD Cursor left n lines
 	\33[y;xH sets the cursor position
 	\33[2J Clear screen
-	\33[K Clear the contents from the cursor to the end of the line
-	\33[s Save cursor position
+	\33[K Clears the content from the cursor to the end of the line
+	\33[s save cursor position
 	\33[u Restore cursor position
-	\33[?25l Hide the cursor
-	\33[?25h Display cursor
+	\33[?25l Hidden cursor
+	\33[?25h display cursor
 
 	Using the format can be more complicated:
 	^[[..m;..m;..m;..m
-	E.g: \033[2;7;1m highlight\033[2;7;0m
+	For example: \033[2;7;1m highlighting\033[2;7;0m
 */
 
-#define TELNET_CMD_LEFT							"\033[D"			// left
-#define TELNET_CMD_RIGHT						"\033[C"			// right
-#define TELNET_CMD_UP							"\033[A"			// on
-#define TELNET_CMD_DOWN							"\033[B"			// under
-#define TELNET_CMD_HOME							"\033[1~"			// Move to the beginning of the line
-#define TELNET_CMD_END							"\033[4~"			// Move to the end of the line
+#define TELNET_CMD_LEFT							"\033[D"			// 左
+#define TELNET_CMD_RIGHT						"\033[C"			// 右
+#define TELNET_CMD_UP							"\033[A"			// 上
+#define TELNET_CMD_DOWN							"\033[B"			// 下
+#define TELNET_CMD_HOME "\033[1~" // Move to the beginning of the line
+#define TELNET_CMD_END "\033[4~" // Move to the end of the line
 
-#define TELNET_CMD_DEL							"\033[K"			// Delete character
-#define TELNET_CMD_NEWLINE						"\r\n"				// New line
-#define TELNET_CMD_MOVE_FOCUS_LEFT_MAX			"\33[9999999999D"	// Move the cursor left to the front
-#define TELNET_CMD_MOVE_FOCUS_RIGHT_MAX			"\33[9999999999C"	// Move cursor right to the end
+#define TELNET_CMD_DEL "\033[K" // Delete characters
+#define TELNET_CMD_NEWLINE						"\r\n"				// 新行
+#define TELNET_CMD_MOVE_FOCUS_LEFT_MAX "\33[9999999999D" // Move the cursor to the front left
+#define TELNET_CMD_MOVE_FOCUS_RIGHT_MAX "\33[9999999999C" // Move the cursor to the end
+
+#define IAC_TERMIAL_TYPE_ANSI					"ANSI"
+#define IAC_TERMIAL_TYPE_VT100					"VT100"
+#define IAC_TERMIAL_TYPE_XTERM					"XTERM"
+
+#define XTERM_DEL								"\033[3~"
+
+const int TERMINAL_ANSI							= 1;
+const int TERMINAL_VT100						= 2;
+const int TERMINAL_XTERM						= 3;
+
+//telnet protocol
+const unsigned char IAC = 255; //data byte 255
+const unsigned char DONT = 254; //option negotiation, the sender wants the receiver to disable the option
+const unsigned char DO = 253; // option negotiation, the sender wants to call the receiver activation option
+const unsigned char WONT = 252; //option negotiation, the sender itself wants to disable the option
+const unsigned char WILL = 251; // option negotiation, the sender itself will activate the option
+const unsigned char SB = 250; //suboption starts
+const unsigned char SE = 240; //end of suboption
+const unsigned char ECHO						= 1;					//回显
+const unsigned char SUPPRESS_GO_AHEAD = 3; // suppress continues
+const unsigned char TT = 24; //terminal type
 
 //-------------------------------------------------------------------------------------
 TelnetHandler::TelnetHandler(Network::EndPoint* pEndPoint, TelnetServer* pTelnetServer, Network::NetworkInterface* pNetworkInterface, TELNET_STATE defstate):
@@ -103,7 +125,8 @@ state_(defstate),
 currPos_(0),
 pProfileHandler_(NULL),
 pNetworkInterface_(pNetworkInterface),
-getingHistroyCmd_(false)
+getingHistroyCmd_(false),
+clientTermialType_(0)
 {
 }
 
@@ -119,7 +142,7 @@ TelnetHandler::~TelnetHandler(void)
 //-------------------------------------------------------------------------------------
 std::string TelnetHandler::getInputStartString()
 {
-	return fmt::format("[{}@{} ~]{} ", COMPONENT_NAME_EX(g_componentType),
+	return fmt::format("[{}@{} ~]{} ", COMPONENT_NAME_EX(g_componentType), 
 		_g_state_str[(int)state_], (state_ == TELNET_STATE_PYTHON ? " >>>" : "#"));
 }
 
@@ -138,7 +161,7 @@ std::string TelnetHandler::getWelcome()
 			"{}"
 			"\r\n---------------------------------------------"
 			" \033[0m\r\n{}",
-		COMPONENT_NAME_EX(g_componentType), OUROVersion::versionString(), OUROVersion::scriptVersionString(),
+		COMPONENT_NAME_EX(g_componentType), KBEVersion::versionString(), KBEVersion::scriptVersionString(),
 		OURO_CONFIG, __TIME__, __DATE__,
 		g_componentID, getUserUID(), getProcessPID(), help(), getInputStartString());
 }
@@ -172,7 +195,7 @@ void TelnetHandler::historyCommandCheck()
 		historyCommandIndex_ = historyCommand_.size() - 1;
 
 	if(historyCommandIndex_ > (int)historyCommand_.size() - 1)
-		historyCommandIndex_ = 0;
+		historyCommandIndex_ = 0; 
 }
 
 //-------------------------------------------------------------------------------------
@@ -197,7 +220,7 @@ Network::Reason TelnetHandler::checkLastErrors()
 	int err;
 	Network::Reason reason;
 
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 	err = errno;
 
 	switch (err)
@@ -252,10 +275,10 @@ int	TelnetHandler::handleInputNotification(int fd)
 		pTelnetServer_->onTelnetHandlerClosed(fd, this);
 		return 0;
 	}
-
+	
 	if(state_ == TELNET_STATE_READONLY)
 		return 0;
-
+	
 	onRecvInput(data, recvsize);
 	return 0;
 }
@@ -268,32 +291,40 @@ void TelnetHandler::onRecvInput(const char *buffer, int size)
 	{
 		char c = buffer[idx++];
 
-		switch(c)
+		switch (c)
 		{
 		case '\r':
+		{
 			getingHistroyCmd_ = false;
-			if (idx < size)
+			bool isEnter = false;
+
+			if (size == 1)
+			{
+				isEnter = true;
+			}
+			else if (idx < size)
 			{
 				int cc = buffer[idx++];
-				if(cc == '\n')
+				if (cc == '\n' || cc == '\0')
 				{
-					if(!processCommand())
-						return;
+					isEnter = true;
 				}
 			}
-			break;
-		case 8:		// backspace
-			if (currPos_ == 0)
+
+			if (isEnter && !processCommand())
 			{
-				resetStartPosition();
+				return;
 			}
-			else
-			{
-				sendDelChar();
-				checkAfterStr();
-			}
+
 			break;
-		case 27:	// Vt100 command code: 0x1b
+		}
+		case 8: // Backspace
+		case 0x7f: // delete
+		{
+			processBackSpace();
+			break;
+		}
+		case 27: // vt100 command code: 0x1b
 		{
 			std::string s = "";
 			std::string vt100cmd(s + c);
@@ -308,22 +339,22 @@ void TelnetHandler::onRecvInput(const char *buffer, int size)
 				vt100cmd.append(s + c);
 				switch (c)
 				{
-				case 'A': // Move cursor up n rows
-				case 'B': // Cursor down n rows
-				case 'C': // Cursor right shift n column
-				case 'D': // Cursor left shift n column
-				case '~': // home, end wait
+				case 'A': // Move the cursor up n lines
+				case 'B': // The cursor moves down n lines
+				case 'C': // Cursor right to n columns
+				case 'D': // Cursor left n columns
+								case '~': // home、end等
 					shouldBeContinue = false;
 					break;
 
-				case 'm': // Colors and other attributes or commands
-				case 'J': // Clear screen
-				case 'K': // Clear the contents from the cursor to the end of the line
-				case 's': // Save cursor position
-				case 'u': // Restore cursor position
-				case 'l': // Hide the cursor
-				case 'h': // Display cursor
-				case 'H': // Set the cursor position
+				case 'm': // color or other attribute or command
+				case 'J': // clear screen
+				case 'K': // Clear the content from the cursor to the end of the line
+				case 's': // save cursor position
+				case 'u': // restore cursor position
+				case 'l': // hide the cursor
+				case 'h': // display cursor
+				case 'H': // set the cursor position
 				default:
 					break;
 				}
@@ -331,11 +362,12 @@ void TelnetHandler::onRecvInput(const char *buffer, int size)
 
 			if (!checkUDLR(vt100cmd))
 			{
-				// Output the unrecognized command as it is but change the command to &quot;^&quot;
-				// To avoid client trigger command operations
+				// Output the command you don't know as it is, but change the command character to "^"
+				// to avoid the client trigger command operation
 				vt100cmd[0] = '^';
 				command_.insert(currPos_, vt100cmd);
 				currPos_ += vt100cmd.length();
+
 				if (currPos_ == (int32)command_.length())
 				{
 					pEndPoint_->send(vt100cmd.c_str(), vt100cmd.size());
@@ -349,18 +381,29 @@ void TelnetHandler::onRecvInput(const char *buffer, int size)
 			}
 			break;
 		}
-		case 0x7f: // delete
-			if (currPos_ < (int32)command_.length())
+		case -1: //iac command, telnet protocol
+		{
+			std::string iaccmd(1, c);
+			while (idx < size)
 			{
-				command_.erase(currPos_, 1);
-				pEndPoint_->send(TELNET_CMD_DEL, strlen(TELNET_CMD_DEL));
-				checkAfterStr();
+				c = buffer[idx++];
+				iaccmd.append(1, c);
 			}
+
+			checkTerminalType(iaccmd);
 			break;
+		}
 		default:
 			{
 				std::string s = "";
 				s += c;
+
+				// Make the echo
+				if (state_ != TELNET_STATE_PASSWD)
+				{
+					pEndPoint_->send(s.c_str(), s.size());
+				}
+				
 				command_.insert(currPos_, s);
 				currPos_++;
 				checkAfterStr();
@@ -385,7 +428,7 @@ void TelnetHandler::checkAfterStr()
 //-------------------------------------------------------------------------------------
 bool TelnetHandler::checkUDLR(const std::string &cmd)
 {
-	if (cmd.find(TELNET_CMD_UP) != std::string::npos)		// on
+		if (cmd.find(TELNET_CMD_UP) != std::string::npos)		// 上 
 	{
 		pEndPoint_->send(TELNET_CMD_MOVE_FOCUS_LEFT_MAX, strlen(TELNET_CMD_MOVE_FOCUS_LEFT_MAX));
 		sendDelChar();
@@ -405,7 +448,7 @@ bool TelnetHandler::checkUDLR(const std::string &cmd)
 		currPos_ = s.size();
 		return true;
 	}
-	else if (cmd.find(TELNET_CMD_DOWN) != std::string::npos)	// under
+		else if (cmd.find(TELNET_CMD_DOWN) != std::string::npos)	// 下
 	{
 		pEndPoint_->send(TELNET_CMD_MOVE_FOCUS_LEFT_MAX, strlen(TELNET_CMD_MOVE_FOCUS_LEFT_MAX));
 		sendDelChar();
@@ -425,7 +468,7 @@ bool TelnetHandler::checkUDLR(const std::string &cmd)
 		currPos_ = s.size();
 		return true;
 	}
-	else if (cmd.find(TELNET_CMD_RIGHT) != std::string::npos)	// right
+		else if (cmd.find(TELNET_CMD_RIGHT) != std::string::npos)	// 右
 	{
 		int cmdlen = strlen(TELNET_CMD_RIGHT);
 		if(currPos_ < (int)command_.size())
@@ -435,7 +478,7 @@ bool TelnetHandler::checkUDLR(const std::string &cmd)
 		}
 		return true;
 	}
-	else if (cmd.find(TELNET_CMD_LEFT) != std::string::npos)	// left
+		else if (cmd.find(TELNET_CMD_LEFT) != std::string::npos)	// 左 
 	{
 		int cmdlen = strlen(TELNET_CMD_LEFT);
 		if(currPos_ > 0)
@@ -445,7 +488,7 @@ bool TelnetHandler::checkUDLR(const std::string &cmd)
 		}
 		return true;
 	}
-	else if (cmd.find(TELNET_CMD_HOME) != std::string::npos)	// Move to the beginning of the line
+	else if (cmd.find(TELNET_CMD_HOME) != std::string::npos) // Move to the beginning of the line
 	{
 		if (currPos_ > 0)
 		{
@@ -455,7 +498,7 @@ bool TelnetHandler::checkUDLR(const std::string &cmd)
 		}
 		return true;
 	}
-	else if (cmd.find(TELNET_CMD_END) != std::string::npos)	    // Move to the end of the line
+	else if (cmd.find(TELNET_CMD_END) != std::string::npos) // Move to the end of the line
 	{
 		if (currPos_ != (int32)command_.length())
 		{
@@ -465,8 +508,31 @@ bool TelnetHandler::checkUDLR(const std::string &cmd)
 		}
 		return true;
 	}
+	else if ( clientTermialType_ == TERMINAL_XTERM && cmd.find(XTERM_DEL) != std::string::npos)
+	{
+		processBackSpace();
+		return true;
+	}
 
 	return false;
+}
+
+void TelnetHandler::checkTerminalType(std::string &iac)
+{
+	std::transform(iac.begin(), iac.end(), iac.begin(), toupper);
+
+	if (iac.find(IAC_TERMIAL_TYPE_ANSI) != std::string::npos)
+	{
+		clientTermialType_ = TERMINAL_ANSI;
+	}
+	else if (iac.find(IAC_TERMIAL_TYPE_VT100) != std::string::npos)
+	{
+		clientTermialType_ = TERMINAL_VT100;
+	}
+	else if (iac.find(IAC_TERMIAL_TYPE_XTERM) != std::string::npos)
+	{
+		clientTermialType_ = TERMINAL_XTERM;
+	}
 }
 
 //-------------------------------------------------------------------------------------
@@ -474,6 +540,7 @@ bool TelnetHandler::processCommand()
 {
 	if(command_.size() == 0)
 	{
+		sendEnter();
 		sendNewLine();
 		return true;
 	}
@@ -483,21 +550,30 @@ bool TelnetHandler::processCommand()
 		if(command_ == pTelnetServer_->passwd())
 		{
 			state_ = (TELNET_STATE)pTelnetServer_->deflayer();
+			
 			std::string s = getWelcome();
 			pEndPoint_->send(s.c_str(), s.size());
 			command_ = "";
+
 			sendEnter();
 			sendNewLine();
+
+			sendServerTerminalType();
+			sendWillSuppressGoAhead();
+			sendWillEcho();
+			sendDOTT();
+			sendQueryClientTerminalType();
+
 			return true;
 		}
 		else
 		{
 			command_ = "";
+			sendEnter();
 			sendNewLine();
 			return true;
 		}
 	}
-
 
 	bool logcmd = true;
 	//for(int i=0; i<(int)historyCommand_.size(); ++i)
@@ -525,6 +601,7 @@ bool TelnetHandler::processCommand()
 			return true;
 
 		state_ = TELNET_STATE_PYTHON;
+		sendEnter();
 		sendNewLine();
 		return true;
 	}
@@ -537,21 +614,22 @@ bool TelnetHandler::processCommand()
 	}
 	else if(cmd == ":root")
 	{
-		sendNewLine();
 		state_ = TELNET_STATE_ROOT;
+		sendEnter();
+		sendNewLine();
 		return true;
 	}
 	else if(cmd == ":quit")
 	{
 		state_ = TELNET_STATE_QUIT;
-
+		
 		pTelnetServer_->closeHandler((*pEndPoint_), this);
 		return false;
 	}
 	else if(cmd.find(":cprofile") == 0)
 	{
 		uint32 timelen = 10;
-
+		
 		cmd.erase(cmd.find(":cprofile"), strlen(":cprofile"));
 		if(cmd.size() > 0)
 		{
@@ -559,7 +637,7 @@ bool TelnetHandler::processCommand()
 			{
 				Ouroboros::StringConv::str2value(timelen, cmd.c_str());
 			}
-			catch(...)
+			catch(...)  
 			{
 				timelen = 10;
 			}
@@ -567,14 +645,13 @@ bool TelnetHandler::processCommand()
 			if(timelen < 1 || timelen > 999999999)
 				timelen = 10;
 		}
-
-		std::string str = fmt::format("Waiting for {} secs.\r\n", timelen);
+		std::string str = fmt::format("\r\nWaiting for {} secs.\r\n", timelen);
 		pEndPoint_->send(str.c_str(), str.size());
-
+		
 		std::string profileName = Ouroboros::StringConv::val2str(Ouroboros::genUUID64());
 
 		if(pProfileHandler_) pProfileHandler_->destroy();
-		pProfileHandler_ = new TelnetCProfileHandler(this, *pTelnetServer_->pNetworkInterface(),
+		pProfileHandler_ = new TelnetCProfileHandler(this, *pTelnetServer_->pNetworkInterface(), 
 			timelen, profileName, pEndPoint_->addr());
 
 		readonly();
@@ -591,7 +668,7 @@ bool TelnetHandler::processCommand()
 			{
 				Ouroboros::StringConv::str2value(timelen, cmd.c_str());
 			}
-			catch(...)
+			catch(...)  
 			{
 				timelen = 10;
 			}
@@ -599,14 +676,13 @@ bool TelnetHandler::processCommand()
 			if(timelen < 1 || timelen > 999999999)
 				timelen = 10;
 		}
-
-		std::string str = fmt::format("Waiting for {} secs.\r\n", timelen);
+		std::string str = fmt::format("\r\nWaiting for {} secs.\r\n", timelen);
 		pEndPoint_->send(str.c_str(), str.size());
 
 		std::string profileName = Ouroboros::StringConv::val2str(Ouroboros::genUUID64());
 
 		if(pProfileHandler_) pProfileHandler_->destroy();
-		pProfileHandler_ = new TelnetPyProfileHandler(this, *pTelnetServer_->pNetworkInterface(),
+		pProfileHandler_ = new TelnetPyProfileHandler(this, *pTelnetServer_->pNetworkInterface(), 
 			timelen, profileName, pEndPoint_->addr());
 
 		readonly();
@@ -652,7 +728,7 @@ bool TelnetHandler::processCommand()
 			{
 				Ouroboros::StringConv::str2value(timelen, cmd.c_str());
 			}
-			catch(...)
+			catch(...)  
 			{
 				timelen = 10;
 			}
@@ -660,14 +736,13 @@ bool TelnetHandler::processCommand()
 			if(timelen < 1 || timelen > 999999999)
 				timelen = 10;
 		}
-
-		std::string str = fmt::format("Waiting for {} secs.\r\n", timelen);
+		std::string str = fmt::format("\r\nWaiting for {} secs.\r\n", timelen);
 		pEndPoint_->send(str.c_str(), str.size());
 
 		std::string profileName = Ouroboros::StringConv::val2str(Ouroboros::genUUID64());
 
 		if(pProfileHandler_) pProfileHandler_->destroy();
-		pProfileHandler_ = new TelnetEventProfileHandler(this, *pTelnetServer_->pNetworkInterface(),
+		pProfileHandler_ = new TelnetEventProfileHandler(this, *pTelnetServer_->pNetworkInterface(), 
 			timelen, profileName, pEndPoint_->addr());
 
 		readonly();
@@ -684,7 +759,7 @@ bool TelnetHandler::processCommand()
 			{
 				Ouroboros::StringConv::str2value(timelen, cmd.c_str());
 			}
-			catch(...)
+			catch(...)  
 			{
 				timelen = 10;
 			}
@@ -693,13 +768,13 @@ bool TelnetHandler::processCommand()
 				timelen = 10;
 		}
 
-		std::string str = fmt::format("Waiting for {} secs.\r\n", timelen);
+		std::string str = fmt::format("\r\nWaiting for {} secs.\r\n", timelen);
 		pEndPoint_->send(str.c_str(), str.size());
 
 		std::string profileName = Ouroboros::StringConv::val2str(Ouroboros::genUUID64());
 
 		if(pProfileHandler_) pProfileHandler_->destroy();
-		pProfileHandler_ = new TelnetNetworkProfileHandler(this, *pTelnetServer_->pNetworkInterface(),
+		pProfileHandler_ = new TelnetNetworkProfileHandler(this, *pTelnetServer_->pNetworkInterface(), 
 			timelen, profileName, pEndPoint_->addr());
 
 		readonly();
@@ -710,7 +785,8 @@ bool TelnetHandler::processCommand()
 	{
 		processPythonCommand(cmd);
 	}
-
+	
+	sendEnter();
 	sendNewLine();
 	return true;
 }
@@ -720,7 +796,7 @@ void TelnetHandler::processPythonCommand(std::string command)
 {
 	if(pTelnetServer_->pScript() == NULL || command.size() == 0)
 		return;
-
+	
 	command += "\n";
 	PyObject* pycmd = PyUnicode_DecodeUTF8(command.data(), command.size(), NULL);
 	if(pycmd == NULL)
@@ -729,7 +805,7 @@ void TelnetHandler::processPythonCommand(std::string command)
 		return;
 	}
 
-	DEBUG_MSG(fmt::format("TelnetHandler::processPythonCommand: size({}), command={}.\n",
+	DEBUG_MSG(fmt::format("TelnetHandler::processPythonCommand: size({}), command={}.\n", 
 		command.size(), command));
 
 	std::string retbuf = "";
@@ -737,7 +813,7 @@ void TelnetHandler::processPythonCommand(std::string command)
 
 	pTelnetServer_->pScript()->run_simpleString(PyBytes_AsString(pycmd1), &retbuf);
 
-	// Replace '\' in return value with '\r\n' to resolve incorrect display in vt100 terminal
+	// Replace '\n' in the return value with '\r\n' to solve the problem of incorrect display in vt100 terminal
 	std::string::size_type pos = 0;
 	while ((pos = retbuf.find('\n', pos)) != std::string::npos)
 	{
@@ -748,19 +824,32 @@ void TelnetHandler::processPythonCommand(std::string command)
 		}
 		pos++;
 	}
-
+	
 	if(retbuf.size() > 0)
 	{
-		// Return the result to the client
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		// return the result to the client
+		retbuf.insert(0, "\r\n");
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle) << retbuf;
 		pEndPoint_->send(pBundle);
 		Network::Bundle::reclaimPoolObject(pBundle);
-		sendEnter();
 	}
 
 	Py_DECREF(pycmd);
 	Py_DECREF(pycmd1);
+}
+
+void TelnetHandler::processBackSpace()
+{
+	if (currPos_ == 0)
+	{
+		resetStartPosition();
+	}
+	else
+	{
+		sendBackSpace();
+		checkAfterStr();
+	}
 }
 
 //-------------------------------------------------------------------------------------
@@ -774,7 +863,7 @@ void TelnetHandler::sendDelChar()
 {
 	if(command_.size() > 0)
 	{
-		if(currPos_ > 0)
+		if (currPos_ > 0)
 		{
 			command_.erase(currPos_ - 1, 1);
 			currPos_--;
@@ -790,6 +879,52 @@ void TelnetHandler::sendNewLine()
 	pEndPoint_->send(startstr.c_str(), startstr.size());
 	resetStartPosition();
 	currPos_ = 0;
+}
+
+void TelnetHandler::sendWillSuppressGoAhead()
+{
+	unsigned char cmd[] = { IAC, WILL, SUPPRESS_GO_AHEAD, '\0' };
+	pEndPoint_->send(cmd, sizeof(cmd));
+}
+
+void TelnetHandler::sendDOTT()
+{
+	unsigned char cmd[] = { IAC, DO, TT, '\0' };
+	pEndPoint_->send(cmd, sizeof(cmd));
+}
+
+void TelnetHandler::sendQueryClientTerminalType()
+{
+	unsigned char cmd[] = { IAC, SB, TT, 1, IAC, SE, '\0' };
+	pEndPoint_->send(cmd, sizeof(cmd));
+}
+
+void TelnetHandler::sendServerTerminalType()
+{
+	unsigned char cmd[] = { IAC, SB, TT, 0, 'v', 't', '1', '0', '0', IAC, SE, '\0' };
+	pEndPoint_->send(cmd, sizeof(cmd));
+}
+
+void TelnetHandler::sendWillEcho()
+{
+	unsigned char cmd[] = { IAC, WILL, ECHO, '\0' };
+	pEndPoint_->send(cmd, sizeof(cmd));
+}
+
+void TelnetHandler::sendBackSpace()
+{
+	if (command_.size() > 0)
+	{
+		if (currPos_ > 0)
+		{
+			command_.erase(currPos_ - 1, 1);
+			currPos_--;
+
+			char cmd[] = { 8, '\0' };
+			pEndPoint_->send(cmd, sizeof(cmd));
+			pEndPoint_->send(TELNET_CMD_DEL, strlen(TELNET_CMD_DEL));
+		}
+	}
 }
 
 //-------------------------------------------------------------------------------------
@@ -835,7 +970,7 @@ void TelnetPyProfileHandler::sendStream(MemoryStream* s)
 	std::string datas;
 	(*s) >> datas;
 
-	// Replace '\n' in return value with '\r' to resolve incorrect display in vt100 terminal
+	// Replace '\n' in the return value with '\r\n' to solve the problem of incorrect display in vt100 terminal
 	std::string::size_type pos = 0;
 	while ((pos = datas.find('\n', pos)) != std::string::npos)
 	{
@@ -856,11 +991,10 @@ void TelnetPyTickProfileHandler::sendStream(MemoryStream* s)
 	if (isDestroyed_ || !pTelnetHandler_)
 		return;
 
-
 	std::string datas;
 	(*s) >> datas;
 
-	// Replace '\n' in return value with '\r' to resolve incorrect display in vt100 terminal
+	// Replace '\n' in the return value with '\r\n' to solve the problem of incorrect display in vt100 terminal
 	std::string::size_type pos = 0;
 	while ((pos = datas.find('\n', pos)) != std::string::npos)
 	{
@@ -899,7 +1033,7 @@ void TelnetPyTickProfileHandler::destroy()
 void TelnetCProfileHandler::sendStream(MemoryStream* s)
 {
 	if(isDestroyed_) return;
-
+	
 	std::string datas;
 	uint32 timinglen;
 	ArraySize size;
@@ -965,7 +1099,7 @@ void TelnetEventProfileHandler::sendStream(MemoryStream* s)
 	{
 		std::string type_name;
 		(*s) >> type_name;
-
+		
 		datas += fmt::format("Event Type:{}\r\n\r\n(name|count|size)\r\n---------------------\r\n\r\n", type_name);
 
 		Ouroboros::ArraySize size1;
@@ -978,7 +1112,7 @@ void TelnetEventProfileHandler::sendStream(MemoryStream* s)
 			std::string name;
 
 			(*s) >> name >> count >> eventSize;
-
+			
 			if(count == 0)
 				continue;
 
@@ -1077,3 +1211,4 @@ void TelnetNetworkProfileHandler::sendStream(MemoryStream* s)
 
 //-------------------------------------------------------------------------------------
 }
+

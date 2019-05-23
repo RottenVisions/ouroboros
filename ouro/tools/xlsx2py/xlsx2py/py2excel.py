@@ -1,10 +1,10 @@
 ﻿# -*- coding: utf-8 -*-
 """
 *****************************************************************************************
-	使用方法：python py2excel pyfile(utf-8)  readexcelfile, writeexcelfile
-	pyfile请使用utf-8，不支持ANSI, py中的应有字典datas, allDatas(py文件至少有datas)
-	readexcelfile为生成py文件的母表
-	writeexcelfile 为导出的xlsx文件
+	Usage: python py2excel pyfile(utf-8) readexcelfile, writeexcelfile
+	Pyfile please use utf-8, does not support ANSI, py should have dictionary datas, allDatas (py files have at least datas)
+	Readexcelfile is the parent table for generating py files
+	Writeexcelfile is the exported xlsx file
 *****************************************************************************************
 """
 
@@ -18,7 +18,7 @@ from config import *
 
 class Sheet(object):
 	"""
-	简表
+	Short form
 	"""
 	@property
 	def sheet(self):
@@ -66,7 +66,7 @@ class py2excel(object):
 		self.mapSheet = {}
 		
 
-####################导入py文件#######################
+#################### Import py file##############################################
 	def importPyModule(self):
 		"""
 		import self.pyfile as python module
@@ -100,13 +100,13 @@ class py2excel(object):
 		else:
 			return  None
 
-############################从策划表读取信息#######################################
+############################################################################################## #######################
 	def openXlsx(self):
 		if xlsxtool.checkExtName(self.sourcefile, '.xlsx') or xlsxtool.checkExtName(self.sourcefile, ".xls"):
 			self.xbook = ExcelTool(self.sourcefile)
 
 			if not self.xbook.getWorkbook():
-				print( "打开文件失败" )
+				Print( "Failed to open file")
 				return
 
 			self.xlsx = self.xbook.getXLSX()
@@ -119,7 +119,7 @@ class py2excel(object):
 			if sheetName.startswith(EXPORT_PREFIX_CHAR):
 				if allDatas is  None:
 					sheetCNames[index] = sheetName
-				elif sheetName[1:].encode("utf-8")  in allDatas:		#py文件编码认为是utf-8
+				Elif sheetName[1:].encode("utf-8") in allDatas: #pyfile encoding is considered to be utf-8
 					sheetCNames[index] = sheetName
 					
 		if len(sheetCNames) == 0:
@@ -127,7 +127,7 @@ class py2excel(object):
 			self.xbook.close()
 			sys.exit(1)
 			
-		if allDatas is None and len(sheetCNames) > 1:	#这个主要处理，没有allDatas的时候
+		If allDatas is None and len(sheetCNames) > 1: #This is the main processing, when there is no allDatas
 			for k,v in sheetCNames.iteritems():
 				print( "%d:%s"%(k,v) )
 
@@ -148,12 +148,12 @@ class py2excel(object):
 
 	def readXlsxHeader(self):
 		"""
-		读取中英文对照
+		Read Chinese and English
 		"""
 		if self.xlsx is None:
 			print( "no file opened" )
 
-		self.names = {}									#sn:表的中文名字,engName，chnName:字典key的英文(中文)名字，
+		Self.names = {} #sn: Chinese name of the table, engName, chnName: English (Chinese) name of the dictionary key,
 
 		for si, sn in self.sheetCNames.iteritems():		#chinese name of  sheetname, sheetindex
 			sheet = Sheet(self.xbook, si)
@@ -174,14 +174,14 @@ class py2excel(object):
 				self.names[sn][engName] = chnName
 
 		self.sheet = None
-		self.xbook.close()		#覆盖的时候这是必须的
+		Self.xbook.close() #This is a must when overwriting
 		
 		self.xbook = None
 		return self.names
 
 	def writeNewXlsx(self):
 		"""
-		py的字典写入到xlsx
+		Py's dictionary is written to xlsx
 		"""
 		def getWorkbook():
 			dirs, filename = os.path.split(self.dstfile)		
@@ -211,10 +211,10 @@ class py2excel(object):
 			self.writeXlsxWithC()
 			
 		else:
-			self.writeXlsxWithoutC()		#没有中文
+			self.writeXlsxWithoutC() #没有中文
 
 
-	def writeXlsxWithoutC(self):		#没有中文
+	Def writeXlsxWithoutC(self): #没有中文
 		self.parseWriteSheet('datas')
 		data  = None
 		if hasattr(self.pyModule, 'datas'):
@@ -231,14 +231,14 @@ class py2excel(object):
 		self.xbook.close(saveChanges = True)
 		
 
-	def writeXlsxWithC(self):		#有中文的文件
+	Def writeXlsxWithC(self): #Chinese file
 		cnames = self.names.keys()
 		self.parseWriteSheet(cnames)
 
 		for cname, e2cDict in self.names.iteritems():
 			self.newSheet = self.getWriteSheet(cname)
 
-			self.newSheet.UsedRange = None 	#清空表的内容
+			self.newSheet.UsedRange = None #clear the contents of the table
 			data = None
 
 			if self.getSheetNameFromModule()  is not None:
@@ -267,14 +267,14 @@ class py2excel(object):
 	
 	def writeXlsxHeader(self, headerCNames):
 		"""
-		写到导出xlsx的第一行
+		Write to the first line of the exported xlsx
 		"""
-		for  pos, cn in enumerate(headerCNames):			#ANSI编码
+		For pos, cn in enumerate(headerCNames): #ANSI编�?
 			self.newSheet.Cells(1, pos+1).Value = cn
 
 	def writeData2Cells(self, data, headerKeys):
 		"""
-		字典的数据写入到excel中
+		Dictionary data is written to excel
 		"""
 
 		if self.newSheet is None:
@@ -297,7 +297,7 @@ class py2excel(object):
 
 	def getWriteSheet(self, cname):
 		"""
-		从workbook选取所要写入数据的sheet
+		Select the sheet to be written from the workbook
 		"""
 		if cname in self.repeatUse:
 			newSheet = self.xbook.getSheetByIndex(self.repeatUse.pop(cname))
@@ -313,10 +313,10 @@ class py2excel(object):
 
 	def parseWriteSheet(self, cnames):
 		"""
-		对即将要写的表做一些分析，保证一些表依旧存在
+		Do some analysis on the table to be written to ensure that some tables still exist.
 		"""
-		self.repeatUse = {}	#表需要覆盖
-		self.useless = []	#这些表被看做无用，需要新表的时候从这里取
+		self.repeatUse = {} #table needs to be overwritten
+		Self.useless = [] #These tables are considered useless. When you need a new table, take it from here.
 
 		for index in  range(1, self.xbook.getSheetCount()+1):
 			name = self.xbook.getSheetNameByIndex(index)
@@ -330,7 +330,7 @@ class py2excel(object):
 
 	def convertType(self, val):
 		"""
-		类型转换
+		Type conversion
 		"""
 		if isinstance(val, str):
 			return val.decode("utf-8")
@@ -349,17 +349,17 @@ class py2excel(object):
 		self.writeNewXlsx()
 		
 if __name__ == '__main__':
-	if len(sys.argv[1:]) == 2: #没有中文表
+	If len(sys.argv[1:]) == 2: #没有中文表
 		pyfile, dstfile = sys.argv[1:]
 		a = py2excel(pyfile, '', dstfile)
 		a.run()
 		
 	
-	elif len(sys.argv[1:]) == 3:	#有中文表
+	Elif len(sys.argv[1:]) == 3: #有中文表
 		pyfile, sourcefile, dstfile  = sys.argv[1:]
 
 		if False in map(lambda x:os.path.isfile(x.decode('gb2312')), sys.argv[1:3]):
-			print(  '文件呢?'.decode("utf-8") )
+			Print( 'File??.decode("utf-8") )
 			sys.exit(1)
 
 		a = py2excel(pyfile, sourcefile, dstfile)

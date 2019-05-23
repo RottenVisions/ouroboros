@@ -4,93 +4,93 @@
 	<!-- Authentication mode LOGIN=1, PLAIN=2-->
 	<smtp_auth>2</smtp_auth>
 	<username> ouroboros@163.com </username>
-
- <!-- The password can be clear text, you can also use ouro_private. key-RSA encryption of the password,
-			Fill out the plaintext password LOG will prompt a warning is given and the RSA password, simple from the LOG is copied over -->
+	
+	<!-- The password can be in plain text or you can use the password encrypted by ouro_private.key-RSA.
+		Fill in the clear text password LOG will prompt a warning and give the RSA password, simply copy it from the LOG -->
 	<password> D4A3839D7E61930E4AC3D0DFACD681B609FAB7B60B7F5FF01E301573575D87844AEAF9390E0541671984EDF4927DD3274641A05A1F7B9C15CB421D38A525E89C70C04E4F576E27F30A344D0460628A418840EB16471174C53450C20818BFEAD04738563B5E535093911587CDFD808853CA3DC112E6032C5AF35058FB27F3017A </password>
 
 	<email_activation>
 		<subject>Account activation</subject>
-		<!-- The message authentication is valid -->
+		<!-- Email verification expiration -->
 		<deadline> 259200 </deadline>
 		<message>
 			<![CDATA[
-			<html>
-			<body>
-			Account activation<br><br>
-			This letter is by Ouroboros send the configuration file: ouroboros\ouro\res\server\email_service.xml it.< br>
-			You received this email is because in the Ouroboros new user registration using this email address. If you have not visited Ouroboros, the
-			Or not the above operation, please ignore this message. You do not need to unsubscribe or other further action.< br>
-			----------------------------------------------------------------------<br>
-			<font size="7">new user registration instructions</font><br>
-			----------------------------------------------------------------------<br><br>
-			If you are Ouroboros new users, or modify your registration Email when using the local address, we need to to your address the validity of the verification to avoid spam or address is misused.< br>
-			You just click on the link below to user registration, the following link is valid for 3 days. Expired you can request to re-send a new e-mail validation:<br>
-			<a href="${backlink}">${backlink}</a><br>
-			(If the above is not a link in the form, please send the address manually and paste into your browser address bar and then access)<br><br>
-			Thank you for your visit, wish you used happy!< br>
-			</body>
-			</html>
+				<html>
+				<body>
+				Account activation <br><br>
+				This letter was sent by Ouroboros (configuration file: ouroboros\kbe\res\server\email_service.xml). <br>
+				You received this email because it was used by Ouroboros new users when registering. If you have not visited Ouroboros,
+				Or did not do this, please ignore this email. You do not need to unsubscribe or perform other further operations. <br>
+				----------------------------------------------------------------------<br>
+				<font size="7">New User Registration Instructions</font><br>
+				----------------------------------------------------------------------<br><br>
+				If you are a new user of Ouroboros, or if you use this address when modifying your registered email, we need to verify the validity of your address to avoid spam or address abuse. <br>
+				Just click on the link below to register your user. The link below is valid for 3 days. Expired can re-request to send a new email verification:<br>
+				<a href="${backlink}">${backlink}</a><br>
+				(If the above is not a link form, please manually paste the address into the browser address bar and access it)<br><br>
+				Thank you for your visit and wish you a happy stay! <br>
+				</body>
+				</html>
 			]]>
 		</message>
-
+		
 		<backlink_hello_message></backlink_hello_message>
-
+		
 		<backlink_success_message>
 			<![CDATA[
 				<html>
 				<body>
-				<font size="7">Account activation successful!</font><br>
+				<font size="7">Account activation is successful!</font><br>
 				----------------------------------------------------------------------<br><br>
-				<a href="${backlink}">Click to enter official website</a><br><br>
-				Thank you for your visit, wish you used happy!<br>
+				<a href="${backlink}">Click to enter the official website</a><br><br>
+				Thank you for your visit and wish you a happy stay! <br>
 				</body>
 				</html>
 			]]>
 		</backlink_success_message>
-
+		
 		<backlink_fail_message>
 			<![CDATA[
 				<html>
 				<body>
-				<font size="7">Account activation failed(may be due to the failure or has been registered and other reasons), please re-send the activation email!</font><br>
+				<font size="7">Account activation failed (may be due to invalidation or registration, etc.) Please resend the activation email!</font><br>
 				----------------------------------------------------------------------<br><br>
-				<a href="${backlink}">Click to enter official website</a><br><br>
-				Thank you for your visit, wish you used happy!<br>
+				<a href="${backlink}">Click to enter the official website</a><br><br>
+				Thank you for your visit and wish you a happy stay! <br>
 				</body>
 				</html>
 			]]>
 		</backlink_fail_message>
 	</email_activation>
-
+	
 	<email_resetpassword>
 		<subject>Reset account</subject>
-		<!-- The message authentication is valid -->
+		<!-- Email verification expiration -->
 		<deadline> 3600 </deadline>
 		<message>
 			<![CDATA[
 				<html>
 				<body>
-					Reset the account<br><br>
-					This letter is by Ouroboros sent.< br>
-					You received this email is because in the Ouroboros the user is bound to this email address. If you have not visited Ouroboros, the
-					Or not the above operation, please ignore this message. You do not need to unsubscribe or other further action.< br>
-					----------------------------------------------------------------------<br>
-					<font size="7">visit the following link to reset your account:</font><br>
-					----------------------------------------------------------------------<br><br>
-					The following link is valid for 1 hour. Expired you can request to re-send a new e-mail reset:<br>
-					<a href="${backlink}">${backlink}</a><br>
-					(If the above is not a link in the form, please send the address manually and paste into your browser address bar and then access)<br><br>
+				Reset account <br><br>
+				This letter was sent by Ouroboros. <br>
+				You received this email because the email address is bound to the Ouroboros user. If you have not visited Ouroboros,
+				Or did not do this, please ignore this email. You do not need to unsubscribe or perform other further operations. <br>
+				----------------------------------------------------------------------<br>
+				<font size="7">Resend your account by visiting the following link:</font><br>
+				----------------------------------------------------------------------<br><br>
+				The link below is valid for 1 hour. Expired to resend a new message to reset:<br>
+				<a href="${backlink}">${backlink}</a><br>
+				(If the above is not a link form, please manually paste the address into the browser address bar and access it)<br><br>
 				</body>
 				</html>
 			]]>
 		</message>
-
+		
 		<backlink_hello_message>
 			<![CDATA[
 				<!DOCTYPE HTML>
 				<head>
-				<title>To reset your password</title>
+				<title>Reset password</title>
 				<style type="text/css">
 				/* Font,  Link & Container */
 				body { font:12px/1.6 arial,helvetica,sans-serif; }
@@ -120,14 +120,14 @@
 				<body>
 				<form id="lzform" name="lzform" method="get" action="${backlink}" onsubmit="return validateForm(this);">
 				    <div id="item-error">
-				        <p class="error">Reset password can't be empty</p>
+				        <p class="error">Reset password cannot be empty</p>
 				    </div>
 				    <div class="item">
-				        <label>Username</label>
+				        <label>username</label>
 				        <input id="username" name="username" type="text" class="basic-input" maxlength="60" value="" tabindex="1"/>
 				    </div>
 				    <div class="item">
-				        <label>Enter the password</label>
+				        <label>Enter password</label>
 				        <input id="password1" name="password1" type="password" class="basic-input" maxlength="16" value="" tabindex="2"/>
 				    </div>
 				    <div class="item">
@@ -136,14 +136,14 @@
 				    </div>
 				    <div class="item">
 				        <label>&nbsp;</label>
-				        <input type="submit" value="Submitted" name="user_submit" class="btn-submit" tabindex="4"/>
+				        				        <input type="submit" value="æ??äº¤" name="user_submit" class="btn-submit" tabindex="4"/>
 				    </div>
 				</form>
 
 				<script>
 				;(function(doc){
 				var $ = function(id) { return doc.getElementById(id); };
-				var placeholder = 'Email address';
+				Var placeholder = 'email address';
 				var password1 = $('password1'), password = $('password'),username = $('username');
 				    username.onfocus = function(){
 				      if ( this.value == placeholder ) {
@@ -157,7 +157,7 @@
 				        this.style.color = '#ccc';
 				      }
 				    };
-
+				    
 				  if (username.value == placeholder) {
 				    username.style.color = '#ccc';
 				  } else if(password.value === '') {
@@ -183,38 +183,38 @@
 				  if (defaultError) {
 				    defaultError.style.display = 'none';
 				  }
-
+				  
 				  if (username && username.value === '') {
-				    displayError(username, 'Please enter the account name');
+				    displayError(username, 'Please enter an account name');
 				    return false;
 				  } else {
 				    username && clearError(username);
 				    displayError(username, '');
 				  }
-
+				  
 				   if (passwd1 && passwd1.value === '') {
-				    displayError(passwd1, 'Password can't be empty');
+				    displayError(passwd1, 'Password cannot be empty');
 				    return false;
 				  } else if (! (/^([a-zA-Z0-9\_\-\.\\\~\!\@\#\$\%\&\=\^\*\(\)\[\]\"\:\;\?\<\{\+\-\=\`\>\/\|\,\.]{6,16})+$/.test(passwd1.value))){
-				    displayError(passwd1, 'Please enter 6-16 digits, letters or common symbols, letters are case-sensitive');
+				    displayError(passwd1, 'Please enter 6-16 digits, letters or common symbols, the letters are case sensitive');
 				    return false;
 				  } else {
 				    passwd1 && clearError(passwd1);
 				    displayError(passwd1, '');
 				  }
-
+				  
 				  if (passwd && passwd.value === '') {
-				    displayError(passwd, 'Password can't be empty');
+				    displayError(passwd, 'Password cannot be empty');
 				    return false;
 				  } else {
 				    passwd && clearError(passwd);
 				    displayError(passwd, '');
 				  }
-
+				  
 				    if (passwd1.value != passwd.value && username.value != '') {
 				    clearError(passwd1);
 				    displayError(passwd1, '');
-				    displayError(passwd, 'The secondary password must be the same and can't be empty!');
+				    displayError(passwd, 'The second password must be consistent and cannot be empty!');
 				    return false;
 				  } else {
 				    passwd && clearError(passwd);
@@ -247,80 +247,80 @@
 				</html>
 			]]>
 		</backlink_hello_message>
-
+		
 		<backlink_fail_message>
 			<![CDATA[
 				<html>
 				<body>
-				<font size="7">Operation failed, please re-send the mail!</font><br>
+				<font size="7">Operation failed, please resend the mail!</font><br>
 				----------------------------------------------------------------------<br><br>
-				<a href="${backlink}">Click to enter official website</a><br><br>
-				Thank you for your visit, wish you used happy!<br>
+				<a href="${backlink}">Click to enter the official website</a><br><br>
+				Thank you for your visit and wish you a happy stay! <br>
 				</body>
 				</html>
 			]]>
 		</backlink_fail_message>
-
+		
 		<backlink_success_message>
 			<![CDATA[
 				<html>
 				<body>
-				<font size="7">Reset successful!</font><br>
+				<font size="7">Reset success!</font><br>
 				----------------------------------------------------------------------<br><br>
-				<a href="${backlink}">Click to enter official website</a><br><br>
-				Thank you for your visit, wish you used happy!<br>
+				<a href="${backlink}">Click to enter the official website</a><br><br>
+				Thank you for your visit and wish you a happy stay! <br>
 				</body>
 				</html>
 			]]>
-		</backlink_success_message>
+		</backlink_success_message>		
 	</email_resetpassword>
-
+	
 	<email_bind>
-		<subject>Mailbox binding</subject>
-		<!-- The message authentication is valid -->
+		<subject>Mailbox Binding</subject>
+		<!-- Email verification expiration -->
 		<deadline> 3600 </deadline>
 		<message>
 			<![CDATA[
 				<html>
 				<body>
-				Mailbox binding<br><br>
-				This letter is by Ouroboros sent.< br>
-				You received this email is because in the Ouroboros the user is bound to this email address. If you have not visited Ouroboros, the
-				Or not the above operation, please ignore this message. You do not need to unsubscribe or other further action.< br>
+				Mailbox binding <br><br>
+				This letter was sent by Ouroboros. <br>
+				You received this email because the email address is bound to the Ouroboros user. If you have not visited Ouroboros,
+				Or did not do this, please ignore this email. You do not need to unsubscribe or perform other further operations. <br>
 				----------------------------------------------------------------------<br>
-				<font size="7">visit the following link to bind your email:</font><br>
+				<font size="7">Visit the following link to bind your email:</font><br>
 				----------------------------------------------------------------------<br><br>
-				The following link is valid for 3 days. Expired you can request to re-send a new e mail binding:<br>
-				<a href="${backlink}? username=${username}">${backlink}? username=${username}</a><br>
-				(If the above is not a link in the form, please send the address manually and paste into your browser address bar and then access)<br><br>
+				The link below is valid for 3 days. Expired can re-request to send a new message for binding:<br>
+				<a href="${backlink}?username=${username}">${backlink}?username=${username}</a><br>
+				(If the above is not a link form, please manually paste the address into the browser address bar and access it)<br><br>
 				</body>
 				</html>
 			]]>
 		</message>
-
+		
 		<backlink_hello_message></backlink_hello_message>
-
+		
 		<backlink_success_message>
 			<![CDATA[
 				<html>
 				<body>
-				<font size="7">The operation is successful!</font><br>
+				<font size="7">Operation succeeded!</font><br>
 				----------------------------------------------------------------------<br><br>
-				<a href="${backlink}">Click to enter official website</a><br><br>
-				Thank you for your visit, wish you used happy!<br>
+				<a href="${backlink}">Click to enter the official website</a><br><br>
+				Thank you for your visit and wish you a happy stay! <br>
 				</body>
 				</html>
 			]]>
 		</backlink_success_message>
-
+		
 		<backlink_fail_message>
 			<![CDATA[
 				<html>
 				<body>
-				<font size="7">Operation failed, please re-send the mail!</font><br>
+				<font size="7">Operation failed, please resend the mail!</font><br>
 				----------------------------------------------------------------------<br><br>
-				<a href="${backlink}">Click to enter official website</a><br><br>
-				Thank you for your visit, wish you used happy!<br>
+				<a href="${backlink}">Click to enter the official website</a><br><br>
+				Thank you for your visit and wish you a happy stay! <br>
 				</body>
 				</html>
 			]]>

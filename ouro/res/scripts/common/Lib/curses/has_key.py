@@ -12,7 +12,7 @@ _capability_names = {
     _curses.KEY_A3: 'ka3',
     _curses.KEY_B2: 'kb2',
     _curses.KEY_BACKSPACE: 'kbs',
-    _curses.KEY_BEG: 'ourog',
+    _curses.KEY_BEG: 'kbeg',
     _curses.KEY_BTAB: 'kcbt',
     _curses.KEY_C1: 'kc1',
     _curses.KEY_C3: 'kc3',

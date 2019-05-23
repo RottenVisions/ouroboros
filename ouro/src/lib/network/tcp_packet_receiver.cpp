@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "tcp_packet_receiver.h"
@@ -14,8 +14,9 @@
 #include "network/network_interface.h"
 #include "network/event_poller.h"
 #include "network/error_reporter.h"
+#include <openssl/err.h>
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 
@@ -27,9 +28,9 @@ ObjectPool<TCPPacketReceiver>& TCPPacketReceiver::ObjPool()
 }
 
 //-------------------------------------------------------------------------------------
-TCPPacketReceiver* TCPPacketReceiver::createPoolObject()
+TCPPacketReceiver* TCPPacketReceiver::createPoolObject(const std::string& logPoint)
 {
-	return _g_objPool.createObject();
+	return _g_objPool.createObject(logPoint);
 }
 
 //-------------------------------------------------------------------------------------
@@ -41,16 +42,16 @@ void TCPPacketReceiver::reclaimPoolObject(TCPPacketReceiver* obj)
 //-------------------------------------------------------------------------------------
 void TCPPacketReceiver::destroyObjPool()
 {
-	DEBUG_MSG(fmt::format("TCPPacketReceiver::destroyObjPool(): size {}.\n",
+	DEBUG_MSG(fmt::format("TCPPacketReceiver::destroyObjPool(): size {}.\n", 
 		_g_objPool.size()));
 
 	_g_objPool.destroy();
 }
 
 //-------------------------------------------------------------------------------------
-TCPPacketReceiver::SmartPoolObjectPtr TCPPacketReceiver::createSmartPoolObj()
+TCPPacketReceiver::SmartPoolObjectPtr TCPPacketReceiver::createSmartPoolObj(const std::string& logPoint)
 {
-	return SmartPoolObjectPtr(new SmartPoolObject<TCPPacketReceiver>(ObjPool().createObject(), _g_objPool));
+	return SmartPoolObjectPtr(new SmartPoolObject<TCPPacketReceiver>(ObjPool().createObject(logPoint), _g_objPool));
 }
 
 //-------------------------------------------------------------------------------------
@@ -72,12 +73,12 @@ bool TCPPacketReceiver::processRecv(bool expectingPacket)
 	Channel* pChannel = getChannel();
 	OURO_ASSERT(pChannel != NULL);
 
-	if(pChannel->isCondemn())
+	if(pChannel->condemn() > 0)
 	{
 		return false;
 	}
 
-	TCPPacket* pReceiveWindow = TCPPacket::createPoolObject();
+	TCPPacket* pReceiveWindow = TCPPacket::createPoolObject(OBJECTPOOL_POINT);
 	int len = pReceiveWindow->recvFromEndPoint(*pEndpoint_);
 
 	if (len < 0)
@@ -88,31 +89,31 @@ bool TCPPacketReceiver::processRecv(bool expectingPacket)
 
 		if(rstate == PacketReceiver::RECV_STATE_INTERRUPT)
 		{
-			onGetError(pChannel);
+			onGetError(pChannel, fmt::format("TCPPacketReceiver::processRecv(): error={}\n", ouro_lasterror()));
 			return false;
 		}
 
 		return rstate == PacketReceiver::RECV_STATE_CONTINUE;
 	}
-	else if(len == 0) // Client exits normally
+	else if(len == 0) // The client exits normally
 	{
 		TCPPacket::reclaimPoolObject(pReceiveWindow);
-		onGetError(pChannel);
+		onGetError(pChannel, "disconnected");
 		return false;
 	}
-
+	
 	Reason ret = this->processPacket(pChannel, pReceiveWindow);
 
 	if(ret != REASON_SUCCESS)
 		this->dispatcher().errorReporter().reportException(ret, pEndpoint_->addr());
-
+	
 	return true;
 }
 
 //-------------------------------------------------------------------------------------
-void TCPPacketReceiver::onGetError(Channel* pChannel)
+void TCPPacketReceiver::onGetError(Channel* pChannel, const std::string& err)
 {
-	pChannel->condemn();
+	pChannel->condemn(err);
 	pChannel->networkInterface().deregisterChannel(pChannel);
 	pChannel->destroy();
 	Network::Channel::reclaimPoolObject(pChannel);
@@ -121,7 +122,7 @@ void TCPPacketReceiver::onGetError(Channel* pChannel)
 //-------------------------------------------------------------------------------------
 Reason TCPPacketReceiver::processFilteredPacket(Channel* pChannel, Packet * pPacket)
 {
-	// If it is None, it may be filtered out by the filter (the filter is decrypted according to its own rules group package)
+	// If it is None, it may be filtered by the filter (the filter is being decrypted according to its own rules)
 	if(pPacket)
 	{
 		pChannel->addReceiveWindow(pPacket);
@@ -139,19 +140,19 @@ PacketReceiver::RecvState TCPPacketReceiver::checkSocketErrors(int len, bool exp
 
 	if (
 #if OURO_PLATFORM == PLATFORM_WIN32
-		wsaErr == WSAEWOULDBLOCK && !expectingPacket// Send error is probably full of buffer, recv error has no data readable
+		wsaErr == WSAEWOULDBLOCK && !expectingPacket// send error is probably the buffer is full, recv error has no data to read
 #else
-		errno == EAGAIN && !expectingPacket			// Recv buffer has no data readable
+		Errno == EAGAIN && !expectingPacket // recv buffer has no data to read
 #endif
 		)
 	{
 		return RECV_STATE_BREAK;
 	}
 
-#ifdef unix
-	if (errno == EAGAIN ||							// No data has been read
-		errno == ECONNREFUSED ||					// Connection refused by server
-		errno == EHOSTUNREACH)						// Destination address is unreachable
+#if OURO_PLATFORM == PLATFORM_UNIX
+	if (errno == EAGAIN || // no data is readable
+		Errno == ECONNREFUSED || // The connection is rejected by the server
+		Errno == EHOSTUNREACH) // Destination address is unreachable
 	{
 		this->dispatcher().errorReporter().reportException(
 				REASON_NO_SUCH_PORT);
@@ -160,13 +161,10 @@ PacketReceiver::RecvState TCPPacketReceiver::checkSocketErrors(int len, bool exp
 	}
 #else
 	/*
-	The existing connection is forcibly closed by the remote host. The usual causes are:
-	The peer application suddenly stopped running on the remote host, or the remote host restarted,
-	or the remote host used a "forced" shutdown on the remote party socket (see setsockopt(SO_LINGER)).
-	In addition, this error may also result if the connection is interrupted by a failure detected by the
-	'keep-alive' activity while one or more operations are in progress. At this point,
-	the ongoing operation is returned with the error code WSAENETRESET.
-	 Subsequent operations will fail and return the error code WSAECONNRESET.
+	The existing connection is forcibly closed by the remote host. The usual reason is that the peer application on the remote host suddenly stops running, or the remote host restarts.
+	Or the remote host uses a "forced" shutdown on the remote side socket (see setsockopt(SO_LINGER)).
+	In addition, this error can also be caused if one or more operations are in progress if the connection is interrupted due to a failure detected by the "keep-alive" activity.
+	At this point, the ongoing operation fails with the error code WSAENETRESET, and subsequent operations will fail with error code WSAECONNRESET.
 	*/
 	switch(wsaErr)
 	{
@@ -184,6 +182,24 @@ PacketReceiver::RecvState TCPPacketReceiver::checkSocketErrors(int len, bool exp
 	};
 
 #endif // unix
+
+#if OURO_PLATFORM == PLATFORM_WIN32
+	if (wsaErr == 0
+#else
+	if (errno == 0
+#endif
+		&& pEndPoint()->isSSL())
+	{
+		long sslerr = ERR_get_error();
+		if (sslerr > 0)
+		{
+			WARNING_MSG(fmt::format("TCPPacketReceiver::processPendingEvents({}): "
+				"Throwing SSL - {}\n",
+				(pEndpoint_ ? pEndpoint_->addr().c_str() : ""), ERR_error_string(sslerr, NULL)));
+
+			return RECV_STATE_INTERRUPT;
+		}
+	}
 
 #if OURO_PLATFORM == PLATFORM_WIN32
 	WARNING_MSG(fmt::format("TCPPacketReceiver::processPendingEvents({}): "
@@ -204,3 +220,4 @@ PacketReceiver::RecvState TCPPacketReceiver::checkSocketErrors(int len, bool exp
 //-------------------------------------------------------------------------------------
 }
 }
+

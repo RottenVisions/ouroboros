@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "script.h"
@@ -8,7 +8,9 @@
 #include "copy.h"
 #include "pystruct.h"
 #include "py_gc.h"
-#include "install_py_dlls.h"
+#include "pyurl.h"
+#include "py_compression.h"
+#include "py_platform.h"
 #include "resmgr/resmgr.h"
 #include "thread/concurrency.h"
 
@@ -16,13 +18,13 @@
 #include "script.inl"
 #endif
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 
 OURO_SINGLETON_INIT(script::Script);
 namespace script{
 
 //-------------------------------------------------------------------------------------
-static PyObject* __py_genUUID64(PyObject *self, void *closure)
+static PyObject* __py_genUUID64(PyObject *self, void *closure)	
 {
 	static int8 check = -1;
 
@@ -57,6 +59,7 @@ PyObject * PyTuple_FromStringVector(const std::vector< std::string > & v)
 Script::Script():
 module_(NULL),
 extraModule_(NULL),
+sysInitModules_(NULL),
 pyStdouterr_(NULL)
 {
 }
@@ -80,13 +83,13 @@ int Script::run_simpleString(const char* command, std::string* retBufferPtr)
 	if(retBufferPtr != NULL)
 	{
 		DebugHelper::getSingleton().resetScriptMsgType();
-		if(!pStdouterrHook->install()){
+		if(!pStdouterrHook->install()){												
 			ERROR_MSG("Script::Run_SimpleString: pyStdouterrHook_->install() is failed!\n");
 			SCRIPT_ERROR_CHECK();
 			delete pStdouterrHook;
 			return -1;
 		}
-
+			
 		pStdouterrHook->setHookBuffer(retBufferPtr);
 		//PyRun_SimpleString(command);
 
@@ -103,7 +106,7 @@ int Script::run_simpleString(const char* command, std::string* retBufferPtr)
 		d = PyModule_GetDict(m);
 
 		v = PyRun_String(command, Py_single_input, d, d);
-		if (v == NULL)
+		if (v == NULL) 
 		{
 			PyErr_Print();
 			pStdouterrHook->uninstall();
@@ -113,7 +116,7 @@ int Script::run_simpleString(const char* command, std::string* retBufferPtr)
 
 		Py_DECREF(v);
 		SCRIPT_ERROR_CHECK();
-
+		
 		pStdouterrHook->uninstall();
 		delete pStdouterrHook;
 		return 0;
@@ -127,35 +130,22 @@ int Script::run_simpleString(const char* command, std::string* retBufferPtr)
 }
 
 //-------------------------------------------------------------------------------------
-bool Script::install(const wchar_t* pythonHomeDir, std::wstring pyPaths,
+bool Script::install(const wchar_t* pythonHomeDir, std::wstring pyPaths, 
 	const char* moduleName, COMPONENT_TYPE componentType)
 {
-	std::wstring pySysPaths = SCRIPT_PATH;
-	wchar_t* pwpySysResPath = strutil::char2wchar(const_cast<char*>(Resmgr::getSingleton().getPySysResPath().c_str()));
-	strutil::ouro_replace(pySysPaths, L"../../res/", pwpySysResPath);
-	pyPaths += pySysPaths;
-	free(pwpySysResPath);
+	APPEND_PYSYSPATH(pyPaths);
 
-	// First set the python environment variable
-	Py_SetPythonHome(const_cast<wchar_t*>(pythonHomeDir));
+	// Set the python environment variable first
+	Py_SetPythonHome(const_cast<wchar_t*>(pythonHomeDir));								
 
 #if OURO_PLATFORM != PLATFORM_WIN32
-	std::wstring fs = L";";
-	std::wstring rs = L":";
-	size_t pos = 0;
-
-	while(true)
-	{
-		pos = pyPaths.find(fs, pos);
-		if (pos == std::wstring::npos) break;
-		pyPaths.replace(pos, fs.length(), rs);
-	}
+	strutil::ouro_replace(pyPaths, L";", L":");
 
 	char* tmpchar = strutil::wchar2char(const_cast<wchar_t*>(pyPaths.c_str()));
 	DEBUG_MSG(fmt::format("Script::install(): paths={}.\n", tmpchar));
 	free(tmpchar);
-
 #endif
+
 	// Initialise python
 	// Py_VerboseFlag = 2;
 	Py_FrozenFlag = 1;
@@ -167,21 +157,24 @@ bool Script::install(const wchar_t* pythonHomeDir, std::wstring pyPaths,
 
 	Py_SetPath(pyPaths.c_str());
 
-	// Initialization of the python interpreter
+	// Python interpreter initialization
 	Py_Initialize();
     if (!Py_IsInitialized())
     {
     	ERROR_MSG("Script::install(): Py_Initialize is failed!\n");
         return false;
-    }
+    } 
 
+	sysInitModules_ = PyDict_Copy(PySys_GetObject("modules"));
+
+	PySys_SetArgvEx(0, NULL, 0);
 	PyObject *m = PyImport_AddModule("__main__");
 
 	// Add a script base module
 	module_ = PyImport_AddModule(moduleName);
 	if (module_ == NULL)
 		return false;
-
+	
 	const char* componentName = COMPONENT_NAME_EX(componentType);
 	if (PyModule_AddStringConstant(module_, "component", componentName))
 	{
@@ -189,59 +182,46 @@ bool Script::install(const wchar_t* pythonHomeDir, std::wstring pyPaths,
 			componentName));
 		return false;
 	}
+	
+	PyEval_InitThreads();
 
 	// Register to generate uuid method to py
 	APPEND_SCRIPT_MODULE_METHOD(module_,		genUUID64,			__py_genUUID64,					METH_VARARGS,			0);
 
-	if(!install_py_dlls())
-	{
-		ERROR_MSG("Script::install(): install_py_dlls() is failed!\n");
-		return false;
-	}
-
-	// Install py redirector
+	// Install py redirect module
 	ScriptStdOut::installScript(NULL);
 	ScriptStdErr::installScript(NULL);
 
-	/*
-	static struct PyModuleDef moduleDesc =
-	{
-			 PyModuleDef_HEAD_INIT,
-			 moduleName,
-			 "This module is created by Ouroboros!",
-			 -1,
-			 NULL
-	};
-
-	// Initialize the basic module
-	PyModule_Create(&moduleDesc);
-	*/
-
 	// Add the module object to main
 	PyObject_SetAttrString(m, moduleName, module_);
-	PyObject_SetAttrString(module_, "__doc__", PyUnicode_FromString("This module is created by Ouroboros!"));
+	PyObject* pyDoc = PyUnicode_FromString("This module is created by Ouroboros!");
+	PyObject_SetAttrString(module_, "__doc__", pyDoc);
+	Py_DECREF(pyDoc);
 
 	// Redirect python output
 	pyStdouterr_ = new ScriptStdOutErr();
-
-	// Install py redirection script module
+	
+	// Install py redirect script module
 	if(!pyStdouterr_->install()){
 		ERROR_MSG("Script::install::pyStdouterr_->install() is failed!\n");
 		delete pyStdouterr_;
 		SCRIPT_ERROR_CHECK();
 		return false;
 	}
-
+	
 	PyGC::initialize();
 	Pickler::initialize();
 	PyProfile::initialize(this);
 	PyStruct::initialize();
 	Copy::initialize();
+	PyUrl::initialize(this);
+	PyCompression::initialize();
+	PyPlatform::initialize();
 	SCRIPT_ERROR_CHECK();
 
 	math::installModule("Math");
 	INFO_MSG(fmt::format("Script::install(): is successfully, Python=({})!\n", Py_GetVersion()));
-	return installExtraModule("OUROxtra");
+	return installExtraModule("KBExtra");
 }
 
 //-------------------------------------------------------------------------------------
@@ -252,6 +232,9 @@ bool Script::uninstall()
 	PyProfile::finalise();
 	PyStruct::finalise();
 	Copy::finalise();
+	PyUrl::finalise();
+	PyCompression::finalise();
+	PyPlatform::finalise();
 	SCRIPT_ERROR_CHECK();
 
 	if(pyStdouterr_)
@@ -259,26 +242,26 @@ bool Script::uninstall()
 		if(pyStdouterr_->isInstall() && !pyStdouterr_->uninstall())	{
 			ERROR_MSG("Script::uninstall(): pyStdouterr_->uninstall() is failed!\n");
 		}
-
+		
 		delete pyStdouterr_;
 	}
 
 	ScriptStdOut::uninstallScript();
 	ScriptStdErr::uninstallScript();
 
-	if(!uninstall_py_dlls())
+	PyGC::finalise();
+
+	if (sysInitModules_)
 	{
-		ERROR_MSG("Script::uninstall(): uninstall_py_dlls() is failed!\n");
-		return false;
+		Py_DECREF(sysInitModules_);
+		sysInitModules_ = NULL;
 	}
 
-	PyGC::initialize();
-
-	// Unload python interpreter
+	// Uninstall the python interpreter
 	Py_Finalize();
 
 	INFO_MSG("Script::uninstall(): is successfully!\n");
-	return true;
+	return true;	
 }
 
 //-------------------------------------------------------------------------------------
@@ -291,12 +274,7 @@ bool Script::installExtraModule(const char* moduleName)
 	if (extraModule_ == NULL)
 		return false;
 
-	// Initialize the expansion module
-	PyObject *module = PyImport_AddModule(moduleName);
-	if (module == NULL)
-		return false;
-
-	// Add expansion module object to main
+	// Add the extension module object to main
 	PyObject_SetAttrString(m, moduleName, extraModule_);
 
 	INFO_MSG(fmt::format("Script::install(): {} is successfully!\n", moduleName));
@@ -379,12 +357,12 @@ void Script::setenv(const std::string& name, const std::string& value)
 		}
 
 		int ret = PyDict_SetItem(environData, py_name, py_value);
-
+		
 		Py_DECREF(environData);
 		Py_DECREF(py_environ);
 		Py_DECREF(py_value);
 		Py_DECREF(py_name);
-
+		
 		if(ret == -1)
 		{
 			ERROR_MSG("Script::setenv: get os.environ error!\n");

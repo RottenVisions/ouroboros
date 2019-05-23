@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_CLIENT_CONFIG_H
@@ -12,8 +12,8 @@
 #include "common/singleton.h"
 #include "thread/threadmutex.h"
 #include "thread/threadguard.h"
-#include "xml/xml.h"
-
+#include "xml/xml.h"	
+	
 namespace Ouroboros{
 
 class Config : public Singleton<Config>
@@ -21,9 +21,9 @@ class Config : public Singleton<Config>
 public:
 	Config();
 	~Config();
-
+	
 	bool loadConfig(std::string fileName);
-
+	
 	inline int16 gameUpdateHertz(void) const { return gameUpdateHertz_;}
 
 	uint32 tcp_SOMAXCONN();
@@ -40,24 +40,24 @@ public:
 	bool useLastAccountName() const{ return useLastAccountName_; }
 
 	int8 encryptLogin() const { return encrypt_login_; }
-
+	
 	bool isOnInitCallPropertysSetMethods() const { return isOnInitCallPropertysSetMethods_; }
 
 public:
 	int16 gameUpdateHertz_;
 
-	uint32 tcp_SOMAXCONN_;									// Listen listener queue maximum
+	uint32 tcp_SOMAXCONN_; // listen listen queue maximum
+	
+	uint32 port_; // The port on which the component is listening after running
+	char ip_[MAX_BUF]; // The runtime ip address of the component
 
-	uint32 port_;											// The port that the component is listening on after running
-	char ip_[MAX_BUF];										// Runtime ip address of the component
-
-	char entryScriptFile_[MAX_NAME];						// Components entry script file
+	char entryScriptFile_[MAX_NAME]; // component's entry script file
 
 	float channelInternalTimeout_;
 	float channelExternalTimeout_;
 
 	char accountName_[MAX_NAME];
-
+	
 	int8 encrypt_login_;
 
 	std::string fileName_;

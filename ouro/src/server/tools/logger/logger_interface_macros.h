@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #if defined(DEFINE_IN_INTERFACE)
@@ -9,18 +9,18 @@
 #ifndef OURO_LOGGER_INTERFACE_MACRO_H
 #define OURO_LOGGER_INTERFACE_MACRO_H
 
-// common include
+// common include	
 #include "network/interface_defs.h"
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
 #endif
-
+	
 namespace Ouroboros{
 
 /**
-	Logger message macro, parameter is stream, need to unlock
+	Logger message macro, the parameter is stream, you need to unlock it yourself.
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef LOGGER_MESSAGE_HANDLER_STREAM
@@ -41,7 +41,7 @@ namespace Ouroboros{
 													Ouroboros::MemoryStream& s)	\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define LOGGER_MESSAGE_HANDLER_STREAM(NAME)										\
@@ -82,7 +82,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define LOGGER_MESSAGE_HANDLER_ARGS0(NAME)										\
@@ -103,7 +103,7 @@ namespace Ouroboros{
 
 
 /**
-	Logger message macro, only one parameter message
+	Logger message macro, message with only one parameter
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef LOGGER_MESSAGE_HANDLER_ARGS1
@@ -126,7 +126,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define LOGGER_MESSAGE_HANDLER_ARGS1(NAME, ARG_TYPE1, ARG_NAME1)				\
@@ -146,7 +146,7 @@ namespace Ouroboros{
 																				\
 
 /**
-	Logger message macro, only two parameters of the message
+	Logger message macro, message with only two parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef LOGGER_MESSAGE_HANDLER_ARGS2
@@ -174,7 +174,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define LOGGER_MESSAGE_HANDLER_ARGS2(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -231,7 +231,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define LOGGER_MESSAGE_HANDLER_ARGS3(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -259,7 +259,7 @@ namespace Ouroboros{
 
 
 /**
-	Logger message macro, only four parameters message
+	Logger message macro, message with only four parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef LOGGER_MESSAGE_HANDLER_ARGS4
@@ -296,7 +296,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define LOGGER_MESSAGE_HANDLER_ARGS4(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -327,7 +327,7 @@ namespace Ouroboros{
 											ARG_TYPE4, ARG_NAME4)				\
 
 /**
-	Logger message macro, only five parameters message
+	Logger message macro, message with only five parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef LOGGER_MESSAGE_HANDLER_ARGS5
@@ -368,7 +368,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define LOGGER_MESSAGE_HANDLER_ARGS5(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -404,7 +404,7 @@ namespace Ouroboros{
 
 
 /**
-	Logger message macro, only six parameters of the message
+	Logger message macro, message with only six parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef LOGGER_MESSAGE_HANDLER_ARGS6
@@ -449,7 +449,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define LOGGER_MESSAGE_HANDLER_ARGS6(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -488,7 +488,7 @@ namespace Ouroboros{
 											ARG_TYPE6, ARG_NAME6)				\
 
 /**
-	Logger message macro, only eight parameters of the message
+	Logger message macro, message with only eight parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef LOGGER_MESSAGE_HANDLER_ARGS8
@@ -542,7 +542,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define LOGGER_MESSAGE_HANDLER_ARGS8(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -648,7 +648,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define LOGGER_MESSAGE_HANDLER_ARGS9(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -699,7 +699,7 @@ namespace Ouroboros{
 											ARG_TYPE9, ARG_NAME9)				\
 
 /**
-	Logger message macro, only ten parameters message
+	Logger message macro, message with only ten parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef LOGGER_MESSAGE_HANDLER_ARGS10
@@ -762,7 +762,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define LOGGER_MESSAGE_HANDLER_ARGS10(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -818,7 +818,7 @@ namespace Ouroboros{
 
 
 /**
-	Logger message macro with only eleven parameter messages
+	Logger message macro, message with only one parameter
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef LOGGER_MESSAGE_HANDLER_ARGS11
@@ -885,7 +885,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define LOGGER_MESSAGE_HANDLER_ARGS11(NAME, ARG_TYPE1, ARG_NAME1,				\

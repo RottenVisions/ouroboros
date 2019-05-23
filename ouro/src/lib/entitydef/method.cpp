@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "method.h"
 #include "entitydef.h"
@@ -10,24 +10,24 @@
 
 namespace Ouroboros{
 
-uint32	MethodDescription::methodDescriptionCount_ = 0;
-
+uint32 MethodDescription::methodDescriptionCount_ = 0;
+	
 //-------------------------------------------------------------------------------------
 MethodDescription::MethodDescription(ENTITY_METHOD_UID utype, COMPONENT_ID domain,
-									 std::string name,
-									 bool isExposed):
+	std::string name,
+	EXPOSED_TYPE exposedType) :
 methodDomain_(domain),
 name_(name),
 utype_(utype),
 argTypes_(),
-isExposed_(isExposed),
+exposedType_(exposedType),
 aliasID_(-1)
 {
 	MethodDescription::methodDescriptionCount_++;
 
 	EntityDef::md5().append((void*)name_.c_str(), (int)name_.size());
 	EntityDef::md5().append((void*)&utype_, sizeof(ENTITY_METHOD_UID));
-	EntityDef::md5().append((void*)&isExposed_, sizeof(bool));
+	EntityDef::md5().append((void*)&exposedType_, sizeof(EXPOSED_TYPE));
 }
 
 //-------------------------------------------------------------------------------------
@@ -41,10 +41,13 @@ MethodDescription::~MethodDescription()
 }
 
 //-------------------------------------------------------------------------------------
-void MethodDescription::setExposed(void)
+void MethodDescription::setExposed(EXPOSED_TYPE type)
 {
-	isExposed_ = true;
-	EntityDef::md5().append((void*)&isExposed_, sizeof(bool));
+	if (exposedType_ == EXPOSED_AND_CALLER_CHECK)
+		return;
+
+	exposedType_ = type;
+	EntityDef::md5().append((void*)&exposedType_, sizeof(EXPOSED_TYPE));
 }
 
 //-------------------------------------------------------------------------------------
@@ -61,7 +64,7 @@ bool MethodDescription::pushArgType(DataType* dataType)
 
 	DATATYPE_UID uid = dataType->id();
 	EntityDef::md5().append((void*)&uid, sizeof(DATATYPE_UID));
-	EntityDef::md5().append((void*)&isExposed_, sizeof(bool));
+	EntityDef::md5().append((void*)&exposedType_, sizeof(EXPOSED_TYPE));
 	return true;
 }
 
@@ -70,20 +73,20 @@ bool MethodDescription::checkArgs(PyObject* args)
 {
 	if (args == NULL || !PyTuple_Check(args))
 	{
-		PyErr_Format(PyExc_AssertionError, "Method::checkArgs: method[%s] args is not a tuple.\n",
+		PyErr_Format(PyExc_AssertionError, "Method::checkArgs: method[%s] args is not a tuple.\n", 
 			getName());
 
 		PyErr_PrintEx(0);
 		return false;
 	}
-
-	int offset = (isExposed() == true && g_componentType == CELLAPP_TYPE && isCell()) ? 1 : 0;
+	
+	int offset = (isExposed() == EXPOSED_AND_CALLER_CHECK && g_componentType == CELLAPP_TYPE && isCell()) ? 1 : 0;
 	uint8 argsSize = (uint8)argTypes_.size();
 	uint8 giveArgsSize = (uint8)PyTuple_Size(args);
 
 	if (giveArgsSize != argsSize + offset)
 	{
-		PyErr_Format(PyExc_AssertionError, "Method::checkArgs: method[%s] requires exactly %d argument%s%s; %d given",
+		PyErr_Format(PyExc_AssertionError, "Method::checkArgs: method[%s] requires exactly %d argument%s%s; %d given", 
 				getName(),
 				argsSize,
 				(offset > 0) ? " + exposed(1)" : "",
@@ -92,10 +95,10 @@ bool MethodDescription::checkArgs(PyObject* args)
 
 		PyErr_PrintEx(0);
 		return false;
-	}
-
-
-	// Check if it is an exposed method
+	}	
+	
+	
+	// check if it is an exposed method
 	if(offset > 0)
 	{
 		PyObject* pyExposed = PyTuple_GetItem(args, 0);
@@ -112,11 +115,11 @@ bool MethodDescription::checkArgs(PyObject* args)
 				PyErr_PrintEx(0);
 				return false;
 			}
-
+			
 			Py_DECREF(pyeid);
 		}
-	}
-
+	}	
+	
 	for(uint8 i=0; i <argsSize; ++i)
 	{
 		PyObject* pyArg = PyTuple_GetItem(args, i + offset);
@@ -129,7 +132,7 @@ bool MethodDescription::checkArgs(PyObject* args)
 				i+1,
 				pExample->ob_type->tp_name,
 				pyArg != NULL ? pyArg->ob_type->tp_name : "NULL");
-
+			
 			PyErr_PrintEx(0);
 			Py_DECREF(pExample);
 			return false;
@@ -145,9 +148,9 @@ void MethodDescription::addToStream(MemoryStream* mstream, PyObject* args)
 	uint8 argsSize = argTypes_.size();
 	int offset = 0;
 
-	// Put utype in to facilitate peer identification of this method
-	// Here if aliasID_ is greater than 0 then an optimized method is used, using 1 byte transfer
-	// Note: The client method is set when the def is loaded, the aliasID is set, so the aliasID is not used inside the server.
+	// Put the utype in, which is convenient for the peer to recognize this method.
+	// Here, if aliasID_ is greater than 0, an optimized method is used, using 1 byte transmission.
+	// Note: The alias method is specified when the client method is specified when loading the def, so the aliasID is not used inside the server.
 	if(aliasID_ <= 0)
 	{
 		(*mstream) << utype_;
@@ -159,7 +162,7 @@ void MethodDescription::addToStream(MemoryStream* mstream, PyObject* args)
 	}
 
 	// If the exposed method is first packaged into the entityID
-	if(isExposed() && g_componentType == CELLAPP_TYPE && isCell())
+	if(isExposed() == EXPOSED_AND_CALLER_CHECK && g_componentType == CELLAPP_TYPE && isCell())
 	{
 		offset = 1;
 	}
@@ -178,8 +181,8 @@ PyObject* MethodDescription::createFromStream(MemoryStream* mstream)
 	size_t argSize = getArgSize();
 	PyObject* pyArgsTuple = NULL;
 	int offset = 0;
-
-	if(isExposed() && g_componentType == CELLAPP_TYPE && isCell())
+	
+	if(isExposed() == EXPOSED_AND_CALLER_CHECK && g_componentType == CELLAPP_TYPE && isCell())
 	{
 		offset = 1;
 		pyArgsTuple = PyTuple_New(argSize + offset);
@@ -197,13 +200,13 @@ PyObject* MethodDescription::createFromStream(MemoryStream* mstream)
 
 		if(pyitem == NULL)
 		{
-			WARNING_MSG(fmt::format("MethodDescription::createFromStream: {} arg[{}][{}] is NULL.\n",
+			WARNING_MSG(fmt::format("MethodDescription::createFromStream: {} arg[{}][{}] is NULL.\n", 
 				this->getName(), index, argTypes_[index]->getName()));
 		}
 
 		PyTuple_SET_ITEM(pyArgsTuple, index + offset, pyitem);
 	}
-
+	
 	return pyArgsTuple;
 }
 
@@ -219,7 +222,7 @@ PyObject* MethodDescription::call(PyObject* func, PyObject* args)
 	PyObject* pyResult = NULL;
 	if (!PyCallable_Check(func))
 	{
-		PyErr_Format(PyExc_TypeError, "MethodDescription::call: method[%s] call attempted on a error object!",
+		PyErr_Format(PyExc_TypeError, "MethodDescription::call: method[%s] call attempted on a error object!", 
 			getName());
 	}
 	else
@@ -237,7 +240,7 @@ PyObject* MethodDescription::call(PyObject* func, PyObject* args)
 
 	if (PyErr_Occurred())
 	{
-		if (isExposed() && PyErr_ExceptionMatches(PyExc_TypeError))
+		if (isExposed() == EXPOSED_AND_CALLER_CHECK && PyErr_ExceptionMatches(PyExc_TypeError))
 		{
 			WARNING_MSG(fmt::format("MethodDescription::call: {} is exposed of method, if there is a missing arguments error, "
 				"try adding callerEntityID, For example: \ndef func(msg): => def func(callerEntityID, msg):\n",

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "coordinate_system.h"
 #include "range_trigger.h"
@@ -9,7 +9,7 @@
 #include "range_trigger_node.inl"
 #endif
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 
 //-------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ void RangeTriggerNode::onRemove()
 {
 	CoordinateNode::onRemove();
 
-	// Since they have to be deleted, notify pRangeTrigger_ to uninstall
+	// Since you have to delete it, notify pRangeTrigger_ to uninstall
 	if (pRangeTrigger_)
 		pRangeTrigger_->uninstall();
 }
@@ -67,7 +67,7 @@ void RangeTriggerNode::onRemove()
 //-------------------------------------------------------------------------------------
 void RangeTriggerNode::onParentRemove(CoordinateNode* pParentNode)
 {
-	// Since they have to be deleted, notify pRangeTrigger_ to uninstall
+	// Since you have to delete it, notify pRangeTrigger_ to uninstall
 	if (pRangeTrigger_)
 		pRangeTrigger_->uninstall();
 }
@@ -86,30 +86,30 @@ bool RangeTriggerNode::wasInYRange(CoordinateNode * pNode)
 }
 
 //-------------------------------------------------------------------------------------
-float RangeTriggerNode::xx() const
+float RangeTriggerNode::xx() const 
 {
 	if (hasFlags(COORDINATE_NODE_FLAG_REMOVED | COORDINATE_NODE_FLAG_REMOVING) || pRangeTrigger_ == NULL)
 		return -FLT_MAX;
 
-	return pRangeTrigger_->origin()->xx() + range_xz_;
+	return pRangeTrigger_->origin()->xx() + range_xz_; 
 }
 
 //-------------------------------------------------------------------------------------
-float RangeTriggerNode::yy() const
+float RangeTriggerNode::yy() const 
 {
 	if (hasFlags(COORDINATE_NODE_FLAG_REMOVED | COORDINATE_NODE_FLAG_REMOVING) || pRangeTrigger_ == NULL)
 		return -FLT_MAX;
 
-	return pRangeTrigger_->origin()->yy() + range_y_;
+	return pRangeTrigger_->origin()->yy() + range_y_; 
 }
 
 //-------------------------------------------------------------------------------------
-float RangeTriggerNode::zz() const
+float RangeTriggerNode::zz() const 
 {
 	if (hasFlags(COORDINATE_NODE_FLAG_REMOVED | COORDINATE_NODE_FLAG_REMOVING) || pRangeTrigger_ == NULL)
 		return -FLT_MAX;
 
-	return pRangeTrigger_->origin()->zz() + range_xz_;
+	return pRangeTrigger_->origin()->zz() + range_xz_; 
 }
 
 //-------------------------------------------------------------------------------------

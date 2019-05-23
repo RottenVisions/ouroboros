@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "db_interface.h"
@@ -10,7 +10,7 @@
 #include "server/serverconfig.h"
 #include "thread/threadpool.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 OURO_SINGLETON_INIT(DBUtil);
 
 DBUtil g_DBUtil;
@@ -45,7 +45,7 @@ bool DBUtil::initThread(const std::string& dbinterfaceName)
 	DBInterfaceInfo* pDBInfo = g_ouroSrvConfig.dbInterface(dbinterfaceName);
 	if (strcmp(pDBInfo->db_type, "mysql") == 0)
 	{
-		if (!mysql_thread_safe())
+		if (!mysql_thread_safe()) 
 		{
 			OURO_ASSERT(false);
 		}
@@ -54,7 +54,7 @@ bool DBUtil::initThread(const std::string& dbinterfaceName)
 			mysql_thread_init();
 		}
 	}
-
+	
 	return true;
 }
 
@@ -87,7 +87,7 @@ bool DBUtil::initialize()
 
 		if ((*dbinfo_iter).db_passwordEncrypt)
 		{
-			// If it is less than 64, it means the current password is in plain text.
+			// If it is less than 64, it indicates that the current password is configured.
 			if (strlen((*dbinfo_iter).db_password) < 64)
 			{
 				WARNING_MSG(fmt::format("DBUtil::initialize: db({}) password is not encrypted!\nplease use password(rsa):\n{}\n",
@@ -159,7 +159,7 @@ DBInterface* DBUtil::createInterface(const std::string& name, bool showinfo)
 
 		return NULL;
 	}
-
+	
 	ouro_snprintf(dbinterface->db_type_, MAX_BUF, "%s", pDBInfo->db_type);
 	dbinterface->db_port_ = pDBInfo->db_port;
 	ouro_snprintf(dbinterface->db_ip_, MAX_IP, "%s", pDBInfo->db_ip);
@@ -179,7 +179,7 @@ DBInterface* DBUtil::createInterface(const std::string& name, bool showinfo)
 	{
 		if(showinfo)
 		{
-			INFO_MSG(fmt::format("DBUtil::createInterface[{0:p}]: {1}\n", (void*)&dbinterface,
+			INFO_MSG(fmt::format("DBUtil::createInterface[{0:p}]: {1}\n", (void*)&dbinterface, 
 				dbinterface->c_str()));
 		}
 	}
@@ -214,7 +214,7 @@ bool DBUtil::initInterface(DBInterface* pdbi)
 	{
 		DBInterfaceRedis::initInterface(pdbi);
 	}
-
+	
 	thread::ThreadPool* pThreadPool = pThreadPoolMaps_[pdbi->name()];
 	OURO_ASSERT(pThreadPool);
 
@@ -232,7 +232,7 @@ bool DBUtil::initInterface(DBInterface* pdbi)
 	{
 		ret = pdbi->checkEnvironment();
 	}
-
+	
 	if(ret)
 	{
 		ret = pdbi->checkErrors();

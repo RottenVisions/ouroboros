@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_BASEAPP_INIT_PROGRESS_HANDLER_H
 #define OURO_BASEAPP_INIT_PROGRESS_HANDLER_H
@@ -15,13 +15,13 @@ class InitProgressHandler : public Task
 public:
 	InitProgressHandler(Network::NetworkInterface & networkInterface);
 	~InitProgressHandler();
-
+	
 	bool process();
 
 	void setAutoLoadState(int8 state);
 
-	/** Network Interface
-		Automatic entity load information retrieved from the database returns
+		/** Network Interface
+		Automatic entity loading information returned in the database
 	*/
 	void onEntityAutoLoadCBFromDBMgr(Network::Channel* pChannel, MemoryStream& s);
 

@@ -17,8 +17,8 @@ SRCS =				\
 	TmxUtil			
 
 
-ifndef OURO_ROOT
-export OURO_ROOT := $(subst /ouro/src/lib/dependencies/$(LIB),,$(CURDIR))
+ifndef KBE_ROOT
+export KBE_ROOT := $(subst /kbe/src/lib/dependencies/$(LIB),,$(CURDIR))
 endif
 
-include $(OURO_ROOT)/ouro/src/build/common.mak
+include $(KBE_ROOT)/kbe/src/build/common.mak

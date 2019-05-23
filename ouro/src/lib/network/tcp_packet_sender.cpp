@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "tcp_packet_sender.h"
@@ -17,7 +17,7 @@
 #include "network/tcp_packet.h"
 #include "network/udp_packet.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 
@@ -29,9 +29,9 @@ ObjectPool<TCPPacketSender>& TCPPacketSender::ObjPool()
 }
 
 //-------------------------------------------------------------------------------------
-TCPPacketSender* TCPPacketSender::createPoolObject()
+TCPPacketSender* TCPPacketSender::createPoolObject(const std::string& logPoint)
 {
-	return _g_objPool.createObject();
+	return _g_objPool.createObject(logPoint);
 }
 
 //-------------------------------------------------------------------------------------
@@ -49,16 +49,16 @@ void TCPPacketSender::onReclaimObject()
 //-------------------------------------------------------------------------------------
 void TCPPacketSender::destroyObjPool()
 {
-	DEBUG_MSG(fmt::format("TCPPacketSender::destroyObjPool(): size {}.\n",
+	DEBUG_MSG(fmt::format("TCPPacketSender::destroyObjPool(): size {}.\n", 
 		_g_objPool.size()));
 
 	_g_objPool.destroy();
 }
 
 //-------------------------------------------------------------------------------------
-TCPPacketSender::SmartPoolObjectPtr TCPPacketSender::createSmartPoolObj()
+TCPPacketSender::SmartPoolObjectPtr TCPPacketSender::createSmartPoolObj(const std::string& logPoint)
 {
-	return SmartPoolObjectPtr(new SmartPoolObject<TCPPacketSender>(ObjPool().createObject(), _g_objPool));
+	return SmartPoolObjectPtr(new SmartPoolObject<TCPPacketSender>(ObjPool().createObject(logPoint), _g_objPool));
 }
 
 //-------------------------------------------------------------------------------------
@@ -76,12 +76,12 @@ TCPPacketSender::~TCPPacketSender()
 }
 
 //-------------------------------------------------------------------------------------
-void TCPPacketSender::onGetError(Channel* pChannel)
+void TCPPacketSender::onGetError(Channel* pChannel, const std::string& err)
 {
-	pChannel->condemn();
-
-	// This does not need to be destroyed immediately, it may cause bufferedReceives_ to be destroyed by internal traversal iterators
-	// Handle to TCPPacketReceiver
+	pChannel->condemn(err);
+	
+	// There is no need to destroy it immediately, which may cause the bufferedReceives_ internal traversal iterator to break.
+	// Hand it to TCPPacketReceiver
 	//pChannel->networkInterface().deregisterChannel(pChannel);
 	//pChannel->destroy();
 }
@@ -96,12 +96,12 @@ bool TCPPacketSender::processSend(Channel* pChannel, int userarg)
 		pChannel = getChannel();
 
 	OURO_ASSERT(pChannel != NULL);
-
-	if(pChannel->isCondemn())
+	
+	if(pChannel->condemn() == Channel::FLAG_CONDEMN_AND_DESTROY)
 	{
 		return false;
 	}
-
+	
 	Channel::Bundles& bundles = pChannel->bundles();
 	Reason reason = REASON_SUCCESS;
 
@@ -114,7 +114,7 @@ bool TCPPacketSender::processSend(Channel* pChannel, int userarg)
 		{
 			reason = processPacket(pChannel, (*iter1), userarg);
 			if(reason != REASON_SUCCESS)
-				break;
+				break; 
 			else
 				RECLAIM_PACKET((*iter)->isTCPPacket(), (*iter1));
 		}
@@ -132,36 +132,50 @@ bool TCPPacketSender::processSend(Channel* pChannel, int userarg)
 
 			if (reason == REASON_RESOURCE_UNAVAILABLE)
 			{
-				/* Output here may cause deadlock on debugHelper
+				/* The output here may cause debugHelper to kill the lock
 					WARNING_MSG(fmt::format("TCPPacketSender::processSend: "
 						"Transmit queue full, waiting for space(ouroboros.xml->channelCommon->writeBufferSize->{})...\n",
 						(pChannel->isInternal() ? "internal" : "external")));
 				*/
 
-				// Errors occur more than 10 times in a row
+				// Notice more than 10 consecutive times
 				if (++sendfailCount_ >= 10 && pChannel->isExternal())
 				{
-					onGetError(pChannel);
+					onGetError(pChannel, "TCPPacketSender::processSend: sendfailCount >= 10");
 
-					this->dispatcher().errorReporter().reportException(reason, pEndpoint_->addr(),
-						fmt::format("TCPPacketSender::processSend(sendfailCount({}) >= 10)", (int)sendfailCount_).c_str());
+					this->dispatcher().errorReporter().reportException(reason, pEndpoint_->addr(), 
+						fmt::format("TCPPacketSender::processSend(external, sendfailCount({}) >= 10)", (int)sendfailCount_).c_str());
 				}
 				else
 				{
-					this->dispatcher().errorReporter().reportException(reason, pEndpoint_->addr(),
-						fmt::format("TCPPacketSender::processSend({})", (int)sendfailCount_).c_str());
+					this->dispatcher().errorReporter().reportException(reason, pEndpoint_->addr(), 
+						fmt::format("TCPPacketSender::processSend(internal, {})", (int)sendfailCount_).c_str());
 				}
 			}
 			else
 			{
-#ifdef unix
-				this->dispatcher().errorReporter().reportException(reason, pEndpoint_->addr(), "TCPPacketSender::processSend()",
-					fmt::format(", errno: {}", errno).c_str());
+				if (pChannel->isExternal())
+				{
+#if OURO_PLATFORM == PLATFORM_UNIX
+					this->dispatcher().errorReporter().reportException(reason, pEndpoint_->addr(), "TCPPacketSender::processSend(external)",
+						fmt::format(", errno: {}", errno).c_str());
 #else
-				this->dispatcher().errorReporter().reportException(reason, pEndpoint_->addr(), "TCPPacketSender::processSend()",
-					fmt::format(", errno: {}", WSAGetLastError()).c_str());
+					this->dispatcher().errorReporter().reportException(reason, pEndpoint_->addr(), "TCPPacketSender::processSend(external)",
+						fmt::format(", errno: {}", WSAGetLastError()).c_str());
 #endif
-				onGetError(pChannel);
+				}
+				else
+				{
+#if OURO_PLATFORM == PLATFORM_UNIX
+					this->dispatcher().errorReporter().reportException(reason, pEndpoint_->addr(), "TCPPacketSender::processSend(internal)",
+						fmt::format(", errno: {}, {}", errno, pChannel->c_str()).c_str());
+#else
+					this->dispatcher().errorReporter().reportException(reason, pEndpoint_->addr(), "TCPPacketSender::processSend(internal)",
+						fmt::format(", errno: {}, {}", WSAGetLastError(), pChannel->c_str()).c_str());
+#endif
+				}
+
+				onGetError(pChannel, fmt::format("TCPPacketSender::processSend: errno={}", ouro_lasterror()));
 			}
 
 			return false;
@@ -179,7 +193,7 @@ bool TCPPacketSender::processSend(Channel* pChannel, int userarg)
 //-------------------------------------------------------------------------------------
 Reason TCPPacketSender::processFilterPacket(Channel* pChannel, Packet * pPacket, int userarg)
 {
-	if(pChannel->isCondemn())
+	if(pChannel->condemn() == Channel::FLAG_CONDEMN_AND_DESTROY)
 	{
 		return REASON_CHANNEL_CONDEMN;
 	}
@@ -213,3 +227,4 @@ Reason TCPPacketSender::processFilterPacket(Channel* pChannel, Packet * pPacket,
 //-------------------------------------------------------------------------------------
 }
 }
+

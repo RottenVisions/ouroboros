@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_ENTITY_SQL_STATEMENT_MAPPING_H
 #define OURO_ENTITY_SQL_STATEMENT_MAPPING_H
@@ -31,9 +31,9 @@ public:
 	SqlStatement* findInsertSqlStatement(const std::string& tableName);
 	SqlStatement* findUpdateSqlStatement(const std::string& tableName);
 protected:
-	OUROUnordered_map< std::string, OUROShared_ptr< SqlStatement > > query_sqlStatements_;
-	OUROUnordered_map< std::string, OUROShared_ptr< SqlStatement > > update_sqlStatements_;
-	OUROUnordered_map< std::string, OUROShared_ptr< SqlStatement > > insert_sqlStatements_;
+	KBEUnordered_map< std::string, KBEShared_ptr< SqlStatement > > query_sqlStatements_;
+	KBEUnordered_map< std::string, KBEShared_ptr< SqlStatement > > update_sqlStatements_;
+	KBEUnordered_map< std::string, KBEShared_ptr< SqlStatement > > insert_sqlStatements_;
 };
 
 

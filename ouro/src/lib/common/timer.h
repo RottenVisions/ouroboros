@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 #ifndef OURO_TIMER_H
 #define OURO_TIMER_H
 
@@ -35,8 +35,8 @@ inline bool operator==( TimerHandle h1, TimerHandle h2 )
 
 
 /**
- *	Must inherit this interface
- *	To receive timer-handleTimeout events
+ ?* must inherit this interface
+ ?* to receive the timer->handleTimeout event
  */
 class TimerHandler
 {
@@ -71,9 +71,9 @@ private:
 class TimeBase
 {
 public:
-	TimeBase(TimersBase &owner, TimerHandler* pHandler,
+	TimeBase(TimersBase &owner, TimerHandler* pHandler, 
 		void* pUserData);
-
+	
 	virtual ~TimeBase(){}
 
 	void cancel();
@@ -111,25 +111,25 @@ public:
 
 	TimersT();
 	virtual ~TimersT();
-
+	
 	inline uint32 size() const	{ return timeQueue_.size(); }
 	inline bool empty() const	{ return timeQueue_.empty(); }
-
+	
 	int	process(TimeStamp now);
 	bool legal( TimerHandle handle ) const;
 	TIME_STAMP nextExp( TimeStamp now ) const;
 	void clear( bool shouldCallCancel = true );
-
-	bool getTimerInfo( TimerHandle handle,
-					TimeStamp& time,
+	
+	bool getTimerInfo( TimerHandle handle, 
+					TimeStamp& time, 
 					TimeStamp&	interval,
 					void *&	pUser ) const;
-
+	
 	TimerHandle	add(TimeStamp startTime, TimeStamp interval,
 						TimerHandler* pHandler, void * pUser);
-
+	
 private:
-
+	
 	typedef std::vector<Ouroboros::TimeBase *> Container;
 	Container container_;
 
@@ -163,7 +163,7 @@ private:
 			return a->time() > b->time();
 		}
 	};
-
+	
 	class PriorityQueue
 	{
 	public:
@@ -208,7 +208,7 @@ private:
 	private:
 		Container container_;
 	};
-
+	
 	PriorityQueue	timeQueue_;
 	Time * 			pProcessingNode_;
 	TimeStamp 		lastProcessTime_;

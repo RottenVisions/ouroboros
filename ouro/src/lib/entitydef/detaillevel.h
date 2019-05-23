@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_DETAILLEVEL_H
@@ -6,13 +6,13 @@
 
 #include "common/common.h"
 #include "helper/debug_helper.h"
-#include "pyscript/scriptobject.h"
+#include "pyscript/scriptobject.h"	
 
 namespace Ouroboros{
 
-/** entity Details Level Type Definition
-There are 3 levels by default:
-Near, Medium, Far
+/** entity Detail level type definition
+	The default is 3 levels:
+	 Near, medium, far
 */
 struct DetailLevel
 {
@@ -30,7 +30,7 @@ struct DetailLevel
 			return false;
 		}
 	};
-
+	
 	DetailLevel()
 	{
 	}
@@ -39,10 +39,11 @@ struct DetailLevel
 	{
 	}
 
-	Level level[3]; // Near, medium, far
+	Level level[3]; // near, medium, far
 };
 
 }
 
 
 #endif // OURO_DETAILLEVEL_H
+

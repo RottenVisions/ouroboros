@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OUROBOROS_SCRIPT_H
 #define OUROBOROS_SCRIPT_H
@@ -12,7 +12,7 @@
 
 namespace Ouroboros{ namespace script{
 
-/** Script system path */
+/** Script system path*/
 #ifdef _LP64
 #define SCRIPT_PATH													\
 					L"../../res/scripts;"							\
@@ -34,6 +34,13 @@ namespace Ouroboros{ namespace script{
 					L"../../res/scripts/common/Lib/dist-packages"
 
 #endif
+
+#define APPEND_PYSYSPATH(PY_PATHS)									\
+	std::wstring pySysPaths = SCRIPT_PATH;							\
+	wchar_t* pwpySysResPath = strutil::char2wchar(const_cast<char*>(Resmgr::getSingleton().getPySysResPath().c_str()));	\
+	strutil::ouro_replace(pySysPaths, L"../../res/", pwpySysResPath);\
+	PY_PATHS += pySysPaths;											\
+	free(pwpySysResPath);
 
 
 PyObject * PyTuple_FromStringVector(const std::vector< std::string > & v);
@@ -78,40 +85,45 @@ inline PyObject * PyTuple_FromIntVector<uint64>(const std::vector< uint64 > & v)
 }
 
 class Script: public Singleton<Script>
-{
-public:
+{						
+public:	
 	Script();
 	virtual ~Script();
-
-	/**
+	
+	/** 
 		Install and uninstall script modules
 	*/
-	virtual bool install(const wchar_t* pythonHomeDir, std::wstring pyPaths,
+	virtual bool install(const wchar_t* pythonHomeDir, std::wstring pyPaths, 
 		const char* moduleName, COMPONENT_TYPE componentType);
 
 	virtual bool uninstall(void);
-
+	
 	bool installExtraModule(const char* moduleName);
 
-	/**
+	/** 
 		Add an extension interface to the engine extension module
 	*/
 	bool registerExtraMethod(const char* attrName, PyMethodDef* pyFunc);
 
-	/**
-		Add an extension attribute to the engine extension module
+	/** 
+		Add an extended attribute to the engine extension module
 	*/
 	bool registerExtraObject(const char* attrName, PyObject* pyObj);
 
-	/**
+	/** 
 		Get the script base module
 	*/
 	INLINE PyObject* getModule(void) const;
 
-	/**
+	/** 
 		Get script extension module
 	*/
 	INLINE PyObject* getExtraModule(void) const;
+
+	/**
+		Get the module when the script is initialized
+	*/
+	INLINE PyObject* getSysInitModules(void) const;
 
 	int run_simpleString(const char* command, std::string* retBufferPtr);
 	INLINE int run_simpleString(std::string command, std::string* retBufferPtr);
@@ -127,7 +139,8 @@ public:
 
 protected:
 	PyObject* 					module_;
-	PyObject*					extraModule_;		// Extended script module
+	PyObject* extraModule_; // extended script module
+	PyObject* sysInitModules_; // Initially sys loaded module
 
 	ScriptStdOutErr*			pyStdouterr_;
 } ;

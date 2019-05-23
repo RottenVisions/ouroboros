@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "db_tasks.h"
 #include "db_interface.h"
@@ -39,7 +39,7 @@ thread::TPTask::TPTaskState DBTaskBase::presentMainThread()
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskSyncTable::DBTaskSyncTable(EntityTables* pEntityTables, OUROShared_ptr<EntityTable> pEntityTable) :
+DBTaskSyncTable::DBTaskSyncTable(EntityTables* pEntityTables, KBEShared_ptr<EntityTable> pEntityTable) :
 pEntityTable_(pEntityTable),
 success_(false),
 pEntityTables_(pEntityTables)

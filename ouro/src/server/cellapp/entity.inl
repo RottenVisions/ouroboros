@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 namespace Ouroboros{
@@ -50,7 +50,7 @@ INLINE void Entity::position(const Position3D& pos)
 { 
 	Vector3 movement = pos - position_;
 
-	if(OUROVec3Length(&movement) < 0.0004f)
+	if(KBEVec3Length(&movement) < 0.0004f)
 		return;
 		
 	position_ = pos; 
@@ -260,15 +260,30 @@ INLINE void Entity::controlledBy(EntityCall* baseEntityCall)
 }
 
 //-------------------------------------------------------------------------------------
-INLINE void Entity::setDirty(bool dirty)
+INLINE void Entity::setDirty(uint32* digest)
 {
-	isDirty_ = dirty;
+	if (digest)
+	{
+		memcpy((void*)&persistentDigest_[0], (void*)digest, sizeof(persistentDigest_));
+	}
+	else
+	{
+		persistentDigest_[0] = 0;
+		persistentDigest_[1] = 0;
+		persistentDigest_[2] = 0;
+		persistentDigest_[3] = 0;
+		persistentDigest_[4] = 0;
+	}
 }
 
 //-------------------------------------------------------------------------------------
 INLINE bool Entity::isDirty() const
 {
-	return isDirty_;
+	return persistentDigest_[0] == 0 && 
+		persistentDigest_[1] == 0 && 
+		persistentDigest_[2] == 0 && 
+		persistentDigest_[3] == 0 && 
+		persistentDigest_[4] == 0;
 }
 
 //-------------------------------------------------------------------------------------

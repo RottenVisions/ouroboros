@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OUROBOROS_MD5_H
 #define OUROBOROS_MD5_H
@@ -10,7 +10,7 @@ namespace Ouroboros
 {
 
 /**
- *	openssl md5
+ *	openssl md5µÄ·â×°
  */
 class OURO_MD5
 {
@@ -24,7 +24,7 @@ public:
 	std::string getDigestStr();
 
 	void clear();
-
+	
 	void final();
 
 	bool operator==( const OURO_MD5 & other ) const;

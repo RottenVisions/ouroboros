@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_NETWORKUDPPACKET_RECEIVER_H
 #define OURO_NETWORKUDPPACKET_RECEIVER_H
@@ -24,10 +24,10 @@ class EventDispatcher;
 class UDPPacketReceiver : public PacketReceiver
 {
 public:
-	typedef OUROShared_ptr< SmartPoolObject< UDPPacketReceiver > > SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
+	typedef KBEShared_ptr< SmartPoolObject< UDPPacketReceiver > > SmartPoolObjectPtr;
+	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<UDPPacketReceiver>& ObjPool();
-	static UDPPacketReceiver* createPoolObject();
+	static UDPPacketReceiver* createPoolObject(const std::string& logPoint);
 	static void reclaimPoolObject(UDPPacketReceiver* obj);
 	static void destroyObjPool();
 

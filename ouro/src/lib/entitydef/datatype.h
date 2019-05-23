@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_DATA_TYPE_H
@@ -10,12 +10,12 @@
 #pragma warning (disable : 4251)
 #pragma warning (disable : 4661)
 #endif
-#include "entitydef/common.h"
+#include "entitydef/common.h"	
 #include "common/refcountable.h"
 #include "common/memorystream.h"
 #include "pyscript/scriptobject.h"
 #include "pyscript/pickler.h"
-#include "xml/xml.h"
+#include "xml/xml.h"	
 
 
 namespace Ouroboros{
@@ -31,11 +31,17 @@ class RefCountable;
 class ScriptDefModule;
 class PropertyDescription;
 
+namespace script {
+	namespace entitydef {
+		class DefContext;
+	}
+}
+
 class DataType : public RefCountable
 {
-public:
+public:	
 	DataType(DATATYPE_UID did = 0);
-	virtual ~DataType();
+	virtual ~DataType();	
 
 	virtual bool isSameType(PyObject* pyValue) = 0;
 
@@ -45,23 +51,23 @@ public:
 
 	static bool finalise();
 
-	/**
-		When the pyobj passed in is not the current type, an obj is created according to the current type.
-		The premise is that even if the PyObject is not the current type, it must have the commonness of the conversion.
-		Both a python dictionary is converted to a fixed dictionary and the keys in the dictionary are matched.
+	/**	
+		When the incoming pyobj is not the current type, an obj is created according to the current type.
+		The premise is that even if this PyObject is not the current type, it must have the commonality of the transformation.
+		Converting a python dictionary into a fixed dictionary, the keys in the dictionary match
 	*/
 	virtual PyObject* createNewItemFromObj(PyObject* pyobj)
 	{
 		Py_INCREF(pyobj);
 		return pyobj;
 	}
-
+	
 	virtual PyObject* createNewFromObj(PyObject* pyobj)
 	{
 		Py_INCREF(pyobj);
 		return pyobj;
 	}
-
+		
 	virtual bool initialize(XML* xml, TiXmlNode* node);
 
 	virtual PyObject* parseDefaultStr(std::string defaultVal) = 0;
@@ -83,9 +89,9 @@ template <typename SPECIFY_TYPE>
 class IntType : public DataType
 {
 protected:
-public:
+public:	
 	IntType(DATATYPE_UID did = 0);
-	virtual ~IntType();
+	virtual ~IntType();	
 
 	bool isSameType(PyObject* pyValue);
 	void addToStream(MemoryStream* mstream, PyObject* pyValue);
@@ -148,13 +154,13 @@ inline PyObject* IntType<uint8>::parseDefaultStr(std::string defaultVal)
 		stream << defaultVal;
 		stream >> i;
 	}
-
+	
 	PyObject* pyval = PyLong_FromUnsignedLong((uint8)i);
 
-	if (PyErr_Occurred())
+	if (PyErr_Occurred()) 
 	{
 		PyErr_Clear();
-		PyErr_Format(PyExc_TypeError, "UINT8Type::parseDefaultStr: defaultVal(%s) is error! val=[%s]",
+		PyErr_Format(PyExc_TypeError, "UINT8Type::parseDefaultStr: defaultVal(%s) error! val=[%s]", 
 			pyval != NULL ? pyval->ob_type->tp_name : "NULL", defaultVal.c_str());
 
 		PyErr_PrintEx(0);
@@ -180,10 +186,10 @@ inline PyObject* IntType<uint16>::parseDefaultStr(std::string defaultVal)
 
 	PyObject* pyval = PyLong_FromUnsignedLong((uint16)i);
 
-	if (PyErr_Occurred())
+	if (PyErr_Occurred()) 
 	{
 		PyErr_Clear();
-		PyErr_Format(PyExc_TypeError, "UINT16Type::parseDefaultStr: defaultVal(%s) is error! val=[%s]",
+		PyErr_Format(PyExc_TypeError, "UINT16Type::parseDefaultStr: defaultVal(%s) error! val=[%s]", 
 			pyval != NULL ? pyval->ob_type->tp_name : "NULL", defaultVal.c_str());
 
 		PyErr_PrintEx(0);
@@ -209,10 +215,10 @@ inline PyObject* IntType<uint32>::parseDefaultStr(std::string defaultVal)
 
 	PyObject* pyval = PyLong_FromUnsignedLong(i);
 
-	if (PyErr_Occurred())
+	if (PyErr_Occurred()) 
 	{
 		PyErr_Clear();
-		PyErr_Format(PyExc_TypeError, "UINT32Type::parseDefaultStr: defaultVal(%s) is error! val=[%s]",
+		PyErr_Format(PyExc_TypeError, "UINT32Type::parseDefaultStr: defaultVal(%s) error! val=[%s]", 
 			pyval != NULL ? pyval->ob_type->tp_name : "NULL", defaultVal.c_str());
 
 		PyErr_PrintEx(0);
@@ -238,10 +244,10 @@ inline PyObject* IntType<int8>::parseDefaultStr(std::string defaultVal)
 
 	PyObject* pyval = PyLong_FromLong((int8)i);
 
-	if (PyErr_Occurred())
+	if (PyErr_Occurred()) 
 	{
 		PyErr_Clear();
-		PyErr_Format(PyExc_TypeError, "INT8Type::parseDefaultStr: defaultVal(%s) is error! val=[%s]",
+		PyErr_Format(PyExc_TypeError, "INT8Type::parseDefaultStr: defaultVal(%s) error! val=[%s]", 
 			pyval != NULL ? pyval->ob_type->tp_name : "NULL", defaultVal.c_str());
 
 		PyErr_PrintEx(0);
@@ -267,10 +273,10 @@ inline PyObject* IntType<int16>::parseDefaultStr(std::string defaultVal)
 
 	PyObject* pyval = PyLong_FromLong((int16)i);
 
-	if (PyErr_Occurred())
+	if (PyErr_Occurred()) 
 	{
 		PyErr_Clear();
-		PyErr_Format(PyExc_TypeError, "INT16Type::parseDefaultStr: defaultVal(%s) is error! val=[%s]",
+		PyErr_Format(PyExc_TypeError, "INT16Type::parseDefaultStr: defaultVal(%s) error! val=[%s]", 
 			pyval != NULL ? pyval->ob_type->tp_name : "NULL", defaultVal.c_str());
 
 		PyErr_PrintEx(0);
@@ -296,10 +302,10 @@ inline PyObject* IntType<int32>::parseDefaultStr(std::string defaultVal)
 
 	PyObject* pyval = PyLong_FromLong(i);
 
-	if (PyErr_Occurred())
+	if (PyErr_Occurred()) 
 	{
 		PyErr_Clear();
-		PyErr_Format(PyExc_TypeError, "INT32Type::parseDefaultStr: defaultVal(%s) is error! val=[%s]",
+		PyErr_Format(PyExc_TypeError, "INT32Type::parseDefaultStr: defaultVal(%s) error! val=[%s]", 
 			pyval != NULL ? pyval->ob_type->tp_name : "NULL", defaultVal.c_str());
 
 		PyErr_PrintEx(0);
@@ -316,9 +322,9 @@ inline PyObject* IntType<int32>::parseDefaultStr(std::string defaultVal)
 class UInt64Type : public DataType
 {
 protected:
-public:
+public:	
 	UInt64Type(DATATYPE_UID did = 0);
-	virtual ~UInt64Type();
+	virtual ~UInt64Type();	
 
 	bool isSameType(PyObject* pyValue);
 
@@ -336,9 +342,9 @@ public:
 class UInt32Type : public DataType
 {
 protected:
-public:
+public:	
 	UInt32Type(DATATYPE_UID did = 0);
-	virtual ~UInt32Type();
+	virtual ~UInt32Type();	
 
 	bool isSameType(PyObject* pyValue);
 
@@ -356,9 +362,9 @@ public:
 class Int64Type : public DataType
 {
 protected:
-public:
+public:	
 	Int64Type(DATATYPE_UID did = 0);
-	virtual ~Int64Type();
+	virtual ~Int64Type();	
 
 	bool isSameType(PyObject* pyValue);
 
@@ -376,9 +382,9 @@ public:
 class FloatType : public DataType
 {
 protected:
-public:
+public:	
 	FloatType(DATATYPE_UID did = 0);
-	virtual ~FloatType();
+	virtual ~FloatType();	
 
 	bool isSameType(PyObject* pyValue);
 
@@ -396,9 +402,9 @@ public:
 class DoubleType : public DataType
 {
 protected:
-public:
+public:	
 	DoubleType(DATATYPE_UID did = 0);
-	virtual ~DoubleType();
+	virtual ~DoubleType();	
 
 	bool isSameType(PyObject* pyValue);
 
@@ -415,9 +421,9 @@ public:
 
 class Vector2Type : public DataType
 {
-public:
+public:	
 	Vector2Type(DATATYPE_UID did = 0);
-	virtual ~Vector2Type();
+	virtual ~Vector2Type();	
 
 	bool isSameType(PyObject* pyValue);
 
@@ -482,9 +488,9 @@ protected:
 class StringType : public DataType
 {
 protected:
-public:
+public:	
 	StringType(DATATYPE_UID did = 0);
-	virtual ~StringType();
+	virtual ~StringType();	
 
 	bool isSameType(PyObject* pyValue);
 
@@ -502,9 +508,9 @@ public:
 class UnicodeType : public DataType
 {
 protected:
-public:
+public:	
 	UnicodeType(DATATYPE_UID did = 0);
-	virtual ~UnicodeType();
+	virtual ~UnicodeType();	
 
 	bool isSameType(PyObject* pyValue);
 
@@ -522,9 +528,9 @@ public:
 class PythonType : public DataType
 {
 protected:
-public:
+public:	
 	PythonType(DATATYPE_UID did = 0);
-	virtual ~PythonType();
+	virtual ~PythonType();	
 
 	virtual bool isSameType(PyObject* pyValue);
 	virtual void addToStream(MemoryStream* mstream, PyObject* pyValue);
@@ -541,9 +547,9 @@ public:
 class PyDictType : public PythonType
 {
 protected:
-public:
+public:	
 	PyDictType(DATATYPE_UID did = 0);
-	virtual ~PyDictType();
+	virtual ~PyDictType();	
 
 	bool isSameType(PyObject* pyValue);
 	virtual PyObject* createFromStream(MemoryStream* mstream);
@@ -558,9 +564,9 @@ public:
 class PyTupleType : public PythonType
 {
 protected:
-public:
+public:	
 	PyTupleType(DATATYPE_UID did = 0);
-	virtual ~PyTupleType();
+	virtual ~PyTupleType();	
 
 	bool isSameType(PyObject* pyValue);
 	virtual PyObject* createFromStream(MemoryStream* mstream);
@@ -575,9 +581,9 @@ public:
 class PyListType : public PythonType
 {
 protected:
-public:
+public:	
 	PyListType(DATATYPE_UID did = 0);
-	virtual ~PyListType();
+	virtual ~PyListType();	
 
 	bool isSameType(PyObject* pyValue);
 	virtual PyObject* createFromStream(MemoryStream* mstream);
@@ -592,9 +598,9 @@ public:
 class BlobType : public DataType
 {
 protected:
-public:
+public:	
 	BlobType(DATATYPE_UID did = 0);
-	virtual ~BlobType();
+	virtual ~BlobType();	
 
 	bool isSameType(PyObject* pyValue);
 
@@ -612,9 +618,9 @@ public:
 class EntityCallType : public DataType
 {
 protected:
-public:
+public:	
 	EntityCallType(DATATYPE_UID did = 0);
-	virtual ~EntityCallType();
+	virtual ~EntityCallType();	
 
 	bool isSameType(PyObject* pyValue);
 
@@ -631,10 +637,10 @@ public:
 
 class FixedArrayType : public DataType
 {
-public:
+public:	
 	FixedArrayType(DATATYPE_UID did = 0);
-	virtual ~FixedArrayType();
-
+	virtual ~FixedArrayType();	
+	
 	DataType* getDataType(){ return dataType_; }
 
 	bool isSameType(PyObject* pyValue);
@@ -649,13 +655,14 @@ public:
 	PyObject* parseDefaultStr(std::string defaultVal);
 
 	bool initialize(XML* xml, TiXmlNode* node, const std::string& parentName);
+	bool initialize(script::entitydef::DefContext* pDefContext, const std::string& parentName);
 
 	const char* getName(void) const{ return "ARRAY";}
 
-	/**
-		When the pyobj passed in is not the current type, an obj is created according to the current type.
-		The premise is that even if the PyObject is not the current type, it must have the commonness of the conversion.
-		Both a python dictionary is converted to a fixed dictionary and the keys in the dictionary are matched.
+	/**	
+		When the incoming pyobj is not the current type, an obj is created according to the current type.
+		The premise is that even if this PyObject is not the current type, it must have the commonality of the transformation.
+		Converting a python dictionary into a fixed dictionary, the keys in the dictionary match
 	*/
 	virtual PyObject* createNewItemFromObj(PyObject* pyobj);
 	virtual PyObject* createNewFromObj(PyObject* pyobj);
@@ -663,7 +670,7 @@ public:
 	virtual DATATYPE type() const{ return DATA_TYPE_FIXEDARRAY; }
 
 protected:
-	DataType*			dataType_;		// The array handled by this array
+	DataType* dataType_; // The category handled by this array
 };
 
 class FixedDictType : public DataType
@@ -673,22 +680,23 @@ public:
 	{
 		DataType* dataType;
 
-		// As a data category in the alias can be specified in an item in dict is persistent
+		// As a data category in alias can specify whether an item in the dict is persistent
 		bool persistent;
 
-		// The length of this attribute in the database
+		// the length of this property in the database
 		uint32 databaseLength;
 	};
 
-	typedef OUROShared_ptr< DictItemDataType > DictItemDataTypePtr;
+	typedef KBEShared_ptr< DictItemDataType > DictItemDataTypePtr;
 	typedef std::vector< std::pair< std::string, DictItemDataTypePtr > > FIXEDDICT_KEYTYPE_MAP;
-public:
+
+public:	
 	FixedDictType(DATATYPE_UID did = 0);
 	virtual ~FixedDictType();
-
-	/**
+	
+	/** 
 		Get the key category of this fixed dictionary
-	*/
+	*/	
 	FIXEDDICT_KEYTYPE_MAP& getKeyTypes(void){ return keyTypes_; }
 
 	const char* getName(void) const{ return "FIXED_DICT";}
@@ -703,33 +711,36 @@ public:
 	PyObject* createFromStreamEx(MemoryStream* mstream, bool onlyPersistents);
 
 	PyObject* parseDefaultStr(std::string defaultVal);
-	bool initialize(XML* xml, TiXmlNode* node, std::string& parentName);
 
-	/**
-		When the pyobj passed in is not the current type, an obj is created according to the current type.
-		The premise is that even if the PyObject is not the current type, it must have the commonness of the conversion.
-		Both a python dictionary is converted to a fixed dictionary and the keys in the dictionary are matched.
+	bool initialize(XML* xml, TiXmlNode* node, std::string& parentName);
+	bool initialize(script::entitydef::DefContext* pDefContext, const std::string& parentName);
+
+	/**	
+		When the incoming pyobj is not the current type, an obj is created according to the current type.
+		The premise is that even if this PyObject is not the current type, it must have the commonality of the transformation.
+		Converting a python dictionary into a fixed dictionary, the keys in the dictionary match
 	*/
 	virtual PyObject* createNewItemFromObj(const char* keyName, PyObject* pyobj);
 	virtual PyObject* createNewFromObj(PyObject* pyobj);
 
-	/**
-		Get the fixed dictionary all key names
+	/** 
+		Get all the key names of the fixed dictionary
 	*/
 	std::string getKeyNames(void);
 
-	/**
-		Get debug information, return all the key names and types of fixed dictionary
+	/** 
+		Get the debug information and return all the key names and types in the fixed dictionary.
 	*/
 	std::string debugInfos(void);
 
-	/**
+	/** 
 		Load impl module
 	*/
 	bool loadImplModule(std::string moduleName);
+	bool setImplModule(PyObject* pyobj);
 
-	/**
-		Impl related implementation
+	/** 
+		Ip related implementation
 	*/
 	PyObject* impl_createObjFromDict(PyObject* dictData);
 	PyObject* impl_getDictFromObj(PyObject* pyobj);
@@ -741,19 +752,21 @@ public:
 
 	std::string& moduleName(){ return moduleName_; }
 
+	std::string getNotFoundKeys(PyObject* dict);
+
 protected:
-	// The type of each key in this fixed dictionary
-	FIXEDDICT_KEYTYPE_MAP			keyTypes_;
+	// the type of each key in this fixed dictionary
+	FIXEDDICT_KEYTYPE_MAP			keyTypes_;				
 
 	// Implement the script module
-	PyObject*						implObj_;
+	PyObject*						implObj_;				
 
 	PyObject*						pycreateObjFromDict_;
 	PyObject*						pygetDictFromObj_;
 
 	PyObject*						pyisSameType_;
 
-	std::string						moduleName_;
+	std::string						moduleName_;		
 };
 
 class EntityComponentType : public DataType
@@ -771,7 +784,7 @@ public:
 	void addPersistentToStream(MemoryStream* mstream, PyObject* pyValue);
 	void addPersistentToStream(MemoryStream* mstream);
 	void addPersistentToStreamTemplates(ScriptDefModule* pScriptModule, MemoryStream* mstream);
-	void addCellDataToStream(MemoryStream* mstream, uint32 flags, PyObject* pyValue,
+	void addCellDataToStream(MemoryStream* mstream, uint32 flags, PyObject* pyValue, 
 		ENTITY_ID ownerID, PropertyDescription* parentPropertyDescription, COMPONENT_TYPE sendtoComponentType, bool checkValue);
 
 	PyObject* createFromStream(MemoryStream* mstream);
@@ -850,30 +863,30 @@ bool IntType<SPECIFY_TYPE>::isSameType(PyObject* pyValue)
 	{
 		ERROR_MSG(fmt::format("IntType::isSameType:{} is out of range (currVal = {}).\n",
 			ival, int(val)));
-
+		
 		return false;
 	}
-
+	
 	return true;
 }
 
 //-------------------------------------------------------------------------------------
 template <typename SPECIFY_TYPE>
-void IntType<SPECIFY_TYPE>::addToStream(MemoryStream* mstream,
+void IntType<SPECIFY_TYPE>::addToStream(MemoryStream* mstream, 
 	PyObject* pyValue)
 {
 	SPECIFY_TYPE v = (SPECIFY_TYPE)PyLong_AsLong(pyValue);
-
+	
 	if(PyErr_Occurred())
 	{
 		PyErr_Clear();
-
+		
 		v = (SPECIFY_TYPE)PyLong_AsUnsignedLong(pyValue);
-
+		
 		if(PyErr_Occurred())
 		{
 			PyErr_Clear();
-			PyErr_Format(PyExc_TypeError, "IntType::addToStream: pyValue(%s) is error!",
+			PyErr_Format(PyExc_TypeError, "IntType::addToStream: pyValue(%s) error!", 
 				(pyValue == NULL) ? "NULL": pyValue->ob_type->tp_name);
 
 			PyErr_PrintEx(0);
@@ -881,7 +894,7 @@ void IntType<SPECIFY_TYPE>::addToStream(MemoryStream* mstream,
 			v = 0;
 		}
 	}
-
+			
 	(*mstream) << v;
 }
 
@@ -895,14 +908,14 @@ PyObject* IntType<SPECIFY_TYPE>::createFromStream(MemoryStream* mstream)
 
 	PyObject* pyval = PyLong_FromLong(val);
 
-	if (PyErr_Occurred())
+	if (PyErr_Occurred()) 
 	{
 		PyErr_Clear();
 		S_RELEASE(pyval);
-
+		
 		pyval = PyLong_FromUnsignedLong(val);
-
-		if (PyErr_Occurred())
+		
+		if (PyErr_Occurred()) 
 		{
 			PyErr_Format(PyExc_TypeError, "IntType::createFromStream: errval=%d, default return is 0", val);
 			PyErr_PrintEx(0);
@@ -920,3 +933,4 @@ PyObject* IntType<SPECIFY_TYPE>::createFromStream(MemoryStream* mstream)
 #include "datatype.inl"
 #endif
 #endif // OURO_DATA_TYPE_H
+

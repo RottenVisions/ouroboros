@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "message_handler.h"
@@ -9,9 +9,9 @@
 #include "network/fixed_messages.h"
 #include "helper/watcher.h"
 #include "xml/xml.h"
-#include "resmgr/resmgr.h"
+#include "resmgr/resmgr.h"	
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 Network::MessageHandlers* MessageHandlers::pMainMessageHandlers = 0;
@@ -129,15 +129,15 @@ bool MessageHandlers::initializeWatcher()
 }
 
 //-------------------------------------------------------------------------------------
-MessageHandler* MessageHandlers::add(std::string ihName, MessageArgs* args,
+MessageHandler* MessageHandlers::add(std::string ihName, MessageArgs* args, 
 	int32 msgLen, MessageHandler* msgHandler)
 {
 	if(msgID_ == 1)
 	{
 		//printf("\n------------------------------------------------------------------\n");
-		//printf("OUROMessage_handlers begin:\n");
+		//printf("KBEMessage_handlers begin:\n");
 	}
-
+	
 	//bool isfixedMsg = false;
 
 	FixedMessages::MSGInfo* msgInfo = FixedMessages::getSingleton().isFixed(ihName.c_str());
@@ -162,22 +162,22 @@ MessageHandler* MessageHandlers::add(std::string ihName, MessageArgs* args,
 	{
 		msgHandler->msgID = msgInfo->msgid;
 	}
-
+	
 	if (g_packetAlwaysContainLength)
 		msgLen = NETWORK_VARIABLE_MESSAGE;
 
-	msgHandler->name = ihName;
+	msgHandler->name = ihName;					
 	msgHandler->pArgs = args;
-	msgHandler->msgLen = msgLen;
+	msgHandler->msgLen = msgLen;	
 	msgHandler->exposed = false;
 	msgHandler->pMessageHandlers = this;
 	msgHandler->onInstall();
 
 	msgHandlers_[msgHandler->msgID] = msgHandler;
-
+	
 	if(msgLen == NETWORK_VARIABLE_MESSAGE)
 	{
-		//printf("\tMessageHandlers::add(%d): name=%s, msgID=%d, size=Variable.\n",
+		//printf("\tMessageHandlers::add(%d): name=%s, msgID=%d, size=Variable.\n", 
 		//	(int32)msgHandlers_.size(), ihName.c_str(), msgHandler->msgID);
 	}
 	else
@@ -187,7 +187,7 @@ MessageHandler* MessageHandlers::add(std::string ihName, MessageArgs* args,
 			msgHandler->msgLen = args->dataSize();
 
 			if (msgHandler->pArgs)
-			{
+			{ 
 				std::vector<std::string>::iterator args_iter = msgHandler->pArgs->strArgsTypes.begin();
 				for (; args_iter != msgHandler->pArgs->strArgsTypes.end(); ++args_iter)
 				{
@@ -195,8 +195,8 @@ MessageHandler* MessageHandlers::add(std::string ihName, MessageArgs* args,
 					{
 						DebugHelper::getSingleton().set_warningcolor();
 
-						printf("%s::%s::dataSize: "
-							"Not NETWORK_FIXED_MESSAGE, "
+						printf("%s::%s::dataSize: "	
+							"Not NETWORK_FIXED_MESSAGE, "	
 							"has changed to NETWORK_VARIABLE_MESSAGE!\n", COMPONENT_NAME_EX(g_componentType), ihName.c_str());
 
 						DebugHelper::getSingleton().set_normalcolor();
@@ -211,8 +211,8 @@ MessageHandler* MessageHandlers::add(std::string ihName, MessageArgs* args,
 				msgHandler->msgLen += sizeof(ENTITY_ID);
 			}
 		}
-
-		//printf("\tMessageHandlers::add(%d): name=%s, msgID=%d, size=Fixed(%d).\n",
+		
+		//printf("\tMessageHandlers::add(%d): name=%s, msgID=%d, size=Fixed(%d).\n", 
 		//		(int32)msgHandlers_.size(), ihName.c_str(), msgHandler->msgID, msgHandler->msgLen);
 	}
 
@@ -247,7 +247,7 @@ std::string MessageHandlers::getDigestStr()
 			rootNode = xml->getRootNode();
 			if (rootNode == NULL)
 			{
-				// There is no child node under the root node
+				// There are no children under the root node.
 				return "";
 			}
 
@@ -324,17 +324,14 @@ std::string MessageHandlers::getDigestStr()
 			for(; iter != (*rootiter)->msgHandlers().end(); ++iter)
 			{
 				MessageHandler* pMessageHandler = iter->second;
-
+			
 				md5.append((void*)pMessageHandler->name.c_str(), pMessageHandler->name.size());
 				md5.append((void*)&pMessageHandler->msgID, sizeof(MessageID));
 				md5.append((void*)&pMessageHandler->msgLen, sizeof(int32));
 				md5.append((void*)&pMessageHandler->exposed, sizeof(bool));
-
+	 
 				int32 argsize = pMessageHandler->pArgs->strArgsTypes.size();
 				md5.append((void*)&argsize, sizeof(int32));
-
-				int32 argsdataSize = pMessageHandler->pArgs->dataSize();
-				md5.append((void*)&argsdataSize, sizeof(int32));
 
 				int32 argstype = (int32)pMessageHandler->pArgs->type();
 				md5.append((void*)&argstype, sizeof(int32));
@@ -359,7 +356,7 @@ MessageHandler* MessageHandlers::find(MessageID msgID)
 	{
 		return iter->second;
 	};
-
+	
 	return NULL;
 }
 
@@ -387,5 +384,5 @@ bool MessageHandlers::pushExposedMessage(std::string msgname)
 }
 
 //-------------------------------------------------------------------------------------
-}
+} 
 }

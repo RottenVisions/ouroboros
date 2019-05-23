@@ -1,7 +1,7 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
-#include "spacememorys.h"
-namespace Ouroboros{
+#include "spacememorys.h"	
+namespace Ouroboros{	
 SpaceMemorys::SPACEMEMORYS SpaceMemorys::spaces_;
 
 //-------------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ void SpaceMemorys::finalise()
 	while (spaces.size() > 0)
 	{
 		SPACEMEMORYS::iterator iter = spaces.begin();
-		OUROShared_ptr<SpaceMemory> pSpace = iter->second;
+		KBEShared_ptr<SpaceMemory> pSpace = iter->second;
 		spaces.erase(iter++);
 		pSpace->destroy(0, false);
 	}
@@ -38,10 +38,10 @@ SpaceMemory* SpaceMemorys::createNewSpace(SPACE_ID spaceID, const std::string& s
 		ERROR_MSG(fmt::format("Spaces::createNewSpace: space {} is exist! scriptModuleName={}\n", spaceID, scriptModuleName));
 		return NULL;
 	}
-
+	
 	SpaceMemory* space = new SpaceMemory(spaceID, scriptModuleName);
 	spaces_[spaceID].reset(space);
-
+	
 	DEBUG_MSG(fmt::format("Spaces::createNewSpace: new space({}) {}.\n", scriptModuleName, spaceID));
 	return space;
 }
@@ -54,7 +54,7 @@ bool SpaceMemorys::destroySpace(SPACE_ID spaceID, ENTITY_ID entityID)
 	SpaceMemory* pSpace = SpaceMemorys::findSpace(spaceID);
 	if(!pSpace)
 		return true;
-
+	
 	if(pSpace->isDestroyed())
 		return true;
 
@@ -64,7 +64,7 @@ bool SpaceMemorys::destroySpace(SPACE_ID spaceID, ENTITY_ID entityID)
 		return false;
 	}
 
-	// Destruction after a period of time
+	// Delay after a period of time to destroy
 	//spaces_.erase(spaceID);
 	return true;
 }
@@ -75,7 +75,7 @@ SpaceMemory* SpaceMemorys::findSpace(SPACE_ID spaceID)
 	SPACEMEMORYS::iterator iter = spaces_.find(spaceID);
 	if(iter != spaces_.end())
 		return iter->second.get();
-
+	
 	return NULL;
 }
 

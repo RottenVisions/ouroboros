@@ -8,7 +8,7 @@ Changes with APR-util 1.5.4
   *) apr_crypto_get_driver(): Fix invalid storage reference on error path.
      [Philip Martin <philip.martin wandisco.com>]
 
-  *) Fix compile failure for Android.  PR 56627.  [Fredrik Fornwall
+  *) Fix compile failure for Android.  PR 56627.  [Fredrik Fornwall 
      <fredrik fornwall.net>, Jeff Trawick]
 
   *) Fix to let ODBC driver build with MSVC6, which does not have intptr_t
@@ -115,7 +115,7 @@ Changes with APR-util 1.5.0
      apr_dbd_select(). PR 53533. [<arthur echo gmail com>]
 
   *) APR dbd FreeTDS support: Fix spurious API errors caused by uninitialized
-     fields.  [TROY.LIU Liu Chunwei <TROY.LIU deltaww.com.cn>]
+     fields.  [TROY.LIU 劉春偉 <TROY.LIU deltaww.com.cn>]
 
   *) apr_password_validate: Increase maximum hash string length to allow
      more than 9999 rounds with sha512-crypt. PR 53410. [Stefan Fritsch]

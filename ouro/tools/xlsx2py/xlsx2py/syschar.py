@@ -1,7 +1,7 @@
 # -*- coding: gb2312 -*-
 #
 #-----------------------------------------------------------------------------------------------------------------------------------
-# 天赋
+#天赋
 def funcGeniusOver(mapDict, allDatas, datas, dataName):
 	"""
 	"""
@@ -78,7 +78,7 @@ def checkConfigure(avatar, geniusclass, gid, isInc):
 
 def getGeniusData(avatarPro, geniusclass):
 	"""
-	@param avatarPro	: 职业 avatar.getPro()
+	@param avatarPro : Occupation avatar.getPro()
 	@param geniusClass	: scdefine.GENIUS_TYPE_*
 	"""
 	return datas.get(avatarPro, {}).get(geniusclass, {})
@@ -92,7 +92,7 @@ def getGeniusDataByGID(gid):
 
 def getRewardGenius(avatarPro, geniusclass):
 	"""
-	@param avatarPro	: 职业 avatar.getPro()
+	@param avatarPro : Occupation avatar.getPro()
 	@param geniusClass	: scdefine.GENIUS_TYPE_*
 	"""
 	ret = {}
@@ -120,7 +120,7 @@ def getGeniusClassByGID(gid):
 	return e
 
 #-----------------------------------------------------------------------------------------------------------------------------------
-# 初始化表
+# Initialization table
 def funcAvatarInitDatasOver(mapDict, allDatas, datas, dataName):
 	d = {}
 	keys = ("equipBoxItemIDs", "commonBoxItemIDs",)
@@ -148,7 +148,7 @@ def funcAvatarInitDatasOver(mapDict, allDatas, datas, dataName):
 	return d
 
 #-----------------------------------------------------------------------------------------------------------------------------------
-# buff状态表
+# buffstate table
 def funcBuffStateOver(mapDict, allDatas, datas, dataName):
 	"""
 	"""
@@ -158,7 +158,7 @@ def funcBuffStateOver(mapDict, allDatas, datas, dataName):
 	return datas
 
 #-----------------------------------------------------------------------------------------------------------------------------------
-# 球应用表
+#球应用表
 def funcPowerDefinesOver(mapDict, allDatas, datas, dataName):
 	"""
 	"""
@@ -191,7 +191,7 @@ def getLimit():
 	return e 
 	
 #-----------------------------------------------------------------------------------------------------------------------------------
-# 角色基础属性
+# Role base attribute
 def funcAvatarBaseAttrDatasOver(mapDict, allDatas, datas, dataName):
 	d = {}
 	for value in datas.values():

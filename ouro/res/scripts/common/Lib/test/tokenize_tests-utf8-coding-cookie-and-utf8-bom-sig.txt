@@ -1,12 +1,12 @@
 ﻿# -*- coding: utf-8 -*-
-# IMPORTANT: this file has the utf-8 BOM signature '\xef\xbb\xbf' 
+# IMPORTANT: this file has the utf-8 BOM signature '\xef\xbb\xbf'
 # at the start of it.  Make sure this is preserved if any changes
 # are made!
 
 # Arbitrary encoded utf-8 text (stolen from test_doctest2.py).
-x = 'ЉЊЈЁЂ'
+x = 'ЉЊЈ�?Ђ'
 def y():
     """
-    And again in a comment.  ЉЊЈЁЂ
+    And again in a comment.  ЉЊЈ�?Ђ
     """
     pass

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "tcp_packet.h"
@@ -10,7 +10,7 @@
 #include "network/network_interface.h"
 #include "network/message_handler.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 //-------------------------------------------------------------------------------------
@@ -21,9 +21,9 @@ ObjectPool<TCPPacket>& TCPPacket::ObjPool()
 }
 
 //-------------------------------------------------------------------------------------
-TCPPacket* TCPPacket::createPoolObject()
+TCPPacket* TCPPacket::createPoolObject(const std::string& logPoint)
 {
-	return _g_objPool.createObject();
+	return _g_objPool.createObject(logPoint);
 }
 
 //-------------------------------------------------------------------------------------
@@ -35,16 +35,16 @@ void TCPPacket::reclaimPoolObject(TCPPacket* obj)
 //-------------------------------------------------------------------------------------
 void TCPPacket::destroyObjPool()
 {
-	DEBUG_MSG(fmt::format("TCPPacket::destroyObjPool(): size {}.\n",
+	DEBUG_MSG(fmt::format("TCPPacket::destroyObjPool(): size {}.\n", 
 		_g_objPool.size()));
 
 	_g_objPool.destroy();
 }
 
 //-------------------------------------------------------------------------------------
-TCPPacket::SmartPoolObjectPtr TCPPacket::createSmartPoolObj()
+TCPPacket::SmartPoolObjectPtr TCPPacket::createSmartPoolObj(const std::string& logPoint)
 {
-	return SmartPoolObjectPtr(new SmartPoolObject<TCPPacket>(ObjPool().createObject(), _g_objPool));
+	return SmartPoolObjectPtr(new SmartPoolObject<TCPPacket>(ObjPool().createObject(logPoint), _g_objPool));
 }
 
 //-------------------------------------------------------------------------------------
@@ -79,16 +79,16 @@ int TCPPacket::recvFromEndPoint(EndPoint & ep, Address* pAddr)
 	//OURO_ASSERT(MessageHandlers::pMainMessageHandlers != NULL && "Must set up a MainMessageHandlers!\n");
 	OURO_ASSERT(maxBufferSize() > wpos());
 	int len = ep.recv(data() + wpos(), (int)(size() - wpos()));
-
-	if(len > 0)
+	
+	if(len > 0) 
 	{
 		wpos((int)(wpos() + len));
 
-		// Note: Must be greater than 0 otherwise DEBUG_MSG will cause WSAGetLastError to return 0 and get stuck in an infinite loop
+		// Note: Must be greater than 0 or DEBUG_MSG will cause WSAGetLastError to return 0 and get stuck in an infinite loop
 		// DEBUG_MSG(fmt::format("TCPPacket::recvFromEndPoint: datasize={}, wpos={}.\n", len, wpos()));
 	}
 
-	return len;
+	return len; 
 }
 
 //-------------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_WEBSOCKET_PACKET_FILTER_H
@@ -23,6 +23,7 @@ public:
 
 protected:
 	void reset();
+	Reason onPing(Channel * pChannel, Packet* pPacket);
 
 protected:
 	enum FragmentDataTypes

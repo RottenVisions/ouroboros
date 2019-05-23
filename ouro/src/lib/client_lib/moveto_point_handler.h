@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_CLIENT_MOVETOPOINTHANDLER_H
 #define OURO_CLIENT_MOVETOPOINTHANDLER_H
 
-#include "pyscript/scriptobject.h"
+#include "pyscript/scriptobject.h"	
 #include "math/math.h"
 #include "script_callbacks.h"
 
@@ -17,18 +17,18 @@ class MoveToPointHandler : public ScriptCallbackHandler
 public:
 	enum MoveType
 	{
-		MOVE_TYPE_POINT = 0,		// Conventional type
-		MOVE_TYPE_ENTITY = 1,		// Range trigger type
-		MOVE_TYPE_NAV = 2,			// Mobile controller type
+		MOVE_TYPE_POINT = 0, // regular type
+		MOVE_TYPE_ENTITY = 1, // range trigger type
+		MOVE_TYPE_NAV = 2, // mobile controller type
 	};
 
-	MoveToPointHandler(ScriptCallbacks& scriptCallbacks, client::Entity* pEntity, int layer,
-		const Position3D& destPos, float velocity, float distance, bool faceMovement,
+	MoveToPointHandler(ScriptCallbacks& scriptCallbacks, client::Entity* pEntity, int layer, 
+		const Position3D& destPos, float velocity, float distance, bool faceMovement, 
 		bool moveVertically, PyObject* userarg);
 
 	MoveToPointHandler();
 	virtual ~MoveToPointHandler();
-
+	
 	virtual bool update(TimerHandle& handle);
 
 	virtual const Position3D& destPos(){ return destPos_; }
@@ -44,15 +44,16 @@ protected:
 
 protected:
 	Position3D destPos_;
-	float velocity_;			// speed
-	bool faceMovement_;			// Does it not change for mobile?
-	bool moveVertically_;		// True can fly or move
+	float velocity_; // speed
+	bool faceMovement_; // Whether to change the move-oriented
+	bool moveVertically_; // true can fly to move or paste
 	PyObject* pyuserarg_;
 	float distance_;
 	int layer_;
 	client::Entity* pEntity_;
 };
-
+ 
 }
 }
 #endif // OURO_CLIENT_MOVETOPOINTHANDLER_H
+

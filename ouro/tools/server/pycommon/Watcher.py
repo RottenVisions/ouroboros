@@ -5,29 +5,29 @@ import traceback
 from . import Define, ServerApp, MessageStream
 
 
-CONSOLE_COMMANDCB_MSGID = 65500
-CONSOLE_LOG_MSGID       = 65501
-CONSOLE_WATCHERCB_MSGID = 65502
-CONSOLE_PROFILECB_MSGID = 65503
+CONSOLE_COMMANDCB_MSGID	= 65500
+CONSOLE_LOG_MSGID		= 65501
+CONSOLE_WATCHERCB_MSGID	= 65502
+CONSOLE_PROFILECB_MSGID	= 65503
 
 
 
-# watcher data type definition
-WATCHER_VALUE_TYPE_UNKNOWN        = 0
-WATCHER_VALUE_TYPE_UINT8          = 1
-WATCHER_VALUE_TYPE_UINT16         = 2
-WATCHER_VALUE_TYPE_UINT32         = 3
-WATCHER_VALUE_TYPE_UINT64         = 4
-WATCHER_VALUE_TYPE_INT8           = 5
-WATCHER_VALUE_TYPE_INT16          = 6
-WATCHER_VALUE_TYPE_INT32          = 7
-WATCHER_VALUE_TYPE_INT64          = 8
-WATCHER_VALUE_TYPE_FLOAT          = 9
-WATCHER_VALUE_TYPE_DOUBLE         = 10
-WATCHER_VALUE_TYPE_CHAR           = 11
-WATCHER_VALUE_TYPE_STRING         = 12
-WATCHER_VALUE_TYPE_BOOL           = 13
-WATCHER_VALUE_TYPE_COMPONENT_TYPE = 14
+# watcherData type definition
+WATCHER_VALUE_TYPE_UNKNOWN			= 0
+WATCHER_VALUE_TYPE_UINT8			= 1
+WATCHER_VALUE_TYPE_UINT16			= 2
+WATCHER_VALUE_TYPE_UINT32			= 3
+WATCHER_VALUE_TYPE_UINT64			= 4
+WATCHER_VALUE_TYPE_INT8				= 5
+WATCHER_VALUE_TYPE_INT16			= 6
+WATCHER_VALUE_TYPE_INT32			= 7
+WATCHER_VALUE_TYPE_INT64			= 8
+WATCHER_VALUE_TYPE_FLOAT			= 9
+WATCHER_VALUE_TYPE_DOUBLE			= 10
+WATCHER_VALUE_TYPE_CHAR				= 11
+WATCHER_VALUE_TYPE_STRING			= 12
+WATCHER_VALUE_TYPE_BOOL				= 13
+WATCHER_VALUE_TYPE_COMPONENT_TYPE	= 14
 
 CMD_ID_queryWatcher = {
 	Define.BASEAPP_TYPE    : 41001,
@@ -42,9 +42,9 @@ CMD_ID_queryWatcher = {
 
 class Watcher(ServerApp.ServerApp):
 	"""
-	Use samples:
+	Use the example:
 	import sys
-	sys.path.append(r"x:\ouroboros\ouro\tools\server")
+	sys.path.append(r"x:\ouroboros\kbe\tools\server")
 	import pycommon.Watcher
 	import pycommon.Define
 	w = pycommon.Watcher.Watcher(pycommon.Define.CELLAPP_TYPE)
@@ -61,12 +61,12 @@ class Watcher(ServerApp.ServerApp):
 		self.watchData = []
 		self.componentType = componentType
 		assert componentType in CMD_ID_queryWatcher
-
+		
 	def clearWatchData(self):
 		"""
 		"""
 		self.watchData = []
-
+		
 	def requireQueryWatcher(self, path):
 		"""
 		"""
@@ -87,7 +87,7 @@ class Watcher(ServerApp.ServerApp):
 				id = streamReader.readUint16()
 				wtype = streamReader.readUint8()
 				fullpath = "%s%s%s" % (path, len(path) > 0 and "/" or "", name)
-
+				
 				if wtype == WATCHER_VALUE_TYPE_UINT8:
 					val = streamReader.readUint8()
 				elif wtype == WATCHER_VALUE_TYPE_UINT16:
@@ -118,12 +118,12 @@ class Watcher(ServerApp.ServerApp):
 					val = streamReader.readInt32()
 				else:
 					assert False, "not support!"
-
+				
 				#_w = { "fullpath" : fullpath, "id" : id, "val" : val }
-
+				
 				_d["path"] = path
 				_d["values"][name] = val
-
+		
 		else:
 			rootpath = streamReader.readString()
 			if rootpath == "/":

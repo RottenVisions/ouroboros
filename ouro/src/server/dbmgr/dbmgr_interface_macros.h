@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #if defined(DEFINE_IN_INTERFACE)
@@ -9,9 +9,9 @@
 #ifndef OURO_DBMGR_INTERFACE_MACRO_H
 #define OURO_DBMGR_INTERFACE_MACRO_H
 
-// common include
+// common include	
 #include "network/interface_defs.h"
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
@@ -38,7 +38,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define DBMGR_MESSAGE_HANDLER_STREAM(NAME)										\
@@ -58,7 +58,7 @@ namespace Ouroboros{
 																				\
 
 /**
-	Dbmgr message macro, message with only zero parameters
+	Dbmgr message macro, only zero parameter message
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef DBMGR_MESSAGE_HANDLER_ARGS0
@@ -79,7 +79,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define DBMGR_MESSAGE_HANDLER_ARGS0(NAME)										\
@@ -123,7 +123,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define DBMGR_MESSAGE_HANDLER_ARGS1(NAME, ARG_TYPE1, ARG_NAME1)					\
@@ -141,9 +141,9 @@ namespace Ouroboros{
 	NETWORK_MESSAGE_DECLARE_ARGS1(Dbmgr, NAME,									\
 				NAME##DbmgrMessagehandler1, MSG_LENGTH, ARG_TYPE1, ARG_NAME1)	\
 																				\
-
+	
 /**
-	Dbmgr message macro, only two parameters of the message
+	Dbmgr message macro, message with only two parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef DBMGR_MESSAGE_HANDLER_ARGS2
@@ -171,7 +171,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define DBMGR_MESSAGE_HANDLER_ARGS2(NAME, ARG_TYPE1, ARG_NAME1,					\
@@ -228,7 +228,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define DBMGR_MESSAGE_HANDLER_ARGS3(NAME, ARG_TYPE1, ARG_NAME1,					\
@@ -293,7 +293,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define DBMGR_MESSAGE_HANDLER_ARGS4(NAME, ARG_TYPE1, ARG_NAME1,					\
@@ -324,7 +324,7 @@ namespace Ouroboros{
 											ARG_TYPE4, ARG_NAME4)				\
 
 /**
-	Dbmgr message macro, only five parameters of the message
+	Dbmgr message macro, message with only five parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef DBMGR_MESSAGE_HANDLER_ARGS5
@@ -365,7 +365,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define DBMGR_MESSAGE_HANDLER_ARGS5(NAME, ARG_TYPE1, ARG_NAME1,					\
@@ -446,7 +446,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define DBMGR_MESSAGE_HANDLER_ARGS6(NAME, ARG_TYPE1, ARG_NAME1,					\
@@ -485,7 +485,7 @@ namespace Ouroboros{
 											ARG_TYPE6, ARG_NAME6)				\
 
 /**
-	Dbmgr message macro, only seven parameters of the message
+	Dbmgr message macro, message with only seven parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef DBMGR_MESSAGE_HANDLER_ARGS7
@@ -535,7 +535,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define DBMGR_MESSAGE_HANDLER_ARGS7(NAME, ARG_TYPE1, ARG_NAME1,					\
@@ -633,7 +633,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define DBMGR_MESSAGE_HANDLER_ARGS8(NAME, ARG_TYPE1, ARG_NAME1,					\
@@ -739,7 +739,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define DBMGR_MESSAGE_HANDLER_ARGS9(NAME, ARG_TYPE1, ARG_NAME1,					\
@@ -791,7 +791,7 @@ namespace Ouroboros{
 
 
 /**
-	Dbmgr message macro, only ten parameters message
+	Dbmgr message macro, message with only ten parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef DBMGR_MESSAGE_HANDLER_ARGS10
@@ -854,7 +854,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define DBMGR_MESSAGE_HANDLER_ARGS10(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -910,7 +910,7 @@ namespace Ouroboros{
 
 
 /**
-	Dbmgr message macro, only eleven parameters of the message
+	Dbmgr message macro, message with only one parameter
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef DBMGR_MESSAGE_HANDLER_ARGS11
@@ -977,7 +977,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define DBMGR_MESSAGE_HANDLER_ARGS11(NAME, ARG_TYPE1, ARG_NAME1,				\

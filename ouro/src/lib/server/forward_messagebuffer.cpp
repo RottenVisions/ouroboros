@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "forward_messagebuffer.h"
@@ -7,7 +7,7 @@
 #include "network/event_dispatcher.h"
 #include "network/network_interface.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 OURO_SINGLETON_INIT(ForwardComponent_MessageBuffer);
 OURO_SINGLETON_INIT(ForwardAnywhere_MessageBuffer);
 //-------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ void ForwardComponent_MessageBuffer::push(COMPONENT_ID componentID, ForwardItem*
 		dispatcher().addTask(this);
 		start_ = true;
 	}
-
+	
 	pMap_[componentID].push_back(pHandler);
 }
 
@@ -71,7 +71,7 @@ bool ForwardComponent_MessageBuffer::process()
 		start_ = false;
 		return false;
 	}
-
+	
 	MSGMAP::iterator iter = pMap_.begin();
 	for(; iter != pMap_.end(); )
 	{
@@ -79,7 +79,7 @@ bool ForwardComponent_MessageBuffer::process()
 		if(cinfos == NULL || cinfos->pChannel == NULL)
 			return true;
 
-		// If it is mgr component needs to determine whether it has been initialized
+		// If the mgr class component needs to determine whether it has been initialized
 		if(g_componentType == CELLAPPMGR_TYPE || g_componentType == BASEAPPMGR_TYPE)
 		{
 			if(cinfos->state != COMPONENT_STATE_RUN)
@@ -109,7 +109,7 @@ bool ForwardComponent_MessageBuffer::process()
 					(*itervec)->pHandler->process();
 					SAFE_RELEASE((*itervec)->pHandler);
 				}
-
+				
 				SAFE_RELEASE((*itervec));
 
 				itervec = iter->second.erase(itervec);
@@ -117,7 +117,7 @@ bool ForwardComponent_MessageBuffer::process()
 				if(--icount <= 0)
 					return true;
 			}
-
+			
 			DEBUG_MSG(fmt::format("ForwardComponent_MessageBuffer::process(): size:{}.\n", iter->second.size()));
 			iter->second.clear();
 			++iter;
@@ -172,7 +172,7 @@ void ForwardAnywhere_MessageBuffer::push(ForwardItem* pHandler)
 		dispatcher().addTask(this);
 		start_ = true;
 	}
-
+	
 	pBundles_.push_back(pHandler);
 }
 
@@ -184,7 +184,7 @@ bool ForwardAnywhere_MessageBuffer::process()
 		start_ = false;
 		return false;
 	}
-
+	
 	Components::COMPONENTS& cts = Components::getSingleton().getComponents(forwardComponentType_);
 	size_t idx = 0;
 
@@ -195,7 +195,7 @@ bool ForwardAnywhere_MessageBuffer::process()
 		Components::COMPONENTS::iterator ctiter = cts.begin();
 		for(; ctiter != cts.end(); ++ctiter)
 		{
-			// All component channels must be set, and wait if they are not.
+			// All component channels must be set, if not, wait.
 			if((*ctiter).pChannel == NULL)
 				return true;
 
@@ -207,7 +207,7 @@ bool ForwardAnywhere_MessageBuffer::process()
 		if(!hasEnabled)
 			return true;
 
-		// Up to 5 ticks per tick
+		// handle up to 5 per tick
 		int icount = 5;
 
 		std::vector<ForwardItem*>::iterator iter = pBundles_.begin();
@@ -216,16 +216,16 @@ bool ForwardAnywhere_MessageBuffer::process()
 			if ((*iter)->isOK())
 				break;
 		}
-
+		
 		// All ForwardItems must be in the ok state
-		// When not in ok? For example, the ForwardItem in cellappmgr needs to wait for the initialization of the cellapp to complete before the ok
+		// When is it not in the ok state? For example: the ForwardItem in cellappmgr needs to wait for the cellapp to be initialized before ok
 		if (iter == pBundles_.end())
 			return true;
 
 		for(; iter != pBundles_.end(); )
 		{
 			Network::Channel* pChannel = NULL;
-
+			
 			if(g_componentType != CELLAPPMGR_TYPE && g_componentType != BASEAPPMGR_TYPE)
 			{
 				pChannel = cts[idx++].pChannel;
@@ -236,7 +236,7 @@ bool ForwardAnywhere_MessageBuffer::process()
 			{
 				while(pChannel == NULL)
 				{
-					if(cts[idx].state != COMPONENT_STATE_RUN)
+					if (cts[idx].state != COMPONENT_STATE_RUN || (cts[idx].appFlags & APP_FLAGS_NOT_PARTCIPATING_LOAD_BALANCING) > 0)
 					{
 						if(++idx >= cts.size())
 							idx = 0;
@@ -258,7 +258,7 @@ bool ForwardAnywhere_MessageBuffer::process()
 				(*iter)->pHandler->process();
 				SAFE_RELEASE((*iter)->pHandler);
 			}
-
+			
 			SAFE_RELEASE((*iter));
 
 			iter = pBundles_.erase(iter);
@@ -266,7 +266,7 @@ bool ForwardAnywhere_MessageBuffer::process()
 			if(--icount <= 0)
 				return true;
 		}
-
+		
 		DEBUG_MSG(fmt::format("ForwardAnywhere_MessageBuffer::process(): size:{}.\n", pBundles_.size()));
 		start_ = false;
 		return false;

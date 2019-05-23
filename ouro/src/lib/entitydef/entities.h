@@ -1,57 +1,57 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_ENTITIES_H
 #define OURO_ENTITIES_H
-
-// common include
+	
+// common include	
 #include "helper/debug_helper.h"
 #include "common/common.h"
 #include "common/smartpointer.h"
 #include "pyscript/scriptobject.h"
 #include "pyscript/pyobject_pointer.h"
 #include "entitydef/entity_garbages.h"
-
+	
 namespace Ouroboros{
 
 template<typename T>
 class Entities : public script::ScriptObject
 {
-	/**
-		Subclassing fills some py operations into derived classes
+	/** 
+		Subclassing populates some py operations into a derived class
 	*/
-	INSTANCE_SCRIPT_HREADER(Entities, ScriptObject)
+	INSTANCE_SCRIPT_HREADER(Entities, ScriptObject)	
 public:
-	typedef OUROUnordered_map<ENTITY_ID, PyObjectPtr> ENTITYS_MAP;
+	typedef KBEUnordered_map<ENTITY_ID, PyObjectPtr> ENTITYS_MAP;
 
 	Entities():
 	ScriptObject(getScriptType(), false),
 	_pGarbages(new EntityGarbages<T>())
-	{
+	{			
 	}
 
 	~Entities()
 	{
 		finalise();
 		S_RELEASE(_pGarbages);
-	}
+	}	
 
 	void finalise()
 	{
 		clear(false);
 	}
 
-	/**
+	/** 
 		Expose some dictionary methods to python
 	*/
 	DECLARE_PY_MOTHOD_ARG1(pyHas_key, ENTITY_ID);
 	DECLARE_PY_MOTHOD_ARG0(pyKeys);
 	DECLARE_PY_MOTHOD_ARG0(pyValues);
 	DECLARE_PY_MOTHOD_ARG0(pyItems);
-
-	static PyObject* __py_pyGet(PyObject * self,
+	
+	static PyObject* __py_pyGet(PyObject * self, 
 		PyObject * args, PyObject* kwds);
 
-	/**
+	/** 
 		Map operation function related
 	*/
 	static PyObject* mp_subscript(PyObject * self, PyObject * key);
@@ -78,13 +78,13 @@ public:
 private:
 	ENTITYS_MAP _entities;
 
-	// An entity that has already been destroyed by destroy has been stored here. It has not been destructed for a long time.
-	// The script layer may have a circular reference that causes a memory leak.
+	// The entity that has been called destroy but not destructed will be stored here, and has not been destructed for a long time.
+	// There is a possibility of a circular reference in the script layer causing a memory leak.
 	EntityGarbages<T>* _pGarbages;
 };
 
-/**
-	Python Entities operation required method table
+/** 
+	Method table required for Python Entities operations
 */
 template<typename T>
 PyMappingMethods Entities<T>::mappingMethods =
@@ -94,10 +94,10 @@ PyMappingMethods Entities<T>::mappingMethods =
 	NULL											// mp_ass_subscript
 };
 
-// reference objects/dictobject.c
+// ²Î¿¼ objects/dictobject.c
 // Hack to implement "key in dict"
 template<typename T>
-PySequenceMethods Entities<T>::mappingSequenceMethods =
+PySequenceMethods Entities<T>::mappingSequenceMethods = 
 {
     0,											/* sq_length */
     0,											/* sq_concat */
@@ -125,7 +125,7 @@ SCRIPT_MEMBER_DECLARE_END()
 TEMPLATE_SCRIPT_GETSET_DECLARE_BEGIN(template<typename T>, Entities<T>, Entities)
 SCRIPT_GET_DECLARE("garbages",				pyGarbages,				0,							0)
 SCRIPT_GETSET_DECLARE_END()
-TEMPLATE_SCRIPT_INIT(template<typename T>, Entities<T>, Entities, 0, &Entities<T>::mappingSequenceMethods, &Entities<T>::mappingMethods, 0, 0)
+TEMPLATE_SCRIPT_INIT(template<typename T>, Entities<T>, Entities, 0, &Entities<T>::mappingSequenceMethods, &Entities<T>::mappingMethods, 0, 0)	
 
 
 //-------------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ int Entities<T>::mp_length(PyObject * self)
 {
 	return (int)static_cast<Entities*>(self)->getEntities().size();
 }
-
+	
 //-------------------------------------------------------------------------------------
 template<typename T>
 PyObject * Entities<T>::mp_subscript(PyObject* self, PyObject* key /*entityID*/)
@@ -263,7 +263,7 @@ PyObject* Entities<T>::__py_pyGet(PyObject* self, PyObject * args, PyObject* kwd
 //-------------------------------------------------------------------------------------
 template<typename T>
 void Entities<T>::add(ENTITY_ID id, T* entity)
-{
+{ 
 	ENTITYS_MAP::const_iterator iter = _entities.find(id);
 	if(iter != _entities.end())
 	{
@@ -271,7 +271,7 @@ void Entities<T>::add(ENTITY_ID id, T* entity)
 		return;
 	}
 
-	_entities[id] = entity;
+	_entities[id] = entity; 
 }
 
 //-------------------------------------------------------------------------------------
@@ -308,8 +308,8 @@ void Entities<T>::clear(bool callScript, std::vector<ENTITY_ID> excludes)
 		entity->destroy(callScript);
 		_entities.erase(iter++);
 	}
-
-	// Cannot empty due to excludes
+	
+	// Cannot be emptied due to the presence of excludes
 	// _entities.clear();
 }
 
@@ -322,7 +322,7 @@ T* Entities<T>::find(ENTITY_ID id)
 	{
 		return static_cast<T*>(iter->second.get());
 	}
-
+	
 	return NULL;
 }
 
@@ -338,20 +338,21 @@ PyObjectPtr Entities<T>::erase(ENTITY_ID id)
 		_entities.erase(iter);
 		return entity;
 	}
-
+	
 	return NULL;
 }
 
 //-------------------------------------------------------------------------------------
 template<typename T>
 PyObject* Entities<T>::pyGarbages()
-{
+{ 
 	if(_pGarbages == NULL)
 		S_Return;
 
 	Py_INCREF(_pGarbages);
-	return _pGarbages;
+	return _pGarbages; 
 }
 
 }
 #endif // OURO_ENTITIES_H
+

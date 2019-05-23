@@ -20,218 +20,218 @@ def index( request ):
 @login_check
 def components_query( request ):
 	"""
-	The request to obtain the component data
+	Request to get component data
 	"""
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [ [machine, other-components, ...], ...]
-	ouroComps = []
+	kbeComps = []
 	for mID, comps in interfaces_groups.items():
 		if len( comps ) <= 1:
 			continue
 
 		dl = []
-		ouroComps.append( dl )
+		kbeComps.append( dl )
 		for comp in comps:
 			d = {
-				"ip"            : comp.intaddr,
-				"componentType" : comp.componentType,
-				"componentName" : comp.componentName,
-				"fullname"      : comp.fullname,
-				"uid"           : comp.uid,
-				"pid"           : comp.pid,
-				"componentID"   : comp.componentID,
-				"globalOrderID" : comp.globalOrderID,
-				"cpu"           : comp.cpu,
-				"mem"           : comp.mem,
-				"usedmem"       : comp.usedmem,
-				"entities"      : comp.entities,
-				"proxies"       : comp.proxies,
-				"clients"       : comp.clients,
-				"consolePort"   : comp.consolePort,
+				"ip"			: comp.intaddr,
+				"componentType"	: comp.componentType,
+				"componentName"	: comp.componentName,
+				"fullname"		: comp.fullname,
+				"uid"			: comp.uid,
+				"pid"			: comp.pid,
+				"componentID"	: comp.componentID,
+				"globalOrderID"	: comp.globalOrderID,
+				"cpu"			: comp.cpu,
+				"mem"			: comp.mem,
+				"usedmem"		: comp.usedmem,
+				"entities"		: comp.entities,
+				"proxies"		: comp.proxies,
+				"clients"		: comp.clients,
+				"consolePort"	: comp.consolePort,
 			}
 			dl.append( d )
-
-	return HttpResponse( json.dumps( ouroComps ), content_type="application/json" )
+	
+	return HttpResponse( json.dumps( kbeComps ), content_type="application/json" )
 
 def components_group_query( request , ct ):
 	"""
-	Request to obtain a set of component data
+	Request to get a set of component data
 	"""
 	ct = int(ct)
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [ [machine, other-components, ...], ...]
-	ouroComps = []
+	kbeComps = []
 	for mID, comps in interfaces_groups.items():
 		if len( comps ) <= 1:
 			continue
 
 		dl = []
-		ouroComps.append( dl )
+		kbeComps.append( dl )
 		for comp in comps:
 			if comp.componentType == ct or comp.componentType == 8:
 				d = {
-					"ip"            : comp.intaddr,
-					"componentType" : comp.componentType,
-					"componentName" : comp.componentName,
-					"fullname"      : comp.fullname,
-					"uid"           : comp.uid,
-					"pid"           : comp.pid,
-					"componentID"   : comp.componentID,
-					"globalOrderID" : comp.globalOrderID,
-					"cpu"           : comp.cpu,
-					"mem"           : comp.mem,
-					"usedmem"       : comp.usedmem,
-					"entities"      : comp.entities,
-					"proxies"       : comp.proxies,
-					"clients"       : comp.clients,
-					"consolePort"   : comp.consolePort,
+					"ip"			: comp.intaddr,
+					"componentType"	: comp.componentType,
+					"componentName"	: comp.componentName,
+					"fullname"		: comp.fullname,
+					"uid"			: comp.uid,
+					"pid"			: comp.pid,
+					"componentID"	: comp.componentID,
+					"globalOrderID"	: comp.globalOrderID,
+					"cpu"			: comp.cpu,
+					"mem"			: comp.mem,
+					"usedmem"		: comp.usedmem,
+					"entities"		: comp.entities,
+					"proxies"		: comp.proxies,
+					"clients"		: comp.clients,
+					"consolePort"	: comp.consolePort,
 				}
 				dl.append( d )
-
-	return HttpResponse( json.dumps( ouroComps ), content_type="application/json" )
+		
+	return HttpResponse( json.dumps( kbeComps ), content_type="application/json" )
 
 def components_one_query( request , ct, cid ):
 	"""
-	Request to obtain a component data
+	Request to get a component data
 	"""
 	ct = int(ct)
 	cid = int(cid)
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [ [machine, other-components, ...], ...]
-	ouroComps = []
+	kbeComps = []
 	for mID, comps in interfaces_groups.items():
 		if len( comps ) <= 1:
 			continue
 
 		dl = []
-		ouroComps.append( dl )
+		kbeComps.append( dl )
 		for comp in comps:
 			if comp.componentType == 8:
 				d = {
-					"ip"            : comp.intaddr,
-					"componentType" : comp.componentType,
-					"componentName" : comp.componentName,
-					"fullname"      : comp.fullname,
-					"uid"           : comp.uid,
-					"pid"           : comp.pid,
-					"componentID"   : comp.componentID,
-					"globalOrderID" : comp.globalOrderID,
-					"cpu"           : comp.cpu,
-					"mem"           : comp.mem,
-					"usedmem"       : comp.usedmem,
-					"entities"      : comp.entities,
-					"proxies"       : comp.proxies,
-					"clients"       : comp.clients,
-					"consolePort"   : comp.consolePort,
+					"ip"			: comp.intaddr,
+					"componentType"	: comp.componentType,
+					"componentName"	: comp.componentName,
+					"fullname"		: comp.fullname,
+					"uid"			: comp.uid,
+					"pid"			: comp.pid,
+					"componentID"	: comp.componentID,
+					"globalOrderID"	: comp.globalOrderID,
+					"cpu"			: comp.cpu,
+					"mem"			: comp.mem,
+					"usedmem"		: comp.usedmem,
+					"entities"		: comp.entities,
+					"proxies"		: comp.proxies,
+					"clients"		: comp.clients,
+					"consolePort"	: comp.consolePort,
 				}
 				dl.append( d )
 
 			if comp.componentID == cid:
 				d = {
-					"ip"            : comp.intaddr,
-					"componentType" : comp.componentType,
-					"componentName" : comp.componentName,
-					"fullname"      : comp.fullname,
-					"uid"           : comp.uid,
-					"pid"           : comp.pid,
-					"componentID"   : comp.componentID,
-					"globalOrderID" : comp.globalOrderID,
-					"cpu"           : comp.cpu,
-					"mem"           : comp.mem,
-					"usedmem"       : comp.usedmem,
-					"entities"      : comp.entities,
-					"proxies"       : comp.proxies,
-					"clients"       : comp.clients,
-					"consolePort"   : comp.consolePort,
+					"ip"			: comp.intaddr,
+					"componentType"	: comp.componentType,
+					"componentName"	: comp.componentName,
+					"fullname"		: comp.fullname,
+					"uid"			: comp.uid,
+					"pid"			: comp.pid,
+					"componentID"	: comp.componentID,
+					"globalOrderID"	: comp.globalOrderID,
+					"cpu"			: comp.cpu,
+					"mem"			: comp.mem,
+					"usedmem"		: comp.usedmem,
+					"entities"		: comp.entities,
+					"proxies"		: comp.proxies,
+					"clients"		: comp.clients,
+					"consolePort"	: comp.consolePort,
 				}
 				dl.append( d )
-
+			
 			if ct == 3:
 				if comp.componentType == 6 or comp.componentType == 3:
 					d = {
-						"ip"            : comp.intaddr,
-						"componentType" : comp.componentType,
-						"componentName" : comp.componentName,
-						"fullname"      : comp.fullname,
-						"uid"           : comp.uid,
-						"pid"           : comp.pid,
-						"componentID"   : comp.componentID,
-						"globalOrderID" : comp.globalOrderID,
-						"cpu"           : comp.cpu,
-						"mem"           : comp.mem,
-						"usedmem"       : comp.usedmem,
-						"entities"      : comp.entities,
-						"proxies"       : comp.proxies,
-						"clients"       : comp.clients,
-						"consolePort"   : comp.consolePort,
+						"ip"			: comp.intaddr,
+						"componentType"	: comp.componentType,
+						"componentName"	: comp.componentName,
+						"fullname"		: comp.fullname,
+						"uid"			: comp.uid,
+						"pid"			: comp.pid,
+						"componentID"	: comp.componentID,
+						"globalOrderID"	: comp.globalOrderID,
+						"cpu"			: comp.cpu,
+						"mem"			: comp.mem,
+						"usedmem"		: comp.usedmem,
+						"entities"		: comp.entities,
+						"proxies"		: comp.proxies,
+						"clients"		: comp.clients,
+						"consolePort"	: comp.consolePort,
 					}
 					dl.append( d )
-
+					
 			if ct == 4:
 				if comp.componentType == 5 or comp.componentType == 4:
 					d = {
-						"ip"            : comp.intaddr,
-						"componentType" : comp.componentType,
-						"componentName" : comp.componentName,
-						"fullname"      : comp.fullname,
-						"uid"           : comp.uid,
-						"pid"           : comp.pid,
-						"componentID"   : comp.componentID,
-						"globalOrderID" : comp.globalOrderID,
-						"cpu"           : comp.cpu,
-						"mem"           : comp.mem,
-						"usedmem"       : comp.usedmem,
-						"entities"      : comp.entities,
-						"proxies"       : comp.proxies,
-						"clients"       : comp.clients,
-						"consolePort"   : comp.consolePort,
+						"ip"			: comp.intaddr,
+						"componentType"	: comp.componentType,
+						"componentName"	: comp.componentName,
+						"fullname"		: comp.fullname,
+						"uid"			: comp.uid,
+						"pid"			: comp.pid,
+						"componentID"	: comp.componentID,
+						"globalOrderID"	: comp.globalOrderID,
+						"cpu"			: comp.cpu,
+						"mem"			: comp.mem,
+						"usedmem"		: comp.usedmem,
+						"entities"		: comp.entities,
+						"proxies"		: comp.proxies,
+						"clients"		: comp.clients,
+						"consolePort"	: comp.consolePort,
 					}
 					dl.append( d )
-
-	return HttpResponse( json.dumps( ouroComps ), content_type="application/json" )
+				
+	return HttpResponse( json.dumps( kbeComps ), content_type="application/json" )
 
 @login_check
 def components_query_machines( request ):
 	"""
-	Request to obtain all of the machines
+	Request to get all the machines
 	"""
 	machines = machinesmgr.queryMachines()
 
 	# [ machine, ...]
-	ouroComps = []
+	kbeComps = []
 	for machine in components.machines:
 		d = {
-			"ip"   : machine.intaddr,
-			"uid"  : machine.uid,
-			"pid"  : machine.pid,
+			"ip"	: machine.intaddr,
+			"uid"	: machine.uid,
+			"pid"	: machine.pid,
 		}
-		ouroComps.append( d )
-
-	return HttpResponse( json.dumps( ouroComps ), content_type="application/json" )
+		kbeComps.append( d )
+	
+	return HttpResponse( json.dumps( kbeComps ), content_type="application/json" )
 
 
 
 @login_check
 def components_manage( request ):
 	"""
-	Component Management page
+	Component management main page
 	"""
 	html_template = "WebConsole/components_manage.html"
-
+	
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	ouroComps = []
+	kbeComps = []
 	for mID, comps in interfaces_groups.items():
 		if len( comps ) > 1:
-			ouroComps.extend( comps[1:] )
+			kbeComps.extend( comps[1:] )
 
 	context = {
-		"OUROComps" : ouroComps,
-		"hasComponents" : len( ouroComps ) > 0,
+		"OUROComps" : kbeComps,
+		"hasComponents" : len( kbeComps ) > 0,
 		"hasMachines" : len( interfaces_groups ) > 0,
 	}
 	return render( request, html_template, context )
@@ -239,11 +239,11 @@ def components_manage( request ):
 @login_check
 def components_run( request ):
 	"""
-	Run the component
+	Running component
 	"""
 	components = Machines.Machines( request.session["sys_uid"], request.session["sys_user"] )
 	context = {}
-
+	
 	POST = request.POST
 	if POST.get( "run", "" ):
 		componentType = int( POST.get("componentType", "0") )
@@ -252,7 +252,7 @@ def components_run( request ):
 		ouro_root = request.session["ouro_root"]
 		ouro_res_path = request.session["ouro_res_path"]
 		ouro_bin_path = request.session["ouro_bin_path"]
-
+		
 		if componentType not in Define.VALID_COMPONENT_TYPE_FOR_RUN or \
 			not machinesmgr.hasMachine( targetMachine ) or \
 			runNumber <= 0:
@@ -266,7 +266,7 @@ def components_run( request ):
 
 			time.sleep( 2 )
 			return HttpResponseRedirect( "/wc/components/manage" )
-
+	
 	context["machines"] = machinesmgr.machines
 
 	return render( request, "WebConsole/components_run.html", context )
@@ -274,11 +274,11 @@ def components_run( request ):
 @login_check
 def components_stop( request, ct, cid ):
 	"""
-	To stop a component
+	Stop a component
 	"""
 	ct = int(ct)
 	cid = int(cid)
-
+	
 	components = Machines.Machines( request.session["sys_uid"], request.session["sys_user"] )
 
 	components.stopServer( ct, componentID = cid, trycount = 0 )
@@ -288,26 +288,26 @@ def components_stop( request, ct, cid ):
 		"cid": cid
  	}
 	return render( request, "WebConsole/components_shutdown.html", context )
-
+	
 @login_check
 def components_shutdown( request ):
 	"""
 	Stop the server
 	"""
 	COMPS_FOR_SHUTDOWN = [
-		Define.BOTS_TYPE,
-		Define.LOGINAPP_TYPE,
-		Define.CELLAPP_TYPE,
-		Define.BASEAPP_TYPE,
-		Define.CELLAPPMGR_TYPE,
-		Define.BASEAPPMGR_TYPE,
-		Define.DBMGR_TYPE,
-		Define.INTERFACES_TYPE,
-		Define.LOGGER_TYPE,
+		Define.BOTS_TYPE, 
+		Define.LOGINAPP_TYPE, 
+		Define.CELLAPP_TYPE, 
+		Define.BASEAPP_TYPE, 
+		Define.CELLAPPMGR_TYPE, 
+		Define.BASEAPPMGR_TYPE, 
+		Define.DBMGR_TYPE, 
+		Define.INTERFACES_TYPE, 
+		Define.LOGGER_TYPE, 
 	]
 
 	components = Machines.Machines( request.session["sys_uid"], request.session["sys_user"] )
-
+	
 	for ctid in COMPS_FOR_SHUTDOWN:
 		components.stopServer( ctid, trycount = 0 )
 	context = {
@@ -318,11 +318,11 @@ def components_shutdown( request ):
 @login_check
 def components_kill( request, ct, cid ):
 	"""
-	Kill one Assembly process
+	Kill a component process
 	"""
 	ct = int(ct)
 	cid = int(cid)
-
+	
 	components = Machines.Machines( request.session["sys_uid"], request.session["sys_user"] )
 
 	components.killServer( ct, componentID = cid, trycount = 0 )
@@ -336,13 +336,13 @@ def components_kill( request, ct, cid ):
 @login_check
 def components_save_layout( request ):
 	"""
-	To save the current server running
+	Save the current server running status
 	"""
 	layoutName = request.GET.get( "name" )
 	if not layoutName:
 		result = { "state" : "fault", "message" : "invalid layout name!!!" }
 		return HttpResponse( json.dumps( result ), content_type="application/json" )
-
+	
 	VALID_CT = set( [
 			Define.DBMGR_TYPE,
 			Define.LOGINAPP_TYPE,
@@ -355,9 +355,9 @@ def components_save_layout( request ):
 		] )
 
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
-
+	
 	conf = {}
-
+	
 	for machineID, infos in interfaces_groups.items():
 		for info in infos:
 			if info.componentType not in VALID_CT:
@@ -368,28 +368,28 @@ def components_save_layout( request ):
 				conf[compnentName] = []
 			d = { "ip" : info.intaddr, "cid" : info.componentID, "gus" : info.genuuid_sections }
 			conf[compnentName].append( d )
-
+	
 	if len( conf ) == 0:
-		result = { "state" : "fault", "message" : "Currently there is no server running!!!" }
+		Result = { "state" : "fault", "message" : "There is currently no server running!!!" }
 		return HttpResponse( json.dumps( result ), content_type="application/json" )
-
+	
 	try:
 		m = ServerLayout.objects.get(name = layoutName)
 	except ObjectDoesNotExist:
 		m = ServerLayout()
-
+	
 	m.name = layoutName
 	m.sys_user = request.session["sys_user"]
 	m.config = json.dumps( conf )
 	m.save()
-
+	
 	result = { "state" : "success", "message" : "" }
 	return HttpResponse( json.dumps( result ), content_type="application/json" )
 
 @login_check
 def components_show_layout( request ):
 	"""
-	Display all saved server run configuration
+	Show all saved server running configurations
 	"""
 	VALID_CT = set( [
 			Define.DBMGR_TYPE,
@@ -418,18 +418,18 @@ def components_show_layout( request ):
 				d[compnentName] = len( layoutData[compnentName] )
 		datas.append( d )
 
-	return render( request, "WebConsole/components_show_layout.html", { "OUROLayouts" : datas } )
+	return render( request, "WebConsole/components_show_layout.html", { "KBELayouts" : datas } )
 
 @login_check
 def components_delete_layout( request ):
 	"""
-	To delete a saved server run configuration
+	Delete a saved server run configuration
 	"""
 	try:
 		id = int( request.GET["id"] )
 	except:
 		id = 0
-
+		
 	if not id:
 		return HttpResponseRedirect( "/wc/components/show_layout" )
 
@@ -440,7 +440,7 @@ def components_delete_layout( request ):
 @login_check
 def components_load_layout( request ):
 	"""
-	Load a saved server run configuration and start Server
+	Load a saved server run configuration and start the server
 	"""
 	VALID_CT = set( [
 			Define.DBMGR_TYPE,
@@ -451,7 +451,7 @@ def components_load_layout( request ):
 			Define.BASEAPP_TYPE,
 			Define.INTERFACES_TYPE,
 			Define.LOGGER_TYPE,
-
+			
 		] )
 	ouro_root = request.session["ouro_root"]
 	ouro_res_path = request.session["ouro_res_path"]
@@ -460,22 +460,22 @@ def components_load_layout( request ):
 		id = int( request.GET["id"] )
 	except:
 		id = 0
-
+		
 	if not id:
-		return render( request, "WebConsole/components_load_layout.html", { "error" : "Invalid parameter" } )
-
+		Return render( request, "WebConsole/components_load_layout.html", { "error" : "invalid parameter" } )
+	
 	components = Machines.Machines( request.session["sys_uid"], request.session["sys_user"] )
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
-
+	
 	for mID, comps in interfaces_groups.items():
 		if len( comps ) > 1:
-			return render( request, "WebConsole/components_load_layout.html", { "error" : "服务器正在运行，不允许加载" } )
+			Return render( request, "WebConsole/components_load_layout.html", { "error" : "The server is running, not allowed to load" } )
 
-	# Counter
-	t2c            = [0,] * len(Define.COMPONENT_NAME)
-	components_ct  = [0,] * len(Define.COMPONENT_NAME)
-	components_cid = [0,] * len(Define.COMPONENT_NAME)
-	components_gus = [0,] * len(Define.COMPONENT_NAME)
+	# counter
+	t2c				= [0,] * len(Define.COMPONENT_NAME)
+	components_ct	= [0,] * len(Define.COMPONENT_NAME)
+	components_cid	= [0,] * len(Define.COMPONENT_NAME)
+	components_gus	= [0,] * len(Define.COMPONENT_NAME)
 	ly = ServerLayout.objects.get(pk = id)
 	layoutData = json.loads( ly.config )
 	for ct in VALID_CT:
@@ -487,7 +487,7 @@ def components_load_layout( request ):
 			if cid <= 0:
 				cid = machinesmgr.makeCID(ct)
 			components_cid[ct] = cid
-
+			
 			gus = comp["gus"]
 			if gus <= 0:
 				gus = machinesmgr.makeGUS(ct)
@@ -496,34 +496,35 @@ def components_load_layout( request ):
 			components.startServer( ct, cid, gus, comp["ip"], ouro_root, ouro_res_path, ouro_bin_path, 0 )
 
 	context = {
-		"run_counter"    : str(t2c),
-		"components_ct"  : json.dumps(components_ct),
-		"components_cid" : json.dumps(components_cid),
-		"components_gus" : json.dumps(components_gus),
-		"components_ip"  : comp["ip"]
+		"run_counter"		: str(t2c),
+		"components_ct"		: json.dumps(components_ct),
+		"components_cid"	: json.dumps(components_cid),
+		"components_gus"	: json.dumps(components_gus),
+		"components_ip"		: comp["ip"]
 	}
 	return render( request, "WebConsole/components_load_layout.html", context )
 
 @login_check
 def machines_show_all( request ):
 	"""
-	Ignore the user, displays all of the machine
+	Ignore users, show all machines
 	"""
 	interfaces_groups = machinesmgr.queryAllInterfaces(0, "WebConsole")
 
 	targetIP = request.GET.get( "target", None )
-
-	ouroComps = []
+	
+	kbeComps = []
 	for mID, comps in interfaces_groups.items():
 		if len( comps ) > 1 and comps[0].intaddr == targetIP:
-			ouroComps = comps[1:]
+			kbeComps = comps[1:]
 			break
 
-	ouroMachines = machinesmgr.queryMachines()
-	ouroMachines.sort(key = lambda info: info.intaddr)
+	kbeMachines = machinesmgr.queryMachines()
+	kbeMachines.sort(key = lambda info: info.intaddr)
 
 	context = {
-		"OUROMachines" : ouroMachines,
-		"OUROComps" : ouroComps,
+		"OUROMachines" : kbeMachines,
+		"OUROComps" : kbeComps,
 	}
 	return render( request, "WebConsole/machines_show_all.html", context )
+

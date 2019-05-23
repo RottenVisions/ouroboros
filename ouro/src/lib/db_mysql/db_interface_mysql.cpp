@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "db_interface_mysql.h"
@@ -9,10 +9,10 @@
 #include "helper/watcher.h"
 #include "server/serverconfig.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 static Ouroboros::thread::ThreadMutex _g_logMutex;
-static OUROUnordered_map< std::string, uint32 > g_querystatistics;
+static KBEUnordered_map< std::string, uint32 > g_querystatistics;
 static bool _g_installedWatcher = false;
 static bool _g_debug = false;
 
@@ -34,7 +34,7 @@ static void querystatistics(const char* strCommand, uint32 size)
 
 	_g_logMutex.lockMutex();
 
-	OUROUnordered_map< std::string, uint32 >::iterator iter = g_querystatistics.find(op);
+	KBEUnordered_map< std::string, uint32 >::iterator iter = g_querystatistics.find(op);
 	if(iter == g_querystatistics.end())
 	{
 		g_querystatistics[op] = 1;
@@ -49,9 +49,9 @@ static void querystatistics(const char* strCommand, uint32 size)
 
 static uint32 watcher_query(std::string cmd)
 {
-	Ouroboros::thread::ThreadGuard tg(&_g_logMutex);
+	Ouroboros::thread::ThreadGuard tg(&_g_logMutex); 
 
-	OUROUnordered_map< std::string, uint32 >::iterator iter = g_querystatistics.find(cmd);
+	KBEUnordered_map< std::string, uint32 >::iterator iter = g_querystatistics.find(cmd);
 	if(iter != g_querystatistics.end())
 	{
 		return iter->second;
@@ -60,47 +60,47 @@ static uint32 watcher_query(std::string cmd)
 	return 0;
 }
 
-static uint32 watcher_select()
+static uint32 watcher_select(const std::string&)
 {
 	return watcher_query("SELECT");
 }
 
-static uint32 watcher_delete()
+static uint32 watcher_delete(const std::string&)
 {
 	return watcher_query("DELETE");
 }
 
-static uint32 watcher_insert()
+static uint32 watcher_insert(const std::string&)
 {
 	return watcher_query("INSERT");
 }
 
-static uint32 watcher_update()
+static uint32 watcher_update(const std::string&)
 {
 	return watcher_query("UPDATE");
 }
 
-static uint32 watcher_create()
+static uint32 watcher_create(const std::string&)
 {
 	return watcher_query("CREATE");
 }
 
-static uint32 watcher_drop()
+static uint32 watcher_drop(const std::string&)
 {
 	return watcher_query("DROP");
 }
 
-static uint32 watcher_show()
+static uint32 watcher_show(const std::string&)
 {
 	return watcher_query("SHOW");
 }
 
-static uint32 watcher_alter()
+static uint32 watcher_alter(const std::string&)
 {
 	return watcher_query("ALTER");
 }
 
-static uint32 watcher_grant()
+static uint32 watcher_grant(const std::string&)
 {
 	return watcher_query("GRANT");
 }
@@ -148,10 +148,10 @@ bool DBInterfaceMysql::initInterface(DBInterface* pdbi)
 {
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi->name());
 
-	entityTables.addOUROTable(new OUROAccountTableMysql(&entityTables));
-	entityTables.addOUROTable(new OUROServerLogTableMysql(&entityTables));
-	entityTables.addOUROTable(new OUROEntityLogTableMysql(&entityTables));
-	entityTables.addOUROTable(new OUROEmailVerificationTableMysql(&entityTables));
+	entityTables.addKBETable(new KBEAccountTableMysql(&entityTables));
+	entityTables.addKBETable(new KBEServerLogTableMysql(&entityTables));
+	entityTables.addKBETable(new KBEEntityLogTableMysql(&entityTables));
+	entityTables.addKBETable(new KBEEmailVerificationTableMysql(&entityTables));
 	return true;
 }
 
@@ -165,7 +165,7 @@ bool DBInterfaceMysql::attach(const char* databaseName)
 
 	if(db_port_ == 0)
 		db_port_ = 3306;
-
+	
 	if(databaseName != NULL)
 		ouro_snprintf(db_name_, MAX_BUF, "%s", databaseName);
 
@@ -179,14 +179,14 @@ bool DBInterfaceMysql::attach(const char* databaseName)
 			ERROR_MSG("DBInterfaceMysql::attach: mysql_init error!\n");
 			return false;
 		}
-
+		
 		DEBUG_MSG(fmt::format("DBInterfaceMysql::attach: connect: {}:{} starting...\n", db_ip_, db_port_));
 
 		int ntry = 0;
 
 __RECONNECT:
-		if(mysql_real_connect(mysql(), db_ip_, db_username_,
-    		db_password_, db_name_, db_port_, NULL, 0)) // CLIENT_MULTI_STATEMENTS
+		if(mysql_real_connect(mysql(), db_ip_, db_username_, 
+    		db_password_, db_name_, db_port_, NULL, 0)) // CLIENT_MULTI_STATEMENTS  
 		{
 			if(mysql_select_db(mysql(), db_name_) != 0)
 			{
@@ -215,7 +215,7 @@ __RECONNECT:
 				}
 
 				if (mysql_real_connect(mysql(), db_ip_, db_username_,
-					db_password_, NULL, db_port_, NULL, 0)) // CLIENT_MULTI_STATEMENTS
+					db_password_, NULL, db_port_, NULL, 0)) // CLIENT_MULTI_STATEMENTS  
 				{
 					this->createDatabaseIfNotExist();
 					if (mysql_select_db(mysql(), db_name_) != 0)
@@ -244,11 +244,11 @@ __RECONNECT:
 			return false;
 		}
 
-		// Do not need to turn off auto-commit, the bottom will START TRANSACTION and then COMMIT
+		// There is no need to turn off autocommit, the bottom layer will be START TRANSACTION and then COMMIT
 		// mysql_autocommit(mysql(), 0);
 
 		char characterset_sql[MAX_BUF];
-		ouro_snprintf(characterset_sql, MAX_BUF, "ALTER DATABASE CHARACTER SET %s COLLATE %s",
+		ouro_snprintf(characterset_sql, MAX_BUF, "ALTER DATABASE CHARACTER SET %s COLLATE %s", 
 			characterSet_.c_str(), collation_.c_str());
 
 		query(&characterset_sql[0], strlen(characterset_sql), false);
@@ -291,7 +291,7 @@ bool DBInterfaceMysql::checkEnvironment()
 		{
 			std::string s = arow[0];
 			std::string v = arow[1];
-
+			
 			if(s == "lower_case_table_names")
 			{
 				if(v != "1")
@@ -314,7 +314,7 @@ bool DBInterfaceMysql::checkEnvironment()
 
 		mysql_free_result(pResult);
 	}
-
+	
 	return lower_case_table_names;
 	*/
 	return true;
@@ -331,37 +331,49 @@ bool DBInterfaceMysql::createDatabaseIfNotExist()
 //-------------------------------------------------------------------------------------
 bool DBInterfaceMysql::checkErrors()
 {
-	std::string querycmd = fmt::format("SHOW TABLES LIKE \"" ENTITY_TABLE_PERFIX "_{}\"", DBUtil::accountScriptName());
-	if(!query(querycmd.c_str(), querycmd.size(), true))
+	DBInterfaceInfo* pDBInfo = g_ouroSrvConfig.dbInterface(name());
+	if (!pDBInfo)
 	{
-		ERROR_MSG(fmt::format("DBInterfaceMysql::checkErrors: {}, query is error!\n", querycmd));
+		ERROR_MSG(fmt::format("DBInterfaceMysql::checkErrors: not found dbInterface({})\n",
+			name()));
+
 		return false;
 	}
 
-	bool foundAccountTable = false;
-	MYSQL_RES * pResult = mysql_store_result(mysql());
-	if(pResult)
+	if (!pDBInfo->isPure)
 	{
-		foundAccountTable = mysql_num_rows(pResult) > 0;
-		mysql_free_result(pResult);
-	}
-
-	if(!foundAccountTable)
-	{
-		querycmd = "DROP TABLE `" OURO_TABLE_PERFIX "_email_verification`, `" OURO_TABLE_PERFIX "_accountinfos`";
-
-		WARNING_MSG(fmt::format("DBInterfaceMysql::checkErrors: not found {} table, reset " OURO_TABLE_PERFIX "_* table...\n",
-			DBUtil::accountScriptName()));
-
-		try
+		std::string querycmd = fmt::format("SHOW TABLES LIKE \"" ENTITY_TABLE_PERFIX "_{}\"", DBUtil::accountScriptName());
+		if (!query(querycmd.c_str(), querycmd.size(), true))
 		{
-			query(querycmd.c_str(), querycmd.size(), false);
-		}
-		catch (...)
-		{
+			ERROR_MSG(fmt::format("DBInterfaceMysql::checkErrors: {}, query(dbInterface={}) error!\n", querycmd, name()));
+			return false;
 		}
 
-		WARNING_MSG(fmt::format("DBInterfaceMysql::checkErrors: reset " OURO_TABLE_PERFIX "_* table end!\n"));
+		bool foundAccountTable = false;
+		MYSQL_RES * pResult = mysql_store_result(mysql());
+		if (pResult)
+		{
+			foundAccountTable = mysql_num_rows(pResult) > 0;
+			mysql_free_result(pResult);
+		}
+
+		if (!foundAccountTable)
+		{
+			querycmd = "DROP TABLE `" OURO_TABLE_PERFIX "_email_verification`, `" OURO_TABLE_PERFIX "_accountinfos`";
+
+			WARNING_MSG(fmt::format("DBInterfaceMysql::checkErrors: not found {} table(dbInterface={}), reset " OURO_TABLE_PERFIX "_* table...\n",
+				DBUtil::accountScriptName(), name()));
+
+			try
+			{
+				query(querycmd.c_str(), querycmd.size(), false);
+			}
+			catch (...)
+			{
+			}
+
+			WARNING_MSG(fmt::format("DBInterfaceMysql::checkErrors: reset " OURO_TABLE_PERFIX "_* table(dbInterface={}) end!\n", name()));
+		}
 	}
 
 	return true;
@@ -408,7 +420,7 @@ EntityTable* DBInterfaceMysql::createEntityTable(EntityTables* pEntityTables)
 bool DBInterfaceMysql::dropEntityTableFromDB(const char* tableName)
 {
 	OURO_ASSERT(tableName != NULL);
-
+  
 	DEBUG_MSG(fmt::format("DBInterfaceMysql::dropEntityTableFromDB: {}.\n", tableName));
 
 	char sql_str[SQL_BUF];
@@ -420,8 +432,8 @@ bool DBInterfaceMysql::dropEntityTableFromDB(const char* tableName)
 bool DBInterfaceMysql::dropEntityTableItemFromDB(const char* tableName, const char* tableItemName)
 {
 	OURO_ASSERT(tableName != NULL && tableItemName != NULL);
-
-	DEBUG_MSG(fmt::format("DBInterfaceMysql::dropEntityTableItemFromDB: {} {}.\n",
+  
+	DEBUG_MSG(fmt::format("DBInterfaceMysql::dropEntityTableItemFromDB: {} {}.\n", 
 		tableName, tableItemName));
 
 	char sql_str[SQL_BUF];
@@ -454,28 +466,28 @@ bool DBInterfaceMysql::query(const char* cmd, uint32 size, bool printlog, Memory
 		DEBUG_MSG(fmt::format("DBInterfaceMysql::query({:p}): {}\n", (void*)this, lastquery_));
 	}
 
-    int nResult = mysql_real_query(pMysql_, cmd, size);
+    int nResult = mysql_real_query(pMysql_, cmd, size);  
 
-    if(nResult != 0)
+    if(nResult != 0)  
     {
 		if(printlog)
 		{
-			ERROR_MSG(fmt::format("DBInterfaceMysql::query: is error({}:{})!\nsql:({})\n",
-				mysql_errno(pMysql_), mysql_error(pMysql_), lastquery_));
+			ERROR_MSG(fmt::format("DBInterfaceMysql::query: error({}:{})!\nsql:({})\n", 
+				mysql_errno(pMysql_), mysql_error(pMysql_), lastquery_)); 
 		}
 
-		this->throwError();
-
+		this->throwError(NULL);
+		
 		if(result)
 			write_query_result(result);
 
         return false;
-    }
+    } 
     else
     {
 		if(printlog)
 		{
-			INFO_MSG("DBInterfaceMysql::query: successfully!\n");
+			INFO_MSG("DBInterfaceMysql::query: successfully!\n"); 
 		}
     }
 
@@ -494,28 +506,43 @@ bool DBInterfaceMysql::write_query_result(MemoryStream * result)
 
 	if(pResult)
 	{
+		size_t wpos = result->wpos();
 		uint32 nrows = (uint32)mysql_num_rows(pResult);
 		uint32 nfields = (uint32)mysql_num_fields(pResult);
 
-		(*result) << nfields << nrows;
-
-		MYSQL_ROW arow;
-
-		while((arow = mysql_fetch_row(pResult)) != NULL)
+		try
 		{
-			unsigned long *lengths = mysql_fetch_lengths(pResult);
+			(*result) << nfields << nrows;
 
-			for (uint32 i = 0; i < nfields; ++i)
+			MYSQL_ROW arow;
+
+			while ((arow = mysql_fetch_row(pResult)) != NULL)
 			{
-				if (arow[i] == NULL)
+				unsigned long *lengths = mysql_fetch_lengths(pResult);
+
+				for (uint32 i = 0; i < nfields; ++i)
 				{
-					result->appendBlob("OURO_QUERY_DB_NULL", strlen("OURO_QUERY_DB_NULL"));
-				}
-				else
-				{
-					result->appendBlob(arow[i], lengths[i]);
+					if (arow[i] == NULL)
+					{
+						result->appendBlob("OURO_QUERY_DB_NULL", strlen("OURO_QUERY_DB_NULL"));
+					}
+					else
+					{
+						result->appendBlob(arow[i], lengths[i]);
+					}
 				}
 			}
+		}
+		catch (MemoryStreamWriteOverflow & e)
+		{
+			mysql_free_result(pResult);
+			result->wpos(wpos);
+
+			DBException e1(NULL);
+			e1.setError(fmt::format("DBException: {}, SQL({})", e.what(), lastquery_), 0);
+			throwError(&e1);
+
+			return false;
 		}
 
 		mysql_free_result(pResult);
@@ -525,13 +552,13 @@ bool DBInterfaceMysql::write_query_result(MemoryStream * result)
 		uint32 nfields = 0;
 		uint64 affectedRows = 0;
 		uint64 lastInsertID = 0;
-
+		
 		if(mysql())
 		{
 			affectedRows = mysql()->affected_rows;
 			lastInsertID = mysql_insert_id(mysql());
 		}
-
+		
 		(*result) << nfields;
 		(*result) << affectedRows;
 		(*result) << lastInsertID;
@@ -661,16 +688,23 @@ bool DBInterfaceMysql::unlock()
 }
 
 //-------------------------------------------------------------------------------------
-void DBInterfaceMysql::throwError()
+void DBInterfaceMysql::throwError(DBException* pDBException)
 {
-	DBException e( this );
-
-	if (e.isLostConnection())
+	if (pDBException)
 	{
-		this->hasLostConnection(true);
+		throw *pDBException;
 	}
+	else
+	{
+		DBException e(this);
 
-	throw e;
+		if (e.isLostConnection())
+		{
+			this->hasLostConnection(true);
+		}
+
+		throw e;
+	}
 }
 
 //-------------------------------------------------------------------------------------
@@ -712,16 +746,16 @@ bool DBInterfaceMysql::processException(std::exception & e)
 	}
 	else if (dbe->shouldRetry())
 	{
-		WARNING_MSG(fmt::format("DBInterfaceMysql::processException: Retrying {:p}\nException:{}\nnlastquery={}\n",
-				(void*)this, dbe->what(), lastquery_));
+		WARNING_MSG(fmt::format("DBInterfaceMysql::processExceptionn(db={}): Retrying {:p}\nException:{}\nnlastquery={}\n",
+			db_name_, (void*)this, dbe->what(), lastquery_));
 
 		retry = true;
 	}
 	else
 	{
-		WARNING_MSG(fmt::format("DBInterfaceMysql::processException: "
+		WARNING_MSG(fmt::format("DBInterfaceMysql::processExceptionn(db={}): "
 				"Exception: {}\nlastquery={}\n",
-			dbe->what(), lastquery_));
+			db_name_, dbe->what(), lastquery_));
 	}
 
 	return retry;

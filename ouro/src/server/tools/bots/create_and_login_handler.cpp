@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "bots.h"
 #include "clientobject.h"
@@ -10,7 +10,7 @@
 #include "common/memorystream.h"
 #include "server/serverconfig.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 uint64 g_accountID = 0;
 
@@ -37,14 +37,14 @@ CreateAndLoginHandler::~CreateAndLoginHandler()
 void CreateAndLoginHandler::handleTimeout(TimerHandle handle, void * arg)
 {
 	OURO_ASSERT(handle == timerHandle_);
-
+	
 	Bots& bots = Bots::getSingleton();
 
 	static float lasttick = bots.reqCreateAndLoginTickTime();
 
 	if(lasttick > 0.f)
 	{
-		// Each tick minus 0.1 seconds, 0 can be created once and reset;
+		// Each tick is subtracted by 0.1 second. If it is 0, it can be created once and reset.
 		lasttick -= 0.1f;
 		return;
 	}
@@ -53,8 +53,8 @@ void CreateAndLoginHandler::handleTimeout(TimerHandle handle, void * arg)
 
 	while(bots.reqCreateAndLoginTotalCount() - bots.clients().size() > 0 && count-- > 0)
 	{
-		ClientObject* pClient = new ClientObject(g_ouroSrvConfig.getBots().bots_account_name_prefix +
-			Ouroboros::StringConv::val2str(g_componentID) + "_" + Ouroboros::StringConv::val2str(g_accountID++),
+		ClientObject* pClient = new ClientObject(g_ouroSrvConfig.getBots().bots_account_name_prefix + 
+			Ouroboros::StringConv::val2str(g_componentID) + "_" + Ouroboros::StringConv::val2str(g_accountID++), 
 			Bots::getSingleton().networkInterface());
 
 		Bots::getSingleton().addClient(pClient);

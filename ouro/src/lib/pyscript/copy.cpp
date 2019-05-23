@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "copy.h"
@@ -22,14 +22,14 @@ bool Copy::initialize(void)
 		copyMethod_ = PyObject_GetAttrString(pyModule, "copy");
 		if (!copyMethod_)
 		{
-			ERROR_MSG("Copy::initialize:get copy is error!\n");
+			ERROR_MSG("Copy::initialize:get copy error!\n");
 			PyErr_PrintEx(0);
 		}
 
 		deepcopyMethod_ = PyObject_GetAttrString(pyModule, "deepcopy");
 		if(!deepcopyMethod_)
 		{
-			ERROR_MSG("Copy::init: get deepcopy is error!\n");
+			ERROR_MSG("Copy::init: get deepcopy error!\n");
 			PyErr_PrintEx(0);
 		}
 

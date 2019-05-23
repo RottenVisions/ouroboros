@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_STDFINDIF_HANDERS_H
 #define OURO_STDFINDIF_HANDERS_H
@@ -7,7 +7,7 @@
 
 namespace Ouroboros{
 
-// Vector <string> It's easy to use std::find_if to find out if there is a string
+// vector<string> is easy to use std::find_if to find if a string exists
 template<typename T>
 class find_vec_string_exist_handle
 {
@@ -30,7 +30,7 @@ private:
 };
 
 
-// Vector <obj*> It's easy to use std::find_if to find out if there is an object
+// vector<obj*> is easy to use std::find_if to find if an object exists
 template<typename T>
 class findif_vector_obj_exist_handler
 {

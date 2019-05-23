@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef CLIENT_OBJECT_BASE_H
@@ -33,10 +33,10 @@ class Channel;
 
 class ClientObjectBase : public script::ScriptObject
 {
-	/**
-		Sub-class of the some of the py operation is filled into the derived class
+	/** 
+		Subclassing populates some py operations into a derived class
 	*/
-	INSTANCE_SCRIPT_HREADER(ClientObjectBase, ScriptObject)
+	INSTANCE_SCRIPT_HREADER(ClientObjectBase, ScriptObject)	
 public:
 	ClientObjectBase(Network::NetworkInterface& ninterface, PyTypeObject* pyType = NULL);
 	virtual ~ClientObjectBase();
@@ -51,22 +51,22 @@ public:
 	Entities<client::Entity>* pEntities() const{ return pEntities_; }
 
 	/**
-		Create a entity
+		Create an entity
 	*/
 	client::Entity* createEntity(const char* entityType, PyObject* params,
-		bool isInitializeScript = true, ENTITY_ID eid = 0, bool initProperty = true,
+		bool isInitializeScript = true, ENTITY_ID eid = 0, bool initProperty = true, 
 		EntityCall* base = NULL, EntityCall* cell = NULL);
 
-	PY_CALLBACKMGR& callbackMgr(){ return pyCallbackMgr_; }
+	PY_CALLBACKMGR& callbackMgr(){ return pyCallbackMgr_; }	
 
 	/**
-		By entityID the destruction of a entity
+		Destroy an entity by entityID
 	*/
 	virtual bool destroyEntity(ENTITY_ID entityID, bool callScript);
 
 	void tickSend();
-
-	virtual Network::Channel* initLoginappChannel(std::string accountName,
+	
+	virtual Network::Channel* initLoginappChannel(std::string accountName, 
 		std::string passwd, std::string ip, Ouroboros::uint32 port);
 	virtual Network::Channel* initBaseappChannel();
 
@@ -85,24 +85,26 @@ public:
 
 	bool registerEventHandle(EventHandle* pEventHandle);
 	bool deregisterEventHandle(EventHandle* pEventHandle);
-
+	
 	void fireEvent(const EventData* pEventData);
-
+	
 	EventHandler& eventHandler(){ return eventHandler_; }
 
 	static PyObject* __pyget_pyGetEntities(PyObject *self, void *closure)
 	{
 		ClientObjectBase* pClientObjectBase = static_cast<ClientObjectBase*>(self);
 		Py_INCREF(pClientObjectBase->pEntities());
-		return pClientObjectBase->pEntities();
+		return pClientObjectBase->pEntities(); 
 	}
 
 	static PyObject* __pyget_pyGetID(PyObject *self, void *closure){
-
+		
 		ClientObjectBase* pClientObjectBase = static_cast<ClientObjectBase*>(self);
-		return PyLong_FromLong(pClientObjectBase->appID());
+		return PyLong_FromLong(pClientObjectBase->appID());	
 	}
 
+	static PyObject* __py_getPlayer(PyObject *self, void *args);
+	
 	static PyObject* __py_callback(PyObject* self, PyObject* args);
 	static PyObject* __py_cancelCallback(PyObject* self, PyObject* args);
 
@@ -112,125 +114,183 @@ public:
 	static PyObject* __py_disconnect(PyObject* self, PyObject* args);
 
 	/**
-		 If entitiessize less than 256
-		By index position to get the entityID
-		Otherwise directly take the ID
+		if the entitiessize is less than 256
+		Get the entityID by index location
+		Otherwise take the ID directly
 	*/
 	ENTITY_ID readEntityIDFromStream(MemoryStream& s);
 
 	/**
-		By entityCall to try to get a channel Examples
+		Try to get an instance of channel by entityCall
 	*/
 	virtual Network::Channel* findChannelByEntityCall(EntityCallAbstract& entityCall);
 
 	/**
-		By entity by ID Try to look for it in the instance
+		Try to find an instance of it by the ID of the entity
 	*/
 	virtual PyObject* tryGetEntity(COMPONENT_ID componentID, ENTITY_ID entityID);
 
-	/** The network interface
-			The client and server is first established the interaction, the service end returns
+		/** Network Interface
+		The client establishes an interaction with the server for the first time, and the server returns
 	*/
 	virtual void onHelloCB_(Network::Channel* pChannel, const std::string& verInfo,
-		const std::string& scriptVerInfo, const std::string& protocolMD5,
+		const std::string& scriptVerInfo, const std::string& protocolMD5, 
 		const std::string& entityDefMD5, COMPONENT_TYPE componentType);
 
 	virtual void onHelloCB(Network::Channel* pChannel, MemoryStream& s);
 
-	/** The network interface
-			And server version do not match
+		/** Network Interface
+		Does not match the version of the server
 	*/
 	virtual void onVersionNotMatch(Network::Channel* pChannel, MemoryStream& s);
-
-	/** The network interface
-			And server-side scripting layer version mismatch
+	
+		/** Network Interface
+		Does not match the script layer version of the server
 	*/
 	virtual void onScriptVersionNotMatch(Network::Channel* pChannel, MemoryStream& s);
 
-	/** The network interface
-			Create account success and failure callback
-			@failedcode: failed return code NETWORK_ERR_SRV_NO_READY:server not ready,
-			NETWORK_ERR_ACCOUNT_CREATE:failure to create already exists,
-			NETWORK_SUCCESS:account successfully created
+		/** Network Interface
+		Create account success and failure callbacks
+	   @failedcode: Failure return code NETWORK_ERR_SRV_NO_READY: The server is not ready,
+									NETWORK_ERR_ACCOUNT_CREATE: Creation failed (already exists),
+									NETWORK_SUCCESS: The account was created successfully.
 
-			SERVER_ERROR_CODE failedcode
+									SERVER_ERROR_CODE failedcode;
+		@binary accompanying data: binary extra data: uint32 length + bytearray
 	*/
 	virtual void onCreateAccountResult(Network::Channel * pChannel, MemoryStream& s);
 
-/** Network interface Login failure callback
-@failedcode: Failed return code NETWORK_ERR_SRV_NO_READY: The server is not ready,
-NETWORK_ERR_SRV_OVERLOAD: The server is overloaded,
-NETWORK_ERR_NAME_PASSWORD: The username or password is incorrect */
+		/** Network Interface
+	   Login failure callback
+	   @failedcode: Failure return code NETWORK_ERR_SRV_NO_READY: The server is not ready,
+									NETWORK_ERR_SRV_OVERLOAD: The server is overloaded,
+									NETWORK_ERR_NAME_PASSWORD: Username or password is incorrect
+	*/
 	virtual void onLoginFailed(Network::Channel * pChannel, MemoryStream& s);
 
-	/** Network Interface Login Success
-	@ip: Server IP Address
-	@port: Server Port
+		/** Network Interface
+	   	   login successful
+	   @ip: Server ip address
+	   @port: server port
 	*/
 	virtual void onLoginSuccessfully(Network::Channel * pChannel, MemoryStream& s);
 
-/** Network interface Login failure callback
-@failedcode: Failed return code
-NETWORK_ERR_SRV_NO_READY: Server not ready,
-NETWORK_ERR_ILLEGAL_LOGIN: Illegal login,
-NETWORK_ERR_NAME_PASSWORD: Incorrect username or password */
+		/** Network Interface
+	   Login failure callback
+	   @failedcode: Failure return code NETWORK_ERR_SRV_NO_READY: The server is not ready,
+									NETWORK_ERR_ILLEGAL_LOGIN: illegal login,
+									NETWORK_ERR_NAME_PASSWORD: Username or password is incorrect
+	*/
 	virtual void onLoginBaseappFailed(Network::Channel * pChannel, SERVER_ERROR_CODE failedcode);
 	virtual void onReloginBaseappFailed(Network::Channel * pChannel, SERVER_ERROR_CODE failedcode);
 
-/** Network Interface Re-entering the baseapp successfully */
+		/** Network Interface
+	   Re-login to baseapp successfully
+	*/
 	virtual void onReloginBaseappSuccessfully(Network::Channel * pChannel, MemoryStream& s);
 
-/** Network Interface The server side has created a proxy Entity that is associated with the client and can also signal a
-successful callback when logging in. @datas: The account entity information */
-	virtual void onCreatedProxies(Network::Channel * pChannel, uint64 rndUUID,
+		/** Network Interface
+		The server has created a proxy Entity associated with the client.
+	   Can also express a successful callback when logging in
+	   @datas: Account entity information
+	*/
+	virtual void onCreatedProxies(Network::Channel * pChannel, uint64 rndUUID, 
 		ENTITY_ID eid, std::string& entityType);
 
-/** Network Interface The entity on the server has entered the game world. */
+		/** Network Interface
+		The entity on the server has entered the game world.
+	*/
 	virtual void onEntityEnterWorld(Network::Channel * pChannel, MemoryStream& s);
 
-/** Network Interface The entity on the server has left the game world */
+		/** Network Interface
+		The entity on the server has left the game world.
+	*/
 	virtual void onEntityLeaveWorld(Network::Channel * pChannel, ENTITY_ID eid);
 	virtual void onEntityLeaveWorldOptimized(Network::Channel * pChannel, MemoryStream& s);
 
-/** The network interface tells the client that an entity is destroyed. Such an entity is usually not yet onEntityEnterWorld */
+		/** Network Interface
+		Tell the client that an entity has been destroyed. This type of entity is usually not yet onEntityEnterWorld.
+	*/
 	virtual void onEntityDestroyed(Network::Channel * pChannel, ENTITY_ID eid);
 
-/** Network Interface The entity on the server has entered space */
+		/** Network Interface
+		The entity on the server has entered the space.
+	*/
 	virtual void onEntityEnterSpace(Network::Channel * pChannel, MemoryStream& s);
 
-/** Network Interface The entity on the server has left space */
+		/** Network Interface
+		The entity on the server has left the space.
+	*/
 	virtual void onEntityLeaveSpace(Network::Channel * pChannel, ENTITY_ID eid);
 
-/** Network Interface Method for remotely calling entity */
+		/** Network Interface
+		Method of calling entity remotely
+	*/
 	virtual void onRemoteMethodCall(Network::Channel* pChannel, MemoryStream& s);
 	virtual void onRemoteMethodCallOptimized(Network::Channel* pChannel, MemoryStream& s);
 	void onRemoteMethodCall_(ENTITY_ID eid, MemoryStream& s);
 
-/**
-	network interface was kicked out of the server
-*/
+		/** Network Interface
+	   Was kicked out of the server
+	*/
 	virtual void onKicked(Network::Channel * pChannel, SERVER_ERROR_CODE failedcode);
 
-/** Network Interface Server Update entity attribute */
+		/** Network Interface
+		Server update entity attribute
+	*/
 	virtual void onUpdatePropertys(Network::Channel* pChannel, MemoryStream& s);
 	virtual void onUpdatePropertysOptimized(Network::Channel* pChannel, MemoryStream& s);
 	void onUpdatePropertys_(ENTITY_ID eid, MemoryStream& s);
 
-/** Network Interface The server enforces the location and orientation of the entity */
+		/** Network Interface
+		The server forces the location and orientation of the entity
+	*/
 	virtual void onSetEntityPosAndDir(Network::Channel* pChannel, MemoryStream& s);
 
-	/** The network interface
-		Server Update avatar The basis of the position and orientation of the
+		/** Network Interface
+		Server update avatar base location and orientation
 	*/
 	virtual void onUpdateBasePos(Network::Channel* pChannel, float x, float y, float z);
 	virtual void onUpdateBasePosXZ(Network::Channel* pChannel, float x, float z);
 	virtual void onUpdateBaseDir(Network::Channel* pChannel, MemoryStream& s);
 
-	/** The network interface
-		Server Update VolatileData
+		/** Network Interface
+		Server update VolatileData
 	*/
 	virtual void onUpdateData(Network::Channel* pChannel, MemoryStream& s);
 
+		/** Network Interface
+		Optimized location synchronization
+	*/
+	virtual void onUpdateData_ypr_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_yp_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_yr_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_pr_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_y_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_p_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_r_optimized(Network::Channel* pChannel, MemoryStream& s);
+
+	virtual void onUpdateData_xz_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xz_ypr_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xz_yp_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xz_yr_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xz_pr_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xz_y_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xz_p_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xz_r_optimized(Network::Channel* pChannel, MemoryStream& s);
+
+	virtual void onUpdateData_xyz_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xyz_ypr_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xyz_yp_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xyz_yr_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xyz_pr_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xyz_y_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xyz_p_optimized(Network::Channel* pChannel, MemoryStream& s);
+	virtual void onUpdateData_xyz_r_optimized(Network::Channel* pChannel, MemoryStream& s);
+
+		/** Network Interface
+		Non-optimized high precision synchronization
+	*/
 	virtual void onUpdateData_ypr(Network::Channel* pChannel, MemoryStream& s);
 	virtual void onUpdateData_yp(Network::Channel* pChannel, MemoryStream& s);
 	virtual void onUpdateData_yr(Network::Channel* pChannel, MemoryStream& s);
@@ -256,72 +316,77 @@ successful callback when logging in. @datas: The account entity information */
 	virtual void onUpdateData_xyz_y(Network::Channel* pChannel, MemoryStream& s);
 	virtual void onUpdateData_xyz_p(Network::Channel* pChannel, MemoryStream& s);
 	virtual void onUpdateData_xyz_r(Network::Channel* pChannel, MemoryStream& s);
+	
+	void _updateVolatileData(ENTITY_ID entityID, float x, float y, float z, float roll, 
+		float pitch, float yaw, int8 isOnGround, bool isOptimized);
 
-	void _updateVolatileData(ENTITY_ID entityID, float x, float y, float z, float roll,
-		float pitch, float yaw, int8 isOnGround);
-
-	/**
-		Update the player to the server
+	/** 
+		Update player to server
 	*/
 	virtual void updatePlayerToServer();
 
-	/** The network interface
-		download stream Started
+		/** Network Interface
+		Download stream started
 	*/
 	virtual void onStreamDataStarted(Network::Channel* pChannel, int16 id, uint32 datasize, std::string& descr);
 
-	/** The network interface
+		/** Network Interface
 		Received streamData
 	*/
 	virtual void onStreamDataRecv(Network::Channel* pChannel, MemoryStream& s);
 
-	/** The network interface
-		download stream Completed
+		/** Network Interface
+		The download stream is complete
 	*/
 	virtual void onStreamDataCompleted(Network::Channel* pChannel, int16 id);
 
-	/** The network interface
-			The server tells the client: you current / unlink control who of the displacement of synchronization
+		/** Network Interface
+		The server tells the client: you currently (cancel) control who's displacement sync
 	*/
 	virtual void onControlEntity(Network::Channel* pChannel, int32 eid, int8 p_isControlled);
 
-	/** The network interface
-		Received ClientMessages (Is usually web Etc will only be applied to)
+		/** Network Interface
+		Received ClientMessages (usually web etc. will be applied)
 	*/
 	virtual void onImportClientMessages(Network::Channel* pChannel, MemoryStream& s){}
 
-	/** The network interface
-		Received entitydef (Is usually web Etc will only be applied to)
+		/** Network Interface
+		Received entitydef (usually web etc. will be applied)
 	*/
 	virtual void onImportClientEntityDef(Network::Channel* pChannel, MemoryStream& s){}
-
-	/** The network interface
-			Error Code Description export(usually the web, etc. will be applied to)
+	
+		/** Network Interface
+		Error code description export (usually web etc. will be applied)
 	*/
 	virtual void onImportServerErrorsDescr(Network::Channel* pChannel, MemoryStream& s){}
 
-	/** The network interface
-			Reset account password to request to return
+		/** Network Interface
+	Receive import sdk message (usually used during development, update client sdk)
+	*/
+	virtual void onImportClientSDK(Network::Channel* pChannel, MemoryStream& s) {}
+
+		/** Network Interface
+		Reset account password request return
 	*/
 	virtual void onReqAccountResetPasswordCB(Network::Channel* pChannel, SERVER_ERROR_CODE failedcode){}
 
-	/** The network interface
-			A request to bind a mailbox to return
+		/** Network Interface
+		Request binding mailbox return
 	*/
 	virtual void onReqAccountBindEmailCB(Network::Channel* pChannel, SERVER_ERROR_CODE failedcode){}
 
-	/** The network interface
-			The request to modify the password, return
+		/** Network Interface
+		Request to change password return
 	*/
 	virtual void onReqAccountNewPasswordCB(Network::Channel* pChannel, SERVER_ERROR_CODE failedcode){}
 
-	/**
-		Get player Examples
+	/** 
+		Get the player instance
 	*/
 	client::Entity* pPlayer();
 
-	void setTargetID(ENTITY_ID id){
-		targetID_ = id;
+	void setTargetID(ENTITY_ID id){ 
+		targetID_ = id; 
 		onTargetChanged();
 	}
 	ENTITY_ID getTargetID() const{ return targetID_; }
@@ -331,9 +396,9 @@ successful callback when logging in. @datas: The account entity information */
 	ENTITY_ID getViewEntityIDFromStream(MemoryStream& s);
 	ENTITY_ID getViewEntityIDByAliasID(uint8 id);
 
-	/**
-		space Related to the operation interface
-		Service end add a space geometric mapping
+	/** 
+		Space related operation interface
+		The server adds a geometric map of a space
 	*/
 	virtual void addSpaceGeometryMapping(SPACE_ID spaceID, const std::string& respath);
 	virtual void onAddSpaceGeometryMapping(SPACE_ID spaceID, const std::string& respath){}
@@ -342,7 +407,7 @@ successful callback when logging in. @datas: The account entity information */
 	}
 
 	const std::string& getGeometryPath();
-
+	
 	virtual void initSpaceData(Network::Channel* pChannel, MemoryStream& s);
 	virtual void setSpaceData(Network::Channel* pChannel, SPACE_ID spaceID, const std::string& key, const std::string& value);
 	virtual void delSpaceData(Network::Channel* pChannel, SPACE_ID spaceID, const std::string& key);
@@ -365,24 +430,24 @@ successful callback when logging in. @datas: The account entity information */
 
 	Network::NetworkInterface* pNetworkInterface()const { return &networkInterface_; }
 
-	/** The network interface
-		Server heartbeat returns
+		/** Network Interface
+		Server heartbeat return
 	*/
 	void onAppActiveTickCB(Network::Channel* pChannel);
 
 	/**
-		Allow the script to assert the underlying
+		Allow script to assert the underlying
 	*/
 	static PyObject* __py_assert(PyObject* self, PyObject* args);
 
-protected:
+protected:				
 	int32													appID_;
 
-	// The service end of the network channel
+	// server network channel
 	Network::Channel*										pServerChannel_;
 
-	// Store all of entity in container
-	Entities<client::Entity>*								pEntities_;
+	// store all the containers of the entity
+	Entities<client::Entity>*								pEntities_;	
 	std::vector<ENTITY_ID>									pEntityIDAliasIDList_;
 
 	PY_CALLBACKMGR											pyCallbackMgr_;
@@ -413,17 +478,17 @@ protected:
 
 	CLIENT_CTYPE											typeClient_;
 
-	typedef std::map<ENTITY_ID, OUROShared_ptr<MemoryStream> > BUFFEREDMESSAGE;
+	typedef std::map<ENTITY_ID, KBEShared_ptr<MemoryStream> > BUFFEREDMESSAGE;
 	BUFFEREDMESSAGE											bufferedCreateEntityMessage_;
 
 	EventHandler											eventHandler_;
 
 	Network::NetworkInterface&								networkInterface_;
 
-	// The current client to the selected target
+	// The target selected by the current client
 	ENTITY_ID												targetID_;
 
-	// Whether loaded through the terrain data
+	// Whether terrain data has been loaded
 	bool													isLoadedGeometry_;
 
 	SPACE_DATA												spacedatas_;
@@ -432,11 +497,11 @@ protected:
 	ScriptCallbacks											scriptCallbacks_;
 
 	uint64													locktime_;
+	
+	// key used to re-login to the gateway
+	uint64													rndUUID_; 
 
-	// For re-login the gateway when the key
-	uint64													rndUUID_;
-
-    // Subject to the control of the client entity List
+    // List of entities controlled by this client
     std::list<client::Entity *>                             controlledEntities_;
 };
 

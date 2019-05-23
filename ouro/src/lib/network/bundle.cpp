@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "bundle.h"
@@ -15,7 +15,7 @@
 #include "common/blowfish.h"
 
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 
@@ -27,9 +27,9 @@ ObjectPool<Bundle>& Bundle::ObjPool()
 }
 
 //-------------------------------------------------------------------------------------
-Bundle* Bundle::createPoolObject()
+Bundle* Bundle::createPoolObject(const std::string& logPoint)
 {
-	return _g_objPool.createObject();
+	return _g_objPool.createObject(logPoint);
 }
 
 //-------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ void Bundle::reclaimPoolObject(Bundle* obj)
 //-------------------------------------------------------------------------------------
 void Bundle::destroyObjPool()
 {
-	DEBUG_MSG(fmt::format("Bundle::destroyObjPool(): size {}.\n",
+	DEBUG_MSG(fmt::format("Bundle::destroyObjPool(): size {}.\n", 
 		_g_objPool.size()));
 
 	_g_objPool.destroy();
@@ -51,7 +51,7 @@ void Bundle::destroyObjPool()
 size_t Bundle::getPoolObjectBytes()
 {
 	size_t bytes = sizeof(pCurrMsgHandler_) + sizeof(isTCPPacket_) + sizeof(pCurrPacket_) + sizeof(packetMaxSize_) +
-		sizeof(currMsgLengthPos_) + sizeof(currMsgHandlerLength_) + sizeof(currMsgLength_) +
+		sizeof(currMsgLengthPos_) + sizeof(currMsgHandlerLength_) + sizeof(currMsgLength_) + 
 		sizeof(currMsgPacketCount_) + sizeof(currMsgID_) + sizeof(numMessages_) + sizeof(pChannel_)
 		+ (packets_.size() * sizeof(Packet*));
 
@@ -59,9 +59,9 @@ size_t Bundle::getPoolObjectBytes()
 }
 
 //-------------------------------------------------------------------------------------
-Bundle::SmartPoolObjectPtr Bundle::createSmartPoolObj()
+Bundle::SmartPoolObjectPtr Bundle::createSmartPoolObj(const std::string& logPoint)
 {
-	return SmartPoolObjectPtr(new SmartPoolObject<Bundle>(ObjPool().createObject(), _g_objPool));
+	return SmartPoolObjectPtr(new SmartPoolObject<Bundle>(ObjPool().createObject(logPoint), _g_objPool));
 }
 
 //-------------------------------------------------------------------------------------
@@ -86,34 +86,7 @@ Bundle::Bundle(Channel * pChannel, ProtocolType pt):
 //-------------------------------------------------------------------------------------
 Bundle::Bundle(const Bundle& bundle)
 {
-	// These must be set before
-	// Otherwise it may be wrong to create a packet midway
-	isTCPPacket_ = bundle.isTCPPacket_;
-	pChannel_ = bundle.pChannel_;
-	pCurrMsgHandler_ = bundle.pCurrMsgHandler_;
-	currMsgID_ = bundle.currMsgID_;
-
-	Packets::const_iterator iter = bundle.packets_.begin();
-	for (; iter != bundle.packets_.end(); ++iter)
-	{
-		newPacket();
-		pCurrPacket_->append(*static_cast<MemoryStream*>((*iter)));
-		packets_.push_back(pCurrPacket_);
-	}
-
-	pCurrPacket_ = NULL;
-	if(bundle.pCurrPacket_)
-	{
-		newPacket();
-		pCurrPacket_->append(*static_cast<MemoryStream*>(bundle.pCurrPacket_));
-	}
-
-	numMessages_ = bundle.numMessages_;
-	currMsgPacketCount_ = bundle.currMsgPacketCount_;
-	currMsgLength_ = bundle.currMsgLength_;
-	currMsgHandlerLength_ = bundle.currMsgHandlerLength_;
-	currMsgLengthPos_ = bundle.currMsgLengthPos_;
-	_calcPacketMaxSize();
+	copy(bundle);
 }
 
 //-------------------------------------------------------------------------------------
@@ -129,16 +102,49 @@ void Bundle::onReclaimObject()
 }
 
 //-------------------------------------------------------------------------------------
+void Bundle::copy(const Bundle& bundle)
+{
+	// these must be set in front
+	// Otherwise creating a packet in the middle may be wrong
+	isTCPPacket_ = bundle.isTCPPacket_;
+	pChannel_ = bundle.pChannel_;
+	pCurrMsgHandler_ = bundle.pCurrMsgHandler_;
+	currMsgID_ = bundle.currMsgID_;
+
+	Packets::const_iterator iter = bundle.packets_.begin();
+	for (; iter != bundle.packets_.end(); ++iter)
+	{
+		newPacket();
+		pCurrPacket_->append(*static_cast<MemoryStream*>((*iter)));
+		packets_.push_back(pCurrPacket_);
+	}
+
+	pCurrPacket_ = NULL;
+	if (bundle.pCurrPacket_)
+	{
+		newPacket();
+		pCurrPacket_->append(*static_cast<MemoryStream*>(bundle.pCurrPacket_));
+	}
+
+	numMessages_ = bundle.numMessages_;
+	currMsgPacketCount_ = bundle.currMsgPacketCount_;
+	currMsgLength_ = bundle.currMsgLength_;
+	currMsgHandlerLength_ = bundle.currMsgHandlerLength_;
+	currMsgLengthPos_ = bundle.currMsgLengthPos_;
+	_calcPacketMaxSize();
+}
+
+//-------------------------------------------------------------------------------------
 void Bundle::_calcPacketMaxSize()
 {
-	// If you use openssl encrypted communication then we guarantee that a package can be divisible by Blowfish::BLOCK_SIZE
-	// So we don't need extra padding when encrypting a full packet
+	// If you use openssl to encrypt communication, we guarantee that a package can be divided by Blowfish::BLOCK_SIZE.
+	// So we don't need extra padding when encrypting a fully loaded package
 	if(g_channelExternalEncryptType == 1)
 	{
 		packetMaxSize_ = isTCPPacket_ ? (int)(TCPPacket::maxBufferSize() - ENCRYPTTION_WASTAGE_SIZE) :
 			(PACKET_MAX_SIZE_UDP - ENCRYPTTION_WASTAGE_SIZE);
 
-		packetMaxSize_ -= packetMaxSize_ % Ouroboros::OUROBlowfish::BLOCK_SIZE;
+		packetMaxSize_ -= packetMaxSize_ % Ouroboros::KBEBlowfish::BLOCK_SIZE;
 	}
 	else
 	{
@@ -177,7 +183,7 @@ int32 Bundle::onPacketAppend(int32 addsize, bool inseparable)
 	if(inseparable)
 		fwpos += addsize;
 
-	// If the current package does not contain the data of this append, it will be filled into the new package
+	// If the current package does not contain the data of this append, fill it into the new package.
 	if(fwpos >= packetMaxSize_)
 	{
 		packets_.push_back(pCurrPacket_);
@@ -189,10 +195,10 @@ int32 Bundle::onPacketAppend(int32 addsize, bool inseparable)
 	int32 remainsize = packetMaxSize_ - totalsize;
 	int32 taddsize = addsize;
 
-	// If the current free space of the packet is smaller than the bytes to be added, fill this packet this time.
+	// If the current package free space is less than the bytes to be added, this time fill this package
 	if(remainsize < addsize)
 		taddsize = remainsize;
-
+	
 	currMsgLength_ += taddsize;
 	return taddsize;
 }
@@ -226,7 +232,7 @@ void Bundle::clear(bool isRecl)
 			RECLAIM_PACKET(isTCPPacket_, (*iter));
 		}
 	}
-
+	
 	packets_.clear();
 
 	pChannel_ = NULL;
@@ -263,7 +269,7 @@ void Bundle::clearPackets()
 void Bundle::newMessage(const MessageHandler& msgHandler)
 {
 	pCurrMsgHandler_ = &msgHandler;
-
+	
 	if(pCurrPacket_ == NULL)
 	{
 		if(packets_.size() > 0)
@@ -286,11 +292,11 @@ void Bundle::newMessage(const MessageHandler& msgHandler)
 
 	finiMessage(false);
 	OURO_ASSERT(pCurrPacket_ != NULL);
-
+	
 	(*this) << msgHandler.msgID;
 	pCurrPacket_->messageID(msgHandler.msgID);
 
-	// Here for a non-fixed-length message, it needs to set its message length bit to 0, and finally it needs to be filled.
+	// Here for a non-fixed length message, you need to set its message length bit to 0, and finally need to fill the length.
 	if(msgHandler.msgLen == NETWORK_VARIABLE_MESSAGE)
 	{
 		MessageLength msglen = 0;
@@ -308,7 +314,7 @@ void Bundle::newMessage(const MessageHandler& msgHandler)
 void Bundle::finiMessage(bool isSend)
 {
 	OURO_ASSERT(pCurrPacket_ != NULL);
-
+	
 	pCurrPacket_->pBundle(this);
 
 	if(isSend)
@@ -317,16 +323,16 @@ void Bundle::finiMessage(bool isSend)
 		packets_.push_back(pCurrPacket_);
 	}
 
-	// Track messages
+	// Track the message
 	if(pCurrMsgHandler_){
 		if(isSend || numMessages_ > 1)
 		{
-			NetworkStats::getSingleton().trackMessage(NetworkStats::SEND,
+			NetworkStats::getSingleton().trackMessage(NetworkStats::SEND, 
 									*pCurrMsgHandler_, currMsgLength_);
 		}
 	}
 
-	// Here you need to set its final length information for messages of non-fixed length
+	// Here you need to set its final length information for non-fixed length messages.
 	if(currMsgID_ > 0 && (currMsgHandlerLength_ < 0))
 	{
 		Packet* pPacket = pCurrPacket_;
@@ -336,15 +342,15 @@ void Bundle::finiMessage(bool isSend)
 		currMsgLength_ -= NETWORK_MESSAGE_ID_SIZE;
 		currMsgLength_ -= NETWORK_MESSAGE_LENGTH_SIZE;
 
-		// According to the design of a package can not be more than NETWORK_MESSAGE_MAX_SIZE
+		// It is not possible to exceed NETWORK_MESSAGE_MAX_SIZE by designing a package.
 		if(g_componentType == BOTS_TYPE || g_componentType == CLIENT_TYPE)
 		{
 			OURO_ASSERT(currMsgLength_ <= NETWORK_MESSAGE_MAX_SIZE);
 		}
 
 		// If the message length is greater than or equal to NETWORK_MESSAGE_MAX_SIZE
-		// Use the extended message length mechanism to refill 4 bytes after the message length
-		// Used to describe a larger length
+		// Use the extended message length mechanism to fill the message length with 4 bytes
+		// used to describe a larger length
 		if(currMsgLength_ >= NETWORK_MESSAGE_MAX_SIZE)
 		{
 			MessageLength1 ex_msg_length = currMsgLength_;
@@ -353,10 +359,10 @@ void Bundle::finiMessage(bool isSend)
 			MessageLength msgLen = NETWORK_MESSAGE_MAX_SIZE;
 			Ouroboros::EndianConvert(msgLen);
 
-			memcpy(&pPacket->data()[currMsgLengthPos_],
+			memcpy(&pPacket->data()[currMsgLengthPos_], 
 				(uint8*)&msgLen, NETWORK_MESSAGE_LENGTH_SIZE);
 
-			pPacket->insert(currMsgLengthPos_ + NETWORK_MESSAGE_LENGTH_SIZE, (uint8*)&ex_msg_length,
+			pPacket->insert(currMsgLengthPos_ + NETWORK_MESSAGE_LENGTH_SIZE, (uint8*)&ex_msg_length, 
 														NETWORK_MESSAGE_LENGTH1_SIZE);
 		}
 		else
@@ -364,7 +370,7 @@ void Bundle::finiMessage(bool isSend)
 			MessageLength msgLen = (MessageLength)currMsgLength_;
 			Ouroboros::EndianConvert(msgLen);
 
-			memcpy(&pPacket->data()[currMsgLengthPos_],
+			memcpy(&pPacket->data()[currMsgLengthPos_], 
 				(uint8*)&msgLen, NETWORK_MESSAGE_LENGTH_SIZE);
 		}
 	}
@@ -377,7 +383,7 @@ void Bundle::finiMessage(bool isSend)
 		currMsgHandlerLength_ = 0;
 		pCurrPacket_ = NULL;
 	}
-
+		
 	currMsgID_ = 0;
 	currMsgPacketCount_ = 0;
 	currMsgLength_ = 0;
@@ -397,29 +403,29 @@ void Bundle::debugCurrentMessages(MessageID currMsgID, const Network::MessageHan
 
 	if (pCurrMsgHandler->msgLen == NETWORK_VARIABLE_MESSAGE)
 	{
-		// Because Bundle::finiMessage and other places encountered variable parameter message when the length of the message header was removed, the message to be restored would be added back
+		// Because the Bundle::finiMessage and other places encounter the variable parameter message, the length of the message header is removed, and the message to be restored is added back here.
 		currMsgLength += NETWORK_MESSAGE_ID_SIZE;
 		currMsgLength += NETWORK_MESSAGE_LENGTH_SIZE;
 		if (currMsgLength - NETWORK_MESSAGE_ID_SIZE - NETWORK_MESSAGE_LENGTH_SIZE >= NETWORK_MESSAGE_MAX_SIZE)
 			currMsgLength += NETWORK_MESSAGE_LENGTH1_SIZE;
 	}
-
+	
 	if (currMsgLength >= MemoryStream::MAX_SIZE)
 	{
 		DebugHelper::getSingleton().set_errorcolor();
 		printf("%s", fmt::format("ERROR: Bundle::debugCurrentMessages(): is too big, size=%d\n", currMsgLength).c_str());
 		DebugHelper::getSingleton().set_normalcolor();
-
+		
 		return;
 	}
 
-	MemoryStream* pMemoryStream = MemoryStream::createPoolObject();
-
-	// Find the header by the length of the message and then output the content of the message
+	MemoryStream* pMemoryStream = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
+	
+	// Find the message header by message length and then output the message content
 	int msglen = currMsgLength;
 	if(pCurrPacket)
 	{
-		// If all the content of the current message is in the current package, output the content directly
+		// If all the contents of the current message are in the current package, you can directly output the content.
 		msglen -= pCurrPacket->length();
 		if(msglen <= 0)
 		{
@@ -445,20 +451,20 @@ void Bundle::debugCurrentMessages(MessageID currMsgID, const Network::MessageHan
 				{
 					int wpos = pPacket->length() - msglen;
 					pMemoryStream->append(pPacket->data() + wpos, msglen);
-
+					
 					for(size_t i = packets.size() - idx; i < packets.size(); ++i)
 					{
 						Network::Packet* pPacket1 = packets[i];
-
-						// This package has been processed on it
+						
+						// This package has been processed above.
 						if (pPacket1 == pPacket || pCurrPacket == pPacket1)
 							continue;
-
-						// All the contents of the package during the period
+						
+						// All the contents of the package are added during the period
 						pMemoryStream->append(pPacket1->data() + pPacket1->rpos(), pPacket1->length());
 					}
-
-					// Add all current package contents
+					
+					// Add all the contents of the current package
 					pMemoryStream->append(pCurrPacket->data() + pCurrPacket->rpos(), pCurrPacket->length());
 					break;
 				}
@@ -469,8 +475,8 @@ void Bundle::debugCurrentMessages(MessageID currMsgID, const Network::MessageHan
 			}
 		}
 	}
-
-	// Some sendto-operated packages lead to such packages do not need to be traced
+	
+	// Some packages of sendto operations cause such packages to not need to be tracked.
 	if(pMemoryStream->length() < NETWORK_MESSAGE_ID_SIZE)
 	{
 		MemoryStream::reclaimPoolObject(pMemoryStream);
@@ -478,10 +484,10 @@ void Bundle::debugCurrentMessages(MessageID currMsgID, const Network::MessageHan
 	}
 
 	OURO_ASSERT(currMsgLength == pMemoryStream->length());
-
+	
 	TRACE_MESSAGE_PACKET(false, pMemoryStream, pCurrMsgHandler, pMemoryStream->length(),
 		(pChannel != NULL ? pChannel->c_str() : "None"), false);
-
+					
 	MemoryStream::reclaimPoolObject(pMemoryStream);
 }
 
@@ -502,7 +508,7 @@ bool Bundle::revokeMessage(int32 size)
 			size = 0;
 		}
 	}
-
+	
 	while(size > 0 && packets_.size() > 0)
 	{
 		Network::Packet* pPacket = packets_.back();
@@ -519,7 +525,7 @@ bool Bundle::revokeMessage(int32 size)
 			packets_.pop_back();
 		}
 	}
-
+	
 	if (pCurrPacket_)
 	{
 		packets_.push_back(pCurrPacket_);
@@ -528,7 +534,7 @@ bool Bundle::revokeMessage(int32 size)
 
 	--numMessages_;
 	currMsgHandlerLength_ = 0;
-
+		
 	currMsgID_ = 0;
 	currMsgPacketCount_ = 0;
 	currMsgLength_ = 0;

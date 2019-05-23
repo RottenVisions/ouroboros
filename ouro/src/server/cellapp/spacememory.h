@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SPACEMEMORY_H
 #define OURO_SPACEMEMORY_H
@@ -26,8 +26,8 @@ public:
 	void unLoadSpaceGeometry();
 	void loadSpaceGeometry(const std::map< int, std::string >& params);
 
-	/**
-		Update the contents of space
+	/** 
+		Update content in space
 	*/
 	bool update();
 
@@ -52,7 +52,7 @@ public:
 	Entity* findEntity(ENTITY_ID entityID);
 
 	/**
-		destroy
+		Destroy
 	*/
 	bool destroy(ENTITY_ID entityID, bool ignoreGhost = true);
 
@@ -63,7 +63,7 @@ public:
 	void pCell( Cell * pCell );
 
 	/**
-		Add space geometric mapping
+		Add a geometric map of the space
 	*/
 	static PyObject* __py_AddSpaceGeometryMapping(PyObject* self, PyObject* args);
 	bool addSpaceGeometryMapping(std::string respath, bool shouldLoadOnServer, const std::map< int, std::string >& params);
@@ -72,7 +72,7 @@ public:
 	void setGeometryPath(const std::string& path);
 	void onLoadedSpaceGeometryMapping(NavigationHandlePtr pNavHandle);
 	void onAllSpaceGeometryLoaded();
-
+	
 	NavigationHandlePtr pNavHandle() const{ return pNavHandle_; }
 
 	/**
@@ -96,7 +96,7 @@ protected:
 	void _addSpaceDatasToEntityClient(const Entity* pEntity);
 
 	void _clearGhosts();
-
+	
 	enum STATE
 	{
 		STATE_NORMAL = 0,
@@ -105,16 +105,16 @@ protected:
 	};
 
 protected:
-	// The ID of this space
-	SPACE_ID					id_;
+	// the ID of this space
+	SPACE_ID					id_;														
 
-	// The entity script module name to use when creating this space
+	// The name of the entity script module used to create this space
 	std::string					scriptModuleName_;
 
-	// The entity on this space
-	SPACE_ENTITIES				entities_;
+	// the entity on this space
+	SPACE_ENTITIES				entities_;							
 
-	// Have you loaded terrain data?
+	// Whether terrain data has been loaded
 	bool						hasGeometry_;
 
 	// There is at most one cell per space
@@ -124,13 +124,13 @@ protected:
 
 	NavigationHandlePtr			pNavHandle_;
 
-	// spaceData, Only string resources can be stored so that it is a better compatible client.
-	// Developers can convert other types to strings for transmission
+	// spaceData, can only store string resources, which can be a good compatible client.
+	// Developers can convert other types into strings for transmission
 	SPACE_DATA					datas_;
 
 	int8						state_;
-
-	uint64						destroyTime_;
+	
+	uint64						destroyTime_;	
 };
 
 

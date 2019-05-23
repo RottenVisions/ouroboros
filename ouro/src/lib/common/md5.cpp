@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "md5.h"
 #include "common.h"
@@ -69,6 +69,9 @@ void OURO_MD5::final()
 void OURO_MD5::clear()
 {
 	memset(this, 0, sizeof(*this));
+
+	MD5_Init(&state_);
+	isFinal_ = false;
 }
 
 //-------------------------------------------------------------------------------------

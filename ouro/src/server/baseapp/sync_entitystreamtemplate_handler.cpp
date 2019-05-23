@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "baseapp.h"
 #include "sync_entitystreamtemplate_handler.h"
@@ -11,7 +11,7 @@
 
 #include "../../server/dbmgr/dbmgr_interface.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 //-------------------------------------------------------------------------------------
 SyncEntityStreamTemplateHandler::SyncEntityStreamTemplateHandler(Network::NetworkInterface & networkInterface):
@@ -40,7 +40,7 @@ networkInterface_(networkInterface)
 		{
 			PropertyDescription* propertyDescription = iter->second;
 
-			// If an entity does not have a cell part, and the component attribute does not have a base part, it is ignored
+			// If an entity has no cell part and the component attribute has no base part, it is ignored
 			if (!pScriptModule->hasCell())
 			{
 				if (propertyDescription->getDataType()->type() == DATA_TYPE_ENTITY_COMPONENT && !propertyDescription->hasBase())
@@ -48,7 +48,7 @@ networkInterface_(networkInterface)
 			}
 
 			accountDefMemoryStream << (ENTITY_PROPERTY_UID)0 << propertyDescription->getUType();
-
+			
 			if (propertyDescription->getDataType()->type() == DATA_TYPE_ENTITY_COMPONENT)
 				((EntityComponentDescription*)propertyDescription)->addPersistentToStreamTemplates(pScriptModule, &accountDefMemoryStream);
 			else
@@ -106,7 +106,7 @@ bool SyncEntityStreamTemplateHandler::process()
 	{
 		PropertyDescription* propertyDescription = iter->second;
 
-		// If an entity does not have a cell part, and the component attribute does not have a base part, it is ignored
+		// If an entity has no cell part and the component attribute has no base part, it is ignored
 		if (!pScriptModule->hasCell())
 		{
 			if (propertyDescription->getDataType()->type() == DATA_TYPE_ENTITY_COMPONENT && !propertyDescription->hasBase())
@@ -121,7 +121,7 @@ bool SyncEntityStreamTemplateHandler::process()
 			propertyDescription->addPersistentToStream(&accountDefMemoryStream, NULL);
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	(*pBundle).newMessage(DbmgrInterface::syncEntityStreamTemplate);
 	(*pBundle).append(accountDefMemoryStream);

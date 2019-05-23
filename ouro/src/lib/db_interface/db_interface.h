@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_DB_INTERFACE_H
 #define OURO_DB_INTERFACE_H
@@ -9,7 +9,7 @@
 #include "db_interface/entity_table.h"
 #include "server/serverconfig.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 namespace thread
 {
@@ -51,9 +51,10 @@ public:
 		Check the environment
 	*/
 	virtual bool checkEnvironment() = 0;
-
+	
 	/**
-		Check the error, correct the contents of the error If the correction fails to return the failure
+		Check for errors and correct the contents of the error
+		if the correction fails, the return fails.
 	*/
 	virtual bool checkErrors() = 0;
 
@@ -64,7 +65,7 @@ public:
 	virtual bool detach() = 0;
 
 	/**
-		Get all database table names
+		Get all the table names of the database
 	*/
 	virtual bool getTableNames( std::vector<std::string>& tableNames, const char * pattern) = 0;
 
@@ -74,7 +75,7 @@ public:
 	virtual bool getTableItemNames(const char* tableName, std::vector<std::string>& itemNames) = 0;
 
 	/**
-		Query table
+		Query list
 	*/
 	virtual bool query(const char* cmd, uint32 size, bool printlog = true, MemoryStream * result = NULL) = 0;
 	virtual bool query(const std::string& cmd, bool printlog = true, MemoryStream * result = NULL)
@@ -83,27 +84,27 @@ public:
 	}
 
 	/**
-	Return the name of this interface
+		return the name of this interface
 	*/
 	const char* name() const { return name_; }
 
 	/**
-	Return the index of this interface
+		returns the index of this interface
 	*/
 	uint16 dbIndex() const { return dbIndex_; }
 
 	/**
-		Return the description of this interface
+		return a description of this interface
 	*/
 	virtual const char* c_str() = 0;
 
-	/**
+	/** 
 		Get error
 	*/
 	virtual const char* getstrerror() = 0;
 
-	/**
-		Get error number
+	/** 
+		Get the error number
 	*/
 	virtual int getlasterror() = 0;
 
@@ -112,18 +113,18 @@ public:
 	*/
 	virtual EntityTable* createEntityTable(EntityTables* pEntityTables) = 0;
 
-	/**
-		Delete the entity table from the database
+	/** 
+		Remove the entity table from the database
 	*/
 	virtual bool dropEntityTableFromDB(const char* tableName) = 0;
 
-	/**
-		Delete the entity table field from the database
+	/** 
+		Remove the entity table field from the database
 	*/
 	virtual bool dropEntityTableItemFromDB(const char* tableName, const char* tableItemName) = 0;
 
 	/**
-		Lock the interface operation
+		Lock interface operation
 	*/
 	virtual bool lock() = 0;
 	virtual bool unlock() = 0;
@@ -134,32 +135,32 @@ public:
 	virtual bool processException(std::exception & e) = 0;
 
 	/**
-		Get the last query sql statement
+		Get the sql statement of the last query
 	*/
 	virtual const std::string& lastquery() const{ return lastquery_; }
 
 protected:
-	char name_[MAX_BUF];									// The name of the database interface
-	char db_type_[MAX_BUF];									// Database category
-	uint32 db_port_;										// Database port
-	char db_ip_[MAX_IP];									// Database ip address
-	char db_username_[MAX_BUF];								// Database username
-	char db_password_[MAX_BUF * 10];						// Database password
-	char db_name_[MAX_BUF];									// Database name
-	uint16 db_numConnections_;								// Maximum database connection
-	std::string lastquery_;									// Last query description
-	uint16 dbIndex_;										// Corresponding database interface index
+	char name_[MAX_BUF]; // name of the database interface
+	char db_type_[MAX_BUF]; // category of the database
+	uint32 db_port_; // port of the database
+	char db_ip_[MAX_IP]; // ip address of the database
+	char db_username_[MAX_BUF]; // username of the database
+	char db_password_[MAX_BUF * 10]; // password for the database
+	char db_name_[MAX_BUF]; // database name
+	uint16 db_numConnections_; // database maximum connection
+	std::string lastquery_; // last query description
+	uint16 dbIndex_; // corresponding database interface index
 };
 
 /*
-	Database operation unit
+	Database operating unit
 */
 class DBUtil : public Singleton<DBUtil>
 {
 public:
 	DBUtil();
 	~DBUtil();
-
+	
 	static bool initialize();
 	static void finalise();
 	static bool initializeWatcher();
@@ -173,9 +174,9 @@ public:
 
 	static void handleMainTick();
 
-	typedef OUROUnordered_map<std::string, thread::ThreadPool*> DBThreadPoolMap;
+	typedef KBEUnordered_map<std::string, thread::ThreadPool*> DBThreadPoolMap;
 	static thread::ThreadPool* pThreadPool(const std::string& name)
-	{
+	{ 
 		DBThreadPoolMap::iterator iter = pThreadPoolMaps_.find(name);
 		if (iter != pThreadPoolMaps_.end())
 			return iter->second;

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OUROBOROS_PROFILE_H
 #define OUROBOROS_PROFILE_H
@@ -43,11 +43,10 @@ public:
 	static void finalise(void);
 
 	INLINE const ProfileGroup::PROFILEVALS& profiles() const;
+
 private:
 	PROFILEVALS profiles_;
-
 	PROFILEVALS stack_;
-
 	std::string name_;
 };
 
@@ -66,22 +65,22 @@ public:
 
 		TimeStamp now = timestamp();
 
-		// Record the first few times
+		// Record the first few processing
 		if (inProgress_++ == 0)
 			lastTime_ = now;
 
 		ProfileGroup::PROFILEVALS & stack = pProfileGroup_->stack();
 
 		// If there is an object in the stack, it is called from the previous ProfileVal function.
-		// Here we can get a time slice before the previous function enters this function.
-		// Then add it to sumIntTime_
+		// We can get a piece of time before the previous function enters this function.
+		// then add it to sumIntTime_
 		if (!stack.empty()){
 			ProfileVal & profile = *stack.back();
 			profile.lastIntTime_ = now - profile.lastIntTime_;
 			profile.sumIntTime_ += profile.lastIntTime_;
 		}
 
-		// Push yourself
+		// push yourself on the stack
 		stack.push_back(this);
 
 		// Record start time
@@ -92,8 +91,8 @@ public:
 	{
 		TimeStamp now = timestamp();
 
-		// If 0, it means that it is the production of the call stack.
-		// Here we can get the total time spent by this function
+		// If it is 0, it means that it is the generation of the call stack.
+		// Here we can get the total time spent on this function
 		if (--inProgress_ == 0){
 			lastTime_ = now - lastTime_;
 			sumTime_ += lastTime_;
@@ -108,17 +107,16 @@ public:
 
 		stack.pop_back();
 
-		// The time spent to get this function
+		// Get the time spent by this function
 		lastIntTime_ = now - lastIntTime_;
 		sumIntTime_ += lastIntTime_;
 
-		// We need to reset the last internal time of the profile object in the last function
-		// Enables it to be correctly consumed at start time when entering the next profile function after calling this function
-		// Time fragment
+		// We need to reset the last internal time of the profile object in the previous function.
+		// Make it possible to get the correct start at the start when you enter the next profile function after calling this function
+		// time slice
 		if (!stack.empty())
 			stack.back()->lastIntTime_ = now;
 	}
-
 
 	INLINE bool stop( const char * filename, int lineNum, uint32 qty = 0);
 
@@ -136,46 +134,44 @@ public:
 	INLINE double lastIntTimeInSeconds() const ;
 	INLINE double sumIntTimeInSeconds() const;
 
-
-
 	INLINE const char* name() const;
 
 	INLINE uint32 count() const;
 
+	INLINE bool isTooLong() const;
+
+	static void setWarningPeriod(TimeStamp warningPeriod) { warningPeriod_ = warningPeriod; }
+
 	// name
-	std::string	name_;
+	std::string		name_;
 
 	// ProfileGroup pointer
 	ProfileGroup * pProfileGroup_;
 
-	// Time after startd.
+	// The time after startd.
 	TimeStamp		lastTime_;
 
-	// Count_ total time
+	// total time of count_ times
 	TimeStamp		sumTime_;
 
 	// Record the last internal time slice
 	TimeStamp		lastIntTime_;
 
-	// Count_ total internal time
+	// count_ times internal total time
 	TimeStamp		sumIntTime_;
 
-	uint32		lastQuantity_;	///< The last value passed into stop.
-	uint32		sumQuantity_;	///< The total of all values passed into stop.
-	uint32		count_;			///< The number of times stop has been called.
+	uint32			lastQuantity_;	///< The last value passed into stop.
+	uint32			sumQuantity_;	///< The total of all values passed into stop.
+	uint32			count_;			///< The number of times stop has been called.
 
-	// Record the first few times, such as recursion
-	int			inProgress_;
+	// Record the first few processing, such as recursion, etc.
+	int				inProgress_;
 
-	bool initWatcher_;
-
-	INLINE bool isTooLong() const;
-
-	static void setWarningPeriod( TimeStamp warningPeriod )
-							{ warningPeriod_ = warningPeriod; }
+	bool			initWatcher_;
 
 private:
 	static TimeStamp warningPeriod_;
+
 };
 
 class ScopedProfile
@@ -195,9 +191,10 @@ public:
 	}
 
 private:
-	ProfileVal & profile_;
-	const char * filename_;
+	ProfileVal& profile_;
+	const char* filename_;
 	int lineNum_;
+
 };
 
 #define START_PROFILE( PROFILE ) PROFILE.start();
@@ -217,7 +214,7 @@ private:
 #define STOP_PROFILE_WITH_DATA( PROFILE, DATA )									\
 	PROFILE.stop( __FILE__, __LINE__ , DATA );
 
-// This will give the system profile time
+// This gives the system profile time
 uint64 runningTime();
 
 #else
@@ -243,3 +240,5 @@ uint64 runningTime(){
 #endif
 
 #endif // OUROBOROS_PROFILE_H
+
+

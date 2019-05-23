@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OUROMAIN_CLIENT_H
 #define OUROMAIN_CLIENT_H
@@ -31,7 +31,7 @@ inline void START_MSG(const char * name, uint64 appuid)
 			"AppID: {}. "
 			"UID: {}. "
 			"PID: {} ----\n",
-		name, OUROVersion::versionString(), OUROVersion::scriptVersionString(),
+		name, KBEVersion::versionString(), KBEVersion::scriptVersionString(),
 		Network::MessageHandlers::getDigestStr(),
 		OURO_CONFIG, __TIME__, __DATE__,
 		appuid, getUserUID(), getProcessPID()));
@@ -61,7 +61,7 @@ inline bool installPyScript(Ouroboros::script::Script& script, COMPONENT_TYPE co
 		Resmgr::getSingleton().getPySysResPath().size() == 0 ||
 		Resmgr::getSingleton().getPyUserScriptsPath().size() == 0)
 	{
-		ERROR_MSG("EntityApp::installPyScript: OURO_RES_PATH is error!\n");
+		ERROR_MSG("EntityApp::installPyScript: OURO_RES_PATH error!\n");
 		return false;
 	}
 
@@ -244,7 +244,7 @@ int ouroMainT(int argc, char * argv[], COMPONENT_TYPE componentType,
 
 	if(!loadConfig())
 	{
-		ERROR_MSG("app::initialize is error!\n");
+		ERROR_MSG("app::initialize error!\n");
 		return -1;
 	}
 	
@@ -261,7 +261,7 @@ int ouroMainT(int argc, char * argv[], COMPONENT_TYPE componentType,
 	Ouroboros::script::Script script;
 	if(!installPyScript(script, componentType))
 	{
-		ERROR_MSG("app::initialize is error!\n");
+		ERROR_MSG("app::initialize error!\n");
 		return -1;
 	}
 
@@ -270,7 +270,7 @@ int ouroMainT(int argc, char * argv[], COMPONENT_TYPE componentType,
 
 	START_MSG(COMPONENT_NAME_EX(componentType), g_componentID);
 	if(!pApp->initialize()){
-		ERROR_MSG("app::initialize is error!\n");
+		ERROR_MSG("app::initialize error!\n");
 		pApp->finalise();
 		Py_DECREF(pApp);
 		uninstallPyScript(script);

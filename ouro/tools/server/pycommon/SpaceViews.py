@@ -13,21 +13,21 @@ from . import Define, MessageStream, ServerApp
 CONSOLE_PROFILECB_MSGID = 65503
 
 # SPACE data type definition
-SPACE_VALUE_TYPE_UNKNOWN        = 0
-SPACE_VALUE_TYPE_UINT8          = 1
-SPACE_VALUE_TYPE_UINT16         = 2
-SPACE_VALUE_TYPE_UINT32         = 3
-SPACE_VALUE_TYPE_UINT64         = 4
-SPACE_VALUE_TYPE_INT8           = 5
-SPACE_VALUE_TYPE_INT16          = 6
-SPACE_VALUE_TYPE_INT32          = 7
-SPACE_VALUE_TYPE_INT64          = 8
-SPACE_VALUE_TYPE_FLOAT          = 9
-SPACE_VALUE_TYPE_DOUBLE         = 10
-SPACE_VALUE_TYPE_CHAR           = 11
-SPACE_VALUE_TYPE_STRING         = 12
-SPACE_VALUE_TYPE_BOOL           = 13
-SPACE_VALUE_TYPE_COMPONENT_TYPE = 14
+SPACE_VALUE_TYPE_UNKNOWN		= 0
+SPACE_VALUE_TYPE_UINT8			= 1
+SPACE_VALUE_TYPE_UINT16			= 2
+SPACE_VALUE_TYPE_UINT32			= 3
+SPACE_VALUE_TYPE_UINT64			= 4
+SPACE_VALUE_TYPE_INT8			= 5
+SPACE_VALUE_TYPE_INT16			= 6
+SPACE_VALUE_TYPE_INT32			= 7
+SPACE_VALUE_TYPE_INT64			= 8
+SPACE_VALUE_TYPE_FLOAT			= 9
+SPACE_VALUE_TYPE_DOUBLE			= 10
+SPACE_VALUE_TYPE_CHAR			= 11
+SPACE_VALUE_TYPE_STRING			= 12
+SPACE_VALUE_TYPE_BOOL			= 13
+SPACE_VALUE_TYPE_COMPONENT_TYPE	= 14
 
 
 
@@ -38,9 +38,9 @@ CMD_ID_querySpaceViewer = {
 
 class SpaceViewer(ServerApp.ServerApp):
 	"""
-	Use samples:
+	Use the example:
 	import sys
-	sys.path.append(r"F:\ouroboros\ouro\tools\server")
+	sys.path.append(r"F:\ouroboros\kbe\tools\server")
 	import pycommon.SpaceViews
 	import pycommon.Define
 	w = pycommon.SpaceViews.SpaceViewer(4)
@@ -57,18 +57,17 @@ class SpaceViewer(ServerApp.ServerApp):
 		self.SpaceViewerData = []
 		self.componentType = componentType
 		assert componentType in CMD_ID_querySpaceViewer
-
+		
 	def clearSpaceViewerData(self):
 		"""
 		"""
 		self.SpaceViewerData = []
-
+		
 	def requireQuerySpaceViewer(self):
 		"""
 		"""
 		CMD_querySpaceViewer = CMD_ID_querySpaceViewer[self.componentType]
 		msg = MessageStream.MessageStreamWriter(CMD_querySpaceViewer)
-		msg.writeUint16(CMD_querySpaceViewer)
 		self.send(msg)
 
 	def onSpaceViewerMsg(self, streamReader):
@@ -91,7 +90,7 @@ class SpaceViewer(ServerApp.ServerApp):
 			CellAppCID = streamReader.readUint64()
 			SpacesSize = streamReader.readUint32()
 			cellapps["%s" % CellAppCID] = cellapp = { "SpacesSize":SpacesSize, "SpaceID":{}}
-
+			
 			for i in range(0, SpacesSize):
 				SpaceID = streamReader.readUint32()
 				SpacePath = streamReader.readString()
@@ -111,10 +110,10 @@ class SpaceViewer(ServerApp.ServerApp):
 
 class CellAppMgrViewer(ServerApp.ServerApp):
 	"""
-	Get CellAppMgr in space information
-	Use samples:
+	Get space information in CellAppMgr
+	Use the example:
 	import sys
-	sys.path.append(r"F:\ouroboros\ouro\tools\server")
+	sys.path.append(r"F:\ouroboros\kbe\tools\server")
 	import pycommon.CellViews
 	import pycommon.Define
 	w = pycommon.CellViews.CellAppMgrViewer(4,1)
@@ -130,13 +129,13 @@ class CellAppMgrViewer(ServerApp.ServerApp):
 		self.CellAppMgrViewerData = []
 		self.spaceID = spaceID
 		self.componentType = componentType
-
-
+		
+		
 	def clearCellAppMgrViewerData(self):
 		"""
 		"""
 		self.CellAppMgrViewerData = []
-
+		
 	def requireQueryCellAppMgrViewer(self):
 		"""
 		"""
@@ -169,10 +168,10 @@ class CellAppMgrViewer(ServerApp.ServerApp):
 
 class CellViewer(ServerApp.ServerApp):
 	"""
-	Get cellapp in the entity information
-	Use samples:
+	Get entity information in cellapp
+	Use the example:
 	import sys
-	sys.path.append(r"F:\ouroboros\ouro\tools\server")
+	sys.path.append(r"F:\ouroboros\kbe\tools\server")
 	import pycommon.CellViews
 	import pycommon.Define
 	w = pycommon.CellViews.CellViewer(4,5)
@@ -191,14 +190,14 @@ class CellViewer(ServerApp.ServerApp):
 		self.a = 0
 		self.list = {"componentType" : [], "componentID" : [], "type":[], "scriptModules_size":[], "UType":[], "Name":[],"spaceEntity":{}}
 		assert componentType in CMD_ID_querySpaceViewer
-
+		
 	def clearCellViewerData(self):
 		"""
 		"""
 		self.CellViewerData = []
 		self.list = {"componentType" : "", "componentID" :"", "type":"", "scriptModules_size":[], "UType":[], "Name":[],"spaceEntity":{}}
 
-
+		
 	def requireQueryCellViewer(self):
 		"""
 		"""
@@ -210,7 +209,7 @@ class CellViewer(ServerApp.ServerApp):
 		self.send(msg)
 
 	def onCellViewerMsg(self, streamReader):
-		"""
+		""" 
 		"""
 		componentType = streamReader.readInt32()
 		componentID = streamReader.readInt64()
@@ -225,11 +224,11 @@ class CellViewer(ServerApp.ServerApp):
 				if scriptModules_size != "" or scriptModules_size != None :
 					for i in range(0,scriptModules_size):
 						UType = streamReader.readUint16()
-						self.list["UType"].append(UType)
+						self.list["UType"].append(UType) 
 						if CPtype == 0:
 							Name = streamReader.readString()
 							self.list["Name"].append(Name)
-				self.a = self.a +1
+				self.a = self.a +1	
 			else:
 				viewerIter = streamReader.readInt32()
 				bools = streamReader.readBool()
@@ -259,3 +258,4 @@ class CellViewer(ServerApp.ServerApp):
 				else:
 					self.list["spaceEntity"]["%s" % viewerIter]["update"] = bools
 		self.CellViewerData = self.list
+

@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Ouroboros",
+	"Description": "",
+	"Category": "Ouroboros",
+	"CreatedBy": "Ouroboros",
+	"CreatedByURL": "http://ouroboros.org",
+	"DocsURL": "http://ouroboros.org/docs",
+	"MarketplaceURL": "http://ouroboros.org/marketplace",
+	"SupportURL": "http://bbs.ouroboros.org",
+	"EnabledByDefault": false,
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "OuroborosPlugins",
+			"Type": "Developer",
+			"LoadingPhase": "Default"
+		}
+	]
+}

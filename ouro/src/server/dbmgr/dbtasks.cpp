@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "dbtasks.h"
 #include "dbmgr.h"
@@ -20,6 +20,7 @@
 #include "baseappmgr/baseappmgr_interface.h"
 #include "cellappmgr/cellappmgr_interface.h"
 #include "loginapp/loginapp_interface.h"
+#include "tools/interfaces/interfaces_interface.h"
 
 #if OURO_PLATFORM == PLATFORM_WIN32
 #ifdef _DEBUG
@@ -40,7 +41,7 @@ DBTaskBase(),
 pDatas_(0),
 addr_(addr)
 {
-	pDatas_ = MemoryStream::createPoolObject();
+	pDatas_ = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 	*pDatas_ = datas;
 }
 
@@ -55,7 +56,7 @@ DBTask::~DBTask()
 bool DBTask::send(Network::Bundle* pBundle)
 {
 	Network::Channel* pChannel = Dbmgr::getSingleton().networkInterface().findChannel(addr_);
-
+	
 	if(pChannel){
 		pChannel->send(pBundle);
 	}
@@ -87,13 +88,15 @@ componentType_(UNKNOWN_COMPONENT_TYPE),
 sdatas_(),
 callbackID_(0),
 error_(),
-execret_()
+pExecret_(NULL)
 {
+	pExecret_ = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 }
 
 //-------------------------------------------------------------------------------------
 DBTaskExecuteRawDatabaseCommand::~DBTaskExecuteRawDatabaseCommand()
 {
+	MemoryStream::reclaimPoolObject(pExecret_);
 }
 
 //-------------------------------------------------------------------------------------
@@ -105,7 +108,7 @@ bool DBTaskExecuteRawDatabaseCommand::db_thread_process()
 
 	try
 	{
-		if (!pdbi_->query(sdatas_.data(), (uint32)sdatas_.size(), false, &execret_))
+		if (!pdbi_->query(sdatas_.data(), (uint32)sdatas_.size(), false, pExecret_))
 		{
 			error_ = pdbi_->getstrerror();
 		}
@@ -133,13 +136,15 @@ componentType_(UNKNOWN_COMPONENT_TYPE),
 sdatas_(),
 callbackID_(0),
 error_(),
-execret_()
+pExecret_(NULL)
 {
+	pExecret_ = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 }
 
 //-------------------------------------------------------------------------------------
 DBTaskExecuteRawDatabaseCommandByEntity::~DBTaskExecuteRawDatabaseCommandByEntity()
 {
+	MemoryStream::reclaimPoolObject(pExecret_);
 }
 
 //-------------------------------------------------------------------------------------
@@ -151,7 +156,7 @@ bool DBTaskExecuteRawDatabaseCommandByEntity::db_thread_process()
 
 	try
 	{
-		if (!pdbi_->query(sdatas_.data(), (uint32)sdatas_.size(), false, &execret_))
+		if (!pdbi_->query(sdatas_.data(), (uint32)sdatas_.size(), false, pExecret_))
 		{
 			error_ = pdbi_->getstrerror();
 		}
@@ -180,35 +185,56 @@ thread::TPTask::TPTaskState DBTaskExecuteRawDatabaseCommandByEntity::presentMain
 	if(callbackID_ <= 0)
 		return EntityDBTask::presentMainThread();
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	if (componentType_ != DBMGR_TYPE)
+	{
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
-	if(componentType_ == BASEAPP_TYPE)
-		(*pBundle).newMessage(BaseappInterface::onExecuteRawDatabaseCommandCB);
-	else if(componentType_ == CELLAPP_TYPE)
-		(*pBundle).newMessage(CellappInterface::onExecuteRawDatabaseCommandCB);
+		if (componentType_ == BASEAPP_TYPE)
+			(*pBundle).newMessage(BaseappInterface::onExecuteRawDatabaseCommandCB);
+		else if (componentType_ == CELLAPP_TYPE)
+			(*pBundle).newMessage(CellappInterface::onExecuteRawDatabaseCommandCB);
+		else if (componentType_ == INTERFACES_TYPE)
+			(*pBundle).newMessage(InterfacesInterface::onExecuteRawDatabaseCommandCB);
+		else
+		{
+			OURO_ASSERT(false && "no support!\n");
+		}
+
+		(*pBundle) << callbackID_;
+		(*pBundle) << error_;
+
+		if (error_.size() <= 0)
+			(*pBundle).append(pExecret_);
+
+		Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(componentType_, componentID_);
+
+		if (cinfos && cinfos->pChannel)
+		{
+			cinfos->pChannel->send(pBundle);
+		}
+		else
+		{
+			ERROR_MSG(fmt::format("DBTask::ExecuteRawDatabaseCommandByEntity::presentMainThread: {} not found!\n",
+				COMPONENT_NAME_EX(componentType_)));
+
+			Network::Bundle::reclaimPoolObject(pBundle);
+		}
+	}
 	else
 	{
-		OURO_ASSERT(false && "no support!\n");
-	}
+		// can only be issued by yourself
+		OURO_ASSERT(componentID_ == g_componentID);
 
-	(*pBundle) << callbackID_;
-	(*pBundle) << error_;
+		MemoryStream* pMemoryStream = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 
-	if(error_.size() <= 0)
-		(*pBundle).append(execret_);
+		(*pMemoryStream) << callbackID_;
+		(*pMemoryStream) << error_;
 
-	Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(componentType_, componentID_);
+		if (error_.size() <= 0)
+			(*pMemoryStream).append(*pExecret_);
 
-	if(cinfos && cinfos->pChannel)
-	{
-		cinfos->pChannel->send(pBundle);
-	}
-	else
-	{
-		ERROR_MSG(fmt::format("DBTask::ExecuteRawDatabaseCommandByEntity::presentMainThread: {} not found!\n",
-			COMPONENT_NAME_EX(componentType_)));
-
-		Network::Bundle::reclaimPoolObject(pBundle);
+		Dbmgr::getSingleton().onExecuteRawDatabaseCommandCB(*pMemoryStream);
+		MemoryStream::reclaimPoolObject(pMemoryStream);
 	}
 
 	return EntityDBTask::presentMainThread();
@@ -217,49 +243,70 @@ thread::TPTask::TPTaskState DBTaskExecuteRawDatabaseCommandByEntity::presentMain
 //-------------------------------------------------------------------------------------
 thread::TPTask::TPTaskState DBTaskExecuteRawDatabaseCommand::presentMainThread()
 {
-	DEBUG_MSG(fmt::format("Dbmgr::ExecuteRawDatabaseCommandByEntity::presentMainThread: {}.\n", sdatas_.c_str()));
+	DEBUG_MSG(fmt::format("Dbmgr::DBTaskExecuteRawDatabaseCommand::presentMainThread: {}.\n", sdatas_.c_str()));
 
 	// End if no callback is needed
 	if(callbackID_ <= 0)
 		return thread::TPTask::TPTASK_STATE_COMPLETED;
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	if (componentType_ != DBMGR_TYPE)
+	{
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
-	if(componentType_ == BASEAPP_TYPE)
-		(*pBundle).newMessage(BaseappInterface::onExecuteRawDatabaseCommandCB);
-	else if(componentType_ == CELLAPP_TYPE)
-		(*pBundle).newMessage(CellappInterface::onExecuteRawDatabaseCommandCB);
+		if (componentType_ == BASEAPP_TYPE)
+			(*pBundle).newMessage(BaseappInterface::onExecuteRawDatabaseCommandCB);
+		else if (componentType_ == CELLAPP_TYPE)
+			(*pBundle).newMessage(CellappInterface::onExecuteRawDatabaseCommandCB);
+		else if (componentType_ == INTERFACES_TYPE)
+			(*pBundle).newMessage(InterfacesInterface::onExecuteRawDatabaseCommandCB);
+		else
+		{
+			OURO_ASSERT(false && "no support!\n");
+		}
+
+		(*pBundle) << callbackID_;
+		(*pBundle) << error_;
+
+		if (error_.size() <= 0)
+			(*pBundle).append(pExecret_);
+
+		Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(componentType_, componentID_);
+
+		if (cinfos && cinfos->pChannel)
+		{
+			cinfos->pChannel->send(pBundle);
+		}
+		else
+		{
+			ERROR_MSG(fmt::format("DBTask::DBTaskExecuteRawDatabaseCommand::presentMainThread: {} not found!\n",
+				COMPONENT_NAME_EX(componentType_)));
+
+			Network::Bundle::reclaimPoolObject(pBundle);
+		}
+	}
 	else
 	{
-		OURO_ASSERT(false && "no support!\n");
-	}
+		// can only be issued by yourself
+		OURO_ASSERT(componentID_ == g_componentID);
 
-	(*pBundle) << callbackID_;
-	(*pBundle) << error_;
+		MemoryStream* pMemoryStream = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 
-	if(error_.size() <= 0)
-		(*pBundle).append(execret_);
+		(*pMemoryStream) << callbackID_;
+		(*pMemoryStream) << error_;
 
-	Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(componentType_, componentID_);
+		if (error_.size() <= 0)
+			(*pMemoryStream).append(*pExecret_);
 
-	if(cinfos && cinfos->pChannel)
-	{
-		cinfos->pChannel->send(pBundle);
-	}
-	else
-	{
-		ERROR_MSG(fmt::format("DBTask::ExecuteRawDatabaseCommandByEntity::presentMainThread: {} not found!\n",
-			COMPONENT_NAME_EX(componentType_)));
-
-		Network::Bundle::reclaimPoolObject(pBundle);
+		Dbmgr::getSingleton().onExecuteRawDatabaseCommandCB(*pMemoryStream);
+		MemoryStream::reclaimPoolObject(pMemoryStream);
 	}
 
 	return thread::TPTask::TPTASK_STATE_COMPLETED;
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskWriteEntity::DBTaskWriteEntity(const Network::Address& addr,
-									 COMPONENT_ID componentID, ENTITY_ID eid,
+DBTaskWriteEntity::DBTaskWriteEntity(const Network::Address& addr, 
+									 COMPONENT_ID componentID, ENTITY_ID eid, 
 									 DBID entityDBID, MemoryStream& datas):
 EntityDBTask(addr, datas, eid, entityDBID),
 componentID_(componentID),
@@ -290,6 +337,15 @@ bool DBTaskWriteEntity::db_thread_process()
 
 	if(writeEntityLog)
 	{
+		if (pDatas_->length() < (sizeof(uint32) + sizeof(uint16)))
+		{
+			ERROR_MSG(fmt::format("DBTaskWriteEntity::db_thread_process(): MemoryStream exception(rpos={}, wpos={})! entityID={}, sid={}, callbackID={}, shouldAutoLoad={}, address={}\n",
+				pDatas_->rpos(), pDatas_->wpos(), eid_, sid_, callbackID_, shouldAutoLoad_, addr_.c_str()));
+
+			success_ = false;
+			return false;
+		}
+
 		(*pDatas_) >> ip >> port;
 	}
 
@@ -302,11 +358,11 @@ bool DBTaskWriteEntity::db_thread_process()
 	{
 		success_ = false;
 
-		// Write the log first. If the write fails, the entity may be online.
-		OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
+		// Write the log first, if the write fails, the entity may be online.
+		KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
 		OURO_ASSERT(pELTable);
 
-		success_ = pELTable->logEntity(pdbi_, inet_ntoa((struct in_addr&)ip), port, entityDBID_,
+		success_ = pELTable->logEntity(pdbi_, inet_ntoa((struct in_addr&)ip), port, entityDBID_, 
 			componentID_, eid_, pModule->getUType());
 
 		if(!success_)
@@ -324,11 +380,11 @@ thread::TPTask::TPTaskState DBTaskWriteEntity::presentMainThread()
 	ScriptDefModule* pModule = EntityDef::findScriptModule(sid_);
 	DEBUG_MSG(fmt::format("Dbmgr::writeEntity: {0}({1}).\n", pModule->getName(), entityDBID_));
 
-	// Return result of writing entity, success or failure
+	// Returns the result of writing the entity, success or failure
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(BaseappInterface::onWriteToDBCallback);
-	BaseappInterface::onWriteToDBCallbackArgs5::staticAddToBundle((*pBundle),
+	BaseappInterface::onWriteToDBCallbackArgs5::staticAddToBundle((*pBundle), 
 		eid_, entityDBID_, pdbi_->dbIndex(), callbackID_, success_);
 
 	if(!this->send(pBundle))
@@ -336,13 +392,13 @@ thread::TPTask::TPTaskState DBTaskWriteEntity::presentMainThread()
 		ERROR_MSG(fmt::format("DBTaskWriteEntity::presentMainThread: channel({0}) not found.\n", addr_.c_str()));
 		Network::Bundle::reclaimPoolObject(pBundle);
 	}
-
+	
 	return EntityDBTask::presentMainThread();
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskRemoveEntity::DBTaskRemoveEntity(const Network::Address& addr,
-									 COMPONENT_ID componentID, ENTITY_ID eid,
+DBTaskRemoveEntity::DBTaskRemoveEntity(const Network::Address& addr, 
+									 COMPONENT_ID componentID, ENTITY_ID eid, 
 									 DBID entityDBID, MemoryStream& datas):
 EntityDBTask(addr, datas, eid, entityDBID),
 componentID_(componentID),
@@ -363,7 +419,7 @@ bool DBTaskRemoveEntity::db_thread_process()
 	(*pDatas_) >> sid_;
 
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
+	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
 
 	OURO_ASSERT(pELTable);
 	pELTable->eraseEntityLog(pdbi_, entityDBID_, sid_);
@@ -381,7 +437,7 @@ thread::TPTask::TPTaskState DBTaskRemoveEntity::presentMainThread()
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskDeleteEntityByDBID::DBTaskDeleteEntityByDBID(const Network::Address& addr, COMPONENT_ID componentID,
+DBTaskDeleteEntityByDBID::DBTaskDeleteEntityByDBID(const Network::Address& addr, COMPONENT_ID componentID, 
 		DBID entityDBID, CALLBACK_ID callbackID, ENTITY_SCRIPT_UID sid):
 DBTask(addr),
 componentID_(componentID),
@@ -403,19 +459,19 @@ DBTaskDeleteEntityByDBID::~DBTaskDeleteEntityByDBID()
 bool DBTaskDeleteEntityByDBID::db_thread_process()
 {
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>
-		(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
+	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>
+		(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
 
 	OURO_ASSERT(pELTable);
 
 	bool haslog = false;
-	OUROEntityLogTable::EntityLog entitylog;
+	KBEEntityLogTable::EntityLog entitylog;
 
 	ScriptDefModule* pModule = EntityDef::findScriptModule(sid_);
 
 	haslog = pELTable->queryEntity(pdbi_, entityDBID_, entitylog, pModule->getUType());
 
-	// If you have an online record
+	// If there is an online record
 	if(haslog)
 	{
 		success_ = false;
@@ -435,10 +491,10 @@ thread::TPTask::TPTaskState DBTaskDeleteEntityByDBID::presentMainThread()
 {
 	ScriptDefModule* pModule = EntityDef::findScriptModule(sid_);
 
-	DEBUG_MSG(fmt::format("Dbmgr::DBTaskDeleteEntityByDBID: {}({}), entityInAppID({}).\n",
+	DEBUG_MSG(fmt::format("Dbmgr::DBTaskDeleteEntityByDBID: {}({}), entityInAppID({}).\n", 
 		pModule->getName(), entityDBID_, entityInAppID_));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(BaseappInterface::deleteEntityByDBIDCB);
 
 	(*pBundle) << success_ << entityID_ << entityInAppID_ << callbackID_ << sid_ << entityDBID_;
@@ -453,7 +509,7 @@ thread::TPTask::TPTaskState DBTaskDeleteEntityByDBID::presentMainThread()
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskEntityAutoLoad::DBTaskEntityAutoLoad(const Network::Address& addr, COMPONENT_ID componentID,
+DBTaskEntityAutoLoad::DBTaskEntityAutoLoad(const Network::Address& addr, COMPONENT_ID componentID, 
 		ENTITY_SCRIPT_UID entityType, ENTITY_ID start, ENTITY_ID end):
 DBTask(addr),
 componentID_(componentID),
@@ -485,11 +541,11 @@ thread::TPTask::TPTaskState DBTaskEntityAutoLoad::presentMainThread()
 
 	if(size > 0)
 	{
-		DEBUG_MSG(fmt::format("Dbmgr::DBTaskEntityAutoLoad: {}, size({}).\n",
+		DEBUG_MSG(fmt::format("Dbmgr::DBTaskEntityAutoLoad: {}, size({}).\n", 
 			pModule->getName(), size));
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(BaseappInterface::onEntityAutoLoadCBFromDBMgr);
 
 	(*pBundle) << pdbi_->dbIndex() << size << entityType_;
@@ -510,7 +566,7 @@ thread::TPTask::TPTaskState DBTaskEntityAutoLoad::presentMainThread()
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskLookUpEntityByDBID::DBTaskLookUpEntityByDBID(const Network::Address& addr, COMPONENT_ID componentID,
+DBTaskLookUpEntityByDBID::DBTaskLookUpEntityByDBID(const Network::Address& addr, COMPONENT_ID componentID, 
 		DBID entityDBID, CALLBACK_ID callbackID, ENTITY_SCRIPT_UID sid):
 DBTask(addr),
 componentID_(componentID),
@@ -520,7 +576,7 @@ sid_(sid),
 success_(false),
 entityID_(0),
 entityInAppID_(0),
-logger_(0)
+serverGroupID_(0)
 {
 }
 
@@ -533,27 +589,27 @@ DBTaskLookUpEntityByDBID::~DBTaskLookUpEntityByDBID()
 bool DBTaskLookUpEntityByDBID::db_thread_process()
 {
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>
-		(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
+	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>
+		(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
 
 	OURO_ASSERT(pELTable);
 
-	OUROEntityLogTable::EntityLog entitylog;
+	KBEEntityLogTable::EntityLog entitylog;
 
 	ScriptDefModule* pModule = EntityDef::findScriptModule(sid_);
 
-	// If you have an online record
+	// If there is an online record
 	if(pELTable->queryEntity(pdbi_, entityDBID_, entitylog, pModule->getUType()))
 	{
-		if(entitylog.logger != g_componentID)
+		if(entitylog.serverGroupID != (COMPONENT_ID)getUserUID())
 		{
 			success_ = false;
 			entityInAppID_ = 0;
 			entityID_ = 0;
-			logger_ = entitylog.logger;
+			serverGroupID_ = entitylog.serverGroupID;
 			return false;
 		}
-
+		
 		success_ = true;
 		entityInAppID_ = entitylog.componentID;
 		entityID_ = entitylog.entityID;
@@ -570,17 +626,17 @@ bool DBTaskLookUpEntityByDBID::db_thread_process()
 thread::TPTask::TPTaskState DBTaskLookUpEntityByDBID::presentMainThread()
 {
 	ScriptDefModule* pModule = EntityDef::findScriptModule(sid_);
-
-	DEBUG_MSG(fmt::format("Dbmgr::DBTaskLookUpEntityByDBID: {}({}), entityInAppID({}).\n",
+	
+	DEBUG_MSG(fmt::format("Dbmgr::DBTaskLookUpEntityByDBID: {}({}), entityInAppID({}).\n", 
 		pModule->getName(), entityDBID_, entityInAppID_));
 
-	if(logger_ > 0)
+	if(serverGroupID_ > 0)
 	{
-		ERROR_MSG(fmt::format("DBTaskLookUpEntityByDBID::presentMainThread: entitylog({}) logger not match. logger_={}, self={}\n",
-			entityDBID_, logger_, g_componentID));
+		ERROR_MSG(fmt::format("DBTaskLookUpEntityByDBID::presentMainThread: entitylog({}) serverGroupID not match. serverGroupID={}, self={}\n", 
+			entityDBID_, serverGroupID_, (uint64)getUserUID()));
 	}
-
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(BaseappInterface::lookUpEntityByDBIDCB);
 
 	(*pBundle) << success_ << entityID_ << entityInAppID_ << callbackID_ << sid_ << entityDBID_;
@@ -595,11 +651,11 @@ thread::TPTask::TPTaskState DBTaskLookUpEntityByDBID::presentMainThread()
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskCreateAccount::DBTaskCreateAccount(const Network::Address& addr,
+DBTaskCreateAccount::DBTaskCreateAccount(const Network::Address& addr, 
 										 std::string& registerName,
-										 std::string& accountName,
-										 std::string& password,
-										 std::string& postdatas,
+										 std::string& accountName, 
+										 std::string& password, 
+										 std::string& postdatas, 
 										std::string& getdatas):
 DBTask(addr),
 registerName_(registerName),
@@ -625,7 +681,7 @@ bool DBTaskCreateAccount::db_thread_process()
 }
 
 //-------------------------------------------------------------------------------------
-bool DBTaskCreateAccount::writeAccount(DBInterface* pdbi, const std::string& accountName,
+bool DBTaskCreateAccount::writeAccount(DBInterface* pdbi, const std::string& accountName, 
 									   const std::string& passwd, const std::string& datas, ACCOUNT_INFOS& info)
 {
 	info.dbid = 0;
@@ -634,16 +690,16 @@ bool DBTaskCreateAccount::writeAccount(DBInterface* pdbi, const std::string& acc
 		return false;
 	}
 
-	// Finding if dblog has this account, if it fails to create it
-	// If there is no, create an entity data in the account table and write a log association dbid in the accountlog table.
+	// Find if dblog has this account, if it does, the creation fails.
+	// If not, create a new entity data in the account table and write a log association dbid in the accountlog table.
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi->name());
-	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
+	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
 
 	ScriptDefModule* pModule = EntityDef::findScriptModule(DBUtil::accountScriptName());
 	if(pModule == NULL)
 	{
-		ERROR_MSG(fmt::format("DBTaskCreateAccount::writeAccount(): not found account script[{}], create[{}] error!\n",
+		ERROR_MSG(fmt::format("DBTaskCreateAccount::writeAccount(): not found account script[{}], create[{}] error!\n", 
 			DBUtil::accountScriptName(), accountName));
 
 		return false;
@@ -653,7 +709,7 @@ bool DBTaskCreateAccount::writeAccount(DBInterface* pdbi, const std::string& acc
 	{
 		if(pdbi->getlasterror() > 0)
 		{
-			WARNING_MSG(fmt::format("DBTaskCreateAccount::writeAccount({}): queryAccount error: {}\n",
+			WARNING_MSG(fmt::format("DBTaskCreateAccount::writeAccount({}): queryAccount error: {}\n", 
 				accountName, pdbi->getstrerror()));
 		}
 
@@ -668,10 +724,10 @@ bool DBTaskCreateAccount::writeAccount(DBInterface* pdbi, const std::string& acc
 	}
 
 	DBID entityDBID = info.dbid;
-
+	
 	if(entityDBID == 0)
 	{
-		// To prevent multithreading problems, make a copy here.
+		// Prevent multithreading problems, make a copy here.
 		MemoryStream copyAccountDefMemoryStream(pTable->accountDefMemoryStream());
 
 		entityDBID = EntityTables::findByInterfaceName(pdbi->name()).writeEntity(pdbi, 0, -1,
@@ -691,14 +747,14 @@ bool DBTaskCreateAccount::writeAccount(DBInterface* pdbi, const std::string& acc
 	info.password = passwd;
 	info.dbid = entityDBID;
 	info.datas = datas;
-
+	
 	if(!hasset)
 	{
 		if(!pTable->logAccount(pdbi, info))
 		{
 			if(pdbi->getlasterror() > 0)
 			{
-				WARNING_MSG(fmt::format("DBTaskCreateAccount::writeAccount(): logAccount error:{}\n",
+				WARNING_MSG(fmt::format("DBTaskCreateAccount::writeAccount(): logAccount error:{}\n", 
 					pdbi->getstrerror()));
 			}
 
@@ -711,7 +767,7 @@ bool DBTaskCreateAccount::writeAccount(DBInterface* pdbi, const std::string& acc
 		{
 			if(pdbi->getlasterror() > 0)
 			{
-				WARNING_MSG(fmt::format("DBTaskCreateAccount::writeAccount(): logAccount error:{}\n",
+				WARNING_MSG(fmt::format("DBTaskCreateAccount::writeAccount(): logAccount error:{}\n", 
 					pdbi->getstrerror()));
 			}
 
@@ -727,7 +783,7 @@ thread::TPTask::TPTaskState DBTaskCreateAccount::presentMainThread()
 {
 	DEBUG_MSG(fmt::format("Dbmgr::reqCreateAccount: {}, success={}.\n", registerName_.c_str(), success_));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(LoginappInterface::onReqCreateAccountResult);
 	SERVER_ERROR_CODE failedcode = SERVER_SUCCESS;
 
@@ -758,11 +814,11 @@ std::string genmail_code(const std::string& str)
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskCreateMailAccount::DBTaskCreateMailAccount(const Network::Address& addr,
+DBTaskCreateMailAccount::DBTaskCreateMailAccount(const Network::Address& addr, 
 										 std::string& registerName,
-										 std::string& accountName,
-										 std::string& password,
-										 std::string& postdatas,
+										 std::string& accountName, 
+										 std::string& password, 
+										 std::string& postdatas, 
 										std::string& getdatas):
 DBTask(addr),
 registerName_(registerName),
@@ -789,33 +845,33 @@ bool DBTaskCreateMailAccount::db_thread_process()
 		return false;
 	}
 
-	// Finding if dblog has this account, if it fails to create it
+	// Find if dblog has this account, if it does, the creation fails.
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
+	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
-
+	
 	info.flags = 0;
 	if(pTable->queryAccount(pdbi_, accountName_, info)  && (info.flags & ACCOUNT_FLAG_NOT_ACTIVATED) <= 0)
 	{
 		if(pdbi_->getlasterror() > 0)
 		{
-			WARNING_MSG(fmt::format("DBTaskCreateMailAccount::db_thread_process(): queryAccount is error: {}\n",
+			WARNING_MSG(fmt::format("DBTaskCreateMailAccount::db_thread_process(): queryAccount error: {}\n", 
 				pdbi_->getstrerror()));
 		}
 
 		return false;
 	}
 
-	// Generate activation code and store activation code to database
-	// Send smtp mail to the mailbox, the user can activate after clicking confirm
+	// Generate an activation code and store the activation code to the database
+	// Send smtp mail to the mailbox, the user can click to confirm and activate
 	std::string codestr = genmail_code(password_);
-	OUROEmailVerificationTable* pTable1 = static_cast<OUROEmailVerificationTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_email_verification"));
+	KBEEmailVerificationTable* pTable1 = static_cast<KBEEmailVerificationTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_email_verification"));
 	OURO_ASSERT(pTable1);
-
+	
 	info.datas = getdatas_;
 	info.name = registerName_;
 	info.password = password_;
-	info.flags |= ACCOUNT_FLAG_NOT_ACTIVATED;
+	info.flags |= ACCOUNT_FLAG_NOT_ACTIVATED; 
 	info.email = info.name;
 	info.dbid = Ouroboros::genUUID64();
 
@@ -825,14 +881,14 @@ bool DBTaskCreateMailAccount::db_thread_process()
 	}
 	catch (...)
 	{
-		WARNING_MSG(fmt::format("DBTaskCreateMailAccount::db_thread_process(): logAccount(" OURO_TABLE_PERFIX "_accountinfos) is error: {}\n{}\n",
+		WARNING_MSG(fmt::format("DBTaskCreateMailAccount::db_thread_process(): logAccount(" OURO_TABLE_PERFIX "_accountinfos) error: {}\n{}\n", 
 			pdbi_->getstrerror(), pdbi_->lastquery()));
 	}
 
 	password_ = OURO_MD5::getDigest(password_.data(), (int)password_.length());
 	getdatas_ = codestr;
 
-	success_ = pTable1->logAccount(pdbi_, (int8)OUROEmailVerificationTable::V_TYPE_CREATEACCOUNT,
+	success_ = pTable1->logAccount(pdbi_, (int8)KBEEmailVerificationTable::V_TYPE_CREATEACCOUNT, 
 		registerName_, password_, getdatas_);
 
 	return false;
@@ -843,7 +899,7 @@ thread::TPTask::TPTaskState DBTaskCreateMailAccount::presentMainThread()
 {
 	DEBUG_MSG(fmt::format("Dbmgr::reqCreateMailAccount: {}, success={}.\n", registerName_, success_));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(LoginappInterface::onReqCreateMailAccountResult);
 	SERVER_ERROR_CODE failedcode = SERVER_SUCCESS;
 
@@ -863,7 +919,7 @@ thread::TPTask::TPTaskState DBTaskCreateMailAccount::presentMainThread()
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskActivateAccount::DBTaskActivateAccount(const Network::Address& addr,
+DBTaskActivateAccount::DBTaskActivateAccount(const Network::Address& addr, 
 										 std::string& code):
 DBTask(addr),
 code_(code),
@@ -881,15 +937,15 @@ bool DBTaskActivateAccount::db_thread_process()
 {
 	ACCOUNT_INFOS info;
 
-	OUROEmailVerificationTable* pTable1 =
-		static_cast<OUROEmailVerificationTable*>(EntityTables::findByInterfaceName(pdbi_->name()).findOUROTable(OURO_TABLE_PERFIX "_email_verification"));
+	KBEEmailVerificationTable* pTable1 = 
+		static_cast<KBEEmailVerificationTable*>(EntityTables::findByInterfaceName(pdbi_->name()).findKBETable(OURO_TABLE_PERFIX "_email_verification"));
 
 	OURO_ASSERT(pTable1);
 
 	success_ = pTable1->activateAccount(pdbi_, code_, info);
 	if(!success_)
 	{
-		ERROR_MSG(fmt::format("DBTaskActivateAccount::db_thread_process(): activateAccount({1}) error: {0}\n",
+		ERROR_MSG(fmt::format("DBTaskActivateAccount::db_thread_process(): activateAccount({1}) error: {0}\n", 
 				pdbi_->getstrerror(), code_));
 		return false;
 	}
@@ -900,7 +956,7 @@ bool DBTaskActivateAccount::db_thread_process()
 //-------------------------------------------------------------------------------------
 thread::TPTask::TPTaskState DBTaskActivateAccount::presentMainThread()
 {
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	(*pBundle).newMessage(LoginappInterface::onAccountActivated);
 	(*pBundle) << code_ << success_;
@@ -940,7 +996,7 @@ bool DBTaskReqAccountResetPassword::db_thread_process()
 	}
 
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
+	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
 
 	if(!pTable->queryAccountAllInfos(pdbi_, accountName_, info))
@@ -950,17 +1006,17 @@ bool DBTaskReqAccountResetPassword::db_thread_process()
 
 	if(info.dbid == 0 || info.flags != ACCOUNT_FLAG_NORMAL)
 		return false;
-
-	// Generate activation code and store activation code to database
-	// Send smtp mail to the mailbox, the user can activate after clicking confirm
-	OUROEmailVerificationTable* pTable1 =
-		static_cast<OUROEmailVerificationTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_email_verification"));
+	
+	// Generate an activation code and store the activation code to the database
+	// Send smtp mail to the mailbox, the user can click to confirm and activate
+	KBEEmailVerificationTable* pTable1 = 
+		static_cast<KBEEmailVerificationTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_email_verification"));
 	OURO_ASSERT(pTable1);
 
 	info.datas = genmail_code(accountName_);
 	code_ = info.datas;
 	email_ = info.email;
-	success_ = pTable1->logAccount(pdbi_, (int8)OUROEmailVerificationTable::V_TYPE_RESETPASSWORD, accountName_, email_, code_);
+	success_ = pTable1->logAccount(pdbi_, (int8)KBEEmailVerificationTable::V_TYPE_RESETPASSWORD, accountName_, email_, code_);
 	return false;
 }
 
@@ -970,7 +1026,7 @@ thread::TPTask::TPTaskState DBTaskReqAccountResetPassword::presentMainThread()
 	DEBUG_MSG(fmt::format("Dbmgr::DBTaskReqAccountResetPassword: accountName={}, code_={}, success={}.\n",
 		accountName_, code_, success_));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(LoginappInterface::onReqAccountResetPasswordCB);
 	SERVER_ERROR_CODE failedcode = SERVER_SUCCESS;
 
@@ -992,7 +1048,7 @@ thread::TPTask::TPTaskState DBTaskReqAccountResetPassword::presentMainThread()
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskAccountResetPassword::DBTaskAccountResetPassword(const Network::Address& addr, std::string& accountName,
+DBTaskAccountResetPassword::DBTaskAccountResetPassword(const Network::Address& addr, std::string& accountName, 
 		std::string& newpassword, std::string& code):
 DBTask(addr),
 code_(code),
@@ -1010,8 +1066,8 @@ DBTaskAccountResetPassword::~DBTaskAccountResetPassword()
 //-------------------------------------------------------------------------------------
 bool DBTaskAccountResetPassword::db_thread_process()
 {
-	OUROEmailVerificationTable* pTable1 = static_cast<OUROEmailVerificationTable*>(
-		EntityTables::findByInterfaceName(pdbi_->name()).findOUROTable(OURO_TABLE_PERFIX "_email_verification"));
+	KBEEmailVerificationTable* pTable1 = static_cast<KBEEmailVerificationTable*>(
+		EntityTables::findByInterfaceName(pdbi_->name()).findKBETable(OURO_TABLE_PERFIX "_email_verification"));
 
 	OURO_ASSERT(pTable1);
 
@@ -1025,7 +1081,7 @@ thread::TPTask::TPTaskState DBTaskAccountResetPassword::presentMainThread()
 	DEBUG_MSG(fmt::format("Dbmgr::DBTaskAccountResetPassword: code({}), success={}.\n",
 		code_, success_));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(LoginappInterface::onAccountResetPassword);
 
 	(*pBundle) << code_;
@@ -1041,7 +1097,7 @@ thread::TPTask::TPTaskState DBTaskAccountResetPassword::presentMainThread()
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskReqAccountBindEmail::DBTaskReqAccountBindEmail(const Network::Address& addr, ENTITY_ID entityID, std::string& accountName,
+DBTaskReqAccountBindEmail::DBTaskReqAccountBindEmail(const Network::Address& addr, ENTITY_ID entityID, std::string& accountName, 
 		std::string password,std::string& email):
 DBTask(addr),
 code_(),
@@ -1067,27 +1123,27 @@ bool DBTaskReqAccountBindEmail::db_thread_process()
 		return false;
 	}
 
-	// Generate activation code and store activation code to database
-	// Send smtp mail to the mailbox, the user can activate after clicking confirm
-	OUROEmailVerificationTable* pTable1 = static_cast<OUROEmailVerificationTable*>(
-		EntityTables::findByInterfaceName(pdbi_->name()).findOUROTable(OURO_TABLE_PERFIX "_email_verification"));
+	// Generate an activation code and store the activation code to the database
+	// Send smtp mail to the mailbox, the user can click to confirm and activate
+	KBEEmailVerificationTable* pTable1 = static_cast<KBEEmailVerificationTable*>(
+		EntityTables::findByInterfaceName(pdbi_->name()).findKBETable(OURO_TABLE_PERFIX "_email_verification"));
 
 	OURO_ASSERT(pTable1);
 
 	info.datas = genmail_code(accountName_);
 	info.name = accountName_;
 	code_ = info.datas;
-	success_ = pTable1->logAccount(pdbi_, (int8)OUROEmailVerificationTable::V_TYPE_BIND_MAIL, accountName_, email_, code_);
+	success_ = pTable1->logAccount(pdbi_, (int8)KBEEmailVerificationTable::V_TYPE_BIND_MAIL, accountName_, email_, code_);
 	return false;
 }
 
 //-------------------------------------------------------------------------------------
 thread::TPTask::TPTaskState DBTaskReqAccountBindEmail::presentMainThread()
 {
-	DEBUG_MSG(fmt::format("Dbmgr::DBTaskReqAccountBindEmail: code({}), success={}.\n",
+	DEBUG_MSG(fmt::format("Dbmgr::DBTaskReqAccountBindEmail: code({}), success={}.\n", 
 		code_, success_));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(BaseappInterface::onReqAccountBindEmailCBFromDBMgr);
 
 	SERVER_ERROR_CODE failedcode = SERVER_SUCCESS;
@@ -1095,7 +1151,7 @@ thread::TPTask::TPTaskState DBTaskReqAccountBindEmail::presentMainThread()
 	if(!success_)
 		failedcode = SERVER_ERR_OP_FAILED;
 
-	(*pBundle) << entityID_;
+	(*pBundle) << entityID_; 
 	(*pBundle) << accountName_;
 	(*pBundle) << email_;
 	(*pBundle) << failedcode;
@@ -1111,7 +1167,7 @@ thread::TPTask::TPTaskState DBTaskReqAccountBindEmail::presentMainThread()
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskAccountBindEmail::DBTaskAccountBindEmail(const Network::Address& addr, std::string& accountName,
+DBTaskAccountBindEmail::DBTaskAccountBindEmail(const Network::Address& addr, std::string& accountName, 
 		std::string& code):
 DBTask(addr),
 code_(code),
@@ -1128,8 +1184,8 @@ DBTaskAccountBindEmail::~DBTaskAccountBindEmail()
 //-------------------------------------------------------------------------------------
 bool DBTaskAccountBindEmail::db_thread_process()
 {
-	OUROEmailVerificationTable* pTable1 = static_cast<OUROEmailVerificationTable*>(
-		EntityTables::findByInterfaceName(pdbi_->name()).findOUROTable(OURO_TABLE_PERFIX "_email_verification"));
+	KBEEmailVerificationTable* pTable1 = static_cast<KBEEmailVerificationTable*>(
+		EntityTables::findByInterfaceName(pdbi_->name()).findKBETable(OURO_TABLE_PERFIX "_email_verification"));
 
 	OURO_ASSERT(pTable1);
 
@@ -1140,10 +1196,10 @@ bool DBTaskAccountBindEmail::db_thread_process()
 //-------------------------------------------------------------------------------------
 thread::TPTask::TPTaskState DBTaskAccountBindEmail::presentMainThread()
 {
-	DEBUG_MSG(fmt::format("Dbmgr::DBTaskAccountBindEmail: code({}), success={}.\n",
+	DEBUG_MSG(fmt::format("Dbmgr::DBTaskAccountBindEmail: code({}), success={}.\n", 
 		code_, success_));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(LoginappInterface::onAccountBindedEmail);
 
 	(*pBundle) << code_;
@@ -1159,7 +1215,7 @@ thread::TPTask::TPTaskState DBTaskAccountBindEmail::presentMainThread()
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskAccountNewPassword::DBTaskAccountNewPassword(const Network::Address& addr, ENTITY_ID entityID, std::string& accountName,
+DBTaskAccountNewPassword::DBTaskAccountNewPassword(const Network::Address& addr, ENTITY_ID entityID, std::string& accountName, 
 		std::string& oldpassword_, std::string& newpassword):
 DBTask(addr),
 accountName_(accountName),
@@ -1177,8 +1233,8 @@ DBTaskAccountNewPassword::~DBTaskAccountNewPassword()
 //-------------------------------------------------------------------------------------
 bool DBTaskAccountNewPassword::db_thread_process()
 {
-	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(
-		EntityTables::findByInterfaceName(pdbi_->name()).findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
+	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(
+		EntityTables::findByInterfaceName(pdbi_->name()).findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
 
 	OURO_ASSERT(pTable);
 
@@ -1205,7 +1261,7 @@ thread::TPTask::TPTaskState DBTaskAccountNewPassword::presentMainThread()
 {
 	DEBUG_MSG(fmt::format("Dbmgr::DBTaskAccountNewPassword: success={}.\n", success_));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(BaseappInterface::onReqAccountNewPasswordCB);
 
 	SERVER_ERROR_CODE failedcode = SERVER_SUCCESS;
@@ -1233,7 +1289,7 @@ EntityDBTask(addr, entityID, entityDBID),
 accountName_(accountName),
 password_(password),
 success_(false),
-s_(),
+s_(NULL),
 dbid_(entityDBID),
 componentID_(componentID),
 entityID_(entityID),
@@ -1245,11 +1301,13 @@ deadline_(0),
 bindatas_(),
 needCheckPassword_(needCheckPassword)
 {
+	s_ = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 }
 
 //-------------------------------------------------------------------------------------
 DBTaskQueryAccount::~DBTaskQueryAccount()
 {
+	MemoryStream::reclaimPoolObject(s_);
 }
 
 //-------------------------------------------------------------------------------------
@@ -1262,7 +1320,7 @@ bool DBTaskQueryAccount::db_thread_process()
 	}
 
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
+	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
 
 	ACCOUNT_INFOS info;
@@ -1271,18 +1329,18 @@ bool DBTaskQueryAccount::db_thread_process()
 	info.dbid = dbid_;
 	info.datas = "";
 
-	// In order to get bindata every time, we need to query this every time
+	// In order to get bindata every time, I need to query each time here.
 	//if(dbid_ == 0)
 	{
 		if(!pTable->queryAccount(pdbi_, accountName_, info))
 		{
 			error_ = "pTable->queryAccount() failed!";
-
+			
 			if(pdbi_->getlasterror() > 0)
 			{
 				error_ += pdbi_->getstrerror();
 			}
-
+	
 			return false;
 		}
 
@@ -1307,7 +1365,7 @@ bool DBTaskQueryAccount::db_thread_process()
 	}
 
 	ScriptDefModule* pModule = EntityDef::findScriptModule(DBUtil::accountScriptName());
-	success_ = entityTables.queryEntity(pdbi_, info.dbid, &s_, pModule);
+	success_ = entityTables.queryEntity(pdbi_, info.dbid, s_, pModule);
 
 	if(!success_ && pdbi_->getlasterror() > 0)
 	{
@@ -1322,13 +1380,13 @@ bool DBTaskQueryAccount::db_thread_process()
 
 	success_ = false;
 
-	// Write the log first. If the write fails, the entity may be online.
-	OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>
-		(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
-
+	// Write the log first, if the write fails, the entity may be online.
+	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>
+		(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
+	
 	OURO_ASSERT(pELTable);
-
-	success_ = pELTable->logEntity(pdbi_, inet_ntoa((struct in_addr&)ip_), port_, dbid_,
+	
+	success_ = pELTable->logEntity(pdbi_, inet_ntoa((struct in_addr&)ip_), port_, dbid_, 
 		componentID_, entityID_, pModule->getUType());
 
 	if(!success_ && pdbi_->getlasterror() > 0)
@@ -1347,10 +1405,10 @@ bool DBTaskQueryAccount::db_thread_process()
 //-------------------------------------------------------------------------------------
 thread::TPTask::TPTaskState DBTaskQueryAccount::presentMainThread()
 {
-	DEBUG_MSG(fmt::format("Dbmgr::queryAccount: {}, success={}, flags={}, deadline={}.\n",
+	DEBUG_MSG(fmt::format("Dbmgr::queryAccount: {}, success={}, flags={}, deadline={}.\n", 
 		 accountName_.c_str(), success_, flags_, deadline_));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(BaseappInterface::onQueryAccountCBFromDbmgr);
 	(*pBundle) << pdbi_->dbIndex();
 	(*pBundle) << accountName_;
@@ -1406,7 +1464,7 @@ thread::TPTask::TPTaskState DBTaskAccountOnline::presentMainThread()
 	DEBUG_MSG(fmt::format("Dbmgr::onAccountOnline: componentID:{}, entityID:{}.\n", componentID_, EntityDBTask_entityID()));
 
 	/*
-	// If there is no connection db then find out from the log whether the account is still online
+	// If there is no connection to db, find out if the account is still online from the log.
 	if(!pDBInterface_)
 	{
 		PROXICES_ONLINE_LOG::iterator iter = proxicesOnlineLogs_.find(accountName_);
@@ -1441,8 +1499,8 @@ DBTaskEntityOffline::~DBTaskEntityOffline()
 //-------------------------------------------------------------------------------------
 bool DBTaskEntityOffline::db_thread_process()
 {
-	OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>
-		(EntityTables::findByInterfaceName(pdbi_->name()).findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
+	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>
+		(EntityTables::findByInterfaceName(pdbi_->name()).findKBETable(OURO_TABLE_PERFIX "_entitylog"));
 
 	OURO_ASSERT(pELTable);
 
@@ -1458,12 +1516,12 @@ thread::TPTask::TPTaskState DBTaskEntityOffline::presentMainThread()
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskAccountLogin::DBTaskAccountLogin(const Network::Address& addr,
-									   std::string& loginName,
-									   std::string& accountName,
-									   std::string& password,
+DBTaskAccountLogin::DBTaskAccountLogin(const Network::Address& addr, 
+									   std::string& loginName, 
+									   std::string& accountName, 
+									   std::string& password, 
 									   SERVER_ERROR_CODE retcode,
-									   std::string& postdatas,
+									   std::string& postdatas, 
 									   std::string& getdatas,
 									   bool needCheckPassword) :
 DBTask(addr),
@@ -1479,7 +1537,7 @@ dbid_(0),
 flags_(0),
 deadline_(0),
 needCheckPassword_(needCheckPassword),
-logger_(0)
+serverGroupID_(0)
 {
 }
 
@@ -1491,10 +1549,10 @@ DBTaskAccountLogin::~DBTaskAccountLogin()
 //-------------------------------------------------------------------------------------
 bool DBTaskAccountLogin::db_thread_process()
 {
-	// If Interfaces has already judged unsuccessful, there is no need to continue
+	// If Interfaces has been judged unsuccessful, there is no need to continue
 	if(retcode_ != SERVER_SUCCESS)
 	{
-		ERROR_MSG(fmt::format("DBTaskAccountLogin::db_thread_process(): interfaces report failed({})!\n", retcode_));
+		ERROR_MSG(fmt::format("DBTaskAccountLogin::db_thread_process(): interfaces report failed(errcode={})!\n", retcode_));
 		return false;
 	}
 
@@ -1511,7 +1569,7 @@ bool DBTaskAccountLogin::db_thread_process()
 
 	if(pModule == NULL)
 	{
-		ERROR_MSG(fmt::format("DBTaskAccountLogin::db_thread_process(): not found account script[{}], login[{}] failed!\n",
+		ERROR_MSG(fmt::format("DBTaskAccountLogin::db_thread_process(): not found account script[{}], login[{}] failed!\n", 
 			DBUtil::accountScriptName(), accountName_));
 
 		retcode_ = SERVER_ERR_SRV_NO_READY;
@@ -1519,12 +1577,12 @@ bool DBTaskAccountLogin::db_thread_process()
 	}
 
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>
-		(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
+	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>
+		(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
 
 	OURO_ASSERT(pELTable);
 
-	OUROAccountTable* pTable = static_cast<OUROAccountTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
+	KBEAccountTable* pTable = static_cast<KBEAccountTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
 	OURO_ASSERT(pTable);
 
 	ACCOUNT_INFOS info;
@@ -1541,7 +1599,7 @@ bool DBTaskAccountLogin::db_thread_process()
 		{
 			if (email_isvalid(accountName_.c_str()))
 			{
-				ERROR_MSG(fmt::format("DBTaskAccountLogin::db_thread_process(): account[{}] is email, autocreate failed!\n",
+				ERROR_MSG(fmt::format("DBTaskAccountLogin::db_thread_process(): account[{}] is email, autocreate failed!\n", 
 					accountName_));
 
 				retcode_ = SERVER_ERR_CANNOT_USE_MAIL;
@@ -1549,26 +1607,26 @@ bool DBTaskAccountLogin::db_thread_process()
 			}
 		}
 
-		if (g_ouroSrvConfig.getDBMgr().notFoundAccountAutoCreate ||
-			(Network::Address::NONE != g_ouroSrvConfig.interfacesAddr() && !needCheckPassword_/*Successfully created an account if the third party processes successfully*/))
+		if (g_ouroSrvConfig.getDBMgr().notFoundAccountAutoCreate || 
+						(g_ouroSrvConfig.interfacesAddrs().size() > 0 && !needCheckPassword_/*Automatically create an account if the third party processes successfully*/))
 		{
 			if(!DBTaskCreateAccount::writeAccount(pdbi_, accountName_, password_, postdatas_, info) || info.dbid == 0 || info.flags != ACCOUNT_FLAG_NORMAL)
 			{
-				ERROR_MSG(fmt::format("DBTaskAccountLogin::db_thread_process(): writeAccount[{}] is error!\n",
+				ERROR_MSG(fmt::format("DBTaskAccountLogin::db_thread_process(): writeAccount[{}] error!\n",
 					accountName_));
 
 				retcode_ = SERVER_ERR_DB;
 				return false;
 			}
 
-			INFO_MSG(fmt::format("DBTaskAccountLogin::db_thread_process(): not found account[{}], autocreate successfully!\n",
+			INFO_MSG(fmt::format("DBTaskAccountLogin::db_thread_process(): not found account[{}], autocreate successfully!\n", 
 				accountName_));
 
 			info.password = OURO_MD5::getDigest(password_.data(), (int)password_.length());
 		}
 		else
 		{
-			ERROR_MSG(fmt::format("DBTaskAccountLogin::db_thread_process(): not found account[{}], login failed!\n",
+			ERROR_MSG(fmt::format("DBTaskAccountLogin::db_thread_process(): not found account[{}], login failed!\n", 
 				accountName_));
 
 			retcode_ = SERVER_ERR_NOT_FOUND_ACCOUNT;
@@ -1585,7 +1643,7 @@ bool DBTaskAccountLogin::db_thread_process()
 		return false;
 	}
 
-	if (needCheckPassword_ || Network::Address::NONE == g_ouroSrvConfig.interfacesAddr())
+	if (needCheckPassword_ || g_ouroSrvConfig.interfacesAddrs().size() == 0)
 	{
 		if (ouro_stricmp(info.password.c_str(), OURO_MD5::getDigest(password_.data(), (int)password_.length()).c_str()) != 0)
 		{
@@ -1597,18 +1655,18 @@ bool DBTaskAccountLogin::db_thread_process()
 	pTable->updateCount(pdbi_, accountName_, info.dbid);
 
 	retcode_ = SERVER_ERR_ACCOUNT_IS_ONLINE;
-	OUROEntityLogTable::EntityLog entitylog;
+	KBEEntityLogTable::EntityLog entitylog;
 	bool success = !pELTable->queryEntity(pdbi_, info.dbid, entitylog, pModule->getUType());
 
-	// If you have an online record
+	// If there is an online record
 	if(!success)
 	{
 		componentID_ = entitylog.componentID;
 		entityID_ = entitylog.entityID;
-
-		if(entitylog.logger != g_componentID)
+		
+		if(entitylog.serverGroupID != (uint64)getUserUID())
 		{
-			logger_ = entitylog.logger;
+			serverGroupID_ = entitylog.serverGroupID;
 			retcode_ = SERVER_ERR_ACCOUNT_LOGIN_ANOTHER_SERVER;
 		}
 	}
@@ -1626,7 +1684,7 @@ bool DBTaskAccountLogin::db_thread_process()
 //-------------------------------------------------------------------------------------
 thread::TPTask::TPTaskState DBTaskAccountLogin::presentMainThread()
 {
-	DEBUG_MSG(fmt::format("Dbmgr::onAccountLogin:loginName={}, accountName={}, success={}, componentID={}, entityID={}, dbid={}, flags={}, deadline={}.\n",
+	DEBUG_MSG(fmt::format("Dbmgr::onAccountLogin:loginName={}, accountName={}, success={}, componentID={}, entityID={}, dbid={}, flags={}, deadline={}.\n", 
 		loginName_,
 		accountName_,
 		retcode_,
@@ -1637,17 +1695,17 @@ thread::TPTask::TPTaskState DBTaskAccountLogin::presentMainThread()
 		deadline_
 		));
 
-	if(logger_ > 0)
+	if(serverGroupID_ > 0)
 	{
-		ERROR_MSG(fmt::format("DBTaskAccountLogin::presentMainThread: entitylog logger not match. loginName={}, accountName={}, self={}\n",
-			loginName_, accountName_, logger_, g_componentID));
-
+		ERROR_MSG(fmt::format("DBTaskAccountLogin::presentMainThread: entitylog serverGroupID not match. loginName={}, accountName={}, self={}\n", 
+			loginName_, accountName_, serverGroupID_, (uint64)getUserUID()));
+		
 		componentID_ = 0;
 		entityID_ = 0;
 	}
-
-	// A user logs in, constructs a database query instruction and joins the execution queue, and returns the result to the loginapp after the execution is complete.
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	
+	// A user logs in, constructs a database query directive and joins the execution queue, and returns the result to loginapp after execution
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(LoginappInterface::onLoginAccountQueryResultFromDbmgr);
 
 	(*pBundle) << retcode_;
@@ -1655,7 +1713,7 @@ thread::TPTask::TPTaskState DBTaskAccountLogin::presentMainThread()
 	(*pBundle) << accountName_;
 	(*pBundle) << password_;
 	(*pBundle) << needCheckPassword_;
-	(*pBundle) << componentID_;   // If it is greater than 0 then the account is still alive on a baseapp
+	(*pBundle) << componentID_; // If greater than 0, the account is still alive on a baseapp
 	(*pBundle) << entityID_;
 	(*pBundle) << dbid_;
 	(*pBundle) << flags_;
@@ -1672,7 +1730,7 @@ thread::TPTask::TPTaskState DBTaskAccountLogin::presentMainThread()
 }
 
 //-------------------------------------------------------------------------------------
-DBTaskQueryEntity::DBTaskQueryEntity(const Network::Address& addr, int8 queryMode, std::string& entityType, DBID dbid,
+DBTaskQueryEntity::DBTaskQueryEntity(const Network::Address& addr, int8 queryMode, std::string& entityType, DBID dbid, 
 		COMPONENT_ID componentID, CALLBACK_ID callbackID, ENTITY_ID entityID):
 EntityDBTask(addr, entityID, dbid),
 queryMode_(queryMode),
@@ -1681,18 +1739,20 @@ dbid_(dbid),
 componentID_(componentID),
 callbackID_(callbackID),
 success_(false),
-s_(),
+s_(NULL),
 entityID_(entityID),
 wasActive_(false),
 wasActiveCID_(0),
 wasActiveEntityID_(0),
-logger_(0)
+serverGroupID_(0)
 {
+	s_ = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 }
 
 //-------------------------------------------------------------------------------------
 DBTaskQueryEntity::~DBTaskQueryEntity()
 {
+	MemoryStream::reclaimPoolObject(s_);
 }
 
 //-------------------------------------------------------------------------------------
@@ -1700,19 +1760,19 @@ bool DBTaskQueryEntity::db_thread_process()
 {
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
 	ScriptDefModule* pModule = EntityDef::findScriptModule(entityType_.c_str());
-	success_ = entityTables.queryEntity(pdbi_, dbid_, &s_, pModule);
+	success_ = entityTables.queryEntity(pdbi_, dbid_, s_, pModule);
 
 	if(success_)
 	{
-		// Write the log first. If the write fails, the entity may be online.
-		OUROEntityLogTable* pELTable = static_cast<OUROEntityLogTable*>
-			(entityTables.findOUROTable(OURO_TABLE_PERFIX "_entitylog"));
+		// Write the log first, if the write fails, the entity may be online.
+		KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>
+			(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
 
 		OURO_ASSERT(pELTable);
 
 		try
 		{
-			success_ = pELTable->logEntity(pdbi_, addr_.ipAsString(), addr_.port, dbid_,
+			success_ = pELTable->logEntity(pdbi_, addr_.ipAsString(), addr_.port, dbid_, 
 				componentID_, entityID_, pModule->getUType());
 		}
 		catch (std::exception & e)
@@ -1729,7 +1789,7 @@ bool DBTaskQueryEntity::db_thread_process()
 
 		if(!success_)
 		{
-			OUROEntityLogTable::EntityLog entitylog;
+			KBEEntityLogTable::EntityLog entitylog;
 
 			try
 			{
@@ -1750,14 +1810,14 @@ bool DBTaskQueryEntity::db_thread_process()
 			}
 
 			wasActive_ = true;
-
-			if(entitylog.logger != g_componentID)
+			
+			if(entitylog.serverGroupID != (uint64)getUserUID())
 			{
 				success_ = false;
-				logger_ = entitylog.logger;
+				serverGroupID_ = entitylog.serverGroupID;
 				return false;
 			}
-
+			
 			wasActiveCID_ = entitylog.componentID;
 			wasActiveEntityID_ = entitylog.entityID;
 		}
@@ -1769,16 +1829,16 @@ bool DBTaskQueryEntity::db_thread_process()
 //-------------------------------------------------------------------------------------
 thread::TPTask::TPTaskState DBTaskQueryEntity::presentMainThread()
 {
-	DEBUG_MSG(fmt::format("Dbmgr::DBTaskQueryEntity: {}, dbid={}, entityID={}, wasActive={}, queryMode={}, componentID={}, success={}.\n",
+	DEBUG_MSG(fmt::format("Dbmgr::DBTaskQueryEntity: {}, dbid={}, entityID={}, wasActive={}, queryMode={}, componentID={}, success={}.\n", 
 		entityType_, dbid_, entityID_, wasActive_, ((int)queryMode_), componentID_, success_));
 
-	if(logger_ > 0)
+	if(serverGroupID_ > 0)
 	{
-		ERROR_MSG(fmt::format("DBTaskQueryEntity::presentMainThread: entitylog logger not match. {}, dbid={}, self={}\n",
-			entityType_, dbid_, logger_, g_componentID));
+		ERROR_MSG(fmt::format("DBTaskQueryEntity::presentMainThread: entitylog serverGroupID not match. {}, dbid={}, serverGroupID={}£¬ currentServerGroupID={}!\n",
+			entityType_, dbid_, serverGroupID_, (uint64)getUserUID()));
 	}
-
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	if(queryMode_ == 0)
 		pBundle->newMessage(BaseappInterface::onCreateEntityFromDBIDCallback);
@@ -1831,9 +1891,9 @@ DBTaskServerLog::~DBTaskServerLog()
 bool DBTaskServerLog::db_thread_process()
 {
 	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
-	OUROServerLogTable* pTable = static_cast<OUROServerLogTable*>(entityTables.findOUROTable(OURO_TABLE_PERFIX "_serverlog"));
+	KBEServerLogTable* pTable = static_cast<KBEServerLogTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_serverlog"));
 	OURO_ASSERT(pTable);
-
+	
 	pTable->updateServer(pdbi_);
 	return false;
 }
@@ -1842,6 +1902,44 @@ bool DBTaskServerLog::db_thread_process()
 thread::TPTask::TPTaskState DBTaskServerLog::presentMainThread()
 {
 	DEBUG_MSG(fmt::format("Dbmgr::DBTaskServerLog()\n"));
+	return DBTask::presentMainThread();
+}
+
+//-------------------------------------------------------------------------------------
+DBTaskEraseBaseappEntityLog::DBTaskEraseBaseappEntityLog(COMPONENT_ID componentID) :
+	DBTask(),
+	componentID_(componentID),
+	success_(false)
+{
+}
+
+//-------------------------------------------------------------------------------------
+DBTaskEraseBaseappEntityLog::~DBTaskEraseBaseappEntityLog()
+{
+}
+
+//-------------------------------------------------------------------------------------
+bool DBTaskEraseBaseappEntityLog::db_thread_process()
+{
+	EntityTables& entityTables = EntityTables::findByInterfaceName(pdbi_->name());
+	KBEEntityLogTable* pELTable = static_cast<KBEEntityLogTable*>(entityTables.findKBETable(OURO_TABLE_PERFIX "_entitylog"));
+	
+	if (!pELTable)
+	{
+		success_ = true;
+		return false;
+	}
+
+	success_ = pELTable->eraseBaseappEntityLog(pdbi_, componentID_);
+	return false;
+}
+
+//-------------------------------------------------------------------------------------
+thread::TPTask::TPTaskState DBTaskEraseBaseappEntityLog::presentMainThread()
+{
+	WARNING_MSG(fmt::format("Dbmgr::DBTaskEraseBaseappEntityLog(): erase all baseapp({}) entitylogs! success={}, dbInterface={}\n",
+		componentID_, success_, pdbi_->name()));
+
 	return DBTask::presentMainThread();
 }
 

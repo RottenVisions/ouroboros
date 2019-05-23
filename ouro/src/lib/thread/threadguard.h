@@ -1,12 +1,12 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 /*
-	Thread guards:
-		Avoid deadlock problems due to malicious competition among threads.
-	usage:
-		Defining mutual partner members in a class
+	Thread daemon:
+		Avoid malicious competition between threads to create a deadlock problem.
+	Usage:
+		Defining a mutual complaint member in a class
 		ThreadMutex tm;
-		Where protection is needed:
+		Where you need protection:
 		void XXCLASS::foo(void)
 		{
 			ThreadGuard tg(this->tm);
@@ -16,10 +16,10 @@
 */
 #ifndef OURO_THREADGUARD_H
 #define OURO_THREADGUARD_H
-
+	
 #include "thread/threadmutex.h"
 #include <assert.h>
-
+	
 namespace Ouroboros{ namespace thread{
 
 class ThreadGuard
@@ -30,11 +30,11 @@ public:
 		mutexPtr_->lockMutex();
 	}
 
-	virtual ~ThreadGuard(void)
-	{
+	virtual ~ThreadGuard(void) 
+	{ 
 		mutexPtr_->unlockMutex();
-	}
-
+	}	
+	
 protected:
 	ThreadMutex* mutexPtr_;
 };

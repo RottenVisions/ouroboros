@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "logger.h"
@@ -12,10 +12,10 @@
 #include "server/components.h"
 #include <sstream>
 #include "server/telnet_server.h"
-#include "profile.h"
+#include "profile.h"	
 
 namespace Ouroboros{
-
+	
 ServerConfig g_serverConfig;
 OURO_SINGLETON_INIT(Logger);
 
@@ -34,8 +34,8 @@ uint64 secsNumlogs()
 }
 
 //-------------------------------------------------------------------------------------
-Logger::Logger(Network::EventDispatcher& dispatcher,
-				 Network::NetworkInterface& ninterface,
+Logger::Logger(Network::EventDispatcher& dispatcher, 
+				 Network::NetworkInterface& ninterface, 
 				 COMPONENT_TYPE componentType,
 				 COMPONENT_ID componentID):
 	PythonApp(dispatcher, ninterface, componentType, componentID),
@@ -44,6 +44,7 @@ buffered_logs_(),
 timer_(),
 pTelnetServer_(NULL)
 {
+	Ouroboros::Network::MessageHandlers::pMainMessageHandlers = &LoggerInterface::messageHandlers;
 }
 
 //-------------------------------------------------------------------------------------
@@ -51,7 +52,7 @@ Logger::~Logger()
 {
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool Logger::initializeWatcher()
 {
 	ProfileVal::setWarningPeriod(stampsPerSecond() / g_ouroSrvConfig.gameUpdateHertz());
@@ -116,7 +117,7 @@ bool Logger::initializeEnd()
 {
 	PythonApp::initializeEnd();
 
-	// Since the logger receives the log of other apps, the output of the trace packet will be very stuck.
+	// Since the logger receives logs from other apps, if the trace package output will be very card.
 	Network::g_trace_packet = 0;
 
 	timer_ = this->dispatcher().addTimer(1000000 / 50, this,
@@ -169,17 +170,9 @@ void Logger::finalise()
 	PythonApp::finalise();
 }
 
-//-------------------------------------------------------------------------------------
-bool Logger::canShutdown()
+//-------------------------------------------------------------------------------------	
+ShutdownHandler::CAN_SHUTDOWN_STATE Logger::canShutdown()
 {
-	if(Components::getSingleton().getGameSrvComponentsSize() > 0)
-	{
-		INFO_MSG(fmt::format("Logger::canShutdown(): Waiting for components({}) destruction!\n",
-			Components::getSingleton().getGameSrvComponentsSize()));
-
-		return false;
-	}
-
 	if (getEntryScript().get() && PyObject_HasAttrString(getEntryScript().get(), "onReadyForShutDown") > 0)
 	{
 		// All scripts are loaded
@@ -192,27 +185,33 @@ bool Logger::canShutdown()
 			bool isReady = (pyResult == Py_True);
 			Py_DECREF(pyResult);
 
-			if (isReady)
-				return true;
-			else
-				return false;
+			if (!isReady)
+				return ShutdownHandler::CAN_SHUTDOWN_STATE_USER_FALSE;
 		}
 		else
 		{
 			SCRIPT_ERROR_CHECK();
-			return false;
+			return ShutdownHandler::CAN_SHUTDOWN_STATE_USER_FALSE;
 		}
 	}
 
-	return true;
+	if (Components::getSingleton().getGameSrvComponentsSize() > 0)
+	{
+		INFO_MSG(fmt::format("Logger::canShutdown(): Waiting for components({}) destruction!\n",
+			Components::getSingleton().getGameSrvComponentsSize()));
+
+		return ShutdownHandler::CAN_SHUTDOWN_STATE_FALSE;
+	}
+
+	return ShutdownHandler::CAN_SHUTDOWN_STATE_TRUE;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void Logger::onShutdownBegin()
 {
 	PythonApp::onShutdownBegin();
 
-	// Notification script
+	// notification script
 	if (getEntryScript().get())
 	{
 		SCOPED_PROFILE(SCRIPTCALL_PROFILE);
@@ -220,7 +219,7 @@ void Logger::onShutdownBegin()
 	}
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void Logger::onShutdownEnd()
 {
 	PythonApp::onShutdownEnd();
@@ -242,10 +241,10 @@ void Logger::writeLog(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 	s >> pLogItem->componentGlobalOrder;
 	s >> pLogItem->componentGroupOrder;
 	s >> pLogItem->t;
-	s >> pLogItem->ourotime;
+	s >> pLogItem->kbetime;
 	s.readBlob(str);
 
-	time_t tt = static_cast<time_t>(pLogItem->t);
+	time_t tt = static_cast<time_t>(pLogItem->t);	
     tm* aTm = localtime(&tt);
     //       YYYY   year
     //       MM     month (2 digits 01-12)
@@ -263,7 +262,7 @@ void Logger::writeLog(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 
 	char timebuf[MAX_BUF];
 
-	pLogItem->logstream << OUROLOG_TYPE_NAME_EX(pLogItem->logtype);
+	pLogItem->logstream << KBELOG_TYPE_NAME_EX(pLogItem->logtype);
 	pLogItem->logstream << " ";
 	pLogItem->logstream << COMPONENT_NAME_EX_2(pLogItem->componentType);
 
@@ -275,30 +274,19 @@ void Logger::writeLog(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 	pLogItem->logstream << pLogItem->componentID;
 	pLogItem->logstream << " ";
 
-    ouro_snprintf(timebuf, MAX_BUF, " [%-4d-%02d-%02d %02d:%02d:%02d %03d] ", aTm->tm_year+1900, aTm->tm_mon+1,
-		aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec, pLogItem->ourotime);
+    ouro_snprintf(timebuf, MAX_BUF, " [%-4d-%02d-%02d %02d:%02d:%02d %03d] ", aTm->tm_year+1900, aTm->tm_mon+1, 
+		aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec, pLogItem->kbetime);
 	pLogItem->logstream << timebuf;
 
 	pLogItem->logstream << "- ";
 	pLogItem->logstream << str;
 
-
-	DebugHelper::getSingleton().changeLogger(COMPONENT_NAME_EX(pLogItem->componentType));
-	PRINT_MSG(pLogItem->logstream.str());
-	DebugHelper::getSingleton().changeLogger("default");
-
-	LOG_WATCHERS::iterator iter = logWatchers_.begin();
-	for(; iter != logWatchers_.end(); ++iter)
-	{
-		iter->second.onMessage(pLogItem);
-	}
+	// Record the full log for use in script callbacks
+	std::string sLog = pLogItem->logstream.str();
 
 	static bool notificationScript = getEntryScript().get() && PyObject_HasAttrString(getEntryScript().get(), "onLogWrote") > 0;
-	if(notificationScript)
+	if (notificationScript)
 	{
-		// Record the complete log for use in script callbacks
-		std::string sLog = pLogItem->logstream.str();
-
 		PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
 			const_cast<char*>("onLogWrote"),
 			const_cast<char*>("y#"),
@@ -307,6 +295,27 @@ void Logger::writeLog(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 
 		if (pyResult != NULL)
 		{
+			if (Py_False == pyResult)
+				pLogItem->persistent = false;
+			else
+				pLogItem->persistent = true;
+
+			if (PyUnicode_Check(pyResult))
+			{
+				Py_ssize_t size = 0;
+				const char* data = PyUnicode_AsUTF8AndSize(pyResult, &size);
+
+				if (size > 0)
+				{
+					if (data)
+						sLog.assign(data, size);
+				}
+				else
+				{
+					sLog = "";
+				}
+			}
+
 			Py_DECREF(pyResult);
 		}
 		else
@@ -315,7 +324,20 @@ void Logger::writeLog(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 		}
 	}
 
-	// Cache a part of the log, providing tools to quickly get the initial context when viewing the log
+	if (pLogItem->persistent)
+	{
+		DebugHelper::getSingleton().changeLogger(COMPONENT_NAME_EX(pLogItem->componentType));
+		PRINT_MSG(sLog);
+		DebugHelper::getSingleton().changeLogger("default");
+	}
+
+	LOG_WATCHERS::iterator iter = logWatchers_.begin();
+	for(; iter != logWatchers_.end(); ++iter)
+	{
+		iter->second.onMessage(pLogItem);
+	}
+
+	// Cache part of the log, provide tools to quickly get the initial context when viewing the log
 	buffered_logs_.push_back(pLogItem);
 	if(buffered_logs_.size() > 64)
 	{

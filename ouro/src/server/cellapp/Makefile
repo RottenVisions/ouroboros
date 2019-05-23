@@ -62,7 +62,6 @@ USE_PYTHON = 1
 USE_G3DMATH = 1
 USE_OPENSSL = 1
 USE_TMXPARSER = 1
-USE_ZIP = 1
 
 ifndef NO_USE_LOG4CXX
 	NO_USE_LOG4CXX = 0
@@ -73,8 +72,8 @@ endif
 CPPFLAGS += -DOURO_CELLAPP
 
 ifndef OURO_ROOT
-export OURO_ROOT := $(subst /ouro/src/server/$(BIN),,$(CURDIR))
+export OURO_ROOT := $(subst /kbe/src/server/$(BIN),,$(CURDIR))
 endif
 
-include $(OURO_ROOT)/ouro/src/build/common.mak
+include $(OURO_ROOT)/kbe/src/build/common.mak
 

@@ -1,12 +1,12 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "components.h"
 #include "helper/debug_helper.h"
 #include "helper/sys_info.h"
-#include "network/channel.h"
-#include "network/address.h"
-#include "network/bundle.h"
+#include "network/channel.h"	
+#include "network/address.h"	
+#include "network/bundle.h"	
 #include "network/udp_packet.h"
 #include "network/tcp_packet.h"
 #include "network/bundle_broadcast.h"
@@ -71,9 +71,9 @@ Components::~Components()
 
 //-------------------------------------------------------------------------------------
 void Components::initialize(Network::NetworkInterface * pNetworkInterface, COMPONENT_TYPE componentType, COMPONENT_ID componentID)
-{
-	OURO_ASSERT(pNetworkInterface != NULL);
-	_pNetworkInterface = pNetworkInterface;
+{ 
+	OURO_ASSERT(pNetworkInterface != NULL); 
+	_pNetworkInterface = pNetworkInterface; 
 
 	componentType_ = componentType;
 	componentID_ = componentID;
@@ -114,8 +114,8 @@ void Components::initialize(Network::NetworkInterface * pNetworkInterface, COMPO
 		findComponentTypes_[0] = LOGGER_TYPE;
 		break;
 	default:
-		if(componentType_ != LOGGER_TYPE &&
-			componentType_ != MACHINE_TYPE &&
+		if(componentType_ != LOGGER_TYPE && 
+			componentType_ != MACHINE_TYPE && 
 			componentType_ != INTERFACES_TYPE)
 			findComponentTypes_[0] = LOGGER_TYPE;
 		break;
@@ -145,7 +145,7 @@ bool Components::checkComponents(int32 uid, COMPONENT_ID componentID, uint32 pid
 		ComponentInfos* cinfos = findComponent(ct, uid, componentID);
 		if(cinfos != NULL)
 		{
-			if(cinfos->componentType != MACHINE_TYPE && cinfos->pid != 0 /* Equal to 0 is usually the default, we do not compare this case */ && pid != cinfos->pid)
+						if(cinfos->componentType != MACHINE_TYPE && cinfos->pid != 0 /*Equal to 0 is usually a preset. In this case, we will not compare first.*/ && pid != cinfos->pid)
 			{
 				ERROR_MSG(fmt::format("Components::checkComponents: uid:{}, componentType={}, componentID:{} exist.\n",
 					uid, COMPONENT_NAME_EX(ct), componentID));
@@ -159,8 +159,8 @@ bool Components::checkComponents(int32 uid, COMPONENT_ID componentID, uint32 pid
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
-void Components::addComponent(int32 uid, const char* username,
+//-------------------------------------------------------------------------------------		
+void Components::addComponent(int32 uid, const char* username, 
 			COMPONENT_TYPE componentType, COMPONENT_ID componentID, COMPONENT_ORDER globalorderid, COMPONENT_ORDER grouporderid, COMPONENT_GUS gus,
 			uint32 intaddr, uint16 intport, uint32 extaddr, uint16 extport, std::string& extaddrEx, uint32 pid,
 			float cpu, float mem, uint32 usedmem, uint64 extradata, uint64 extradata1, uint64 extradata2, uint64 extradata3,
@@ -179,8 +179,8 @@ void Components::addComponent(int32 uid, const char* username,
 			COMPONENT_NAME_EX(componentType), uid, username, (int32)componentType, componentID));
 		return;
 	}
-
-	// If there are no related components already running under the uid, reset the counter
+	
+	// reset the counter if there are no related components already running under the uid
 	if (getGameSrvComponentsSize(uid) == 0)
 	{
 		_globalOrderLog[uid] = 0;
@@ -199,7 +199,7 @@ void Components::addComponent(int32 uid, const char* username,
 
 	if(extaddrEx.size() > 0)
 		strncpy(componentInfos.externalAddressEx, extaddrEx.c_str(), MAX_NAME);
-
+	
 	componentInfos.uid = uid;
 	componentInfos.cid = componentID;
 	componentInfos.pChannel = pChannel;
@@ -240,7 +240,7 @@ void Components::addComponent(int32 uid, const char* username,
 	default:
 		break;
 	};
-
+	
 	if(grouporderid > 0)
 		componentInfos.groupOrderid = grouporderid;
 
@@ -258,19 +258,19 @@ void Components::addComponent(int32 uid, const char* username,
 
 	INFO_MSG(fmt::format("Components::addComponent[{}], uid={}, "
 		"componentID={}, globalorderid={}, grouporderid={}, totalcount={}\n",
-			COMPONENT_NAME_EX(componentType),
+			COMPONENT_NAME_EX(componentType), 
 			uid,
-			componentID,
+			componentID, 
 			((int32)componentInfos.globalOrderid),
 			((int32)componentInfos.groupOrderid),
 			components.size()));
-
+	
 	if(_pHandler)
 		_pHandler->onAddComponent(&componentInfos);
 }
 
-//-------------------------------------------------------------------------------------
-void Components::delComponent(int32 uid, COMPONENT_TYPE componentType,
+//-------------------------------------------------------------------------------------		
+void Components::delComponent(int32 uid, COMPONENT_TYPE componentType, 
 							  COMPONENT_ID componentID, bool ignoreComponentID, bool shouldShowLog)
 {
 	COMPONENTS& components = getComponents(componentType);
@@ -279,7 +279,7 @@ void Components::delComponent(int32 uid, COMPONENT_TYPE componentType,
 	{
 		if((uid < 0 || (*iter).uid == uid) && (ignoreComponentID == true || (*iter).cid == componentID))
 		{
-			INFO_MSG(fmt::format("Components::delComponent[{}] componentID={}, component:totalcount={}.\n",
+			INFO_MSG(fmt::format("Components::delComponent[{}] componentID={}, component:totalcount={}.\n", 
 				COMPONENT_NAME_EX(componentType), componentID, components.size()));
 
 			ComponentInfos* componentInfos = &(*iter);
@@ -301,12 +301,12 @@ void Components::delComponent(int32 uid, COMPONENT_TYPE componentType,
 
 	if(shouldShowLog)
 	{
-		ERROR_MSG(fmt::format("Components::delComponent::not found [{}] component:totalcount:{}\n",
+		ERROR_MSG(fmt::format("Components::delComponent::not found [{}] component:totalcount:{}\n", 
 			COMPONENT_NAME_EX(componentType), components.size()));
 	}
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 void Components::removeComponentByChannel(Network::Channel * pChannel, bool isShutingdown)
 {
 	int ifind = 0;
@@ -324,14 +324,14 @@ void Components::removeComponentByChannel(Network::Channel * pChannel, bool isSh
 				//SAFE_RELEASE((*iter).pExtAddr);
 				// (*iter).pChannel->decRef();
 
-				if (!isShutingdown && g_componentType != LOGGER_TYPE)
+				if (!isShutingdown && g_componentType != LOGGER_TYPE && g_componentType != INTERFACES_TYPE)
 				{
-					ERROR_MSG(fmt::format("Components::removeComponentByChannel: {} : {}, Abnormal exit! {}\n",
-						COMPONENT_NAME_EX(componentType), (*iter).cid, ouro_strerror()));
+					ERROR_MSG(fmt::format("Components::removeComponentByChannel: {} : {}, Abnormal exit(reason={})! Channel(timestamp={}, lastReceivedTime={}, inactivityExceptionPeriod={})\n",
+						COMPONENT_NAME_EX(componentType), (*iter).cid, pChannel->condemnReason(), timestamp(), pChannel->lastReceivedTime(), pChannel->inactivityExceptionPeriod()));
 
 #if OURO_PLATFORM == PLATFORM_WIN32
-					printf("[ERROR]: %s.\n", (fmt::format("Components::removeComponentByChannel: {} : {}, Abnormal exit! {}\n",
-						COMPONENT_NAME_EX(componentType), (*iter).cid, ouro_strerror())).c_str());
+					printf("[ERROR]: %s.\n", (fmt::format("Components::removeComponentByChannel: {} : {}, Abnormal exit(reason={})!\n",
+						COMPONENT_NAME_EX(componentType), (*iter).cid, pChannel->condemnReason())).c_str());
 #endif
 				}
 				else
@@ -356,7 +356,7 @@ void Components::removeComponentByChannel(Network::Channel * pChannel, bool isSh
 	// OURO_ASSERT(false && "channel is not found!\n");
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 int Components::connectComponent(COMPONENT_TYPE componentType, int32 uid, COMPONENT_ID componentID, bool printlog)
 {
 	Components::ComponentInfos* pComponentInfos = findComponent(componentType, uid, componentID);
@@ -371,7 +371,7 @@ int Components::connectComponent(COMPONENT_TYPE componentType, int32 uid, COMPON
 		return -1;
 	}
 
-	Network::EndPoint * pEndpoint = Network::EndPoint::createPoolObject();
+	Network::EndPoint * pEndpoint = Network::EndPoint::createPoolObject(OBJECTPOOL_POINT);
 	pEndpoint->socket(SOCK_STREAM);
 	if (!pEndpoint->good())
 	{
@@ -389,7 +389,7 @@ int Components::connectComponent(COMPONENT_TYPE componentType, int32 uid, COMPON
 
 	if(ret == 0)
 	{
-		Network::Channel* pChannel = Network::Channel::createPoolObject();
+		Network::Channel* pChannel = Network::Channel::createPoolObject(OBJECTPOOL_POINT);
 		bool ret = pChannel->initialize(*_pNetworkInterface, pEndpoint, Network::Channel::INTERNAL);
 		if(!ret)
 		{
@@ -417,20 +417,20 @@ int Components::connectComponent(COMPONENT_TYPE componentType, int32 uid, COMPON
 			pComponentInfos->pChannel->destroy();
 			Network::Channel::reclaimPoolObject(pComponentInfos->pChannel);
 
-			// At this point can not be forced to release the memory, has been dereferenced in the destroy
+			// The memory cannot be forced to be released at this time, and the reference has been de-referenced in destroy.
 			// SAFE_RELEASE(pComponentInfos->pChannel);
 			pComponentInfos->pChannel = NULL;
 			return -1;
 		}
 		else
 		{
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 			if(componentType == BASEAPPMGR_TYPE)
 			{
 				(*pBundle).newMessage(BaseappmgrInterface::onRegisterNewApp);
-
-				BaseappmgrInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(),
-					componentType_, componentID_,
+				
+				BaseappmgrInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(), 
+					componentType_, componentID_, 
 					g_componentGlobalOrder, g_componentGroupOrder,
 					_pNetworkInterface->intTcpAddr().ip, _pNetworkInterface->intTcpAddr().port,
 					_pNetworkInterface->extTcpAddr().ip, _pNetworkInterface->extTcpAddr().port, g_ouroSrvConfig.getConfig().externalAddress);
@@ -438,9 +438,9 @@ int Components::connectComponent(COMPONENT_TYPE componentType, int32 uid, COMPON
 			else if(componentType == CELLAPPMGR_TYPE)
 			{
 				(*pBundle).newMessage(CellappmgrInterface::onRegisterNewApp);
-
-				CellappmgrInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(),
-					componentType_, componentID_,
+				
+				CellappmgrInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(), 
+					componentType_, componentID_, 
 					g_componentGlobalOrder, g_componentGroupOrder,
 					_pNetworkInterface->intTcpAddr().ip, _pNetworkInterface->intTcpAddr().port,
 					_pNetworkInterface->extTcpAddr().ip, _pNetworkInterface->extTcpAddr().port, g_ouroSrvConfig.getConfig().externalAddress);
@@ -448,9 +448,9 @@ int Components::connectComponent(COMPONENT_TYPE componentType, int32 uid, COMPON
 			else if(componentType == CELLAPP_TYPE)
 			{
 				(*pBundle).newMessage(CellappInterface::onRegisterNewApp);
-
-				CellappInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(),
-					componentType_, componentID_,
+				
+				CellappInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(), 
+					componentType_, componentID_, 
 					g_componentGlobalOrder, g_componentGroupOrder,
 						_pNetworkInterface->intTcpAddr().ip, _pNetworkInterface->intTcpAddr().port,
 					_pNetworkInterface->extTcpAddr().ip, _pNetworkInterface->extTcpAddr().port, g_ouroSrvConfig.getConfig().externalAddress);
@@ -458,9 +458,9 @@ int Components::connectComponent(COMPONENT_TYPE componentType, int32 uid, COMPON
 			else if(componentType == BASEAPP_TYPE)
 			{
 				(*pBundle).newMessage(BaseappInterface::onRegisterNewApp);
-
-				BaseappInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(),
-					componentType_, componentID_,
+				
+				BaseappInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(), 
+					componentType_, componentID_, 
 					g_componentGlobalOrder, g_componentGroupOrder,
 					_pNetworkInterface->intTcpAddr().ip, _pNetworkInterface->intTcpAddr().port,
 					_pNetworkInterface->extTcpAddr().ip, _pNetworkInterface->extTcpAddr().port, g_ouroSrvConfig.getConfig().externalAddress);
@@ -468,9 +468,9 @@ int Components::connectComponent(COMPONENT_TYPE componentType, int32 uid, COMPON
 			else if(componentType == DBMGR_TYPE)
 			{
 				(*pBundle).newMessage(DbmgrInterface::onRegisterNewApp);
-
-				DbmgrInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(),
-					componentType_, componentID_,
+				
+				DbmgrInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(), 
+					componentType_, componentID_, 
 					g_componentGlobalOrder, g_componentGroupOrder,
 					_pNetworkInterface->intTcpAddr().ip, _pNetworkInterface->intTcpAddr().port,
 					_pNetworkInterface->extTcpAddr().ip, _pNetworkInterface->extTcpAddr().port, g_ouroSrvConfig.getConfig().externalAddress);
@@ -478,9 +478,9 @@ int Components::connectComponent(COMPONENT_TYPE componentType, int32 uid, COMPON
 			else if(componentType == LOGGER_TYPE)
 			{
 				(*pBundle).newMessage(LoggerInterface::onRegisterNewApp);
-
-				LoggerInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(),
-					componentType_, componentID_,
+				
+				LoggerInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(), 
+					componentType_, componentID_, 
 					g_componentGlobalOrder, g_componentGroupOrder,
 					_pNetworkInterface->intTcpAddr().ip, _pNetworkInterface->intTcpAddr().port,
 					_pNetworkInterface->extTcpAddr().ip, _pNetworkInterface->extTcpAddr().port, g_ouroSrvConfig.getConfig().externalAddress);
@@ -508,7 +508,7 @@ int Components::connectComponent(COMPONENT_TYPE componentType, int32 uid, COMPON
 	return ret;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 void Components::clear(int32 uid, bool shouldShowLog)
 {
 	delComponent(uid, DBMGR_TYPE, uid, true, shouldShowLog);
@@ -520,7 +520,7 @@ void Components::clear(int32 uid, bool shouldShowLog)
 	//delComponent(uid, LOGGER_TYPE, uid, true, shouldShowLog);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Components::COMPONENTS& Components::getComponents(COMPONENT_TYPE componentType)
 {
 	switch(componentType)
@@ -540,11 +540,11 @@ Components::COMPONENTS& Components::getComponents(COMPONENT_TYPE componentType)
 	case MACHINE_TYPE:
 		return _machines;
 	case LOGGER_TYPE:
-		return _loggers;
+		return _loggers;			
 	case INTERFACES_TYPE:
-		return _interfaceses;
+		return _interfaceses;	
 	case BOTS_TYPE:
-		return _bots;
+		return _bots;	
 	default:
 		break;
 	};
@@ -552,7 +552,7 @@ Components::COMPONENTS& Components::getComponents(COMPONENT_TYPE componentType)
 	return _consoles;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Components::ComponentInfos* Components::findComponent(COMPONENT_TYPE componentType, int32 uid,
 																			COMPONENT_ID componentID)
 {
@@ -567,7 +567,7 @@ Components::ComponentInfos* Components::findComponent(COMPONENT_TYPE componentTy
 	return NULL;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Components::ComponentInfos* Components::findComponent(COMPONENT_TYPE componentType, COMPONENT_ID componentID)
 {
 	COMPONENTS& components = getComponents(componentType);
@@ -581,7 +581,7 @@ Components::ComponentInfos* Components::findComponent(COMPONENT_TYPE componentTy
 	return NULL;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Components::ComponentInfos* Components::findComponent(COMPONENT_ID componentID)
 {
 	int idx = 0;
@@ -603,7 +603,7 @@ Components::ComponentInfos* Components::findComponent(COMPONENT_ID componentID)
 	return NULL;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Components::ComponentInfos* Components::findComponent(Network::Channel * pChannel)
 {
 	int ifind = 0;
@@ -626,7 +626,7 @@ Components::ComponentInfos* Components::findComponent(Network::Channel * pChanne
 	return NULL;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Components::ComponentInfos* Components::findComponent(Network::Address* pAddress)
 {
 	int ifind = 0;
@@ -649,7 +649,7 @@ Components::ComponentInfos* Components::findComponent(Network::Address* pAddress
 	return NULL;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Components::ComponentInfos* Components::findLocalComponent(uint32 pid)
 {
 	int ifind = 0;
@@ -671,14 +671,14 @@ Components::ComponentInfos* Components::findLocalComponent(uint32 pid)
 	return NULL;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool Components::isLocalComponent(const Components::ComponentInfos* info)
 {
 	return _pNetworkInterface->intTcpAddr().ip == info->pIntAddr->ip ||
 			_pNetworkInterface->extTcpAddr().ip == info->pIntAddr->ip;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 const Components::ComponentInfos* Components::lookupLocalComponentRunning(uint32 pid)
 {
 	if(pid > 0)
@@ -707,7 +707,7 @@ const Components::ComponentInfos* Components::lookupLocalComponentRunning(uint32
 	return NULL;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool Components::updateComponentInfos(const Components::ComponentInfos* info)
 {
 	// Do not deal with other machines
@@ -726,7 +726,7 @@ bool Components::updateComponentInfos(const Components::ComponentInfos* info)
 		ERROR_MSG("Components::updateComponentInfos: couldn't create a socket\n");
 		return true;
 	}
-
+	
 	epListen.setnonblocking(true);
 
 	while(true)
@@ -747,18 +747,18 @@ bool Components::updateComponentInfos(const Components::ComponentInfos* info)
 				break;
 			}
 
-			WARNING_MSG(fmt::format("Components::updateComponentInfos: couldn't connect to:{}\n",
+			WARNING_MSG(fmt::format("Components::updateComponentInfos: couldn't connect to:{}\n", 
 				info->pIntAddr->c_str()));
 
 			return false;
 		}
 	}
-
+	
 	epListen.setnodelay(true);
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
-	// Since COMMON_NETWORK_MESSAGE does not contain the client, if it is a bots, we need to handle it separately
+	// Since COMMON_NETWORK_MESSAGE does not contain a client, if it is a bots, we need to handle it separately.
 	if(info->componentType != BOTS_TYPE)
 	{
 		COMMON_NETWORK_MESSAGE(info->componentType, (*pBundle), lookApp);
@@ -780,8 +780,8 @@ bool Components::updateComponentInfos(const Components::ComponentInfos* info)
 	int selgot = select(epListen+1, &fds, NULL, NULL, &tv);
 	if(selgot == 0)
 	{
-		// Overtime, may be busy
-		return true;
+		// timeout, maybe the other party is busy
+		return true;	
 	}
 	else if(selgot == -1)
 	{
@@ -812,12 +812,12 @@ bool Components::updateComponentInfos(const Components::ComponentInfos* info)
 
 		int len = epListen.recv(packet.data(), recvsize);
 		packet.wpos(len);
-
+		
 		if(recvsize != len)
 		{
-			WARNING_MSG(fmt::format("Components::updateComponentInfos: packet invalid(recvsize({}) != ctype_cid_len({}).\n"
+			WARNING_MSG(fmt::format("Components::updateComponentInfos: packet invalid(recvsize({}) != ctype_cid_len({}).\n" 
 				, len, recvsize));
-
+			
 			if(len == 0)
 				return false;
 
@@ -825,7 +825,7 @@ bool Components::updateComponentInfos(const Components::ComponentInfos* info)
 		}
 
 		packet >> ctype >> cid >> istate;
-
+		
 		if(ctype == CELLAPP_TYPE)
 		{
 			packet >> entitySize >> cellSize >> telnet_port;
@@ -868,37 +868,37 @@ bool Components::updateComponentInfos(const Components::ComponentInfos* info)
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Components::ComponentInfos* Components::getBaseappmgr()
 {
 	return findComponent(BASEAPPMGR_TYPE, getUserUID(), 0);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Components::ComponentInfos* Components::getCellappmgr()
 {
 	return findComponent(CELLAPPMGR_TYPE, getUserUID(), 0);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Components::ComponentInfos* Components::getDbmgr()
 {
 	return findComponent(DBMGR_TYPE, getUserUID(), 0);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Components::ComponentInfos* Components::getLogger()
 {
 	return findComponent(LOGGER_TYPE, getUserUID(), 0);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Components::ComponentInfos* Components::getInterfaceses()
 {
 	return findComponent(INTERFACES_TYPE, getUserUID(), 0);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Network::Channel* Components::getBaseappmgrChannel()
 {
 	Components::ComponentInfos* cinfo = getBaseappmgr();
@@ -908,7 +908,7 @@ Network::Channel* Components::getBaseappmgrChannel()
 	return cinfo->pChannel;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Network::Channel* Components::getCellappmgrChannel()
 {
 	Components::ComponentInfos* cinfo = getCellappmgr();
@@ -918,7 +918,7 @@ Network::Channel* Components::getCellappmgrChannel()
 	return cinfo->pChannel;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Network::Channel* Components::getDbmgrChannel()
 {
 	Components::ComponentInfos* cinfo = getDbmgr();
@@ -928,7 +928,7 @@ Network::Channel* Components::getDbmgrChannel()
 	return cinfo->pChannel;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 Network::Channel* Components::getLoggerChannel()
 {
 	Components::ComponentInfos* cinfo = getLogger();
@@ -938,7 +938,7 @@ Network::Channel* Components::getLoggerChannel()
 	return cinfo->pChannel;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 size_t Components::getGameSrvComponentsSize(int32 uid)
 {
 	size_t size = 0;
@@ -988,10 +988,10 @@ size_t Components::getGameSrvComponentsSize(int32 uid)
 	return size;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 size_t Components::getGameSrvComponentsSize()
 {
-	return _baseapps.size() + _cellapps.size() + _dbmgrs.size() +
+	return _baseapps.size() + _cellapps.size() + _dbmgrs.size() + 
 		_loginapps.size() + _cellappmgrs.size() + _baseappmgrs.size();
 }
 
@@ -1010,21 +1010,22 @@ void Components::onChannelDeregister(Network::Channel * pChannel, bool isShuting
 //-------------------------------------------------------------------------------------
 bool Components::findLogger()
 {
-	if(g_componentType == LOGGER_TYPE || g_componentType == MACHINE_TYPE ||
-		componentType_ == INTERFACES_TYPE)
+	if (g_componentType == LOGGER_TYPE || g_componentType == MACHINE_TYPE || g_componentType == TOOL_TYPE ||
+		g_componentType == CONSOLE_TYPE || g_componentType == CLIENT_TYPE || g_componentType == BOTS_TYPE ||
+		g_componentType == WATCHER_TYPE || componentType_ == INTERFACES_TYPE)
 	{
+		DebugHelper::getSingleton().onNoLogger();
 		return true;
 	}
-
+	
 	int i = 0;
-
-	while(i++ < 1/*If the Logger is started simultaneously with other game processes, the more search times set here,
-		the greater the probability of finding a Logger.
-		Currently, only the search is set once. It is assumed that the user has started the Logger service well in advance.*/)
+	
+	while(i++ < 1/* If the Logger starts at the same time as other game processes, the more searches you set here,
+		The greater the probability of finding the Logger, the current setting is only set once, assuming that the user has started the Logger service in advance*/)
 	{
 		srand(Ouroboros::getSystemTime());
 		uint16 nport = OURO_PORT_START + (rand() % 1000);
-
+			
 		Network::BundleBroadcast bhandler(*pNetworkInterface(), nport);
 		if(!bhandler.good())
 		{
@@ -1036,17 +1037,17 @@ bool Components::findLogger()
 		{
 			bhandler.pCurrPacket()->resetPacket();
 		}
-
+			
 		COMPONENT_TYPE findComponentType = LOGGER_TYPE;
 		bhandler.newMessage(MachineInterface::onFindInterfaceAddr);
-		MachineInterface::onFindInterfaceAddrArgs7::staticAddToBundle(bhandler, getUserUID(), getUsername(),
+		MachineInterface::onFindInterfaceAddrArgs7::staticAddToBundle(bhandler, getUserUID(), getUsername(), 
 			g_componentType, g_componentID, findComponentType, pNetworkInterface()->intTcpAddr().ip, bhandler.epListen().addr().port);
-
+		
 		ENGINE_COMPONENT_INFO cinfos = ServerConfig::getSingleton().getKBMachine();
 		std::vector< std::string >::iterator machine_addresses_iter = cinfos.machine_addresses.begin();
 		for(; machine_addresses_iter != cinfos.machine_addresses.end(); ++machine_addresses_iter)
 			bhandler.addBroadCastAddress((*machine_addresses_iter));
-
+			
 		if(!bhandler.broadcast())
 		{
 			//ERROR_MSG("Components::findLogger: broadcast error!\n");
@@ -1075,17 +1076,17 @@ RESTART_RECV:
 						break;
 					}
 				}
-
+				
 				if(args.componentIDEx != g_componentID)
 				{
-					//WARNING_MSG(fmt::format("Components::findLogger: msg.componentID {} != {}.\n",
+					//WARNING_MSG(fmt::format("Components::findLogger: msg.componentID {} != {}.\n", 
 					//	args.componentIDEx, g_componentID));
-
+					
 					args.componentIDEx = 0;
 					goto RESTART_RECV;
 				}
 
-				// If you cannot find
+				// If not found
 				if(args.componentType == UNKNOWN_COMPONENT_TYPE)
 				{
 					isContinue = true;
@@ -1097,22 +1098,22 @@ RESTART_RECV:
 					inet_ntoa((struct in_addr&)args.intaddr),
 					ntohs(args.intport)));
 
-				Components::getSingleton().addComponent(args.uid, args.username.c_str(),
+				Components::getSingleton().addComponent(args.uid, args.username.c_str(), 
 					(Ouroboros::COMPONENT_TYPE)args.componentType, args.componentID, args.globalorderid, args.grouporderid, args.gus,
-					args.intaddr, args.intport, args.extaddr, args.extport, args.extaddrEx, args.pid, args.cpu, args.mem,
+					args.intaddr, args.intport, args.extaddr, args.extport, args.extaddrEx, args.pid, args.cpu, args.mem, 
 					args.usedmem, args.extradata, args.extradata1, args.extradata2, 123);
 
 				isContinue = true;
 			}while(bhandler.pCurrPacket()->length() > 0);
 
-			// Preventing received data from being unwanted data
+			// Prevent the received data is not the desired data
 			if(findComponentType == args.componentType)
 			{
 				for(int iconn=0; iconn<5; iconn++)
 				{
 					if(connectComponent(static_cast<COMPONENT_TYPE>(findComponentType), getUserUID(), 0, false) != 0)
 					{
-						//ERROR_MSG(fmt::format("Components::findLogger: register self to {} is error!\n",
+						//ERROR_MSG(fmt::format("Components::findLogger: register self to {} error!\n",
 						//COMPONENT_NAME_EX((COMPONENT_TYPE)findComponentType)));
 						//dispatcher().breakProcessing();
 						Ouroboros::sleep(200);
@@ -1132,7 +1133,7 @@ RESTART_RECV:
 		}
 		else
 		{
-			// Accepted data has timed out
+			// Accept data timed out
 		}
 	}
 
@@ -1192,20 +1193,20 @@ bool Components::findComponents()
 			}
 
 			bhandler.newMessage(MachineInterface::onFindInterfaceAddr);
-			MachineInterface::onFindInterfaceAddrArgs7::staticAddToBundle(bhandler, getUserUID(), getUsername(),
+			MachineInterface::onFindInterfaceAddrArgs7::staticAddToBundle(bhandler, getUserUID(), getUsername(), 
 				componentType_, componentID_, findComponentType, pNetworkInterface()->intTcpAddr().ip, bhandler.epListen().addr().port);
-
+			
 			ENGINE_COMPONENT_INFO cinfos = ServerConfig::getSingleton().getKBMachine();
 			std::vector< std::string >::iterator machine_addresses_iter = cinfos.machine_addresses.begin();
 			for(; machine_addresses_iter != cinfos.machine_addresses.end(); ++machine_addresses_iter)
 				bhandler.addBroadCastAddress((*machine_addresses_iter));
-
+			
 			if(!bhandler.broadcast())
 			{
 				ERROR_MSG("Components::findComponents: broadcast error!\n");
 				return false;
 			}
-
+		
 			int32 timeout = 1500000;
 			bool showerr = true;
 			MachineInterface::onBroadcastInterfaceArgs25 args;
@@ -1230,17 +1231,17 @@ RESTART_RECV:
 							break;
 						}
 					}
-
+					
 					if(args.componentIDEx != componentID_)
 					{
-						WARNING_MSG(fmt::format("Components::findComponents: msg.componentID {} != {}.\n",
+						WARNING_MSG(fmt::format("Components::findComponents: msg.componentID {} != {}.\n", 
 							args.componentIDEx, componentID_));
-
+						
 						args.componentIDEx = 0;
 						goto RESTART_RECV;
 					}
 
-					// If you cannot find
+					// If not found
 					if(args.componentType == UNKNOWN_COMPONENT_TYPE)
 					{
 						isContinue = true;
@@ -1252,24 +1253,24 @@ RESTART_RECV:
 						inet_ntoa((struct in_addr&)args.intaddr),
 						ntohs(args.intport)));
 
-					Components::getSingleton().addComponent(args.uid, args.username.c_str(),
+					Components::getSingleton().addComponent(args.uid, args.username.c_str(), 
 						(Ouroboros::COMPONENT_TYPE)args.componentType, args.componentID, args.globalorderid, args.grouporderid, args.gus,
-						args.intaddr, args.intport, args.extaddr, args.extport, args.extaddrEx, args.pid, args.cpu, args.mem,
+						args.intaddr, args.intport, args.extaddr, args.extport, args.extaddrEx, args.pid, args.cpu, args.mem, 
 						args.usedmem, args.extradata, args.extradata1, args.extradata2, args.extradata3);
 
 					isContinue = true;
 				}while(bhandler.pCurrPacket()->length() > 0);
 
-				// Preventing received data from being unwanted data
+				// Prevent the received data is not the desired data
 				if(findComponentType == args.componentType)
 				{
-					// Here is a special case, the logger is connected first, so that the log can be synchronized as soon as possible
+					// Here is a special case, the logger is connected first, so that the log can be synchronized as early as possible.
 					if(findComponentType == (int8)LOGGER_TYPE)
 					{
 						findComponentTypes_[findIdx_] = -1;
 						if(connectComponent(static_cast<COMPONENT_TYPE>(findComponentType), getUserUID(), 0) != 0)
 						{
-							ERROR_MSG(fmt::format("Components::findComponents: register self to {} is error!\n",
+							ERROR_MSG(fmt::format("Components::findComponents: register self to {} error!\n",
 							COMPONENT_NAME_EX((COMPONENT_TYPE)findComponentType)));
 							findIdx_++;
 							//dispatcher().breakProcessing();
@@ -1282,7 +1283,7 @@ RESTART_RECV:
 						}
 					}
 				}
-
+				
 				goto RESTART_RECV;
 			}
 			else
@@ -1314,7 +1315,7 @@ RESTART_RECV:
 							WARNING_MSG(fmt::format("Components::findComponents: not found {}!\n",
 								COMPONENT_NAME_EX((COMPONENT_TYPE)findComponentType)));
 
-							findComponentTypes_[findIdx_] = -1; // Skip sign
+							findComponentTypes_[findIdx_] = -1; // Skip flag
 							count = 0;
 							findIdx_++;
 							return false;
@@ -1333,14 +1334,14 @@ RESTART_RECV:
 
 	if(state_ == 2)
 	{
-		// Start registering to all components
+		// start registering to all components
 		while(findComponentTypes_[findIdx_] != UNKNOWN_COMPONENT_TYPE)
 		{
 			if(dispatcher().hasBreakProcessing())
 				return false;
 
 			int8 findComponentType = findComponentTypes_[findIdx_];
-
+			
 			if(findComponentType == -1)
 			{
 				findIdx_++;
@@ -1352,7 +1353,7 @@ RESTART_RECV:
 
 			if(connectComponent(static_cast<COMPONENT_TYPE>(findComponentType), getUserUID(), 0) != 0)
 			{
-				ERROR_MSG(fmt::format("Components::findComponents: register self to {} is error!\n",
+				ERROR_MSG(fmt::format("Components::findComponents: register self to {} error!\n",
 				COMPONENT_NAME_EX((COMPONENT_TYPE)findComponentType)));
 				//dispatcher().breakProcessing();
 				return false;
@@ -1392,7 +1393,7 @@ void Components::broadcastSelf()
 		srand(Ouroboros::getSystemTime());
 		uint16 nport = OURO_PORT_START + (rand() % 1000);
 
-		// Broadcast UDP packets to the LAN to submit their own identities
+		// Broadcast UDP packets to the LAN and submit your identity
 		Network::BundleBroadcast bhandler(*pNetworkInterface(), nport);
 
 		if (!bhandler.good())
@@ -1404,7 +1405,7 @@ void Components::broadcastSelf()
 				return;
 			}
 
-			// If it fails, continue broadcasting
+			// Continue to broadcast if it fails
 			--cidex;
 			Ouroboros::sleep(10);
 			continue;
@@ -1460,7 +1461,7 @@ bool Components::process()
 			srand(Ouroboros::getSystemTime());
 			uint16 nport = OURO_PORT_START + (rand() % 1000);
 
-			// Broadcast UDP packets to the LAN to submit their own identities
+			// Broadcast UDP packets to the LAN and submit your identity
 			Network::BundleBroadcast bhandler(*pNetworkInterface(), nport);
 
 			if (!bhandler.good())
@@ -1472,29 +1473,29 @@ bool Components::process()
 					return false;
 				}
 
-				// If it fails, continue broadcasting
+				// Continue to broadcast if it fails
 				--cidex;
 				Ouroboros::sleep(10);
 				continue;
 			}
 
 			bhandler.newMessage(MachineInterface::onBroadcastInterface);
-			MachineInterface::onBroadcastInterfaceArgs25::staticAddToBundle(bhandler, getUserUID(), getUsername(),
+			MachineInterface::onBroadcastInterfaceArgs25::staticAddToBundle(bhandler, getUserUID(), getUsername(), 
 				componentType_, componentID_, cidex, g_componentGlobalOrder, g_componentGroupOrder, g_genuuid_sections,
 				pNetworkInterface()->intTcpAddr().ip, pNetworkInterface()->intTcpAddr().port,
 				pNetworkInterface()->extTcpAddr().ip, pNetworkInterface()->extTcpAddr().port, g_ouroSrvConfig.getConfig().externalAddress, getProcessPID(),
-				SystemInfo::getSingleton().getCPUPerByPID(), 0.f, (uint32)SystemInfo::getSingleton().getMemUsedByPID(), 0, 0, extraData1_, extraData2_, extraData3_, extraData4_,
+				SystemInfo::getSingleton().getCPUPerByPID(), 0.f, (uint32)SystemInfo::getSingleton().getMemUsedByPID(), 0, 0, extraData1_, extraData2_, extraData3_, extraData4_, 
 				pNetworkInterface()->intTcpAddr().ip, bhandler.epListen().addr().port);
-
+			
 			ENGINE_COMPONENT_INFO cinfos = ServerConfig::getSingleton().getKBMachine();
 			std::vector< std::string >::iterator machine_addresses_iter = cinfos.machine_addresses.begin();
 			for(; machine_addresses_iter != cinfos.machine_addresses.end(); ++machine_addresses_iter)
 				bhandler.addBroadCastAddress((*machine_addresses_iter));
-
+			
 			bhandler.broadcast();
 
-			// Wait for information to return, if there is a return indicating that the identity has been used, the process is not legal, the program will then exit
-			// If you do not return instructions that there is no machine for this process, you can successfully start
+			// Wait for the return information, if there is a return indicating that the identity has been used, the process is not legal, the program will exit
+			// If there is no return, no machine has comments on this process, you can successfully start
 			int32 timeout = 500000;
 			MachineInterface::onBroadcastInterfaceArgs25 args;
 
@@ -1517,7 +1518,7 @@ bool Components::process()
 
 					hasContinue = true;
 
-					// If it is an unknown type, continue
+					// continue if it is an unknown type
 					if(args.componentType == UNKNOWN_COMPONENT_TYPE)
 						continue;
 
@@ -1529,7 +1530,7 @@ bool Components::process()
 						inet_ntoa((struct in_addr&)args.intaddr),
 						ntohs(args.intport)));
 
-					// The same identity exists, the program should exit
+					// The same identity exists, the program should quit
 					if(_pHandler)
 						_pHandler->onIdentityillegal((COMPONENT_TYPE)args.componentType, args.componentID, args.pid, inet_ntoa((struct in_addr&)args.intaddr));
 
@@ -1548,7 +1549,7 @@ bool Components::process()
 	else
 	{
 		static uint64 lastTime = timestamp();
-
+			
 		if(timestamp() - lastTime > uint64(stampsPerSecond()))
 		{
 			if(!findComponents())
@@ -1567,6 +1568,6 @@ bool Components::process()
 	return false;
 }
 
-//-------------------------------------------------------------------------------------
-
+//-------------------------------------------------------------------------------------		
+	
 }

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "pyprofile_handler.h"
@@ -60,7 +60,7 @@ void PyProfileHandler::sendStream(MemoryStream* s)
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	ConsoleInterface::ConsoleProfileHandler msgHandler;
 	(*pBundle).newMessage(msgHandler);
@@ -120,7 +120,7 @@ void PyTickProfileHandler::sendStream(MemoryStream* s)
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	ConsoleInterface::ConsoleProfileHandler msgHandler;
 	(*pBundle).newMessage(msgHandler);

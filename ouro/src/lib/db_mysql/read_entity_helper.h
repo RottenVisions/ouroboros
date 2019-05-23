@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_READ_ENTITY_HELPER_H
 #define OURO_READ_ENTITY_HELPER_H
 
-// common include
+// common include	
 // #define NDEBUG
 #include <sstream>
 #include "common.h"
@@ -16,7 +16,7 @@
 #include "db_interface/entity_table.h"
 #include "db_interface_mysql.h"
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 
 class ReadEntityHelper
 {
@@ -30,19 +30,19 @@ public:
 	}
 
 	/**
-		Query data from the table
+		Query data from a table
 	*/
 	static bool queryDB(DBInterface* pdbi, mysql::DBContext& context)
 	{
-		// Get relevant data on a table based on a dbid
-		SqlStatement* pSqlcmd = new SqlStatementQuery(pdbi, context.tableName,
-			context.dbids[context.dbid],
+		// Get the relevant data on a table according to a dbid
+		SqlStatement* pSqlcmd = new SqlStatementQuery(pdbi, context.tableName, 
+			context.dbids[context.dbid], 
 			context.dbid, context.items);
 
 		bool ret = pSqlcmd->query();
 		context.dbid = pSqlcmd->dbid();
 		delete pSqlcmd;
-
+		
 		if(!ret)
 			return ret;
 
@@ -61,18 +61,18 @@ public:
 
 				unsigned long *lengths = mysql_fetch_lengths(pResult);
 
-				// The query command guarantees that every record in the query will have a dbid
+				// The query command guarantees that every record queried will have a dbid
 				std::stringstream sval;
 				sval << arow[0];
 
 				DBID item_dbid;
 				sval >> item_dbid;
 
-				// Record the dbid in the list. If there is a sub-table reference in the current table, it will go to the sub-table to check every record related to this dbid.
+				// Record the dbid into the list. If there is still a subtable reference in the current table, go to the subtable to check each record related to this dbid.
 				std::vector<DBID>& itemDBIDs = context.dbids[context.dbid];
 				int fidx = -100;
 
-				// If the dbid of the current item is smaller than the dbid size of the last record in the table, the dbid needs to be inserted at the position specified in the itemDBIDs to ensure the order from small to large.
+				// If the current dbid of this item is smaller than the dbid size of the last record in the table, you need to insert this dbid in the position specified in itemDBIDs to ensure the order from small to large.
 				if (itemDBIDs.size() > 0 && itemDBIDs[itemDBIDs.size() - 1] > item_dbid)
 				{
 					for (fidx = itemDBIDs.size() - 1; fidx > 0; --fidx)
@@ -88,7 +88,7 @@ public:
 					itemDBIDs.push_back(item_dbid);
 				}
 
-				// If there are other data in addition to dbid in this record, fill the data into the result set
+				// If this record has other data besides dbid, then populate the data into the result set
 				if(nfields > 1)
 				{
 					std::vector<std::string>& itemResults = context.results[item_dbid].second;
@@ -98,11 +98,11 @@ public:
 
 					for (uint32 i = 1; i < nfields; ++i)
 					{
-						OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = context.items[i - 1];
+						KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = context.items[i - 1];
 						std::string data;
 						data.assign(arow[i], lengths[i]);
 
-						// If the above calculation is the insertion method when dbid is added, then the result set also needs to be inserted into the corresponding position.
+						// If the above calculation is to insert the dbid, the result set also needs to be inserted into the corresponding position.
 						if (fidx != -100)
 							itemResults.insert(itemResults.begin() + fidx++, data);
 						else
@@ -113,16 +113,16 @@ public:
 
 			mysql_free_result(pResult);
 		}
-
+		
 		std::vector<DBID>& dbids = context.dbids[context.dbid];
 
-		// If there is no data, the query is completed
+		// If there is no data, the query is complete.
 		if(dbids.size() == 0)
 			return true;
 
-		// If the current table has a child table reference you need to continue to query the child table
-		// Each dbid needs to obtain the data on the child table
-		// Here we let the child table query out all the dbids data and then populate the result set
+		// If the current table has a child table reference, you need to continue to query the child table
+		// Every dbid needs to get the data on the child table
+		// Here we let the child table query all the dbids data and populate it into the result set.
 
 		mysql::DBContext::DB_RW_CONTEXTS::iterator iter1 = context.optable.begin();
 		for(; iter1 != context.optable.end(); ++iter1)
@@ -137,19 +137,19 @@ public:
 
 
 	/**
-		Query data from child table
+		Query data from child tables
 	*/
 	static bool queryChildDB(DBInterface* pdbi, mysql::DBContext& context, std::vector<DBID>& parentTableDBIDs)
 	{
-		// Get relevant data on a table based on a dbid
-		SqlStatement* pSqlcmd = new SqlStatementQuery(pdbi, context.tableName,
-			parentTableDBIDs,
+		// Get the relevant data on a table according to a dbid
+		SqlStatement* pSqlcmd = new SqlStatementQuery(pdbi, context.tableName, 
+			parentTableDBIDs, 
 			context.dbid, context.items);
 
 		bool ret = pSqlcmd->query();
 		context.dbid = pSqlcmd->dbid();
 		delete pSqlcmd;
-
+		
 		if(!ret)
 			return ret;
 
@@ -170,7 +170,7 @@ public:
 
 				unsigned long *lengths = mysql_fetch_lengths(pResult);
 
-				// The query command guarantees that every record in the query will have a dbid
+				// The query command guarantees that every record queried will have a dbid
 				std::stringstream sval;
 				sval << arow[0];
 
@@ -183,13 +183,11 @@ public:
 				DBID parentID;
 				sval >> parentID;
 
-				// Record the dbid in the list. If there is a sub-table reference in the current table,
-				// it will go to the sub-table to check every record related to this dbid.
+				// Record the dbid into the list. If there is still a subtable reference in the current table, go to the subtable to check each record related to this dbid.
 				std::vector<DBID>& itemDBIDs = context.dbids[parentID];
 				int fidx = -100;
 
-				// If the dbid of the current item is smaller than the dbid size of the last record in the table,
-				// the dbid needs to be inserted at the position specified in the itemDBIDs to ensure the order from small to large.
+				// If the current dbid of this item is smaller than the dbid size of the last record in the table, you need to insert this dbid in the position specified in itemDBIDs to ensure the order from small to large.
 				if (itemDBIDs.size() > 0 && itemDBIDs[itemDBIDs.size() - 1] > item_dbid)
 				{
 					for (fidx = itemDBIDs.size() - 1; fidx > 0; --fidx)
@@ -207,7 +205,7 @@ public:
 					t_parentTableDBIDs.push_back(item_dbid);
 				}
 
-				// If there are other data in addition to dbid in this record, fill the data into the result set
+				// If this record has other data besides dbid, then populate the data into the result set
 				const uint32 const_fields = 2; // id, parentID
 				if(nfields > const_fields)
 				{
@@ -218,12 +216,11 @@ public:
 
 					for (uint32 i = const_fields; i < nfields; ++i)
 					{
-						OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = context.items[i - const_fields];
+						KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = context.items[i - const_fields];
 						std::string data;
 						data.assign(arow[i], lengths[i]);
 
-						// If the dbid of the current item is greater than the dbid size of all record sets in the table,
-						// the dbid needs to be inserted at the position specified in the itemDBIDs to ensure the order from small to large.
+						// If the dbid of the current item is greater than the dbid size of all recordsets in the table, then the dbid needs to be inserted at the location specified in itemDBIDs to ensure the order from small to large.
 						if (fidx != -100)
 							itemResults.insert(itemResults.begin() + fidx++, data);
 						else
@@ -235,13 +232,13 @@ public:
 			mysql_free_result(pResult);
 		}
 
-		// If there is no data, the query is completed
+		// If there is no data, the query is complete.
 		if(t_parentTableDBIDs.size() == 0)
 			return true;
 
-		// If the current table has a child table reference you need to continue to query the child table
-		// Every dbid needs to obtain data from the sub-table
-		// Here we have the subtables query out all dbids data at a time and fill in the result set
+		// If the current table has a child table reference, you need to continue to query the child table
+		// Every dbid needs to get the data on the child table
+		// Here we let the child table query all the dbids data and populate it into the result set.
 		mysql::DBContext::DB_RW_CONTEXTS::iterator iter1 = context.optable.begin();
 		for(; iter1 != context.optable.end(); ++iter1)
 		{

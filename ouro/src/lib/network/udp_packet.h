@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SOCKETUDPPACKET_H
 #define OURO_SOCKETUDPPACKET_H
@@ -12,10 +12,10 @@ namespace Network
 class UDPPacket : public Packet
 {
 public:
-	typedef OUROShared_ptr< SmartPoolObject< UDPPacket > > SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
+	typedef KBEShared_ptr< SmartPoolObject< UDPPacket > > SmartPoolObjectPtr;
+	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<UDPPacket>& ObjPool();
-	static UDPPacket* createPoolObject();
+	static UDPPacket* createPoolObject(const std::string& logPoint);
 	static void reclaimPoolObject(UDPPacket* obj);
 	static void destroyObjPool();
 	static size_t maxBufferSize();

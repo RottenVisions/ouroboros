@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SIGNAL_HANDLER_H
 #define OURO_SIGNAL_HANDLER_H
@@ -28,6 +28,8 @@ public:
 	
 	SignalHandler* delSignal(int sigNum);
 	
+	bool ignoreSignal(int sigNum);
+
 	void clear();
 	
 	void onSignalled(int sigNum);

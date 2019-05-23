@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_MOVETOENTITYHANDLER_H
 #define OURO_MOVETOENTITYHANDLER_H
@@ -11,7 +11,7 @@ namespace Ouroboros{
 class MoveToEntityHandler : public MoveToPointHandler
 {
 public:
-	MoveToEntityHandler(OUROShared_ptr<Controller>& pController, ENTITY_ID pTargetID, float velocity, float range, bool faceMovement, 
+	MoveToEntityHandler(KBEShared_ptr<Controller>& pController, ENTITY_ID pTargetID, float velocity, float range, bool faceMovement, 
 		bool moveVertically, PyObject* userarg, const Position3D& offsetPos);
 
 	MoveToEntityHandler();

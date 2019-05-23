@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 #include "entity.h"
 #include "baseapp.h"
 #include "restore_entity_handler.h"
@@ -9,7 +9,7 @@
 #include "../../server/baseapp/baseapp_interface.h"
 #include "../../server/cellapp/cellapp_interface.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 //-------------------------------------------------------------------------------------
 RestoreEntityHandler::RestoreEntityHandler(COMPONENT_ID cellappID, Network::NetworkInterface & networkInterface):
@@ -113,7 +113,7 @@ bool RestoreEntityHandler::process()
 	{
 		if(timestamp() - tickReport_ > uint64( 3 * stampsPerSecond() ))
 		{
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 			(*pBundle).newMessage(CellappInterface::requestRestore);
 			(*pBundle) << cellappID();
 			pChannel->send(pBundle);
@@ -126,26 +126,26 @@ bool RestoreEntityHandler::process()
 
 	// First need to find the space on this cell
 	// OURO_ASSERT(restoreSpaces_.size() > 0);
-	// If spaceEntity is not created on this baseapp continue to wait
-	// When spaceEntity's cell is created it will be broadcast to all baseapps, each baseapp
-	// To determine if there is a need to restore the entity
+	// continue to wait if spaceEntity is not created on this baseapp
+	// When the cell of spaceEntity is created, it will be broadcast to all baseapps, each baseapp
+	// to determine if there is an entity that needs to be restored
 	if(restoreSpaces_.size() > 0)
 	{
 		if(timestamp() - tickReport_ > uint64( 3 * stampsPerSecond() ))
 		{
 			tickReport_ = timestamp();
-			INFO_MSG(fmt::format("RestoreEntityHandler::process({2}): wait for localSpace to get cell!, entitiesSize({0}), spaceSize={1}\n",
+			INFO_MSG(fmt::format("RestoreEntityHandler::process({2}): wait for localSpace to get cell!, entitiesSize({0}), spaceSize={1}\n", 
 				entities_.size(), restoreSpaces_.size(), cellappID_));
 		}
 
 		int spaceCellCount = 0;
 
-		// Must wait for space recovery
+		// must wait for space to recover
 		std::vector<RestoreData>::iterator restoreSpacesIter = restoreSpaces_.begin();
 		for(; restoreSpacesIter != restoreSpaces_.end(); ++restoreSpacesIter)
 		{
 			Entity* pEntity = Baseapp::getSingleton().findEntity((*restoreSpacesIter).id);
-
+			
 			if(pEntity)
 			{
 				if(++count > (int)g_ouroSrvConfig.getBaseApp().entityRestoreSize)
@@ -180,11 +180,11 @@ bool RestoreEntityHandler::process()
 				ERROR_MSG(fmt::format("RestoreEntityHandler::process({}): lose space({}).\n", cellappID_, (*restoreSpacesIter).id));
 			}
 		}
-
+		
 		if(spaceCellCount != (int)restoreSpaces_.size())
 			return true;
 
-		// Notify other baseapps, space restored cell
+		// Notify other baseapp, space restored cell
 		if(!broadcastOtherBaseapps_)
 		{
 			broadcastOtherBaseapps_ = true;
@@ -216,13 +216,13 @@ bool RestoreEntityHandler::process()
 				for(; comsiter != cts.end(); ++comsiter)
 				{
 					pChannel = (*comsiter).pChannel;
-
+					
 					if(pChannel)
 					{
-						INFO_MSG(fmt::format("RestoreEntityHandler::process({4}): broadcast baseapp[{0}, {1}], spaceID[{2}], utype[{3}]...\n",
+						INFO_MSG(fmt::format("RestoreEntityHandler::process({4}): broadcast baseapp[{0}, {1}], spaceID[{2}], utype[{3}]...\n", 
 							(*comsiter).cid, pChannel->c_str(), spaceID, utype, cellappID_));
 
-						Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+						Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 						(*pBundle).newMessage(BaseappInterface::onRestoreSpaceCellFromOtherBaseapp);
 						(*pBundle) << baseappID << cellappID << spaceID << spaceEntityID << utype << destroyed;
 						pChannel->send(pBundle);
@@ -237,14 +237,14 @@ bool RestoreEntityHandler::process()
 		if(timestamp() - tickReport_ > uint64( 3 * stampsPerSecond() ))
 		{
 			tickReport_ = timestamp();
-			INFO_MSG(fmt::format("RestoreEntityHandler::process({}): wait for otherBaseappSpaces to get cell!, entitiesSize({}), spaceSize={}\n",
+			INFO_MSG(fmt::format("RestoreEntityHandler::process({}): wait for otherBaseappSpaces to get cell!, entitiesSize({}), spaceSize={}\n", 
 				cellappID_, entities_.size(), spaceIDs_.size()));
 		}
 
 		return true;
 	}
 
-	// Restoring other entities
+	// restore other entities
 	std::vector<RestoreData>::iterator iter = entities_.begin();
 	for(; iter != entities_.end(); )
 	{
@@ -273,7 +273,7 @@ bool RestoreEntityHandler::process()
 				if(!data.creatingCell)
 				{
 					data.creatingCell = true;
-
+					
 					EntityCallAbstract* cellEntityCall = NULL;
 					std::vector<RestoreData>::iterator restoreSpacesIter = restoreSpaces_.begin();
 					for(; restoreSpacesIter != restoreSpaces_.end(); ++restoreSpacesIter)
@@ -285,7 +285,7 @@ bool RestoreEntityHandler::process()
 							break;
 						}
 					}
-
+					
 					if(cellEntityCall == NULL)
 					{
 						restoreSpacesIter = otherRestoredSpaces_.begin();
@@ -308,7 +308,7 @@ bool RestoreEntityHandler::process()
 						ENTITY_ID delID = pEntity->id();
 
 						pEntity->destroy();
-						WARNING_MSG(fmt::format("RestoreEntityHandler::process({}): not fount spaceCell, killed pEntity({})!",
+						WARNING_MSG(fmt::format("RestoreEntityHandler::process({}): not fount spaceCell, killed pEntity({})!", 
 							cellappID_, delID));
 
 						if(Baseapp::getSingleton().findEntity(delID) == NULL)
@@ -338,7 +338,7 @@ bool RestoreEntityHandler::process()
 				(*restoreSpacesIter).cell = NULL;
 			}
 		}
-
+		
 		otherRestoredSpaces_.clear();
 
 		inProcess_ = false;
@@ -370,7 +370,7 @@ void RestoreEntityHandler::onRestoreSpaceCellFromOtherBaseapp(COMPONENT_ID basea
 		ScriptDefModule* sm = EntityDef::findScriptModule(utype);
 		if(sm == NULL)
 		{
-			ERROR_MSG(fmt::format("RestoreEntityHandler::onRestoreSpaceCellFromOtherBaseapp({}): not found utype {}!\n",
+			ERROR_MSG(fmt::format("RestoreEntityHandler::onRestoreSpaceCellFromOtherBaseapp({}): not found utype {}!\n", 
 				cellappID_, utype));
 		}
 		else

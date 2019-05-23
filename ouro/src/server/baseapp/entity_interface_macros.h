@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #if defined(DEFINE_IN_INTERFACE)
@@ -9,18 +9,18 @@
 #ifndef OURO_BASE_ENTITY_INTERFACE_MACRO_H
 #define OURO_BASE_ENTITY_INTERFACE_MACRO_H
 
-// common include
+// common include	
 #include "network/interface_defs.h"
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
 #endif
-
+	
 namespace Ouroboros{
 
 /**
-	BASE message macro, parameter is stream, need to unlock
+	BASE message macro, the parameter is stream, you need to unlock it yourself.
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef ENTITY_MESSAGE_HANDLER_STREAM
@@ -41,7 +41,7 @@ namespace Ouroboros{
 					#NAME"handler::handle: Illegal access to entityID:{}! proxyID={}\n",\
 					eid, pChannel->proxyID()));									\
 																				\
-				pChannel->condemn();											\
+				pChannel->condemn(#NAME"handler::handle: Illegal access");		\
 																				\
 				return;															\
 			}																	\
@@ -74,7 +74,7 @@ namespace Ouroboros{
 	{																			\
 		return Network::NETWORK_MESSAGE_TYPE_ENTITY;							\
 	}																			\
-
+		
 #endif
 #else
 #define ENTITY_MESSAGE_HANDLER_STREAM(NAME)										\
@@ -95,7 +95,7 @@ namespace Ouroboros{
 																				\
 
 /**
-	Entity message macro, message with only zero parameters
+	Entity message macro, message with zero parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef ENTITY_MESSAGE_HANDLER_ARGS0
@@ -116,7 +116,7 @@ namespace Ouroboros{
 					#NAME"handler::handle: Illegal access to entityID:{}! proxyID={}\n",\
 					eid, pChannel->proxyID()));									\
 																				\
-				pChannel->condemn();											\
+				pChannel->condemn(#NAME"handler::handle: Illegal access");		\
 																				\
 				return;															\
 			}																	\
@@ -149,7 +149,7 @@ namespace Ouroboros{
 	{																			\
 		return Network::NETWORK_MESSAGE_TYPE_ENTITY;							\
 	}																			\
-
+		
 #endif
 #else
 #define ENTITY_MESSAGE_HANDLER_ARGS0(NAME)										\
@@ -170,7 +170,7 @@ namespace Ouroboros{
 																				\
 
 /**
-	Entity message macro, only one parameter message
+	Entity message macro, message with only one parameter
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef ENTITY_MESSAGE_HANDLER_ARGS1
@@ -191,7 +191,7 @@ namespace Ouroboros{
 					#NAME"handler::handle: Illegal access to entityID:{}! proxyID={}\n",\
 					eid, pChannel->proxyID()));									\
 																				\
-				pChannel->condemn();											\
+				pChannel->condemn(#NAME"handler::handle: Illegal access");		\
 																				\
 				return;															\
 			}																	\
@@ -226,7 +226,7 @@ namespace Ouroboros{
 	{																			\
 		return Network::NETWORK_MESSAGE_TYPE_ENTITY;							\
 	}																			\
-
+		
 #endif
 #else
 #define ENTITY_MESSAGE_HANDLER_ARGS1(NAME, ARG_TYPE1, ARG_NAME1)				\
@@ -247,7 +247,7 @@ namespace Ouroboros{
 																				\
 
 /**
-	Entity message macro, only two parameters of the message
+	Entity message macro, message with only two parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef ENTITY_MESSAGE_HANDLER_ARGS2
@@ -269,7 +269,7 @@ namespace Ouroboros{
 					#NAME"handler::handle: Illegal access to entityID:{}! proxyID={}\n",\
 					eid, pChannel->proxyID()));									\
 																				\
-				pChannel->condemn();											\
+				pChannel->condemn(#NAME"handler::handle: Illegal access");		\
 																				\
 				return;															\
 			}																	\
@@ -306,7 +306,7 @@ namespace Ouroboros{
 	{																			\
 		return Network::NETWORK_MESSAGE_TYPE_ENTITY;							\
 	}																			\
-
+		
 #endif
 #else
 #define ENTITY_MESSAGE_HANDLER_ARGS2(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -356,7 +356,7 @@ namespace Ouroboros{
 					#NAME"handler::handle: Illegal access to entityID:{}! proxyID={}\n",\
 					eid, pChannel->proxyID()));									\
 																				\
-				pChannel->condemn();											\
+				pChannel->condemn(#NAME"handler::handle: Illegal access");		\
 																				\
 				return;															\
 			}																	\
@@ -395,7 +395,7 @@ namespace Ouroboros{
 	{																			\
 		return Network::NETWORK_MESSAGE_TYPE_ENTITY;							\
 	}																			\
-
+		
 #endif
 #else
 #define ENTITY_MESSAGE_HANDLER_ARGS3(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -448,7 +448,7 @@ namespace Ouroboros{
 					#NAME"handler::handle: Illegal access to entityID:{}! proxyID={}\n",\
 					eid, pChannel->proxyID()));									\
 																				\
-				pChannel->condemn();											\
+				pChannel->condemn(#NAME"handler::handle: Illegal access");		\
 																				\
 				return;															\
 			}																	\
@@ -489,7 +489,7 @@ namespace Ouroboros{
 	{																			\
 		return Network::NETWORK_MESSAGE_TYPE_ENTITY;							\
 	}																			\
-
+		
 #endif
 #else
 #define ENTITY_MESSAGE_HANDLER_ARGS4(NAME, ARG_TYPE1, ARG_NAME1,				\

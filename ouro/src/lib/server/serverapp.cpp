@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "serverapp.h"
@@ -34,8 +34,8 @@ COMPONENT_GUS g_genuuid_sections = -1;
 GAME_TIME g_ourotime = 0;
 
 //-------------------------------------------------------------------------------------
-ServerApp::ServerApp(Network::EventDispatcher& dispatcher,
-					 Network::NetworkInterface& ninterface,
+ServerApp::ServerApp(Network::EventDispatcher& dispatcher, 
+					 Network::NetworkInterface& ninterface, 
 					 COMPONENT_TYPE componentType,
 					 COMPONENT_ID componentID):
 SignalHandler(),
@@ -58,14 +58,14 @@ threadPool_()
 	networkInterface_.pChannelDeregisterHandler(this);
 
 	// Broadcast your own address to all ouromachines on the web
-	// And get basappmgr and cellappmgr and dbmgr address from ouromachine
+	// and get basappmgr and cellappmgr and dbmgr address from ouromachine
 	Components::getSingleton().pHandler(this);
 	this->dispatcher().addTask(&Components::getSingleton());
-
+	
 	pActiveTimerHandle_ = new ComponentActiveReportHandler(this);
 	pActiveTimerHandle_->startActiveTick(OURO_MAX(1.f, Network::g_channelInternalTimeout / 2.0f));
 
-	// By default, all apps are set to this value. If they need to be adjusted, they are re-assigned to the derived class.
+	// By default all apps are set to this value, and if they need to be adjusted, they are reassigned in the derived class.
 	ProfileVal::setWarningPeriod(stampsPerSecond() / g_ouroSrvConfig.gameUpdateHertz());
 }
 
@@ -76,7 +76,7 @@ ServerApp::~ServerApp()
 	SAFE_RELEASE(pShutdowner_);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ServerApp::shutDown(float shutdowntime)
 {
 	if(pShutdowner_ == NULL)
@@ -88,8 +88,8 @@ void ServerApp::shutDown(float shutdowntime)
 		WARNING_MSG(fmt::format("ServerApp::shutDown:  In shuttingdown!\n"));
 		return;
 	}
-
-	pShutdowner_->shutdown(shutdowntime < 0.f ? g_ouroSrvConfig.shutdowntime() : shutdowntime,
+	
+	pShutdowner_->shutdown(shutdowntime < 0.f ? g_ouroSrvConfig.shutdowntime() : shutdowntime, 
 		g_ouroSrvConfig.shutdownWaitTickTime(), dispatcher_);
 }
 
@@ -120,17 +120,17 @@ bool ServerApp::loadConfig()
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool ServerApp::installSignals()
 {
 	g_ouroSignalHandlers.attachApp(this);
+	g_ouroSignalHandlers.ignoreSignal(SIGPIPE);
 	g_ouroSignalHandlers.addSignal(SIGINT, this);
-	g_ouroSignalHandlers.addSignal(SIGPIPE, this);
 	g_ouroSignalHandlers.addSignal(SIGHUP, this);
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool ServerApp::initialize()
 {
 	if (!installSignals())
@@ -138,30 +138,30 @@ bool ServerApp::initialize()
 
 	if(!initThreadPool())
 		return false;
-
+	
 	if(!loadConfig())
 		return false;
-
+	
 	if(!initializeBegin())
 		return false;
-
+	
 	if(!inInitialize())
 		return false;
 
 	bool ret = initializeEnd();
 
-	// Finally still need to be set once to avoid being modified by other third-party libraries during the period
+	// Finally, you still need to set it once to avoid being modified by other third-party libraries.
 	if (!installSignals())
 		return false;
 
 #ifdef ENABLE_WATCHERS
-	return ret && initializeWatcher();
+	return ret && Network::initialize() && initializeWatcher();
 #else
-	return ret;
+	return ret && Network::initialize();
 #endif
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool ServerApp::initializeWatcher()
 {
 	WATCH_OBJECT("stats/stampsPerSecond", &Ouroboros::stampsPerSecond);
@@ -177,24 +177,24 @@ bool ServerApp::initializeWatcher()
 		threadPool_.initializeWatcher() && WatchPool::initWatchPools();
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 void ServerApp::queryWatcher(Network::Channel* pChannel, MemoryStream& s)
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	AUTO_SCOPED_PROFILE("watchers");
 
 	std::string path;
 	s >> path;
 
-	MemoryStream::SmartPoolObjectPtr readStreamPtr = MemoryStream::createSmartPoolObj();
+	MemoryStream::SmartPoolObjectPtr readStreamPtr = MemoryStream::createSmartPoolObj(OBJECTPOOL_POINT);
 	WatcherPaths::root().readWatchers(path, readStreamPtr.get()->get());
 
-	MemoryStream::SmartPoolObjectPtr readStreamPtr1 = MemoryStream::createSmartPoolObj();
+	MemoryStream::SmartPoolObjectPtr readStreamPtr1 = MemoryStream::createSmartPoolObj(OBJECTPOOL_POINT);
 	WatcherPaths::root().readChildPaths(path, path, readStreamPtr1.get()->get());
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	ConsoleInterface::ConsoleWatcherCBMessageHandler msgHandler;
 	(*pBundle).newMessage(msgHandler);
 
@@ -203,7 +203,7 @@ void ServerApp::queryWatcher(Network::Channel* pChannel, MemoryStream& s)
 	(*pBundle).append(readStreamPtr.get()->get());
 	pChannel->send(pBundle);
 
-	Network::Bundle* pBundle1 = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle1 = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle1).newMessage(msgHandler);
 
 	type = 1;
@@ -212,13 +212,13 @@ void ServerApp::queryWatcher(Network::Channel* pChannel, MemoryStream& s)
 	pChannel->send(pBundle1);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool ServerApp::initThreadPool()
 {
 	if(!threadPool_.isInitialize())
 	{
 		thread::ThreadPool::timeout = int(g_ouroSrvConfig.thread_timeout_);
-		threadPool_.createThreadPool(g_ouroSrvConfig.thread_init_create_,
+		threadPool_.createThreadPool(g_ouroSrvConfig.thread_init_create_, 
 			g_ouroSrvConfig.thread_pre_create_, g_ouroSrvConfig.thread_max_create_);
 
 		return true;
@@ -227,7 +227,7 @@ bool ServerApp::initThreadPool()
 	return false;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 void ServerApp::finalise(void)
 {
 	ProfileGroup::finalise();
@@ -235,7 +235,7 @@ void ServerApp::finalise(void)
 	Network::finalise();
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 double ServerApp::gameTimeInSeconds() const
 {
 	return double(g_ourotime) / g_ouroSrvConfig.gameUpdateHertz();
@@ -253,14 +253,14 @@ void ServerApp::handleTimers()
 	timers().process(g_ourotime);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool ServerApp::run(void)
 {
 	dispatcher_.processUntilBreak();
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ServerApp::onSignalled(int sigNum)
 {
 	switch (sigNum)
@@ -273,7 +273,7 @@ void ServerApp::onSignalled(int sigNum)
 	}
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ServerApp::onChannelDeregister(Network::Channel * pChannel)
 {
 	if(pChannel->isInternal())
@@ -282,12 +282,13 @@ void ServerApp::onChannelDeregister(Network::Channel * pChannel)
 	}
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ServerApp::onChannelTimeOut(Network::Channel * pChannel)
 {
 	INFO_MSG(fmt::format("ServerApp::onChannelTimeOut: "
-		"Channel {0} timed out.\n", pChannel->c_str()));
+		"Channel {0} timeout!\n", pChannel->c_str()));
 
+	pChannel->condemn("timedout");
 	networkInterface_.deregisterChannel(pChannel);
 	pChannel->destroy();
 	Network::Channel::reclaimPoolObject(pChannel);
@@ -321,8 +322,8 @@ void ServerApp::onRemoveComponent(const Components::ComponentInfos* pInfos)
 	}
 	else if(pInfos->componentType == DBMGR_TYPE)
 	{
-		if(g_componentType != MACHINE_TYPE &&
-			g_componentType != LOGGER_TYPE &&
+		if(g_componentType != MACHINE_TYPE && 
+			g_componentType != LOGGER_TYPE && 
 			g_componentType != INTERFACES_TYPE &&
 			g_componentType != BOTS_TYPE &&
 			g_componentType != WATCHER_TYPE)
@@ -341,7 +342,7 @@ void ServerApp::onRemoveComponent(const Components::ComponentInfos* pInfos)
 }
 
 //-------------------------------------------------------------------------------------
-void ServerApp::onRegisterNewApp(Network::Channel* pChannel, int32 uid, std::string& username,
+void ServerApp::onRegisterNewApp(Network::Channel* pChannel, int32 uid, std::string& username, 
 						COMPONENT_TYPE componentType, COMPONENT_ID componentID, COMPONENT_ORDER globalorderID, COMPONENT_ORDER grouporderID,
 						uint32 intaddr, uint16 intport, uint32 extaddr, uint16 extport, std::string& extaddrEx)
 {
@@ -352,7 +353,7 @@ void ServerApp::onRegisterNewApp(Network::Channel* pChannel, int32 uid, std::str
 			"componentID:{3}, globalorderID={9}, grouporderID={10}, intaddr:{4}, intport:{5}, extaddr:{6}, extport:{7},  from {8}.\n",
 			uid,
 			username.c_str(),
-			COMPONENT_NAME_EX((COMPONENT_TYPE)componentType),
+			COMPONENT_NAME_EX((COMPONENT_TYPE)componentType), 
 			componentID,
 			inet_ntoa((struct in_addr&)intaddr),
 			ntohs(intport),
@@ -369,7 +370,7 @@ void ServerApp::onRegisterNewApp(Network::Channel* pChannel, int32 uid, std::str
 
 	if(cinfos == NULL)
 	{
-		Components::getSingleton().addComponent(uid, username.c_str(),
+		Components::getSingleton().addComponent(uid, username.c_str(), 
 			(Ouroboros::COMPONENT_TYPE)componentType, componentID, globalorderID, grouporderID, 0, intaddr, intport, extaddr, extport, extaddrEx, 0,
 			0.f, 0.f, 0, 0, 0, 0, 0, pChannel);
 	}
@@ -405,8 +406,8 @@ void ServerApp::reqKillServer(Network::Channel* pChannel, MemoryStream& s)
 
 	INFO_MSG(fmt::format("ServerApp::reqKillServer: requester(uid:{}, username:{}, componentType:{}, "
 				"componentID:{}, reason:{}, from {})\n",
-				uid,
-				username,
+				uid, 
+				username, 
 				COMPONENT_NAME_EX((COMPONENT_TYPE)componentType),
 				componentID,
 				reason,
@@ -421,17 +422,17 @@ void ServerApp::onAppActiveTick(Network::Channel* pChannel, COMPONENT_TYPE compo
 	if(componentType != CLIENT_TYPE)
 		if(pChannel->isExternal())
 			return;
-
+	
 	pChannel->updateLastReceivedTime();
-
+	
 	if(componentType != CONSOLE_TYPE && componentType != CLIENT_TYPE)
 	{
-		Components::ComponentInfos* cinfos =
+		Components::ComponentInfos* cinfos = 
 			Components::getSingleton().findComponent(componentType, Ouroboros::getUserUID(), componentID);
 
 		if(cinfos == NULL || cinfos->pChannel == NULL)
 		{
-			ERROR_MSG(fmt::format("ServerApp::onAppActiveTick[{:p}]: {}:{} not found.\n",
+			ERROR_MSG(fmt::format("ServerApp::onAppActiveTick[{:p}]: {}:{} not found.\n", 
 				(void*)pChannel, COMPONENT_NAME_EX(componentType), componentID));
 
 			return;
@@ -440,8 +441,8 @@ void ServerApp::onAppActiveTick(Network::Channel* pChannel, COMPONENT_TYPE compo
 		cinfos->pChannel->updateLastReceivedTime();
 	}
 
-	//DEBUG_MSG("ServerApp::onAppActiveTick[%x]: %s:%"PRAppID" lastReceivedTime:%"PRIu64" at %s.\n",
-	//	pChannel, COMPONENT_NAME_EX(componentType), componentID, pChannel->lastReceivedTime(), pTargetChannel->c_str());
+	//DEBUG_MSG(fmt::format("ServerApp::onAppActiveTick[{:p}]: {}:{} lastReceivedTime:{} at {}.\n",
+	//	(void*)pChannel, COMPONENT_NAME_EX(componentType), componentID, pChannel->lastReceivedTime(), pChannel->c_str()));
 }
 
 //-------------------------------------------------------------------------------------
@@ -449,7 +450,7 @@ void ServerApp::reqClose(Network::Channel* pChannel)
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	DEBUG_MSG(fmt::format("ServerApp::reqClose: {}\n", pChannel->c_str()));
 	// this->networkInterface().deregisterChannel(pChannel);
 	// pChannel->destroy();
@@ -463,8 +464,8 @@ void ServerApp::lookApp(Network::Channel* pChannel)
 
 	//DEBUG_MSG(fmt::format("ServerApp::lookApp: {}, componentID={}\n", pChannel->c_str(), g_componentID));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
-
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+	
 	(*pBundle) << g_componentType;
 	(*pBundle) << componentID_;
 
@@ -481,11 +482,11 @@ void ServerApp::reqCloseServer(Network::Channel* pChannel, MemoryStream& s)
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	DEBUG_MSG(fmt::format("ServerApp::reqCloseServer: {}\n", pChannel->c_str()));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
-
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+	
 	bool success = true;
 	(*pBundle) << success;
 	pChannel->send(pBundle);
@@ -525,21 +526,21 @@ void ServerApp::hello(Network::Channel* pChannel, MemoryStream& s)
 		encryptedKey_str = "None";
 	}
 
-	INFO_MSG(fmt::format("ServerApp::onHello: verInfo={}, scriptVerInfo={}, encryptedKey={}, addr:{}\n",
+	INFO_MSG(fmt::format("ServerApp::onHello: verInfo={}, scriptVerInfo={}, encryptedKey={}, addr:{}\n", 
 		verInfo, scriptVerInfo, encryptedKey_str, pChannel->c_str()));
 
-	if(verInfo != OUROVersion::versionString())
+	if(verInfo != KBEVersion::versionString())
 		onVersionNotMatch(pChannel);
-	else if(scriptVerInfo != OUROVersion::scriptVersionString())
+	else if(scriptVerInfo != KBEVersion::scriptVersionString())
 		onScriptVersionNotMatch(pChannel);
 	else
 		onHello(pChannel, verInfo, scriptVerInfo, encryptedKey);
 }
 
 //-------------------------------------------------------------------------------------
-void ServerApp::onHello(Network::Channel* pChannel,
-						const std::string& verInfo,
-						const std::string& scriptVerInfo,
+void ServerApp::onHello(Network::Channel* pChannel, 
+						const std::string& verInfo, 
+						const std::string& scriptVerInfo, 
 						const std::string& encryptedKey)
 {
 }
@@ -559,7 +560,7 @@ void ServerApp::startProfile(Network::Channel* pChannel, Ouroboros::MemoryStream
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	std::string profileName;
 	int8 profileType;
 	uint32 timelen;
@@ -574,7 +575,7 @@ void ServerApp::startProfile_(Network::Channel* pChannel, std::string profileNam
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	switch(profileType)
 	{
 	case 1:	// cprofile
@@ -587,12 +588,12 @@ void ServerApp::startProfile_(Network::Channel* pChannel, std::string profileNam
 		new NetworkProfileHandler(this->networkInterface(), timelen, profileName, pChannel->addr());
 		break;
 	default:
-		ERROR_MSG(fmt::format("ServerApp::startProfile_: type({}:{}) not support!\n",
+		ERROR_MSG(fmt::format("ServerApp::startProfile_: type({}:{}) not support!\n", 
 			profileType, profileName));
 
 		break;
 	};
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 }

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SCRIPTSTDOUTERR_H
 #define OURO_SCRIPTSTDOUTERR_H
@@ -9,34 +9,35 @@
 #include "scriptstdout.h"
 #include "scriptstderr.h"
 
-namespace Ouroboros{ namespace script{
+namespace Ouroboros{ namespace script {
+
 class ScriptStdOutErr
-{
-public:
+{					
+public:	
 	ScriptStdOutErr();
 	virtual ~ScriptStdOutErr();
 
-	/**
-		Install and uninstall this module 
+	/** 
+		Install and uninstall this module
 	*/
 	bool install(void);
 	bool uninstall(void);
 	bool isInstall(void) const{ return isInstall_; }
 
-	virtual void error_msg(const wchar_t* msg, uint32 msglen);
-	virtual void info_msg(const wchar_t* msg, uint32 msglen);
+	virtual void error_msg(const char* msg, uint32 msglen);
+	virtual void info_msg(const char* msg, uint32 msglen);
 
 	void pyPrint(const std::string& str);
 
-	INLINE std::wstring& buffer();
+	INLINE std::string& buffer();
 
 protected:
 	ScriptStdErr* pStderr_;
 	ScriptStdOut* pStdout_;
 	PyObject* pyPrint_;
 	bool isInstall_;
-	std::wstring sbuffer_;
-} ;
+	std::string sbuffer_;
+};
 
 }
 }

@@ -55,10 +55,10 @@ public:
 		epListen.socket(SOCK_STREAM);
 		if (!epListen.good())
 		{
-			ERROR_MSG("LookAppTask::process: Couldn't Create a Socket\n");
+			ERROR_MSG("LookAppTask::process: couldn't create a socket\n");
 			return false;
 		}
-
+	
 		epListen.setnonblocking(true);
 
 		fd_set	frds, fwds;
@@ -74,7 +74,7 @@ public:
 			int selgot = select(epListen+1, &frds, &fwds, NULL, &tv);
 			if(selgot <= 0)
 			{
-				ERROR_MSG(fmt::format("LookAppTask::process: Couldn't Connect to:{}\n",
+				ERROR_MSG(fmt::format("LookAppTask::process: couldn't connect to:{}\n", 
 					address.c_str()));
 
 				return false;
@@ -107,8 +107,8 @@ public:
 			int selgot = select(epListen+1, &fds, NULL, NULL, &tv);
 			if(selgot == 0)
 			{
-				// Overtime, may be busy
-				return false;
+				// timeout, maybe the other party is busy
+				return false;	
 			}
 			else if(selgot == -1)
 			{
@@ -139,12 +139,12 @@ public:
 
 				int len = epListen.recv(packet.data(), recvsize);
 				packet.wpos(len);
-
+		
 				if(recvsize != len)
 				{
-					ERROR_MSG(fmt::format("LookAppTask::process: Packet Invalid(recvsize({}) != ctype_cid_len({}).\n"
+					ERROR_MSG(fmt::format("LookAppTask::process: packet invalid(recvsize({}) != ctype_cid_len({}).\n" 
 						, len, recvsize));
-
+			
 					if(len == 0)
 						return false;
 
@@ -152,7 +152,7 @@ public:
 				}
 
 				packet >> ctype >> cid >> istate;
-
+		
 				if(ctype == CELLAPP_TYPE)
 				{
 					packet >> entitySize >> cellSize >> telnet_port;
@@ -165,7 +165,7 @@ public:
 
 				if(ctype != _componentType || cid != _cid)
 				{
-					ERROR_MSG(fmt::format("LookAppTask::process: Invalid Component(ctype={}, cid={}).\n",
+					ERROR_MSG(fmt::format("LookAppTask::process: invalid component(ctype={}, cid={}).\n",
 						ctype, cid));
 
 					return false;
@@ -186,7 +186,7 @@ public:
 					extradata1 = cellSize;
 					extradata3 = telnet_port;
 				}
-
+			
 				if(ctype == BASEAPP_TYPE)
 				{
 					extradata = entitySize;
@@ -201,13 +201,13 @@ public:
 	}
 
 	virtual thread::TPTask::TPTaskState presentMainThread()
-	{
+	{ 
 		if(!_success)
-			return thread::TPTask::TPTASK_STATE_COMPLETED;
+			return thread::TPTask::TPTASK_STATE_COMPLETED; 
 
 		Components::ComponentInfos* winfo = Components::getSingleton().findComponent(_componentType, _cid);
 		if(winfo == NULL)
-			return thread::TPTask::TPTASK_STATE_COMPLETED;
+			return thread::TPTask::TPTASK_STATE_COMPLETED; 
 
 		winfo->state = (COMPONENT_STATE)state;
 		winfo->extradata = extradata;
@@ -216,7 +216,7 @@ public:
 		winfo->extradata3 = extradata3;
 
 		_pStatusWindow->update(*winfo);
-		return thread::TPTask::TPTASK_STATE_COMPLETED;
+		return thread::TPTask::TPTASK_STATE_COMPLETED; 
 	}
 };
 
@@ -247,25 +247,25 @@ END_MESSAGE_MAP()
 BOOL StatusWindow::OnInitDialog()
 {
 	CDialog::OnInitDialog();
-
+	
 	DWORD dwStyle = m_statusList.GetExtendedStyle();
-	dwStyle |= LVS_EX_FULLROWSELECT;					//Select an exercise line highlighting (listctrl with report style only)
-	dwStyle |= LVS_EX_GRIDLINES;						//Gridlines (only applicable with report style listctrl)
+	dwStyle |= LVS_EX_FULLROWSELECT; //Select one to exercise the entire line highlighting (only applicable to the list style of report style)
+	dwStyle |= LVS_EX_GRIDLINES; //Gridlines (only for list styles with report style)
 	//dwStyle |= LVS_EX_ONECLICKACTIVATE;
-	m_statusList.SetExtendedStyle(dwStyle);				//Set the extension style
+	m_statusList.SetExtendedStyle(dwStyle); //Set the extended style
 
 	int idx = 0;
-	m_statusList.InsertColumn(idx++, _T("UID"),					LVCFMT_CENTER,	40);
-	m_statusList.InsertColumn(idx++, _T("ComponentType"),		LVCFMT_CENTER,	100);
-	m_statusList.InsertColumn(idx++, _T("ComponentID"),			LVCFMT_CENTER,	120);
-	m_statusList.InsertColumn(idx++, _T("Cpu"),					LVCFMT_CENTER,	60);
-	m_statusList.InsertColumn(idx++, _T("Memory"),				LVCFMT_CENTER,	100);
-	m_statusList.InsertColumn(idx++, _T("Entities"),			LVCFMT_CENTER,	100);
-	m_statusList.InsertColumn(idx++, _T("Proxies"),				LVCFMT_CENTER,	100);
-	m_statusList.InsertColumn(idx++, _T("Clients"),				LVCFMT_CENTER,	100);
-	m_statusList.InsertColumn(idx++, _T("Cells"),				LVCFMT_CENTER,	100);
-	m_statusList.InsertColumn(idx++, _T("Address"),				LVCFMT_CENTER,	140);
-	m_statusList.InsertColumn(idx++, _T("Username"),			LVCFMT_CENTER,	100);
+	m_statusList.InsertColumn(idx++, _T("uid"),					LVCFMT_CENTER,	40);
+	m_statusList.InsertColumn(idx++, _T("componentType"),		LVCFMT_CENTER,	100);
+	m_statusList.InsertColumn(idx++, _T("componentID"),			LVCFMT_CENTER,	120);
+	m_statusList.InsertColumn(idx++, _T("cpu"),					LVCFMT_CENTER,	60);
+	m_statusList.InsertColumn(idx++, _T("memory"),				LVCFMT_CENTER,	100);
+	m_statusList.InsertColumn(idx++, _T("entities"),			LVCFMT_CENTER,	100);
+	m_statusList.InsertColumn(idx++, _T("proxies"),				LVCFMT_CENTER,	100);
+	m_statusList.InsertColumn(idx++, _T("clients"),				LVCFMT_CENTER,	100);
+	m_statusList.InsertColumn(idx++, _T("cells"),				LVCFMT_CENTER,	100);
+	m_statusList.InsertColumn(idx++, _T("address"),				LVCFMT_CENTER,	140);
+	m_statusList.InsertColumn(idx++, _T("username"),			LVCFMT_CENTER,	100);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }

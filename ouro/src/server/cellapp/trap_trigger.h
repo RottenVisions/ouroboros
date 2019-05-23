@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_TRAP_TRIGGER_H
 #define OURO_TRAP_TRIGGER_H
@@ -17,7 +17,7 @@ public:
 	virtual ~TrapTrigger();
 
 
-
+	
 	/**
 		A node enters or leaves the rangeTrigger
 	*/

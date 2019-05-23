@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "network_interface.h"
@@ -17,7 +17,7 @@
 #include "network/interfaces.h"
 #include "network/message_handler.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 
@@ -47,7 +47,7 @@ NetworkInterface::NetworkInterface(Network::EventDispatcher * pDispatcher,
 		this->initialize("EXTERNAL-TCP", htons(extlisteningTcpPort_min), htons(extlisteningTcpPort_max),
 			extlisteningInterface, &extTcpEndpoint_, pExtListenerReceiver_, extrbuffer, extwbuffer);
 
-		// If the external port range is configured, if the range is too small here extEndpoint_ may not have a port available
+		// If the external port range is configured, if the range is too small, there may be no ports available for extEndpoint_
 		if(extlisteningTcpPort_min != -1)
 		{
 			OURO_ASSERT(extTcpEndpoint_.good() && "Channel::EXTERNAL-TCP: no available port, "
@@ -62,10 +62,10 @@ NetworkInterface::NetworkInterface(Network::EventDispatcher * pDispatcher,
 		this->initialize("EXTERNAL-UDP", htons(extlisteningUdpPort_min), htons(extlisteningUdpPort_max),
 			extlisteningInterface, &extUdpEndpoint_, pExtUdpListenerReceiver_, extrbuffer, extwbuffer);
 
-		// If the external port range is configured, if the range is too small here extEndpoint_ may not have a port available
+		// If the external port range is configured, if the range is too small, there may be no ports available for extEndpoint_
 		if (extlisteningUdpPort_min != -1)
 		{
-			OURO_ASSERT(extTcpEndpoint_.good() && "Channel::EXTERNAL-UDP: no available udp-port, "
+			OURO_ASSERT(extUdpEndpoint_.good() && "Channel::EXTERNAL-UDP: no available udp-port, "
 				"please check for ouroboros[_defs].xml!\n");
 		}
 	}
@@ -135,7 +135,7 @@ void NetworkInterface::closeSocket()
 
 //-------------------------------------------------------------------------------------
 bool NetworkInterface::initialize(const char* pEndPointName, uint16 listeningPort_min, uint16 listeningPort_max,
-										const char * listeningInterface, EndPoint* pEP, ListenerReceiver* pLR, uint32 rbuffer,
+										const char * listeningInterface, EndPoint* pEP, ListenerReceiver* pLR, uint32 rbuffer, 
 										uint32 wbuffer)
 {
 	OURO_ASSERT(listeningInterface && pEP && pLR);
@@ -164,18 +164,18 @@ bool NetworkInterface::initialize(const char* pEndPointName, uint16 listeningPor
 
 		return false;
 	}
-
+	
 	if (listeningPort_min > 0 && listeningPort_min == listeningPort_max)
 		pEP->setreuseaddr(true);
-
+	
 	this->dispatcher().registerReadFileDescriptor(*pEP, pLR);
-
+	
 	u_int32_t ifIPAddr = INADDR_ANY;
 
 	bool listeningInterfaceEmpty =
 		(listeningInterface == NULL || listeningInterface[0] == 0);
 
-	// Finds whether the specified interface name NIP, MAC, and IP are available
+	// Find the specified interface name NIP, MAC, IP is available
 	if(pEP->findIndicatedInterface(listeningInterface, ifIPAddr) == 0)
 	{
 		char szIp[MAX_IP] = {0};
@@ -185,14 +185,14 @@ bool NetworkInterface::initialize(const char* pEndPointName, uint16 listeningPor
 			pEndPointName, listeningInterface, szIp));
 	}
 
-	// If it is not empty and it cannot be found, then the user is warned about the wrong settings, and we use the default method (bind to INADDR_ANY)
+	// If not empty and can not find the user's wrong settings, and we use the default way (bound to INADDR_ANY)
 	else if (!listeningInterfaceEmpty)
 	{
 		WARNING_MSG(fmt::format("NetworkInterface::initialize({}): Couldn't parse interface spec '{}' so using all interfaces\n",
 			pEndPointName, listeningInterface));
 	}
-
-	// Attempt to bind to the port if it is occupied backwards
+	
+	// Try to bind to the port, if it is occupied backwards
 	bool foundport = false;
 	uint32 listeningPort = listeningPort_min;
 	if(listeningPort_min != listeningPort_max)
@@ -219,17 +219,17 @@ bool NetworkInterface::initialize(const char* pEndPointName, uint16 listeningPor
 		}
 	}
 
-	// If you can't bind to an appropriate port then an error will return and the process will exit
+	// If you can not bind to the appropriate port then return an error, the process will exit
 	if(!foundport)
 	{
 		ERROR_MSG(fmt::format("NetworkInterface::initialize({}): Couldn't bind the socket to {}:{} ({})\n",
 			pEndPointName, inet_ntoa((struct in_addr&)ifIPAddr), ntohs(listeningPort), ouro_strerror()));
-
+		
 		pEP->close();
 		return false;
 	}
 
-	// Get the current binding address, if it is INADDR_ANY here to obtain the IP is 0
+	// Get the current bound address. If it is INADDR_ANY, the IP obtained here is 0.
 	pEP->getlocaladdress( (u_int16_t*)&address.port,
 		(u_int32_t*)&address.ip );
 
@@ -253,11 +253,11 @@ bool NetworkInterface::initialize(const char* pEndPointName, uint16 listeningPor
 			return false;
 		}
 	}
-
+	
 	pEP->setnonblocking(true);
 	pEP->setnodelay(true);
 	pEP->addr(address);
-
+	
 	if(rbuffer > 0)
 	{
 		if (!pEP->setBufferSize(SO_RCVBUF, rbuffer))
@@ -292,7 +292,7 @@ bool NetworkInterface::initialize(const char* pEndPointName, uint16 listeningPor
 		}
 	}
 
-	INFO_MSG(fmt::format("NetworkInterface::initialize({}): address {}, SOMAXCONN={}.\n",
+	INFO_MSG(fmt::format("NetworkInterface::initialize({}): address {}, SOMAXCONN={}.\n", 
 		pEndPointName, address.c_str(), backlog));
 
 	return true;
@@ -313,7 +313,7 @@ void NetworkInterface::sendIfDelayed(Channel & channel)
 //-------------------------------------------------------------------------------------
 void NetworkInterface::handleTimeout(TimerHandle handle, void * arg)
 {
-	INFO_MSG(fmt::format("NetworkInterface::handleTimeout: EXTERNAL({}), INTERNAL({}).\n",
+	INFO_MSG(fmt::format("NetworkInterface::handleTimeout: EXTERNAL({}), INTERNAL({}).\n", 
 		extTcpAddr().c_str(), intTcpAddr().c_str()));
 }
 
@@ -408,7 +408,7 @@ bool NetworkInterface::deregisterChannel(Channel* pChannel)
 	if(pChannelDeregisterHandler_)
 	{
 		pChannelDeregisterHandler_->onChannelDeregister(pChannel);
-	}
+	}	
 
 	return true;
 }
@@ -440,17 +440,24 @@ void NetworkInterface::processChannels(Ouroboros::Network::MessageHandlers* pMsg
 		{
 			++iter;
 		}
-		else if(pChannel->isCondemn())
+		else if(pChannel->condemn() > 0)
 		{
 			++iter;
 
-			deregisterChannel(pChannel);
-			pChannel->destroy();
-			Network::Channel::reclaimPoolObject(pChannel);
+			if (pChannel->condemn() == Network::Channel::FLAG_CONDEMN_AND_WAIT_DESTROY && pChannel->sending())
+			{
+				pChannel->updateTick(pMsgHandlers);
+			}
+			else
+			{
+				deregisterChannel(pChannel);
+				pChannel->destroy();
+				Network::Channel::reclaimPoolObject(pChannel);
+			}
 		}
 		else
 		{
-			pChannel->processPackets(pMsgHandlers);
+			pChannel->updateTick(pMsgHandlers);
 			++iter;
 		}
 	}

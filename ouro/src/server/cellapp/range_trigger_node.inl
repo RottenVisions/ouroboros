@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 namespace Ouroboros{
@@ -89,6 +89,12 @@ INLINE RangeTrigger* RangeTriggerNode::pRangeTrigger() const
 INLINE void RangeTriggerNode::pRangeTrigger(RangeTrigger* pRangeTrigger)
 {
 	pRangeTrigger_ = pRangeTrigger;
+}
+
+//-------------------------------------------------------------------------------------
+INLINE bool RangeTriggerNode::isPositive() const
+{
+	return hasFlags(COORDINATE_NODE_FLAG_POSITIVE_BOUNDARY);
 }
 
 //-------------------------------------------------------------------------------------

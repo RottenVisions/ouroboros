@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "datatypes.h"
@@ -10,6 +10,8 @@ DataTypes::DATATYPE_MAP DataTypes::dataTypes_;
 DataTypes::DATATYPE_MAP DataTypes::dataTypesLowerName_;
 DataTypes::UID_DATATYPE_MAP DataTypes::uid_dataTypes_;
 DataTypes::DATATYPE_ORDERS DataTypes::dataTypesOrders_;
+
+static uint8 _g_baseTypeEndIndex = 0;
 
 //-------------------------------------------------------------------------------------
 DataTypes::DataTypes()
@@ -26,12 +28,25 @@ DataTypes::~DataTypes()
 void DataTypes::finalise(void)
 {
 	//DATATYPE_MAP::iterator iter = dataTypes_.begin();
-	//for (; iter != dataTypes_.end(); ++iter)
+	//for (; iter != dataTypes_.end(); ++iter) 
 	//	iter->second->decRef();
 
 	uid_dataTypes_.clear();
 	dataTypesLowerName_.clear();
 	dataTypes_.clear();
+	dataTypesOrders_.clear();
+
+	_g_baseTypeEndIndex = 0;
+}
+
+//-------------------------------------------------------------------------------------
+bool DataTypes::validTypeName(const std::string& typeName)
+{
+	// Do not allow _ to be added before, because some temporary structures generated internally use _ before, to avoid false positives
+	if (typeName.size() > 0 && typeName[0] == '_')
+		return false;
+
+	return true;
 }
 
 //-------------------------------------------------------------------------------------
@@ -62,23 +77,41 @@ bool DataTypes::initialize(std::string file)
 	addDataType("VECTOR2",		new Vector2Type);
 	addDataType("VECTOR3",		new Vector3Type);
 	addDataType("VECTOR4",		new Vector4Type);
+
+	_g_baseTypeEndIndex = dataTypesOrders_.size();
 	return loadTypes(file);
+}
+
+//-------------------------------------------------------------------------------------
+std::vector< std::string > DataTypes::getBaseTypeNames()
+{
+	std::vector< std::string > ret;
+	ret.assign(dataTypesOrders_.begin(), dataTypesOrders_.begin() + _g_baseTypeEndIndex);
+	return ret;
 }
 
 //-------------------------------------------------------------------------------------
 bool DataTypes::loadTypes(std::string& file)
 {
-	TiXmlNode* node = NULL;
-	SmartPointer<XML> xml(new XML(Resmgr::getSingleton().matchRes(file).c_str()));
+	// Allow pure script definition, there may be no such file
+	if (access(file.c_str(), 0) != 0)
+		return true;
 
-	if(xml == NULL || !xml->isGood())
+	SmartPointer<XML> xml(new XML(Resmgr::getSingleton().matchRes(file).c_str()));
+	return loadTypes(xml);
+}
+
+//-------------------------------------------------------------------------------------
+bool DataTypes::loadTypes(SmartPointer<XML>& xml)
+{
+	if (xml == NULL || !xml->isGood())
 		return false;
 
-	node = xml->getRootNode();
+	TiXmlNode* node = xml->getRootNode();
 
 	if(node == NULL)
 	{
-		// There is no child node under the root node
+		// There are no children under the root node.
 		return true;
 	}
 
@@ -88,8 +121,7 @@ bool DataTypes::loadTypes(std::string& file)
 		std::string aliasName = xml->getKey(node);
 		TiXmlNode* childNode = node->FirstChild();
 
-		// Do not allow _ to be added before, because some internal temporary structures use _ in front of them to avoid false positives
-		if (aliasName[0] == '_')
+		if (!DataTypes::validTypeName(aliasName))
 		{
 			ERROR_MSG(fmt::format("DataTypes::loadTypes: Not allowed to use the prefix \"_\"! aliasName={}\n",
 				aliasName.c_str()));
@@ -103,16 +135,16 @@ bool DataTypes::loadTypes(std::string& file)
 			if(type == "FIXED_DICT")
 			{
 				FixedDictType* fixedDict = new FixedDictType;
-
+				
 				if(fixedDict->initialize(xml.get(), childNode, aliasName))
 				{
 					addDataType(aliasName, fixedDict);
 				}
 				else
 				{
-					ERROR_MSG(fmt::format("DataTypes::loadTypes: parse FIXED_DICT [{}] error!\n",
+					ERROR_MSG(fmt::format("DataTypes::loadTypes: parse FIXED_DICT [{}] error!\n", 
 						aliasName.c_str()));
-
+					
 					delete fixedDict;
 					return false;
 				}
@@ -120,16 +152,16 @@ bool DataTypes::loadTypes(std::string& file)
 			else if(type == "ARRAY")
 			{
 				FixedArrayType* fixedArray = new FixedArrayType;
-
+				
 				if(fixedArray->initialize(xml.get(), childNode, aliasName))
 				{
 					addDataType(aliasName, fixedArray);
 				}
 				else
 				{
-					ERROR_MSG(fmt::format("DataTypes::loadTypes: parse ARRAY [{}] error!\n",
+					ERROR_MSG(fmt::format("DataTypes::loadTypes: parse ARRAY [{}] error!\n", 
 						aliasName.c_str()));
-
+					
 					delete fixedArray;
 					return false;
 				}
@@ -139,9 +171,9 @@ bool DataTypes::loadTypes(std::string& file)
 				DataType* dataType = getDataType(type);
 				if(dataType == NULL)
 				{
-					ERROR_MSG(fmt::format("DataTypes::loadTypes: can't fount type {} by alias[{}].\n",
+					ERROR_MSG(fmt::format("DataTypes::loadTypes: can't fount type {} by alias[{}].\n", 
 						type.c_str(), aliasName.c_str()));
-
+					
 					return false;
 				}
 
@@ -150,7 +182,7 @@ bool DataTypes::loadTypes(std::string& file)
 		}
 	}
 	XML_FOR_END(node);
-
+	
 	return true;
 }
 
@@ -161,11 +193,11 @@ bool DataTypes::addDataType(std::string name, DataType* dataType)
 
 	dataType->aliasName(name);
 	std::string lowername = name;
-	std::transform(lowername.begin(), lowername.end(), lowername.begin(), tolower);
+	std::transform(lowername.begin(), lowername.end(), lowername.begin(), tolower);	
 
 	DATATYPE_MAP::iterator iter = dataTypesLowerName_.find(lowername);
 	if (iter != dataTypesLowerName_.end())
-	{
+	{ 
 		ERROR_MSG(fmt::format("DataTypes::addDataType(name): name {} exist.\n", name.c_str()));
 		return false;
 	}
@@ -178,7 +210,7 @@ bool DataTypes::addDataType(std::string name, DataType* dataType)
 
 	if(g_debugEntity)
 	{
-		DEBUG_MSG(fmt::format("DataTypes::addDataType(name): {:p} name={}, aliasName={}, uid={}.\n",
+		DEBUG_MSG(fmt::format("DataTypes::addDataType(name): {:p} name={}, aliasName={}, uid={}.\n", 
 			(void*)dataType, name, dataType->aliasName(), dataType->id()));
 	}
 
@@ -199,7 +231,7 @@ bool DataTypes::addDataType(DATATYPE_UID uid, DataType* dataType)
 
 	if(g_debugEntity)
 	{
-		DEBUG_MSG(fmt::format("DataTypes::addDataType(uid): {:p} aliasName={}, uid={}.\n",
+		DEBUG_MSG(fmt::format("DataTypes::addDataType(uid): {:p} aliasName={}, uid={}.\n", 
 			(void*)dataType, dataType->aliasName(), uid));
 	}
 
@@ -230,7 +262,7 @@ void DataTypes::delDataType(std::string name)
 DataType* DataTypes::getDataType(std::string name, bool notFoundOutError)
 {
 	DATATYPE_MAP::iterator iter = dataTypes_.find(name);
-	if (iter != dataTypes_.end())
+	if (iter != dataTypes_.end()) 
 		return iter->second.get();
 
 	if (notFoundOutError)
@@ -245,7 +277,7 @@ DataType* DataTypes::getDataType(std::string name, bool notFoundOutError)
 DataType* DataTypes::getDataType(const char* name, bool notFoundOutError)
 {
 	DATATYPE_MAP::iterator iter = dataTypes_.find(name);
-	if (iter != dataTypes_.end())
+	if (iter != dataTypes_.end()) 
 		return iter->second.get();
 
 	if (notFoundOutError)
@@ -260,7 +292,7 @@ DataType* DataTypes::getDataType(const char* name, bool notFoundOutError)
 DataType* DataTypes::getDataType(DATATYPE_UID uid)
 {
 	UID_DATATYPE_MAP::iterator iter = uid_dataTypes_.find(uid);
-	if (iter != uid_dataTypes_.end())
+	if (iter != uid_dataTypes_.end()) 
 		return iter->second;
 
 	ERROR_MSG(fmt::format("DataTypes::getDataType:not found type {}.\n", uid));

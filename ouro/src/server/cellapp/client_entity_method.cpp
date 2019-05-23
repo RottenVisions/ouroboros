@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "witness.h"
 #include "cellapp.h"
@@ -21,7 +21,7 @@ SCRIPT_MEMBER_DECLARE_END()
 
 SCRIPT_GETSET_DECLARE_BEGIN(ClientEntityMethod)
 SCRIPT_GETSET_DECLARE_END()
-SCRIPT_INIT(ClientEntityMethod, tp_call, 0, 0, 0, 0)
+SCRIPT_INIT(ClientEntityMethod, tp_call, 0, 0, 0, 0)	
 
 //-------------------------------------------------------------------------------------
 ClientEntityMethod::ClientEntityMethod(PropertyDescription* pComponentPropertyDescription,
@@ -42,12 +42,12 @@ ClientEntityMethod::~ClientEntityMethod()
 }
 
 //-------------------------------------------------------------------------------------
-PyObject* ClientEntityMethod::tp_call(PyObject* self, PyObject* args,
-	PyObject* kwds)
+PyObject* ClientEntityMethod::tp_call(PyObject* self, PyObject* args, 
+	PyObject* kwds)	
 {
 	ClientEntityMethod* rmethod = static_cast<ClientEntityMethod*>(self);
-	return rmethod->callmethod(args, kwds);
-}
+	return rmethod->callmethod(args, kwds);	
+}		
 
 //-------------------------------------------------------------------------------------
 PyObject* ClientEntityMethod::callmethod(PyObject* args, PyObject* kwds)
@@ -57,7 +57,7 @@ PyObject* ClientEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 	if(srcEntity == NULL)
 	{
 		PyErr_Format(PyExc_AssertionError, "Entity::clientEntity(%s): srcEntityID(%d) not found!\n",
-			methodDescription_->getName(), srcEntityID_);
+			methodDescription_->getName(), srcEntityID_);		
 		PyErr_PrintEx(0);
 		return 0;
 	}
@@ -73,15 +73,15 @@ PyObject* ClientEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 	if(!srcEntity->isReal())
 	{
 		PyErr_Format(PyExc_AssertionError, "%s::clientEntity(%s): not is real entity, srcEntityID(%d).\n",
-			srcEntity->scriptName(), methodDescription_->getName(), srcEntity->id());
+			srcEntity->scriptName(), methodDescription_->getName(), srcEntity->id());		
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+	
 	if(srcEntity->pWitness() == NULL)
 	{
 		PyErr_Format(PyExc_AssertionError, "%s::clientEntity(%s): no client, srcEntityID(%d).\n",
-			srcEntity->scriptName(), methodDescription_->getName(), srcEntity->id());
+			srcEntity->scriptName(), methodDescription_->getName(), srcEntity->id());		
 		PyErr_PrintEx(0);
 		return 0;
 	}
@@ -90,11 +90,11 @@ PyObject* ClientEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 	if(!pChannel)
 	{
 		PyErr_Format(PyExc_AssertionError, "%s::clientEntity(%s): no client, srcEntityID(%d).\n",
-			srcEntity->scriptName(), methodDescription_->getName(), srcEntity->id());
+			srcEntity->scriptName(), methodDescription_->getName(), srcEntity->id());		
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+			
 	EntityRef* pEntityRef = srcEntity->pWitness()->getViewEntityRef(clientEntityID_);
 	Entity* e = (pEntityRef && ((pEntityRef->flags() & (ENTITYREF_FLAG_ENTER_CLIENT_PENDING | ENTITYREF_FLAG_LEAVE_CLIENT_PENDING)) <= 0))
 		? pEntityRef->pEntity() : NULL;
@@ -102,7 +102,7 @@ PyObject* ClientEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 	if(e == NULL)
 	{
 		PyErr_Format(PyExc_AssertionError, "%s::clientEntity(%s): not found entity(%d), srcEntityID(%d).\n",
-			srcEntity->scriptName(), methodDescription_->getName(), clientEntityID_, srcEntity->id());
+			srcEntity->scriptName(), methodDescription_->getName(), clientEntityID_, srcEntity->id());	
 
 		PyErr_PrintEx(0);
 
@@ -112,9 +112,9 @@ PyObject* ClientEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 	MethodDescription* methodDescription = getDescription();
 	if(methodDescription->checkArgs(args))
 	{
-		MemoryStream* mstream = MemoryStream::createPoolObject();
+		MemoryStream* mstream = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 
-		// If it is a message broadcast to the component
+		// if it is a message broadcast to the component
 		if (pComponentPropertyDescription_)
 		{
 			if (pScriptModule_->usePropertyDescrAlias())
@@ -130,14 +130,26 @@ PyObject* ClientEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 				(*mstream) << (ENTITY_PROPERTY_UID)0;
 		}
 
-		methodDescription->addToStream(mstream, args);
+		try
+		{
+			methodDescription->addToStream(mstream, args);
+		}
+		catch (MemoryStreamWriteOverflow & err)
+		{
+			PyErr_Format(PyExc_AssertionError, "%s::clientEntity(%s): srcEntityID(%d), error=%s!\n",
+				srcEntity->scriptName(), methodDescription_->getName(), srcEntity->id(), err.what().c_str());
+			PyErr_PrintEx(0);
+
+			MemoryStream::reclaimPoolObject(mstream);
+			S_Return;
+		}
 
 		Network::Bundle* pSendBundle = pChannel->createSendBundle();
 		NETWORK_ENTITY_MESSAGE_FORWARD_CLIENT_BEGIN(srcEntity->id(), (*pSendBundle));
 
 		int ialiasID = -1;
-		const Network::MessageHandler& msgHandler =
-				srcEntity->pWitness()->getViewEntityMessageHandler(ClientInterface::onRemoteMethodCall,
+		const Network::MessageHandler& msgHandler = 
+				srcEntity->pWitness()->getViewEntityMessageHandler(ClientInterface::onRemoteMethodCall, 
 				ClientInterface::onRemoteMethodCallOptimized, clientEntityID_, ialiasID);
 
 		ENTITY_MESSAGE_FORWARD_CLIENT_BEGIN(pSendBundle, msgHandler, viewEntityMessage);
@@ -152,7 +164,7 @@ PyObject* ClientEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 			OURO_ASSERT(msgHandler.msgID == ClientInterface::onRemoteMethodCall.msgID);
 			(*pSendBundle)  << clientEntityID_;
 		}
-
+			
 		if(mstream->wpos() > 0)
 			(*pSendBundle).append(mstream->data(), (int)mstream->wpos());
 
@@ -178,17 +190,17 @@ PyObject* ClientEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 			};
 
 			if(Network::g_trace_packet_use_logfile)
-				DebugHelper::getSingleton().changeLogger(COMPONENT_NAME_EX(g_componentType));
+				DebugHelper::getSingleton().changeLogger(COMPONENT_NAME_EX(g_componentType));																				
 		}
 
 		ENTITY_MESSAGE_FORWARD_CLIENT_END(pSendBundle, msgHandler, viewEntityMessage);
 
 		// Record the amount of data generated by this event
-		g_publicClientEventHistoryStats.trackEvent(srcEntity->scriptName(),
-			(std::string(e->scriptName()) + "." + methodDescription->getName()),
-			pSendBundle->currMsgLength(),
+		g_publicClientEventHistoryStats.trackEvent(srcEntity->scriptName(), 
+			(std::string(e->scriptName()) + "." + methodDescription->getName()), 
+			pSendBundle->currMsgLength(), 
 			"::");
-
+		
 		srcEntity->pWitness()->sendToClient(ClientInterface::onRemoteMethodCallOptimized, pSendBundle);
 
 		MemoryStream::reclaimPoolObject(mstream);

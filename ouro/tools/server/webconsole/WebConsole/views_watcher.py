@@ -14,7 +14,7 @@ from .auth import login_check
 @login_check
 def show_components( request ):
 	"""
-	The console can be connected to the components display page
+	Console connectable component display page
 	"""
 	VALID_CT = set( [
 			Define.DBMGR_TYPE,
@@ -26,19 +26,19 @@ def show_components( request ):
 		] )
 
 	html_template = "WebConsole/watcher_show_components.html"
-
+	
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	ouroComps = []
+	kbeComps = []
 	for mID, comps in interfaces_groups.items():
 		for comp in comps:
 			if comp.componentType in VALID_CT:
-				ouroComps.append( comp)
+				kbeComps.append( comp)
 
 	context = {
 		"http_host":request.META["HTTP_HOST"],
-		"OUROComps" : ouroComps,
+		"OUROComps" : kbeComps,
 	}
 	return render( request, html_template, context )
 
@@ -56,13 +56,13 @@ def connect( request ):
 		cp_key  = GET["key"]
 	except:
 		context = {
-			"err" : "Process is not running"
+			"err" : "The process is not running"
 		}
 		return render(request, html_template, context)
 
 	ws_url = "ws://%s/wc/watcher/process_cmd?cp=%s&port=%s&host=%s&key=%s" % ( request.META["HTTP_HOST"], cp_type, cp_port, cp_host, cp_key )
 
-	context = {
+	context = { 
 		"http_host":request.META["HTTP_HOST"],
 		"ws_url" : ws_url,
 	}
@@ -74,12 +74,12 @@ from dwebsocket import accept_websocket
 
 class WatcherData(object):
 	def __init__(self, wInst, cp, port, host, key):
-	    self.wInst = wInst
-	    self.cp = cp
-	    self.port = port
-	    self.host = host
-	    self.key = key
-	    self.watcher = Watcher.Watcher(cp)
+		self.wInst = wInst
+		self.cp = cp
+		self.port = port
+		self.host = host
+		self.key = key
+		self.watcher = Watcher.Watcher(cp)
 
 	def do(self):
 		self.watcher.connect(self.host,self.port)

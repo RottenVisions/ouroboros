@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_NETWORK_STATS_H
 #define OURO_NETWORK_STATS_H
@@ -7,14 +7,14 @@
 #include "common/common.h"
 #include "common/singleton.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 
 class MessageHandler;
 
 /*
-	Record network traffic and other information
+	Record information such as network traffic
 */
 class NetworkStats : public Singleton<NetworkStats>
 {
@@ -42,7 +42,7 @@ public:
 		uint32 recv_count;
 	};
 
-	typedef OUROUnordered_map<std::string, Stats> STATS;
+	typedef KBEUnordered_map<std::string, Stats> STATS;
 
 	NetworkStats();
 	~NetworkStats();

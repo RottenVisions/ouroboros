@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_UPDATE_DB_SERVER_LOG_HANDLER_H
 #define OURO_UPDATE_DB_SERVER_LOG_HANDLER_H

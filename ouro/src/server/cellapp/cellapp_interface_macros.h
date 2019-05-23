@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #if defined(DEFINE_IN_INTERFACE)
@@ -9,14 +9,14 @@
 #ifndef OURO_CELLAPP_INTERFACE_MACRO_H
 #define OURO_CELLAPP_INTERFACE_MACRO_H
 
-// common include
+// common include	
 #include "network/interface_defs.h"
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
 #endif
-
+	
 namespace Ouroboros{
 
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
@@ -38,7 +38,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CELLAPP_MESSAGE_HANDLER_STREAM(NAME)									\
@@ -58,7 +58,7 @@ namespace Ouroboros{
 																				\
 
 /**
-	Cellapp message macro, message with only zero parameters
+	Cellapp message macro, message with zero parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CELLAPP_MESSAGE_HANDLER_ARGS0
@@ -79,7 +79,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CELLAPP_MESSAGE_HANDLER_ARGS0(NAME)										\
@@ -99,7 +99,7 @@ namespace Ouroboros{
 																				\
 
 /**
-	Cellapp message macro, only one parameter message
+	Cellapp message macro, message with only one parameter
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CELLAPP_MESSAGE_HANDLER_ARGS1
@@ -122,7 +122,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CELLAPP_MESSAGE_HANDLER_ARGS1(NAME, ARG_TYPE1, ARG_NAME1)				\
@@ -170,7 +170,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CELLAPP_MESSAGE_HANDLER_ARGS2(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -227,7 +227,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CELLAPP_MESSAGE_HANDLER_ARGS3(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -291,7 +291,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CELLAPP_MESSAGE_HANDLER_ARGS4(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -322,7 +322,7 @@ namespace Ouroboros{
 											ARG_TYPE4, ARG_NAME4)				\
 
 /**
-	Cellapp message macro, only five parameters message
+	Cellapp message macro, message with only five parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CELLAPP_MESSAGE_HANDLER_ARGS5
@@ -363,7 +363,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CELLAPP_MESSAGE_HANDLER_ARGS5(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -399,7 +399,7 @@ namespace Ouroboros{
 
 
 /**
-	Cellapp message macro, only six parameters message
+	Cellapp message macro, message with only six parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CELLAPP_MESSAGE_HANDLER_ARGS6
@@ -444,7 +444,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CELLAPP_MESSAGE_HANDLER_ARGS6(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -484,7 +484,7 @@ namespace Ouroboros{
 
 
 /**
-	Cellapp message macro, only seven parameters message
+	Cellapp message macro, message with only seven parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CELLAPP_MESSAGE_HANDLER_ARGS7
@@ -534,7 +534,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CELLAPP_MESSAGE_HANDLER_ARGS7(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -633,7 +633,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CELLAPP_MESSAGE_HANDLER_ARGS8(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -739,7 +739,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CELLAPP_MESSAGE_HANDLER_ARGS9(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -791,7 +791,7 @@ namespace Ouroboros{
 
 
 /**
-	Cellapp message macro, only ten parameters message
+	Cellapp message macro, message with only ten parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CELLAPP_MESSAGE_HANDLER_ARGS10
@@ -854,7 +854,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CELLAPP_MESSAGE_HANDLER_ARGS10(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -910,7 +910,7 @@ namespace Ouroboros{
 
 
 /**
-	Cellapp message macro, message with only eleven parameters
+	Cellapp message macro, message with only one parameter
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef CELLAPP_MESSAGE_HANDLER_ARGS11
@@ -977,7 +977,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define CELLAPP_MESSAGE_HANDLER_ARGS11(NAME, ARG_TYPE1, ARG_NAME1,				\

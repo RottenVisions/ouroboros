@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "orders.h"
 #include "profile.h"
@@ -18,25 +18,27 @@
 #include "baseappmgr/baseappmgr_interface.h"
 #include "cellappmgr/cellappmgr_interface.h"
 #include "loginapp/loginapp_interface.h"
-#include "dbmgr/dbmgr_interface.h"
+#include "dbmgr/dbmgr_interface.h"	
 
 namespace Ouroboros{
-
+	
 ServerConfig g_serverConfig;
 OURO_SINGLETON_INIT(Interfaces);
 
 
 //-------------------------------------------------------------------------------------
-Interfaces::Interfaces(Network::EventDispatcher& dispatcher,
-			 Network::NetworkInterface& ninterface,
+Interfaces::Interfaces(Network::EventDispatcher& dispatcher, 
+			 Network::NetworkInterface& ninterface, 
 			 COMPONENT_TYPE componentType,
 			 COMPONENT_ID componentID):
 	PythonApp(dispatcher, ninterface, componentType, componentID),
 	mainProcessTimer_(),
 	reqCreateAccount_requests_(),
 	reqAccountLogin_requests_(),
-	pTelnetServer_(NULL)
+	pTelnetServer_(NULL),
+	pyCallbackMgr_()
 {
+	Ouroboros::Network::MessageHandlers::pMainMessageHandlers = &InterfacesInterface::messageHandlers;
 }
 
 //-------------------------------------------------------------------------------------
@@ -45,12 +47,12 @@ Interfaces::~Interfaces()
 	mainProcessTimer_.cancel();
 
 	if(reqCreateAccount_requests_.size() > 0)
-	{
+	{	
 		int i = 0;
 		REQCREATE_MAP::iterator iter = reqCreateAccount_requests_.begin();
 		for(; iter != reqCreateAccount_requests_.end(); ++iter)
 		{
-			WARNING_MSG(fmt::format("Interfaces::~Interfaces(): Discarding {0}/{1} reqCreateAccount[{2:p}] tasks.\n",
+			WARNING_MSG(fmt::format("Interfaces::~Interfaces(): Discarding {0}/{1} reqCreateAccount[{2:p}] tasks.\n", 
 				++i, reqCreateAccount_requests_.size(), (void*)iter->second));
 		}
 	}
@@ -61,23 +63,23 @@ Interfaces::~Interfaces()
 		REQLOGIN_MAP::iterator iter = reqAccountLogin_requests_.begin();
 		for(; iter != reqAccountLogin_requests_.end(); ++iter)
 		{
-			WARNING_MSG(fmt::format("Interfaces::~Interfaces(): Discarding {0}/{1} reqAccountLogin[{2:p}] tasks.\n",
+			WARNING_MSG(fmt::format("Interfaces::~Interfaces(): Discarding {0}/{1} reqAccountLogin[{2:p}] tasks.\n", 
 				++i, reqAccountLogin_requests_.size(), (void*)iter->second));
 		}
 	}
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void Interfaces::onShutdownBegin()
 {
 	PythonApp::onShutdownBegin();
 
-	// Notification script
+	// notification script
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 	SCRIPT_OBJECT_CALL_ARGS0(getEntryScript().get(), const_cast<char*>("onInterfaceAppShutDown"), false);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void Interfaces::onShutdownEnd()
 {
 	PythonApp::onShutdownEnd();
@@ -107,9 +109,10 @@ void Interfaces::handleTimeout(TimerHandle handle, void * arg)
 //-------------------------------------------------------------------------------------
 void Interfaces::handleMainTick()
 {
-	 //time_t t = ::time(NULL);
-	 //DEBUG_MSG("Interfaces::handleGameTick[%"PRTime"]:%u\n", t, time_);
-
+	// time_t t = ::time(NULL);
+	// static int kbeTime = 0;
+	// DEBUG_MSG(fmt::format("Interfaces::handleGameTick[{}]:{}\n", t, ++kbeTime));
+	
 	threadPool_.onMainThreadTick();
 	networkInterface().processChannels(&InterfacesInterface::messageHandlers);
 }
@@ -124,6 +127,7 @@ bool Interfaces::initializeBegin()
 bool Interfaces::inInitialize()
 {
 	PythonApp::inInitialize();
+
 	// Broadcast your own address to all ouromachines on the web
 	Components::getSingleton().pHandler(this);
 	return true;
@@ -137,7 +141,7 @@ bool Interfaces::initializeEnd()
 	mainProcessTimer_ = this->dispatcher().addTimer(1000000 / g_ouroSrvConfig.gameUpdateHertz(), this,
 							reinterpret_cast<void *>(TIMEOUT_TICK));
 
-	// No channel timeout check
+	// Do not do channel timeout check
 	CLOSE_CHANNEL_INACTIVITIY_DETECTION();
 
 	if (!initDB())
@@ -146,8 +150,8 @@ bool Interfaces::initializeEnd()
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
 	// All scripts are loaded
-	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
-										const_cast<char*>("onInterfaceAppReady"),
+	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(), 
+										const_cast<char*>("onInterfaceAppReady"), 
 										const_cast<char*>(""));
 
 	if(pyResult != NULL)
@@ -166,7 +170,7 @@ bool Interfaces::initializeEnd()
 	return ret;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 void Interfaces::onInstallPyModules()
 {
 	PyObject * module = getScript().getModule();
@@ -182,9 +186,10 @@ void Interfaces::onInstallPyModules()
 	APPEND_SCRIPT_MODULE_METHOD(module,		chargeResponse,					__py_chargeResponse,									METH_VARARGS,	0);
 	APPEND_SCRIPT_MODULE_METHOD(module,		accountLoginResponse,			__py_accountLoginResponse,								METH_VARARGS,	0);
 	APPEND_SCRIPT_MODULE_METHOD(module,		createAccountResponse,			__py_createAccountResponse,								METH_VARARGS,	0);
+	APPEND_SCRIPT_MODULE_METHOD(module,		executeRawDatabaseCommand,		__py_executeRawDatabaseCommand,							METH_VARARGS,	0);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool Interfaces::initDB()
 {
 	return true;
@@ -199,7 +204,261 @@ void Interfaces::finalise()
 		SAFE_RELEASE(pTelnetServer_);
 	}
 
+	pyCallbackMgr_.finalise();
+
 	PythonApp::finalise();
+}
+
+//-------------------------------------------------------------------------------------
+void Interfaces::onRegisterNewApp(Network::Channel* pChannel, int32 uid, std::string& username,
+	COMPONENT_TYPE componentType, COMPONENT_ID componentID, COMPONENT_ORDER globalorderID, COMPONENT_ORDER grouporderID,
+	uint32 intaddr, uint16 intport, uint32 extaddr, uint16 extport, std::string& extaddrEx)
+{
+	if (pChannel->isExternal())
+		return;
+
+	PythonApp::onRegisterNewApp(pChannel, uid, username,
+		componentType, componentID, globalorderID, grouporderID,
+		intaddr, intport, extaddr, extport, extaddrEx);
+
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+	(*pBundle).newMessage(InterfacesInterface::onRegisterNewApp);
+
+	if (componentType == DBMGR_TYPE)
+	{
+		InterfacesInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(),
+			g_componentType, g_componentID,
+			g_componentGlobalOrder, g_componentGroupOrder,
+			networkInterface().intTcpAddr().ip, networkInterface().intTcpAddr().port,
+			networkInterface().extTcpAddr().ip, networkInterface().extTcpAddr().port, g_ouroSrvConfig.getConfig().externalAddress);
+
+		pChannel->send(pBundle);
+	}
+}
+
+//-------------------------------------------------------------------------------------
+PyObject* Interfaces::__py_executeRawDatabaseCommand(PyObject* self, PyObject* args)
+{
+	int argCount = (int)PyTuple_Size(args);
+	PyObject* pycallback = NULL;
+	PyObject* pyDBInterfaceName = NULL;
+	int ret = -1;
+	ENTITY_ID eid = -1;
+
+	char* data = NULL;
+	Py_ssize_t size;
+
+	if (argCount == 4)
+		ret = PyArg_ParseTuple(args, "s#|O|i|O", &data, &size, &pycallback, &eid, &pyDBInterfaceName);
+	else if (argCount == 3)
+		ret = PyArg_ParseTuple(args, "s#|O|i", &data, &size, &pycallback, &eid);
+	else if (argCount == 2)
+		ret = PyArg_ParseTuple(args, "s#|O", &data, &size, &pycallback);
+	else if (argCount == 1)
+		ret = PyArg_ParseTuple(args, "s#", &data, &size);
+
+	if (ret == -1)
+	{
+		PyErr_Format(PyExc_TypeError, "Ouroboros::executeRawDatabaseCommand: args error!");
+		PyErr_PrintEx(0);
+		S_Return;
+	}
+
+	std::string dbInterfaceName = "default";
+	if (pyDBInterfaceName)
+	{
+		dbInterfaceName = PyUnicode_AsUTF8AndSize(pyDBInterfaceName, NULL);
+
+		if (!g_ouroSrvConfig.dbInterface(dbInterfaceName))
+		{
+			PyErr_Format(PyExc_TypeError, "Ouroboros::executeRawDatabaseCommand: args4, incorrect dbInterfaceName(%s)!",
+				dbInterfaceName.c_str());
+
+			PyErr_PrintEx(0);
+			S_Return;
+		}
+	}
+
+	Interfaces::getSingleton().executeRawDatabaseCommand(data, (uint32)size, pycallback, eid, dbInterfaceName);
+	S_Return;
+}
+
+//-------------------------------------------------------------------------------------
+void Interfaces::executeRawDatabaseCommand(const char* datas, uint32 size, PyObject* pycallback, ENTITY_ID eid, const std::string& dbInterfaceName)
+{
+	if (datas == NULL)
+	{
+		ERROR_MSG("Ouroboros::executeRawDatabaseCommand: execute error!\n");
+		return;
+	}
+
+	Components::COMPONENTS& cts = Components::getSingleton().getComponents(DBMGR_TYPE);
+	Components::ComponentInfos* dbmgrinfos = NULL;
+
+	if (cts.size() > 0)
+	{
+		srand(Ouroboros::getSystemTime());
+		dbmgrinfos = &(cts[(rand() % cts.size())]);
+	}
+
+	if (dbmgrinfos == NULL || dbmgrinfos->pChannel == NULL || dbmgrinfos->cid == 0)
+	{
+		ERROR_MSG("Ouroboros::executeRawDatabaseCommand: not found dbmgr!\n");
+		return;
+	}
+
+	int dbInterfaceIndex = g_ouroSrvConfig.dbInterfaceName2dbInterfaceIndex(dbInterfaceName);
+	if (dbInterfaceIndex < 0)
+	{
+		ERROR_MSG(fmt::format("Ouroboros::executeRawDatabaseCommand: not found dbInterface({})!\n",
+			dbInterfaceName));
+
+		return;
+	}
+
+	//INFO_MSG(fmt::format("Ouroboros::executeRawDatabaseCommand{}:{}.\n", (eid > 0 ? fmt::format("(entityID={})", eid) : ""), datas));
+
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+	(*pBundle).newMessage(DbmgrInterface::executeRawDatabaseCommand);
+	(*pBundle) << eid;
+	(*pBundle) << (uint16)dbInterfaceIndex;
+	(*pBundle) << componentID_ << componentType_;
+
+	CALLBACK_ID callbackID = 0;
+
+	if (pycallback && PyCallable_Check(pycallback))
+		callbackID = callbackMgr().save(pycallback);
+
+	(*pBundle) << callbackID;
+	(*pBundle) << size;
+	(*pBundle).append(datas, size);
+	dbmgrinfos->pChannel->send(pBundle);
+}
+
+//-------------------------------------------------------------------------------------
+void Interfaces::onExecuteRawDatabaseCommandCB(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
+{
+	std::string err;
+	CALLBACK_ID callbackID = 0;
+	uint32 nrows = 0;
+	uint32 nfields = 0;
+	uint64 affectedRows = 0;
+	uint64 lastInsertID = 0;
+
+	PyObject* pResultSet = NULL;
+	PyObject* pAffectedRows = NULL;
+	PyObject* pLastInsertID = NULL;
+	PyObject* pErrorMsg = NULL;
+
+	s >> callbackID;
+	s >> err;
+
+	if (err.size() <= 0)
+	{
+		s >> nfields;
+
+		pErrorMsg = Py_None;
+		Py_INCREF(pErrorMsg);
+
+		if (nfields > 0)
+		{
+			pAffectedRows = Py_None;
+			Py_INCREF(pAffectedRows);
+
+			pLastInsertID = Py_None;
+			Py_INCREF(pLastInsertID);
+
+			s >> nrows;
+
+			pResultSet = PyList_New(nrows);
+			for (uint32 i = 0; i < nrows; ++i)
+			{
+				PyObject* pRow = PyList_New(nfields);
+				for (uint32 j = 0; j < nfields; ++j)
+				{
+					std::string cell;
+					s.readBlob(cell);
+
+					PyObject* pCell = NULL;
+
+					if (cell == "OURO_QUERY_DB_NULL")
+					{
+						Py_INCREF(Py_None);
+						pCell = Py_None;
+					}
+					else
+					{
+						pCell = PyBytes_FromStringAndSize(cell.data(), cell.length());
+					}
+
+					PyList_SET_ITEM(pRow, j, pCell);
+				}
+
+				PyList_SET_ITEM(pResultSet, i, pRow);
+			}
+		}
+		else
+		{
+			pResultSet = Py_None;
+			Py_INCREF(pResultSet);
+
+			pErrorMsg = Py_None;
+			Py_INCREF(pErrorMsg);
+
+			s >> affectedRows;
+
+			pAffectedRows = PyLong_FromUnsignedLongLong(affectedRows);
+
+			s >> lastInsertID;
+			pLastInsertID = PyLong_FromUnsignedLongLong(lastInsertID);
+		}
+	}
+	else
+	{
+		pResultSet = Py_None;
+		Py_INCREF(pResultSet);
+
+		pErrorMsg = PyUnicode_FromString(err.c_str());
+
+		pAffectedRows = Py_None;
+		Py_INCREF(pAffectedRows);
+
+		pLastInsertID = Py_None;
+		Py_INCREF(pLastInsertID);
+	}
+
+	s.done();
+
+	//DEBUG_MSG(fmt::format("Cellapp::onExecuteRawDatabaseCommandCB: nrows={}, nfields={}, err={}.\n", 
+	//	nrows, nfields, err.c_str()));
+
+	if (callbackID > 0)
+	{
+		SCOPED_PROFILE(SCRIPTCALL_PROFILE);
+
+		PyObjectPtr pyfunc = pyCallbackMgr_.take(callbackID);
+		if (pyfunc != NULL)
+		{
+			PyObject* pyResult = PyObject_CallFunction(pyfunc.get(),
+				const_cast<char*>("OOOO"),
+				pResultSet, pAffectedRows, pLastInsertID, pErrorMsg);
+
+			if (pyResult != NULL)
+				Py_DECREF(pyResult);
+			else
+				SCRIPT_ERROR_CHECK();
+		}
+		else
+		{
+			ERROR_MSG(fmt::format("Cellapp::onExecuteRawDatabaseCommandCB: not found callback:{}.\n",
+				callbackID));
+		}
+	}
+
+	Py_XDECREF(pResultSet);
+	Py_XDECREF(pAffectedRows);
+	Py_XDECREF(pLastInsertID);
+	Py_XDECREF(pErrorMsg);
 }
 
 //-------------------------------------------------------------------------------------
@@ -218,10 +477,10 @@ void Interfaces::eraseOrders(std::string ordersid)
 bool Interfaces::hasOrders(std::string ordersid)
 {
 	bool ret = false;
-
+	
 	ORDERS::iterator iter = orders_.find(ordersid);
 	ret = (iter != orders_.end());
-
+	
 	return ret;
 }
 
@@ -234,7 +493,7 @@ void Interfaces::reqCreateAccount(Network::Channel* pChannel, Ouroboros::MemoryS
 
 	s >> cid >> registerName >> password >> accountType;
 	s.readBlob(datas);
-
+	
 	if(accountType == (uint8)ACCOUNT_TYPE_MAIL)
 	{
 	}
@@ -259,12 +518,14 @@ void Interfaces::reqCreateAccount(Network::Channel* pChannel, Ouroboros::MemoryS
 
 	reqCreateAccount_requests_[pinfo->commitName] = pinfo;
 
-	// Handing the request to the script
+	// hand the request to the script
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
-										const_cast<char*>("onRequestCreateAccount"),
-										const_cast<char*>("ssy#"),
-										registerName.c_str(),
+	SCOPED_PROFILE(SCRIPTCALL_CREATEACCOUNT_PROFILE);
+
+	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(), 
+										const_cast<char*>("onRequestCreateAccount"), 
+										const_cast<char*>("ssy#"), 
+										registerName.c_str(), 
 										password.c_str(),
 										datas.c_str(), datas.length());
 
@@ -275,18 +536,18 @@ void Interfaces::reqCreateAccount(Network::Channel* pChannel, Ouroboros::MemoryS
 }
 
 //-------------------------------------------------------------------------------------
-void Interfaces::createAccountResponse(std::string commitName, std::string realAccountName,
+void Interfaces::createAccountResponse(std::string commitName, std::string realAccountName, 
 	std::string extraDatas, Ouroboros::SERVER_ERROR_CODE errorCode)
 {
 	REQCREATE_MAP::iterator iter = reqCreateAccount_requests_.find(commitName);
 	if (iter == reqCreateAccount_requests_.end())
 	{
-		// Theoretically impossible to find, but if it can't be found, this is a terrible thing and it must be recorded.
+		// It¡¯s impossible to find it theoretically, but if it¡¯s not found, it¡¯s a terrible thing, you have to write a log
 		ERROR_MSG(fmt::format("Interfaces::createAccountResponse: accountName '{}' not found!" \
-			"realAccountName = '{}', extra datas = '{}', error code = '{}'\n",
-			commitName,
-			realAccountName,
-			extraDatas,
+			"realAccountName = '{}', extra datas = '{}', error code = '{}'\n", 
+			commitName, 
+			realAccountName, 
+			extraDatas, 
 			errorCode));
 
 		return;
@@ -294,7 +555,7 @@ void Interfaces::createAccountResponse(std::string commitName, std::string realA
 
 	CreateAccountTask *task = iter->second;
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	(*pBundle).newMessage(DbmgrInterface::onCreateAccountCBFromInterfaces);
 	(*pBundle) << task->baseappID << commitName << realAccountName << task->password << errorCode;
@@ -314,7 +575,7 @@ void Interfaces::createAccountResponse(std::string commitName, std::string realA
 		Network::Bundle::reclaimPoolObject(pBundle);
 	}
 
-	// Clean up
+	// clean up
 	reqCreateAccount_requests_.erase(iter);
 	delete task;
 }
@@ -341,7 +602,7 @@ PyObject* Interfaces::__py_createAccountResponse(PyObject* self, PyObject* args)
 }
 
 //-------------------------------------------------------------------------------------
-void Interfaces::onAccountLogin(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
+void Interfaces::onAccountLogin(Network::Channel* pChannel, Ouroboros::MemoryStream& s) 
 {
 	std::string loginName, accountName, password, datas;
 	COMPONENT_ID cid;
@@ -369,13 +630,15 @@ void Interfaces::onAccountLogin(Network::Channel* pChannel, Ouroboros::MemoryStr
 
 	reqAccountLogin_requests_[pinfo->commitName] = pinfo;
 
-	// Handing the request to the script
+	// hand the request to the script
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
-										const_cast<char*>("onRequestAccountLogin"),
-										const_cast<char*>("ssy#"),
-										loginName.c_str(),
-										password.c_str(),
+	SCOPED_PROFILE(SCRIPTCALL_ACCOUNTLOGIN_PROFILE);
+
+	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(), 
+										const_cast<char*>("onRequestAccountLogin"), 
+										const_cast<char*>("ssy#"), 
+										loginName.c_str(), 
+										password.c_str(), 
 										datas.c_str(), datas.length());
 
 	if(pyResult != NULL)
@@ -385,18 +648,18 @@ void Interfaces::onAccountLogin(Network::Channel* pChannel, Ouroboros::MemoryStr
 }
 
 //-------------------------------------------------------------------------------------
-void Interfaces::accountLoginResponse(std::string commitName, std::string realAccountName,
+void Interfaces::accountLoginResponse(std::string commitName, std::string realAccountName, 
 	std::string extraDatas, Ouroboros::SERVER_ERROR_CODE errorCode)
 {
 	REQLOGIN_MAP::iterator iter = reqAccountLogin_requests_.find(commitName);
 	if (iter == reqAccountLogin_requests_.end())
 	{
-		// Theoretically impossible to find, but if it can't be found, this is a terrible thing and it must be recorded.
+		// It¡¯s impossible to find it theoretically, but if it¡¯s not found, it¡¯s a terrible thing, you have to write a log
 		ERROR_MSG(fmt::format("Interfaces::accountLoginResponse: commitName '{}' not found!" \
-			"realAccountName = '{}', extra datas = '{}', error code = '{}'\n",
-			commitName,
-			realAccountName,
-			extraDatas,
+			"realAccountName = '{}', extra datas = '{}', error code = '{}'\n", 
+			commitName, 
+			realAccountName, 
+			extraDatas, 
 			errorCode));
 
 		return;
@@ -404,8 +667,8 @@ void Interfaces::accountLoginResponse(std::string commitName, std::string realAc
 
 	LoginAccountTask *task = iter->second;
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
-
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+	
 	(*pBundle).newMessage(DbmgrInterface::onLoginAccountCBBFromInterfaces);
 	(*pBundle) << task->baseappID << commitName << realAccountName << task->password << errorCode;
 
@@ -424,7 +687,7 @@ void Interfaces::accountLoginResponse(std::string commitName, std::string realAc
 		Network::Bundle::reclaimPoolObject(pBundle);
 	}
 
-	// Clean up
+	// clean up
 	reqAccountLogin_requests_.erase(iter);
 	delete task;
 }
@@ -481,14 +744,16 @@ void Interfaces::charge(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 	pinfo->orders = *pOrdersCharge;
 	pinfo->pOrders = pOrdersCharge;
 	orders_[pOrdersCharge->ordersID].reset(pOrdersCharge);
-
-	// Handing the request to the script
+	
+	// hand the request to the script
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
-										const_cast<char*>("onRequestCharge"),
-										const_cast<char*>("sKy#"),
+	SCOPED_PROFILE(SCRIPTCALL_CHARGE_PROFILE);
+
+	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(), 
+										const_cast<char*>("onRequestCharge"), 
+										const_cast<char*>("sKy#"), 
 										pOrdersCharge->ordersID.c_str(),
-										pOrdersCharge->dbid,
+										pOrdersCharge->dbid, 
 										pOrdersCharge->postDatas.c_str(), pOrdersCharge->postDatas.length());
 
 	if(pyResult != NULL)
@@ -503,14 +768,14 @@ void Interfaces::chargeResponse(std::string orderID, std::string extraDatas, Our
 	ORDERS::iterator iter = orders_.find(orderID);
 	if (iter == orders_.end())
 	{
-		ERROR_MSG(fmt::format("Interfaces::chargeResponse: order id '{}' not found! extra datas = '{}', error code = '{}'\n",
-			orderID,
-			extraDatas,
+		ERROR_MSG(fmt::format("Interfaces::chargeResponse: order id '{}' not found! extra datas = '{}', error code = '{}'\n", 
+			orderID, 
+			extraDatas, 
 			errorCode));
-
-		// This situation also requires baseapp processing onLoseChargeCB
-		// For example, sometimes the client fails to register the order number with the server, but the billing platform returns.
-		// Send orders to all registered dbmgr
+		
+		// This situation also requires baseapp to handle onLoseChargeCB
+		// For example, when the client has a problem, the order number is not registered with the server, but the billing platform has returned.
+		// Send the order to all registered dbmgr
 		const Network::NetworkInterface::ChannelMap& channels = Interfaces::getSingleton().networkInterface().channels();
 		if(channels.size() > 0)
 		{
@@ -524,7 +789,7 @@ void Interfaces::chargeResponse(std::string orderID, std::string extraDatas, Our
 					DBID dbid = 0;
 					CALLBACK_ID cbid = 0;
 
-					Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+					Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 					(*pBundle).newMessage(DbmgrInterface::onChargeCB);
 					(*pBundle) << baseappID << orderID << dbid;
@@ -537,17 +802,17 @@ void Interfaces::chargeResponse(std::string orderID, std::string extraDatas, Our
 		}
 		else
 		{
-			ERROR_MSG(fmt::format("Interfaces::chargeResponse: not found channels. orders={}, datas={}\n",
+			ERROR_MSG(fmt::format("Interfaces::chargeResponse: not found channels. orders={}, datas={}\n", 
 				orderID, extraDatas));
 		}
 
 		return;
 	}
 
-	OUROShared_ptr<Orders> orders = iter->second;
+	KBEShared_ptr<Orders> orders = iter->second;
 	orders->getDatas = extraDatas;
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	(*pBundle).newMessage(DbmgrInterface::onChargeCB);
 	(*pBundle) << orders->baseappID << orders->ordersID << orders->dbid;
@@ -563,7 +828,7 @@ void Interfaces::chargeResponse(std::string orderID, std::string extraDatas, Our
 	}
 	else
 	{
-		ERROR_MSG(fmt::format("Interfaces::chargeResponse: not found channels. orders={}, datas={}\n",
+		ERROR_MSG(fmt::format("Interfaces::chargeResponse: not found channels. orders={}, datas={}\n", 
 			orderID, extraDatas));
 
 		Network::Bundle::reclaimPoolObject(pBundle);

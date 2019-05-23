@@ -1,13 +1,13 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "cellapp.h"
 #include "entity.h"
-#include "move_controller.h"
-#include "moveto_point_handler.h"
-#include "moveto_entity_handler.h"
-#include "navigate_handler.h"
+#include "move_controller.h"	
+#include "moveto_point_handler.h"	
+#include "moveto_entity_handler.h"	
+#include "navigate_handler.h"	
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 
 //-------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ void MoveController::destroy()
 {
 	Controller::destroy();
 
-	// Since they are going to be destroyed, the updatable associated with them should also be stopped.
+	// Since you have to destroy it, the updatable associated with yourself should also stop.
 	if (pMoveToPointHandler_)
 	{
 		pMoveToPointHandler_->destroy();
@@ -75,3 +75,4 @@ void MoveController::destroy()
 
 //-------------------------------------------------------------------------------------
 }
+

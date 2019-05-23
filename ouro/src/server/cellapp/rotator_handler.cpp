@@ -1,15 +1,15 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "cellapp.h"
 #include "entity.h"
 #include "rotator_handler.h"
 #include "turn_controller.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 
 //-------------------------------------------------------------------------------------
-RotatorHandler::RotatorHandler(OUROShared_ptr<Controller> pController, const Direction3D& destDir, float velocity, PyObject* userarg):
+RotatorHandler::RotatorHandler(KBEShared_ptr<Controller> pController, const Direction3D& destDir, float velocity, PyObject* userarg):
 destDir_(destDir),
 velocity_(fabs(velocity)),
 pyuserarg_(userarg),
@@ -28,7 +28,7 @@ RotatorHandler::RotatorHandler() :
 destDir_(0.f,0.f,0.f),
 velocity_(0.f),
 pyuserarg_(NULL),
-pController_(OUROShared_ptr<Controller>())
+pController_(KBEShared_ptr<Controller>())
 {
 	updatableName = "RotatorHandler";
 }
@@ -53,7 +53,7 @@ void RotatorHandler::addToStream(Ouroboros::MemoryStream& s)
 void RotatorHandler::createFromStream(Ouroboros::MemoryStream& s)
 {
 	s >> destDir_.dir.x >> destDir_.dir.y >> destDir_.dir.z >> velocity_;
-
+	
 	std::string val = "";
 	s.readBlob(val);
 	pyuserarg_ = script::Pickler::unpickle(val);
@@ -67,7 +67,7 @@ bool RotatorHandler::requestTurnOver()
 		if (pController_->pEntity())
 			pController_->pEntity()->onTurn(pController_->id(), pyuserarg_);
 
-		// Calling cancelController(id) in onTurn causes the Controller to destruct and causes pController_ to be NULL
+		// If calling cancelController(id) in onTurn causes the Controller to destruct and cause pController_ to be NULL
 		if (pController_)
 			pController_->destroy();
 	}
@@ -89,18 +89,18 @@ bool RotatorHandler::update()
 		delete this;
 		return false;
 	}
-
+		
 	Entity* pEntity = pController_->pEntity();
 	Py_INCREF(pEntity);
 
 	const Direction3D& dstDir = destDir();
 	Direction3D currDir = pEntity->direction();
 
-	// Get difference
+	// get the difference
 	float deltaYaw = dstDir.yaw() - currDir.yaw();
 
 	if (deltaYaw > OURO_PI)
-		deltaYaw = (float)((double)deltaYaw - OURO_2PI/* Since our radians are in the range of -PI to PI, here we prevent overflow */);
+				deltaYaw = (float)((double)deltaYaw - OURO_2PI/*Since our radians represent a range of -PI ~ PI, prevent overflow here.*/);
 	else if (deltaYaw < -OURO_PI)
 		deltaYaw = (float)((double)deltaYaw + OURO_2PI);
 
@@ -111,7 +111,7 @@ bool RotatorHandler::update()
 	}
 	else if (fabs(deltaYaw) > velocity_)
 	{
-		deltaYaw = OUROClamp(deltaYaw, -velocity_, velocity_);
+		deltaYaw = KBEClamp(deltaYaw, -velocity_, velocity_);
 		currDir.yaw(currDir.yaw() + deltaYaw);
 	}
 
@@ -124,7 +124,7 @@ bool RotatorHandler::update()
 	if (pController_)
 		pEntity->setPositionAndDirection(pEntity->position(), currDir);
 
-	// True if the destination is reached
+	// return true if the destination is reached
 	if (fabs(deltaYaw) < 0.0001f && requestTurnOver())
 	{
 		Py_DECREF(pEntity);
@@ -138,3 +138,4 @@ bool RotatorHandler::update()
 
 //-------------------------------------------------------------------------------------
 }
+

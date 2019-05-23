@@ -7,17 +7,12 @@ import email
 import email.message
 import re
 import io
-import shutil
 import tempfile
 from test import support
 import unittest
 import textwrap
 import mailbox
 import glob
-try:
-    import fcntl
-except ImportError:
-    pass
 
 
 class TestBase:
@@ -133,7 +128,7 @@ class TestMailbox(TestBase):
         Content-Type: text/plain; charset="utf-8"
         Content-Transfer-Encoding: 8bit
 
-        Да, они летят.
+        Да, они лет�?т.
         """).encode('utf-8')
 
     def test_add_8bit_body(self):
@@ -145,7 +140,7 @@ class TestMailbox(TestBase):
                              self._non_latin_bin_msg.replace(b'\n',
                                 os.linesep.encode()))
         self.assertEqual(self._box[key].get_payload(),
-                        "Да, они летят.\n")
+                        "Да, они лет�?т.\n")
 
     def test_add_binary_file(self):
         with tempfile.TemporaryFile('wb+') as f:
@@ -751,7 +746,7 @@ class TestMaildir(TestMailbox, unittest.TestCase):
             hostname = hostname.replace(':', r'\072')
         pid = os.getpid()
         pattern = re.compile(r"(?P<time>\d+)\.M(?P<M>\d{1,6})P(?P<P>\d+)"
-                             r"Q(?P<Q>\d+)\.(?P<host>[^:/]+)")
+                             r"Q(?P<Q>\d+)\.(?P<host>[^:/]*)")
         previous_groups = None
         for x in range(repetitions):
             tmp_file = self._box._create_tmp()
@@ -2142,9 +2137,9 @@ class MaildirTestCase(unittest.TestCase):
             if mbox:
                 fp.write(FROM_)
             fp.write(DUMMY_MESSAGE)
-        if hasattr(os, "link"):
+        try:
             os.link(tmpname, newname)
-        else:
+        except (AttributeError, PermissionError):
             with open(newname, "w") as fp:
                 fp.write(DUMMY_MESSAGE)
         self._msgfiles.append(newname)
@@ -2273,12 +2268,18 @@ Gregory K. Johnson
 """)
 
 
+class MiscTestCase(unittest.TestCase):
+    def test__all__(self):
+        blacklist = {"linesep", "fcntl"}
+        support.check__all__(self, mailbox, blacklist=blacklist)
+
+
 def test_main():
     tests = (TestMailboxSuperclass, TestMaildir, TestMbox, TestMMDF, TestMH,
              TestBabyl, TestMessage, TestMaildirMessage, TestMboxMessage,
              TestMHMessage, TestBabylMessage, TestMMDFMessage,
              TestMessageConversion, TestProxyFile, TestPartialFile,
-             MaildirTestCase, TestFakeMailBox)
+             MaildirTestCase, TestFakeMailBox, MiscTestCase)
     support.run_unittest(*tests)
     support.reap_children()
 

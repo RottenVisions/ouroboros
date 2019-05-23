@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SQL_STATEMENT_H
 #define OURO_SQL_STATEMENT_H
 
-// common include
+// common include	
 // #define NDEBUG
 #include <sstream>
 #include "common.h"
@@ -14,12 +14,12 @@
 #include "db_interface/entity_table.h"
 #include "db_interface_mysql.h"
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 
 class SqlStatement
 {
 public:
-	SqlStatement(DBInterface* pdbi, std::string tableName, DBID parentDBID, DBID dbid,
+	SqlStatement(DBInterface* pdbi, std::string tableName, DBID parentDBID, DBID dbid, 
 		mysql::DBContext::DB_ITEM_DATAS& tableItemDatas) :
 	  tableItemDatas_(tableItemDatas),
 	  sqlstr_(),
@@ -38,7 +38,7 @@ public:
 
 	virtual bool query(DBInterface* pdbi = NULL)
 	{
-		// No data update
+		// no data update
 		if(sqlstr_ == "")
 			return true;
 
@@ -46,7 +46,7 @@ public:
 
 		if(!ret)
 		{
-			ERROR_MSG(fmt::format("SqlStatement::query: {}\n\tsql:{}\n",
+			ERROR_MSG(fmt::format("SqlStatement::query: {}\n\tsql:{}\n", 
 				(pdbi != NULL ? pdbi : pdbi_)->getstrerror(), sqlstr_));
 
 			return false;
@@ -63,13 +63,13 @@ protected:
 	std::string tableName_;
 	DBID dbid_;
 	DBID parentDBID_;
-	DBInterface* pdbi_;
+	DBInterface* pdbi_; 
 };
 
 class SqlStatementInsert : public SqlStatement
 {
 public:
-	SqlStatementInsert(DBInterface* pdbi, std::string tableName, DBID parentDBID,
+	SqlStatementInsert(DBInterface* pdbi, std::string tableName, DBID parentDBID, 
 		DBID dbid, mysql::DBContext::DB_ITEM_DATAS& tableItemDatas) :
 	  SqlStatement(pdbi, tableName, parentDBID, dbid, tableItemDatas)
 	{
@@ -78,12 +78,12 @@ public:
 		sqlstr_ += tableName;
 		sqlstr_ += " (";
 		sqlstr1_ = ")  values(";
-
+		
 		if(parentDBID > 0)
 		{
 			sqlstr_ += TABLE_PARENTID_CONST_STR;
 			sqlstr_ += ",";
-
+			
 			char strdbid[MAX_BUF];
 			ouro_snprintf(strdbid, MAX_BUF, "%" PRDBID, parentDBID);
 			sqlstr1_ += strdbid;
@@ -93,7 +93,7 @@ public:
 		mysql::DBContext::DB_ITEM_DATAS::iterator tableValIter = tableItemDatas.begin();
 		for(; tableValIter != tableItemDatas.end(); ++tableValIter)
 		{
-			OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = (*tableValIter);
+			KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = (*tableValIter);
 
 			if(dbid > 0)
 			{
@@ -110,7 +110,7 @@ public:
 				sqlstr1_ += ",";
 			}
 		}
-
+		
 		if(parentDBID > 0 || sqlstr_.at(sqlstr_.size() - 1) == ',')
 			sqlstr_.erase(sqlstr_.size() - 1);
 
@@ -127,7 +127,7 @@ public:
 
 	virtual bool query(DBInterface* pdbi = NULL)
 	{
-		// No data update
+		// no data update
 		if(sqlstr_ == "")
 			return true;
 
@@ -151,7 +151,7 @@ protected:
 class SqlStatementUpdate : public SqlStatement
 {
 public:
-	SqlStatementUpdate(DBInterface* pdbi, std::string tableName, DBID parentDBID,
+	SqlStatementUpdate(DBInterface* pdbi, std::string tableName, DBID parentDBID, 
 		DBID dbid, mysql::DBContext::DB_ITEM_DATAS& tableItemDatas) :
 	  SqlStatement(pdbi, tableName, parentDBID, dbid, tableItemDatas)
 	{
@@ -169,11 +169,11 @@ public:
 		mysql::DBContext::DB_ITEM_DATAS::iterator tableValIter = tableItemDatas.begin();
 		for(; tableValIter != tableItemDatas.end(); ++tableValIter)
 		{
-			OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = (*tableValIter);
-
+			KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = (*tableValIter);
+			
 			sqlstr_ += pSotvs->sqlkey;
 			sqlstr_ += "=";
-
+				
 			if(pSotvs->extraDatas.size() > 0)
 				sqlstr_ += pSotvs->extraDatas;
 			else
@@ -186,7 +186,7 @@ public:
 			sqlstr_.erase(sqlstr_.size() - 1);
 
 		sqlstr_ += " where id=";
-
+		
 		char strdbid[MAX_BUF];
 		ouro_snprintf(strdbid, MAX_BUF, "%" PRDBID, dbid);
 		sqlstr_ += strdbid;
@@ -202,7 +202,7 @@ protected:
 class SqlStatementQuery : public SqlStatement
 {
 public:
-	SqlStatementQuery(DBInterface* pdbi, std::string tableName, const std::vector<DBID>& parentTableDBIDs,
+	SqlStatementQuery(DBInterface* pdbi, std::string tableName, const std::vector<DBID>& parentTableDBIDs, 
 		DBID dbid, mysql::DBContext::DB_ITEM_DATAS& tableItemDatas) :
 	  SqlStatement(pdbi, tableName, 0, dbid, tableItemDatas),
 	  sqlstr1_()
@@ -210,10 +210,10 @@ public:
 
 		// select id,xxx from tbl_SpawnPoint where id=123;
 		sqlstr_ = "select id,";
-		// In either case, the ID field is queried
+		// Query the ID field in either case
 		sqlstr1_ += " from " ENTITY_TABLE_PERFIX "_";
 		sqlstr1_ += tableName;
-
+		
 		char strdbid[MAX_BUF];
 
 		if(parentTableDBIDs.size() == 0)
@@ -250,8 +250,8 @@ public:
 		mysql::DBContext::DB_ITEM_DATAS::iterator tableValIter = tableItemDatas.begin();
 		for(; tableValIter != tableItemDatas.end(); ++tableValIter)
 		{
-			OUROShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = (*tableValIter);
-
+			KBEShared_ptr<mysql::DBContext::DB_ITEM_DATA> pSotvs = (*tableValIter);
+			
 			sqlstr_ += pSotvs->sqlkey;
 			sqlstr_ += ",";
 		}

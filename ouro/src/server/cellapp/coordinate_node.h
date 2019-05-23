@@ -1,24 +1,24 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_COORDINATE_NODE_H
 #define OURO_COORDINATE_NODE_H
 
 #include "helper/debug_helper.h"
-#include "common/common.h"
+#include "common/common.h"	
 
 namespace Ouroboros{
 
 #define COORDINATE_NODE_FLAG_UNKNOWN				0x00000000
-#define COORDINATE_NODE_FLAG_ENTITY					0x00000001		// An Entity node
-#define COORDINATE_NODE_FLAG_TRIGGER				0x00000002		// A trigger node
-#define COORDINATE_NODE_FLAG_HIDE					0x00000004		// Hidden nodes (other nodes are not visible)
-#define COORDINATE_NODE_FLAG_REMOVING				0x00000008		// Delete the node
-#define COORDINATE_NODE_FLAG_REMOVED				0x00000010		// Delete node
-#define COORDINATE_NODE_FLAG_PENDING				0x00000020		// This type of node is in the update operation.
-#define COORDINATE_NODE_FLAG_ENTITY_NODE_UPDATING	0x00000040		// The entity node is performing an update operation
-#define COORDINATE_NODE_FLAG_INSTALLING				0x00000080		// Node is installing operation
-#define COORDINATE_NODE_FLAG_POSITIVE_BOUNDARY		0x00000100		// Node is the positive boundary of the trigger
-#define COORDINATE_NODE_FLAG_NEGATIVE_BOUNDARY		0x00000200		// Node is the negative boundary of the trigger
+#define COORDINATE_NODE_FLAG_ENTITY 0x00000001 // An Entity node
+#define COORDINATE_NODE_FLAG_TRIGGER 0x00000002 // A trigger node
+#define COORDINATE_NODE_FLAG_HIDE 0x00000004 // Hide nodes (other nodes are not visible)
+#define COORDINATE_NODE_FLAG_REMOVING 0x00000008 // Deleted nodes
+#define COORDINATE_NODE_FLAG_REMOVED 0x00000010 // Delete node
+#define COORDINATE_NODE_FLAG_PENDING 0x00000020 // This type of node is in the update operation.
+#define COORDINATE_NODE_FLAG_ENTITY_NODE_UPDATING 0x00000040 //The entity node is performing an update operation
+#define COORDINATE_NODE_FLAG_INSTALLING 0x00000080 // The node is installing the operation
+#define COORDINATE_NODE_FLAG_POSITIVE_BOUNDARY 0x00000100 // The node is the positive boundary of the trigger
+#define COORDINATE_NODE_FLAG_NEGATIVE_BOUNDARY 0x00000200 // The node is the negative boundary of the trigger
 
 #define COORDINATE_NODE_FLAG_HIDE_OR_REMOVED		(COORDINATE_NODE_FLAG_REMOVED | COORDINATE_NODE_FLAG_HIDE)
 
@@ -28,7 +28,7 @@ class CoordinateNode
 public:
 	CoordinateNode(CoordinateSystem* pCoordinateSystem = NULL);
 	virtual ~CoordinateNode();
-
+	
 	INLINE void flags(uint32 v);
 	INLINE uint32 flags() const;
 	INLINE void addFlags(uint32 v);
@@ -36,8 +36,8 @@ public:
 	INLINE bool hasFlags(uint32 v) const;
 
 	/**
-		(The coordinates of the node itself)
-		x && z is implemented by different applications(Get from different places)
+		(coordinates of the node itself)
+		x && z is implemented by different applications (from different locations)
 	*/
 	virtual float x() const { return x_; }
 	virtual float y() const { return y_; }
@@ -48,8 +48,8 @@ public:
 	virtual void z(float v) { z_ = v; }
 
 	/**
-		(Extended coordinates)
-		x && z is implemented by different applications(Get from different places)
+		(extended coordinates)
+		x && z is implemented by different applications (from different locations)
 	*/
 	virtual float xx() const { return 0.f; }
 	virtual float yy() const { return 0.f; }
@@ -65,7 +65,7 @@ public:
 
 	int8 weight() const { return weight_; }
 
-	virtual void resetOld() {
+	virtual void resetOld() { 
 		old_xx_ = xx();
 		old_yy_ = yy();
 		old_zz_ = zz();
@@ -89,7 +89,7 @@ public:
 	}
 
 	/**
-		Get the front and back pointers of the linked list
+		Get the front and rear pointers of the linked list
 	*/
 	INLINE CoordinateNode* pPrevX() const;
 	INLINE CoordinateNode* pNextX() const;
@@ -99,7 +99,7 @@ public:
 	INLINE CoordinateNode* pNextZ() const;
 
 	/**
-		Set the front and back pointers of the linked list
+		Set the front and rear pointers of the linked list
 	*/
 	INLINE void pPrevX(CoordinateNode* pNode);
 	INLINE void pNextX(CoordinateNode* pNode);
@@ -109,7 +109,7 @@ public:
 	INLINE void pNextZ(CoordinateNode* pNode);
 
 	/**
-		A node changes through this node
+		A node has passed this node
 		@isfront: Move forward or backward
 	*/
 	virtual void onNodePassX(CoordinateNode* pNode, bool isfront);
@@ -119,14 +119,14 @@ public:
 	virtual void onRemove();
 
 	/**
-		Parent delete
+		Parent node deletion
 	*/
 	virtual void onParentRemove(CoordinateNode* pParentNode) {
 	}
 
 	/**
-		When the node changes, you need to update it in the list
-		Related locations and other information
+		When the node changes, you need to update it in the list.
+		Related location and other information
 	*/
 	virtual void update();
 

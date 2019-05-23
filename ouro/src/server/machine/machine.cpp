@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "machine.h"
@@ -21,15 +21,16 @@
 #include "../tools/logger/logger_interface.h"
 #include "../../server/tools/interfaces/interfaces_interface.h"
 #include "../../server/tools/bots/bots_interface.h"
+#include "common/md5.h"
 
 namespace Ouroboros{
-
+	
 ServerConfig g_serverConfig;
 OURO_SINGLETON_INIT(Machine);
 
 //-------------------------------------------------------------------------------------
-Machine::Machine(Network::EventDispatcher& dispatcher,
-				 Network::NetworkInterface& ninterface,
+Machine::Machine(Network::EventDispatcher& dispatcher, 
+				 Network::NetworkInterface& ninterface, 
 				 COMPONENT_TYPE componentType,
 				 COMPONENT_ID componentID):
 	ServerApp(dispatcher, ninterface, componentType, componentID),
@@ -43,6 +44,7 @@ Machine::Machine(Network::EventDispatcher& dispatcher,
 	localuids_()
 {
 	SystemInfo::getSingleton().getCPUPer();
+	Ouroboros::Network::MessageHandlers::pMainMessageHandlers = &MachineInterface::messageHandlers;
 }
 
 //-------------------------------------------------------------------------------------
@@ -60,25 +62,25 @@ Machine::~Machine()
 
 //-------------------------------------------------------------------------------------
 void Machine::onBroadcastInterface(Network::Channel* pChannel, int32 uid, std::string& username,
-								   COMPONENT_TYPE componentType, COMPONENT_ID componentID, COMPONENT_ID componentIDEx,
+								   COMPONENT_TYPE componentType, COMPONENT_ID componentID, COMPONENT_ID componentIDEx, 
 								   COMPONENT_ORDER globalorderid, COMPONENT_ORDER grouporderid, COMPONENT_GUS gus,
 									uint32 intaddr, uint16 intport, uint32 extaddr, uint16 extport, std::string& extaddrEx, uint32 pid,
 									float cpu, float mem, uint32 usedmem, int8 state, uint32 machineID, uint64 extradata,
 									uint64 extradata1, uint64 extradata2, uint64 extradata3, uint32 backRecvAddr, uint16 backRecvPort)
 {
-	// First look for the existence of the same identity, if it is the same identity and not a process we need to inform the other to start illegal
+	// First check if the same identity exists. If it is the same identity and not a process, we need to inform the other party to start illegal.
 	Components::ComponentInfos* pinfos = Components::getSingleton().findComponent(componentID);
 	if(pinfos && isGameServerComponentType((COMPONENT_TYPE)componentType) && checkComponentUsable(pinfos, false, true))
 	{
 		if(pinfos->pid != pid || pinfos->pIntAddr->ip != intaddr ||
 			username != pinfos->username || uid != pinfos->uid)
 		{
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 			MachineInterface::onBroadcastInterfaceArgs25::staticAddToBundle((*pBundle), pinfos->uid,
 				pinfos->username, pinfos->componentType, pinfos->cid, componentIDEx, pinfos->globalOrderid, pinfos->groupOrderid, pinfos->gus,
 				pinfos->pIntAddr->ip, pinfos->pIntAddr->port,
-				pinfos->pExtAddr->ip, pinfos->pExtAddr->port, pinfos->externalAddressEx, pinfos->pid, pinfos->cpu, pinfos->mem, pinfos->usedmem,
+				pinfos->pExtAddr->ip, pinfos->pExtAddr->port, pinfos->externalAddressEx, pinfos->pid, pinfos->cpu, pinfos->mem, pinfos->usedmem, 
 				(int8)pinfos->state, Ouroboros::getProcessPID(), pinfos->extradata, pinfos->extradata1, pinfos->extradata2, pinfos->extradata3, 0, 0);
 
 			if(backRecvAddr != 0 && backRecvPort != 0)
@@ -113,7 +115,7 @@ void Machine::onBroadcastInterface(Network::Channel* pChannel, int32 uid, std::s
 		{
 			if(checkComponentUsable(pinfos, false, true))
 			{
-				DEBUG_MSG(fmt::format("Machine::onBroadcastInterface: {} update, pid={}, uid={}, globalorderid={}, grouporderid={}!\n",
+				DEBUG_MSG(fmt::format("Machine::onBroadcastInterface: {} update, pid={}, uid={}, globalorderid={}, grouporderid={}!\n", 
 					COMPONENT_NAME_EX((COMPONENT_TYPE)componentType), pid, uid, globalorderid, grouporderid));
 
 				pinfos->globalOrderid = globalorderid;
@@ -122,13 +124,13 @@ void Machine::onBroadcastInterface(Network::Channel* pChannel, int32 uid, std::s
 			}
 		}
 
-		// Only one machine can exist on a piece of hardware
+		// Only one machine can exist on one hardware
 		if(componentType == MACHINE_TYPE)
 		{
 			ERROR_MSG("Machine::onBroadcastInterface: A single computer cannot run multiple \"machine\" process!\n");
 			return;
 		}
-
+	
 		std::vector<int32>::iterator iter = std::find(localuids_.begin(), localuids_.end(), uid);
 		if(iter == localuids_.end())
 		{
@@ -151,7 +153,7 @@ void Machine::onBroadcastInterface(Network::Channel* pChannel, int32 uid, std::s
 				((int32)grouporderid),
 				pid));
 
-		Components::getSingleton().addComponent(uid, username.c_str(),
+		Components::getSingleton().addComponent(uid, username.c_str(), 
 			(Ouroboros::COMPONENT_TYPE)componentType, componentID, globalorderid, grouporderid, gus, intaddr, intport, extaddr, extport, extaddrEx,
 			pid, cpu, mem, usedmem, extradata, extradata1, extradata2, extradata3);
 	}
@@ -164,7 +166,7 @@ void Machine::onFindInterfaceAddr(Network::Channel* pChannel, int32 uid, std::st
 	Ouroboros::COMPONENT_TYPE tfindComponentType = (Ouroboros::COMPONENT_TYPE)findComponentType;
 	Ouroboros::COMPONENT_TYPE tComponentType = (Ouroboros::COMPONENT_TYPE)componentType;
 
-	// If it is not issued by guiconsole, uid is not equal to the current server's uid and ignored.
+	// If it is not issued by guiconsole, uid is not equal to the current server's uid and will be ignored.
 	if(tComponentType != CONSOLE_TYPE)
 	{
 		std::vector<int32>::iterator iter = std::find(localuids_.begin(), localuids_.end(), uid);
@@ -174,7 +176,7 @@ void Machine::onFindInterfaceAddr(Network::Channel* pChannel, int32 uid, std::st
 
 	INFO_MSG(fmt::format("Machine::onFindInterfaceAddr[{0}]: uid:{1}, username:{2}, "
 			"componentType:{3}, componentID:{7}, find:{4}, finderaddr:{5}, finderRecvPort:{6}.\n",
-		pChannel->c_str(), uid, username.c_str(),
+		pChannel->c_str(), uid, username.c_str(), 
 		COMPONENT_NAME_EX((COMPONENT_TYPE)componentType),
 		COMPONENT_NAME_EX((COMPONENT_TYPE)findComponentType),
 		inet_ntoa((struct in_addr&)finderAddr), ntohs(finderRecvPort),
@@ -188,12 +190,12 @@ void Machine::onFindInterfaceAddr(Network::Channel* pChannel, int32 uid, std::st
 		ERROR_MSG("Machine::onFindInterfaceAddr: Failed to create socket.\n");
 		return;
 	}
-
+	
 	Components::COMPONENTS& components = Components::getSingleton().getComponents(tfindComponentType);
 	Components::COMPONENTS::iterator iter = components.begin();
 
 	bool found = false;
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	for(; iter != components.end(); )
 	{
@@ -207,7 +209,7 @@ void Machine::onFindInterfaceAddr(Network::Channel* pChannel, int32 uid, std::st
 		}
 
 		const Components::ComponentInfos* pinfos = &(*iter);
-
+		
 		bool usable = checkComponentUsable(pinfos, false, false);
 
 		if(usable)
@@ -217,10 +219,10 @@ void Machine::onFindInterfaceAddr(Network::Channel* pChannel, int32 uid, std::st
 			{
 				found = true;
 
-				MachineInterface::onBroadcastInterfaceArgs25::staticAddToBundle((*pBundle), pinfos->uid,
+				MachineInterface::onBroadcastInterfaceArgs25::staticAddToBundle((*pBundle), pinfos->uid, 
 					pinfos->username, findComponentType, pinfos->cid, componentID, pinfos->globalOrderid, pinfos->groupOrderid, pinfos->gus,
 					pinfos->pIntAddr->ip, pinfos->pIntAddr->port,
-					pinfos->pExtAddr->ip, pinfos->pExtAddr->port, pinfos->externalAddressEx, pinfos->pid, pinfos->cpu, pinfos->mem, pinfos->usedmem,
+					pinfos->pExtAddr->ip, pinfos->pExtAddr->port, pinfos->externalAddressEx, pinfos->pid, pinfos->cpu, pinfos->mem, pinfos->usedmem, 
 					(int8)pinfos->state, Ouroboros::getProcessPID(), pinfos->extradata, pinfos->extradata1, pinfos->extradata2, pinfos->extradata3, 0, 0);
 			}
 
@@ -233,14 +235,15 @@ void Machine::onFindInterfaceAddr(Network::Channel* pChannel, int32 uid, std::st
 				pinfos->cid,
 				COMPONENT_NAME_EX(pinfos->componentType)));
 
+			removeComponentID(pinfos->componentType, pinfos->cid, uid);
 			iter = components.erase(iter);
 		}
 	}
 
 	if(!found)
 	{
-		// If it is a console, and uid is not consistent, you do not need to return a message not found
-		// Console may broadcast to other groups
+		// If it is a console, and uid is not consistent then there is no need to return a message not found
+		// The console may be broadcast to other groups.
 		if(tComponentType == CONSOLE_TYPE)
 		{
 			std::vector<int32>::iterator iter = std::find(localuids_.begin(), localuids_.end(), uid);
@@ -271,13 +274,13 @@ void Machine::onFindInterfaceAddr(Network::Channel* pChannel, int32 uid, std::st
 bool Machine::checkComponentUsable(const Components::ComponentInfos* info, bool getdatas, bool autoerase)
 {
 	bool ret = false;
-
+	
 	if(!getdatas)
 		ret = Components::getSingleton().lookupLocalComponentRunning(info->pid) != NULL;
 	else
 		ret = Components::getSingleton().updateComponentInfos(info);
 
-	// Erases if it is already unavailable and allows automatic erasure
+	// Erase if it is already unavailable and allows automatic erasure
 	if(!ret && autoerase)
 		Components::getSingleton().delComponent(info->uid, info->componentType, info->cid);
 
@@ -302,7 +305,7 @@ void Machine::onQueryMachines(Network::Channel* pChannel, int32 uid, std::string
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	uint64 cidex = 0;
 	float cpu = SystemInfo::getSingleton().getCPUPer();
@@ -328,7 +331,187 @@ void Machine::onQueryMachines(Network::Channel* pChannel, int32 uid, std::string
 }
 
 //-------------------------------------------------------------------------------------
-void Machine::onQueryAllInterfaceInfos(Network::Channel* pChannel, int32 uid, std::string& username,
+void Machine::queryComponentID(Network::Channel* pChannel, COMPONENT_TYPE componentType, COMPONENT_ID componentID, 
+	int32 uid, uint16 finderRecvPort, int macMD5, int32 pid)
+{
+	INFO_MSG(fmt::format("Machine::queryComponentID[{}]: component:{}({}) uid:{} finderRecvPort:{} macMD5:{} pid:{}.\n",
+		pChannel->c_str(), COMPONENT_NAME_EX(componentType), componentID, uid, finderRecvPort, macMD5, pid));
+
+	uint32 ip = pChannel->addr().ip;
+	std::string data = std::to_string(ip) + std::to_string(pid) + std::to_string(finderRecvPort);
+	std::string md5 = std::to_string(getMD5(data));
+	std::string pidMD5 = std::to_string(pid) + "-" + md5;
+
+	std::map<std::string, COMPONENT_ID>::iterator pidIter = pidMD5Map_.find(pidMD5);
+	if (pidIter != pidMD5Map_.end())
+	{
+		WARNING_MSG(fmt::format("Machine::queryComponentID[{}]: component({}) process({}) has queried componentID({}).\n", 
+			pChannel->c_str(), COMPONENT_NAME_EX(componentType), pid, pidIter->second));
+
+		return;
+	}
+
+	if (this->networkInterface().intTcpAddr().ip == ip ||
+		this->networkInterface().extTcpAddr().ip == ip)
+	{
+		COMPONENT_ID cid1 = (COMPONENT_ID)uid * COMPONENT_ID_MULTIPLE;
+		COMPONENT_ID cid2 = (COMPONENT_ID)macMD5 * 10000;
+		COMPONENT_ID cid3 = (COMPONENT_ID)componentType * 100;
+
+		COMPONENT_ID cid = cid1 + cid2 + cid3 + 1;
+
+		std::map<int32, CID_MAP>::iterator iter = cidMap_.find(uid);
+		if (iter == cidMap_.end())
+		{
+			ID_LOGS cidLog;
+			cidLog.push_back(cid);
+
+			CID_MAP cidMap;
+			cidMap.insert(std::make_pair(componentType, cidLog));
+			cidMap_.insert(std::make_pair(uid, cidMap));
+		}
+		else
+		{
+			CID_MAP cids = iter->second;
+			CID_MAP::iterator iter1 = cids.find(componentType);
+
+			if (iter1 == cids.end())
+			{
+				ID_LOGS cidLog;
+				cidLog.push_back(cid);
+				cids.insert(std::make_pair(componentType, cidLog));
+			}
+			else
+			{
+				ID_LOGS::iterator idIter;
+				ID_LOGS cidLog = iter1->second;
+
+				for (idIter = cidLog.begin(); idIter != cidLog.end();)
+				{
+					bool found = false;
+
+					std::map<std::string, COMPONENT_ID>::iterator pidIter = pidMD5Map_.begin();
+					for (; pidIter != pidMD5Map_.end(); pidIter++)
+					{
+						if (pidIter->second == *idIter)
+						{
+							std::vector<std::string> vec;
+							strutil::ouro_split(pidIter->first, '-', vec);
+							if (vec.size() == 2)
+							{
+								int32 oldPid = std::stoi(vec[0]);
+								std::string oldMD5 = vec[1];
+								SystemInfo::PROCESS_INFOS sysinfos = SystemInfo::getSingleton().getProcessInfo(oldPid);
+
+								if (sysinfos.error || (pid == oldPid && oldMD5 != md5))
+								{
+									pidMD5Map_.erase(pidIter);
+									idIter = cidLog.erase(idIter);
+									found = true;
+									break;
+								}
+							}
+						}
+					}
+
+					if (!found)
+						idIter++;
+				}
+				
+				while((idIter = std::find(cidLog.begin(), cidLog.end(), cid)) != cidLog.end())
+				{
+					cid += 1;
+				}
+
+				cidLog.push_back(cid);
+				cids[componentType] = cidLog;
+			}
+
+			cidMap_[uid] = cids;
+		}
+
+		Network::EndPoint ep;
+		ep.socket(SOCK_DGRAM);
+
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+		MachineInterface::queryComponentIDArgs6::staticAddToBundle((*pBundle), componentType, cid, uid, finderRecvPort, macMD5, pid);
+		ep.sendto(pBundle, finderRecvPort, ip);
+		Network::Bundle::reclaimPoolObject(pBundle);
+
+		pidMD5Map_.insert(std::make_pair(pidMD5, cid));
+
+		INFO_MSG(fmt::format("Machine::queryComponentID[{}], set componentID success: component:{}({}) uid:{} pidMD5:{}.\n",
+			pChannel->c_str(), COMPONENT_NAME_EX(componentType), cid, uid, pidMD5));
+	}
+}
+
+//-------------------------------------------------------------------------------------
+void Machine::removeComponentID(COMPONENT_TYPE componentType, COMPONENT_ID componentID, int32 uid)
+{
+	INFO_MSG(fmt::format("Machine::removeComponentID: component={}({}), uid={} \n", 
+		COMPONENT_NAME[componentType], componentID, uid));
+
+	std::map<int32, CID_MAP>::iterator iter = cidMap_.find(uid);
+	if (iter != cidMap_.end())
+	{
+		CID_MAP cids = iter->second;
+		if (cids.size() > 0)
+		{
+			CID_MAP::iterator iter1 = cids.find(componentType);
+			if (iter1 != cids.end())
+			{
+				ID_LOGS cidLogs = iter1->second;
+
+				if (cidLogs.size() > 0)
+				{
+					ID_LOGS::iterator iter2 = cidLogs.begin();
+					for (; iter2 != cidLogs.end(); )
+					{
+						if (*iter2 == componentID)
+						{
+							INFO_MSG(fmt::format("--> remove componentID({})\n", componentID));
+							iter2 = cidLogs.erase(iter2);
+							std::map<std::string, COMPONENT_ID>::iterator pidIter = pidMD5Map_.begin();
+							for (; pidIter != pidMD5Map_.end(); pidIter++)
+							{
+								if (pidIter->second == componentID)
+								{
+									INFO_MSG(fmt::format("--> remove pidMD5({})\n", pidIter->first));
+									pidMD5Map_.erase(pidIter);
+									break;
+								}
+							}
+							break;
+						}
+						else
+						{
+							iter2++;
+						}
+					}
+				}
+
+				cids[componentType] = cidLogs;
+				
+				if (cidLogs.size() == 0)
+				{
+					cids.erase(iter1);
+				}
+			}
+		}
+		
+		if (cids.size() == 0)
+		{
+			cidMap_.erase(iter);
+		}
+		else
+		{
+			cidMap_[uid] = cids;
+		}
+	}
+}
+
+//-------------------------------------------------------------------------------------
+void Machine::onQueryAllInterfaceInfos(Network::Channel* pChannel, int32 uid, std::string& username, 
 	uint16 finderRecvPort)
 {
 	INFO_MSG(fmt::format("Machine::onQueryAllInterfaceInfos[{}]: uid:{}, username:{}, "
@@ -346,18 +529,18 @@ void Machine::onQueryAllInterfaceInfos(Network::Channel* pChannel, int32 uid, st
 	}
 
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
-
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+		
 		uint64 cidex = 0;
 		float cpu = SystemInfo::getSingleton().getCPUPer();
 		uint64 totalmem = SystemInfo::getSingleton().getMemInfos().total;
 		uint64 totalusedmem = SystemInfo::getSingleton().getMemInfos().used;
 
-		MachineInterface::onBroadcastInterfaceArgs25::staticAddToBundle((*pBundle), getUserUID(), getUsername(),
+		MachineInterface::onBroadcastInterfaceArgs25::staticAddToBundle((*pBundle), getUserUID(), getUsername(), 
 			g_componentType, g_componentID, cidex, g_componentGlobalOrder, g_componentGroupOrder, g_genuuid_sections,
 			networkInterface_.intTcpAddr().ip, networkInterface_.intTcpAddr().port,
 			networkInterface_.extTcpAddr().ip, networkInterface_.extTcpAddr().port, "", getProcessPID(),
-			cpu, float((totalusedmem * 1.0 / totalmem) * 100.0), (uint32)SystemInfo::getSingleton().getMemUsedByPID(), 0,
+			cpu, float((totalusedmem * 1.0 / totalmem) * 100.0), (uint32)SystemInfo::getSingleton().getMemUsedByPID(), 0, 
 			getProcessPID(), totalmem, totalusedmem, uint64(SystemInfo::getSingleton().getCPUPerByPID() * 100), 0, 0, 0);
 
 		if(finderRecvPort != 0)
@@ -371,7 +554,7 @@ void Machine::onQueryAllInterfaceInfos(Network::Channel* pChannel, int32 uid, st
 		}
 	}
 
-	// Uid does not mean that the current server's uid is ignored.
+	// uid is not equal to the current server's uid and ignores it.
 	if (uid > 0)
 	{
 		std::vector<int32>::iterator iter = std::find(localuids_.begin(), localuids_.end(), uid);
@@ -396,7 +579,7 @@ void Machine::onQueryAllInterfaceInfos(Network::Channel* pChannel, int32 uid, st
 			}
 
 			const Components::ComponentInfos* pinfos = &(*iter);
-
+			
 			bool islocal = this->networkInterface().intTcpAddr().ip == pinfos->pIntAddr->ip ||
 					this->networkInterface().extTcpAddr().ip == pinfos->pIntAddr->ip;
 
@@ -406,13 +589,13 @@ void Machine::onQueryAllInterfaceInfos(Network::Channel* pChannel, int32 uid, st
 			{
 				if(islocal)
 				{
-					Network::Bundle* pBundle = Network::Bundle::createPoolObject();
-
-					MachineInterface::onBroadcastInterfaceArgs25::staticAddToBundle((*pBundle), pinfos->uid,
+					Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+					
+					MachineInterface::onBroadcastInterfaceArgs25::staticAddToBundle((*pBundle), pinfos->uid, 
 						pinfos->username, findComponentType, pinfos->cid, pinfos->cid, pinfos->globalOrderid, pinfos->groupOrderid, pinfos->gus,
 						pinfos->pIntAddr->ip, pinfos->pIntAddr->port,
-						pinfos->pExtAddr->ip, pinfos->pExtAddr->port, pinfos->externalAddressEx, pinfos->pid,
-						pinfos->cpu, pinfos->mem, pinfos->usedmem,
+						pinfos->pExtAddr->ip, pinfos->pExtAddr->port, pinfos->externalAddressEx, pinfos->pid, 
+						pinfos->cpu, pinfos->mem, pinfos->usedmem, 
 						(int8)pinfos->state, Ouroboros::getProcessPID(), pinfos->extradata, pinfos->extradata1, pinfos->extradata2, pinfos->extradata3, 0, 0);
 
 					if(finderRecvPort != 0)
@@ -435,6 +618,7 @@ void Machine::onQueryAllInterfaceInfos(Network::Channel* pChannel, int32 uid, st
 					pinfos->cid,
 					COMPONENT_NAME_EX(pinfos->componentType)));
 
+				removeComponentID(pinfos->componentType, pinfos->cid, uid);
 				iter = components.erase(iter);
 
 				if(islocal)
@@ -465,7 +649,7 @@ bool Machine::findBroadcastInterface()
 			ouro_strerror()));
 		return false;
 	}
-
+	
 	sockaddr_in	sin;
 	memset(&sin, 0, sizeof(sin));
 
@@ -487,7 +671,7 @@ bool Machine::findBroadcastInterface()
 			return true;
 		}
 	}
-
+	
 	std::string sinterface = "\t[";
 	std::map< u_int32_t, std::string >::iterator iter = interfaces.begin();
 	for(; iter != interfaces.end(); ++iter)
@@ -510,7 +694,7 @@ bool Machine::initNetwork()
 {
 	epBroadcast_.socket(SOCK_DGRAM);
 	ep_.socket(SOCK_DGRAM);
-	epLocal_.socket(SOCK_DGRAM);
+	epLocal_.socket(SOCK_DGRAM); 
 
 	Network::Address address;
 	address.ip = 0;
@@ -548,7 +732,7 @@ bool Machine::initNetwork()
 		ERROR_MSG("Machine::initNetwork: registerReadFileDescriptor ep is failed!\n");
 		return false;
 	}
-
+	
 #if OURO_PLATFORM == PLATFORM_WIN32
 	u_int32_t baddr = htonl(INADDR_ANY);
 #else
@@ -574,7 +758,7 @@ bool Machine::initNetwork()
 		epBroadcast_.setnonblocking(true);
 		epBroadcast_.addr(address);
 		pEBPacketReceiver_ = new Network::UDPPacketReceiver(epBroadcast_, this->networkInterface());
-
+	
 		if(!this->dispatcher().registerReadFileDescriptor(epBroadcast_, pEBPacketReceiver_))
 		{
 			ERROR_MSG("Machine::initNetwork: registerReadFileDescriptor epBroadcast is failed!\n");
@@ -648,7 +832,7 @@ bool Machine::inInitialize()
 //-------------------------------------------------------------------------------------
 bool Machine::initializeEnd()
 {
-	pActiveTimerHandle_->cancel(); // Machine does not need to remain active with other components
+	pActiveTimerHandle_->cancel(); // machine does not need to be active with other components
 	return true;
 }
 
@@ -664,10 +848,10 @@ void Machine::startserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s
 	int32 uid = 0;
 	COMPONENT_TYPE componentType;
 	uint64 cid = 0;
-	int16 gus = 0;
+	uint16 gus = 0;
 	std::string OURO_ROOT, OURO_RES_PATH, OURO_BIN_PATH;
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	bool success = true;
 
 	uint16 finderRecvPort = 0;
@@ -676,7 +860,7 @@ void Machine::startserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s
 	s >> componentType;
 	s >> cid;
 	s >> gus;
-
+	
 	if(s.length() > 0)
 	{
 		s >> finderRecvPort;
@@ -689,9 +873,9 @@ void Machine::startserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s
 		s >> OURO_BIN_PATH;
 	}
 
-	INFO_MSG(fmt::format("Machine::startserver: uid={}, [{}], addr={}, cid={}, gus={}, OURO_ROOT={}, OURO_RES_PATH={}, OURO_BIN_PATH={}\n",
+	INFO_MSG(fmt::format("Machine::startserver: uid={}, [{}], addr={}, cid={}, gus={}, OURO_ROOT={}, OURO_RES_PATH={}, OURO_BIN_PATH={}\n", 
 		uid, COMPONENT_NAME_EX(componentType), pChannel->c_str(), cid, gus, OURO_ROOT, OURO_RES_PATH, OURO_BIN_PATH));
-
+	
 	if(ComponentName2ComponentType(COMPONENT_NAME_EX(componentType)) == UNKNOWN_COMPONENT_TYPE)
 		return;
 
@@ -706,7 +890,7 @@ void Machine::startserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s
 		success = false;
 	}
 #endif
-
+	
 	(*pBundle) << success;
 
 	if(finderRecvPort != 0)
@@ -719,7 +903,7 @@ void Machine::startserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s
 			ERROR_MSG("Machine::startserver: Failed to create socket.\n");
 			return;
 		}
-
+	
 		ep.sendto(pBundle, htons(finderRecvPort), pChannel->addr().ip);
 		Network::Bundle::reclaimPoolObject(pBundle);
 	}
@@ -741,21 +925,21 @@ void Machine::stopserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 
 	s >> uid;
 	s >> componentType;
-
-	// Stops the component of the specified ID only if the component ID is greater than 0
+	
+	// If the component ID is greater than 0, only stop the component of the specified ID
 	s >> componentID;
-
+	
 	if(s.length() > 0)
 	{
 		s >> finderRecvPort;
 	}
 
-	INFO_MSG(fmt::format("Machine::stopserver: request uid={}, componentType={}, componentID={},  addr={}\n",
+	INFO_MSG(fmt::format("Machine::stopserver: request uid={}, componentType={}, componentID={},  addr={}\n", 
 		uid,  COMPONENT_NAME_EX(componentType), componentID, pChannel->c_str()));
 
 	if(ComponentName2ComponentType(COMPONENT_NAME_EX(componentType)) == UNKNOWN_COMPONENT_TYPE)
 	{
-		ERROR_MSG(fmt::format("Machine::stopserver: component({}) error!",
+		ERROR_MSG(fmt::format("Machine::stopserver: component({}) error!", 
 			(int)ComponentName2ComponentType(COMPONENT_NAME_EX(componentType))));
 
 		return;
@@ -795,17 +979,17 @@ void Machine::stopserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 				continue;
 			}
 
-			INFO_MSG(fmt::format("--> stop {}({}), addr={}\n",
+			INFO_MSG(fmt::format("--> stop {}({}), addr={}\n", 
 				(*iter).cid, COMPONENT_NAME[componentType], (cinfos->pIntAddr != NULL ? cinfos->pIntAddr->c_str() : "unknown")));
 
 			bool usable = checkComponentUsable(&(*iter), false, false);
-
+		
 			if(!usable)
 			{
+				removeComponentID(componentType, (*iter).cid, uid);
 				iter = components.erase(iter);
 				continue;
 			}
-
 
 			Network::Bundle closebundle;
 			if(componentType != BOTS_TYPE)
@@ -826,7 +1010,7 @@ void Machine::stopserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 				success = false;
 				break;
 			}
-
+		
 			if(ep1.connect((*iter).pIntAddr.get()->port, (*iter).pIntAddr.get()->ip) == -1)
 			{
 				ERROR_MSG(fmt::format("Machine::stopserver: connect server error({})!\n", ouro_strerror()));
@@ -849,9 +1033,9 @@ void Machine::stopserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 			int selgot = select(ep1+1, &fds, NULL, NULL, &tv);
 			if(selgot == 0)
 			{
-				// time out, May be busy
-				ERROR_MSG(fmt::format("--> stop {}({}), addr={}, timeout!\n",
-					(*iter).cid, COMPONENT_NAME[componentType], (cinfos->pIntAddr != NULL ?
+				// timeout, maybe the other party is busy
+				ERROR_MSG(fmt::format("--> stop {}({}), addr={}, timeout!\n", 
+					(*iter).cid, COMPONENT_NAME[componentType], (cinfos->pIntAddr != NULL ? 
 					cinfos->pIntAddr->c_str() : "unknown")));
 
 				iter++;
@@ -859,8 +1043,8 @@ void Machine::stopserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 			}
 			else if(selgot == -1)
 			{
-				WARNING_MSG(fmt::format("--> stop {}({}), addr={}, recv_len == -1!\n",
-					(*iter).cid, COMPONENT_NAME[componentType], (cinfos->pIntAddr != NULL ?
+				WARNING_MSG(fmt::format("--> stop {}({}), addr={}, recv_len == -1!\n", 
+					(*iter).cid, COMPONENT_NAME[componentType], (cinfos->pIntAddr != NULL ? 
 					cinfos->pIntAddr->c_str() : "unknown")));
 
 				iter++;
@@ -872,8 +1056,8 @@ void Machine::stopserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 			int len = ep1.recv(recvpacket.data(), 1);
 			if(len != 1)
 			{
-				ERROR_MSG(fmt::format("--> stop {}({}), addr={}, recv_len != 1!\n",
-					(*iter).cid, COMPONENT_NAME[componentType], (cinfos->pIntAddr != NULL ?
+				ERROR_MSG(fmt::format("--> stop {}({}), addr={}, recv_len != 1!\n", 
+					(*iter).cid, COMPONENT_NAME[componentType], (cinfos->pIntAddr != NULL ? 
 					cinfos->pIntAddr->c_str() : "unknown")));
 
 				success = false;
@@ -881,16 +1065,21 @@ void Machine::stopserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 			}
 
 			recvpacket >> success;
+			if (success)
+			{
+				removeComponentID(componentType, (*iter).cid, uid);
+			}
+			
 			iter++;
 		}
 	}
 	else
 	{
-		INFO_MSG(fmt::format("Machine::stopserver: uid={}, {} size is 0, addr={}\n",
+		INFO_MSG(fmt::format("Machine::stopserver: uid={}, {} size is 0, addr={}\n", 
 			uid,  COMPONENT_NAME_EX(componentType), pChannel->c_str()));
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle) << success;
 
 	if(finderRecvPort != 0)
@@ -904,7 +1093,7 @@ void Machine::stopserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 			Network::Bundle::reclaimPoolObject(pBundle);
 			return;
 		}
-
+	
 		ep.sendto(pBundle, finderRecvPort, pChannel->addr().ip);
 		Network::Bundle::reclaimPoolObject(pBundle);
 	}
@@ -914,7 +1103,7 @@ void Machine::stopserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 	}
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 void Machine::killserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 {
 	int32 uid = 0;
@@ -927,7 +1116,7 @@ void Machine::killserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 	s >> uid;
 	s >> componentType;
 
-	// Stops the component of the specified ID only if the component ID is greater than 0
+	// If the component ID is greater than 0, only stop the component of the specified ID
 	s >> componentID;
 
 	if (s.length() > 0)
@@ -982,12 +1171,12 @@ void Machine::killserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 
 			while (killtry++ < 10)
 			{
-				// Kill the process
+				// kill the process
 				std::string killcmd;
 
 #if OURO_PLATFORM == PLATFORM_WIN32
 				killcmd = fmt::format("taskkill /f /t /pid {}", cinfos->pid);
-
+				
 #else
 				killcmd = fmt::format("kill -s 9 {}", cinfos->pid);
 #endif
@@ -1002,6 +1191,7 @@ void Machine::killserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 
 				if (!usable)
 				{
+					removeComponentID(componentType, (*iter).cid, uid);
 					iter = components.erase(iter);
 					killed = true;
 					break;
@@ -1023,7 +1213,7 @@ void Machine::killserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 			uid, COMPONENT_NAME_EX(componentType), pChannel->c_str()));
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle) << success;
 
 	if (finderRecvPort != 0)
@@ -1047,7 +1237,7 @@ void Machine::killserver(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 	}
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool Machine::installSignals()
 {
 	ServerApp::installSignals();
@@ -1055,7 +1245,7 @@ bool Machine::installSignals()
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void Machine::onSignalled(int sigNum)
 {
 	if (sigNum == SIGCHLD)
@@ -1076,7 +1266,7 @@ void Machine::onSignalled(int sigNum)
 
 //-------------------------------------------------------------------------------------
 #if OURO_PLATFORM != PLATFORM_WIN32
-uint16 Machine::startLinuxProcess(int32 uid, COMPONENT_TYPE componentType, uint64 cid, int16 gus,
+uint16 Machine::startLinuxProcess(int32 uid, COMPONENT_TYPE componentType, uint64 cid, uint16 gus, 
 	std::string& OURO_ROOT, std::string& OURO_RES_PATH, std::string& OURO_BIN_PATH)
 {
 	uint16 childpid;
@@ -1085,7 +1275,7 @@ uint16 Machine::startLinuxProcess(int32 uid, COMPONENT_TYPE componentType, uint6
 	{
 		if (setuid(uid) == -1)
 		{
-			ERROR_MSG(fmt::format("Machine::startLinuxProcess: Failed to setuid to {}, aborting exec for '{}'\n",
+			ERROR_MSG(fmt::format("Machine::startLinuxProcess: Failed to setuid to {}, aborting exec for '{}'\n", 
 				uid,  COMPONENT_NAME_EX(componentType)));
 
 			exit(1);
@@ -1107,27 +1297,27 @@ uint16 Machine::startLinuxProcess(int32 uid, COMPONENT_TYPE componentType, uint6
 		}
 
 		std::string bin_path = OURO_BIN_PATH;
-
+		
 		setenv("OURO_ROOT", OURO_ROOT.c_str(), 1);
 		setenv("OURO_RES_PATH", OURO_RES_PATH.c_str(), 1);
 		setenv("OURO_BIN_PATH", bin_path.c_str(), 1);
 
 		std::string cmdLine = bin_path + COMPONENT_NAME_EX(componentType);
 
-		// Change the current directory to allow the core to generate here
+		// Change the current directory to make the core can be generated here when the problem occurs
 		//chdir(bin_path.c_str());
 
 		const char *argv[6];
 		const char **pArgv = argv;
 		std::string scid = fmt::format("--cid={}", cid);
 		std::string sgus = fmt::format("--gus={}", gus);
-
+		
 		*pArgv++ = cmdLine.c_str();
 		*pArgv++ = scid.c_str();
 		*pArgv++ = sgus.c_str();
 		*pArgv = NULL;
 
-		// Close the parent class socket
+		// Close the socket of the parent class
 		ep_.close();
 		epBroadcast_.close();
 		epLocal_.close();
@@ -1153,7 +1343,7 @@ uint16 Machine::startLinuxProcess(int32 uid, COMPONENT_TYPE componentType, uint6
 
 #else
 
-DWORD Machine::startWindowsProcess(int32 uid, COMPONENT_TYPE componentType, uint64 cid, int16 gus,
+DWORD Machine::startWindowsProcess(int32 uid, COMPONENT_TYPE componentType, uint64 cid, uint16 gus,
 	std::string& OURO_ROOT, std::string& OURO_RES_PATH, std::string& OURO_BIN_PATH)
 {
 	STARTUPINFO si;
@@ -1163,17 +1353,17 @@ DWORD Machine::startWindowsProcess(int32 uid, COMPONENT_TYPE componentType, uint
 	str += COMPONENT_NAME_EX(componentType);
 	str += ".exe";
 
-	// Enclose the command line in double quotes to avoid spaces in the path and execute errors
+	// Enclose the command line in double quotation marks to avoid spaces in the path and execute the error
 	str = "\"" + str + "\"";
 
-	// Increase in number
+	// add parameters
 	str += fmt::format(" --cid={}", cid);
 	str += fmt::format(" --gus={}", gus);
 
 	wchar_t* szCmdline = Ouroboros::strutil::char2wchar(str.c_str());
 
-	// Use machine's current working directory as the working directory for the new process.
-	// A working directory (such as a log) that is consistent with some of the file operations of the relative directories
+	// Use the current working directory of the machine as the working directory for the new process.
+	// A working directory (such as a log) that is consistent with the operation of the file in the relative directory.
 	wchar_t currdir[1024];
 	GetCurrentDirectory(sizeof(currdir), currdir);
 

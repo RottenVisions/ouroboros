@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_OURO_TABLE_REDIS_H
 #define OURO_OURO_TABLE_REDIS_H
@@ -10,17 +10,17 @@
 #include "db_interface/entity_table.h"
 #include "db_interface/ouro_tables.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 /*
 	Kbe system table
 */
-class OUROEntityLogTableRedis : public OUROEntityLogTable
+class KBEEntityLogTableRedis : public KBEEntityLogTable
 {
 public:
-	OUROEntityLogTableRedis(EntityTables* pEntityTables);
-	virtual ~OUROEntityLogTableRedis(){}
-
+	KBEEntityLogTableRedis(EntityTables* pEntityTables);
+	virtual ~KBEEntityLogTableRedis(){}
+	
 	/**
 		Synchronize tables into the database
 	*/
@@ -33,17 +33,18 @@ public:
 	virtual bool queryEntity(DBInterface * pdbi, DBID dbid, EntityLog& entitylog, ENTITY_SCRIPT_UID entityType);
 
 	virtual bool eraseEntityLog(DBInterface * pdbi, DBID dbid, ENTITY_SCRIPT_UID entityType);
+	virtual bool eraseBaseappEntityLog(DBInterface * pdbi, COMPONENT_ID componentID);
 
 protected:
-
+	
 };
 
-class OUROServerLogTableRedis : public OUROServerLogTable
+class KBEServerLogTableRedis : public KBEServerLogTable
 {
 public:
-	OUROServerLogTableRedis(EntityTables* pEntityTables);
-	virtual ~OUROServerLogTableRedis(){}
-
+	KBEServerLogTableRedis(EntityTables* pEntityTables);
+	virtual ~KBEServerLogTableRedis(){}
+	
 	/**
 		Synchronize tables into the database
 	*/
@@ -53,21 +54,22 @@ public:
 	virtual bool updateServer(DBInterface * pdbi);
 
 	virtual bool queryServer(DBInterface * pdbi, ServerLog& serverlog);
+	virtual std::vector<COMPONENT_ID> queryServers(DBInterface * pdbi);
 
 	virtual std::vector<COMPONENT_ID> queryTimeOutServers(DBInterface * pdbi);
-
-	virtual bool clearTimeoutLogs(DBInterface * pdbi, const std::vector<COMPONENT_ID>& cids);
-
+	
+	virtual bool clearServers(DBInterface * pdbi, const std::vector<COMPONENT_ID>& cids);
+	
 protected:
-
+	
 };
 
-class OUROAccountTableRedis : public OUROAccountTable
+class KBEAccountTableRedis : public KBEAccountTable
 {
 public:
-	OUROAccountTableRedis(EntityTables* pEntityTables);
-	virtual ~OUROAccountTableRedis(){}
-
+	KBEAccountTableRedis(EntityTables* pEntityTables);
+	virtual ~KBEAccountTableRedis(){}
+	
 	/**
 		Synchronize tables into the database
 	*/
@@ -83,12 +85,12 @@ public:
 protected:
 };
 
-class OUROEmailVerificationTableRedis : public OUROEmailVerificationTable
+class KBEEmailVerificationTableRedis : public KBEEmailVerificationTable
 {
 public:
 
-	OUROEmailVerificationTableRedis(EntityTables* pEntityTables);
-	virtual ~OUROEmailVerificationTableRedis();
+	KBEEmailVerificationTableRedis(EntityTables* pEntityTables);
+	virtual ~KBEEmailVerificationTableRedis();
 
 	/**
 		Synchronize tables into the database
@@ -101,11 +103,11 @@ public:
 	virtual bool delAccount(DBInterface * pdbi, int8 type, const std::string& name);
 	virtual bool activateAccount(DBInterface * pdbi, const std::string& code, ACCOUNT_INFOS& info);
 	virtual bool bindEMail(DBInterface * pdbi, const std::string& name, const std::string& code);
-	virtual bool resetpassword(DBInterface * pdbi, const std::string& name,
+	virtual bool resetpassword(DBInterface * pdbi, const std::string& name, 
 		const std::string& password, const std::string& code);
 
 	int getDeadline(int8 type);
-
+	
 protected:
 };
 

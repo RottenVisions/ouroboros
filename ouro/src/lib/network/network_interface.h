@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_NETWORK_INTERFACE_H
 #define OURO_NETWORK_INTERFACE_H
@@ -10,7 +10,7 @@
 #include "helper/debug_helper.h"
 #include "network/endpoint.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 class Address;
@@ -28,10 +28,10 @@ class NetworkInterface : public TimerHandler
 {
 public:
 	typedef std::map<Address, Channel *>	ChannelMap;
-
+	
 	NetworkInterface(EventDispatcher * pDispatcher,
 		int32 extlisteningTcpPort_min = -1, int32 extlisteningTcpPort_max = -1, int32 extlisteningUdpPort_min = -1, int32 extlisteningUdpPort_max = -1, const char * extlisteningInterface = "",
-		uint32 extrbuffer = 0, uint32 extwbuffer = 0,
+		uint32 extrbuffer = 0, uint32 extwbuffer = 0, 
 		int32 intlisteningPort = 0, const char * intlisteningInterface = "",
 		uint32 intrbuffer = 0, uint32 intwbuffer = 0);
 
@@ -54,7 +54,7 @@ public:
 		{ return pChannelTimeOutHandler_; }
 	void pChannelTimeOutHandler(ChannelTimeOutHandler * pHandler)
 		{ pChannelTimeOutHandler_ = pHandler; }
-
+		
 	ChannelDeregisterHandler * pChannelDeregisterHandler() const
 		{ return pChannelDeregisterHandler_; }
 	void pChannelDeregisterHandler(ChannelDeregisterHandler * pHandler)
@@ -62,24 +62,24 @@ public:
 
 	EventDispatcher & dispatcher()		{ return *pDispatcher_; }
 
-	/* External and internal outlets */
+		/*external outlets and internal outlets*/
 	EndPoint & extEndpoint()				{ return extTcpEndpoint_; }
 	EndPoint & intEndpoint()				{ return intTcpEndpoint_; }
 
 	const char * c_str() const { return extTcpEndpoint_.c_str(); }
-
+	
 	const ChannelMap& channels(void) { return channelMap_; }
-
-	/** Send related */
+		
+		/** Send relevant*/
 	void sendIfDelayed(Channel & channel);
 	void delayedSend(Channel & channel);
-
+	
 	bool good() const{ return (!pExtListenerReceiver_ || extTcpEndpoint_.good()) && (intTcpEndpoint_.good()); }
 
 	void onChannelTimeOut(Channel * pChannel);
-
-	/*
-		Handle all channels
+	
+	/* 
+		Handling all channels
 	*/
 	void processChannels(Ouroboros::Network::MessageHandlers* pMsgHandlers);
 
@@ -96,14 +96,14 @@ private:
 	ChannelMap								channelMap_;
 
 	EventDispatcher *						pDispatcher_;
-
+	
 	ListenerReceiver *						pExtListenerReceiver_;
 	ListenerReceiver *						pExtUdpListenerReceiver_;
 	ListenerReceiver *						pIntListenerReceiver_;
-
+	
 	DelayedChannels * 						pDelayedChannels_;
-
-	ChannelTimeOutHandler *					pChannelTimeOutHandler_;	// The timeout channel can be captured by this handle, for example, telling the upper client to disconnect
+	
+	ChannelTimeOutHandler * pChannelTimeOutHandler_; // The timeout channel can be caught by this handle, for example to inform the upper client to disconnect
 	ChannelDeregisterHandler *				pChannelDeregisterHandler_;
 
 	int32									numExtChannels_;

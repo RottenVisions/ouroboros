@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_DB_TASKS_H
 #define OURO_DB_TASKS_H
@@ -7,7 +7,7 @@
 #include "common/timer.h"
 #include "thread/threadtask.h"
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 
 class MemoryStream;
 class DBInterface;
@@ -48,13 +48,13 @@ protected:
 class DBTaskSyncTable : public DBTaskBase
 {
 public:
-	DBTaskSyncTable(EntityTables* pEntityTables, OUROShared_ptr<EntityTable> pEntityTable);
+	DBTaskSyncTable(EntityTables* pEntityTables, KBEShared_ptr<EntityTable> pEntityTable);
 	virtual ~DBTaskSyncTable();
 	virtual bool db_thread_process();
 	virtual thread::TPTask::TPTaskState presentMainThread();
 
 protected:
-	OUROShared_ptr<EntityTable> pEntityTable_;
+	KBEShared_ptr<EntityTable> pEntityTable_;
 	bool success_;
 	EntityTables* pEntityTables_;
 };

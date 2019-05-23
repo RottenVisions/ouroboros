@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_ENTITY_APP_H
 #define OURO_ENTITY_APP_H
@@ -26,7 +26,7 @@
 #pragma warning (disable : 4996)
 #endif
 
-
+	
 namespace Ouroboros{
 
 class PythonApp : public ServerApp
@@ -36,17 +36,17 @@ public:
 	{
 		TIMEOUT_GAME_TICK = TIMEOUT_SERVERAPP_MAX + 1,
 
-		// This must be at the end, indicating what the current maximum enumeration value is.
+		// This must be placed at the end, indicating the current maximum enumeration value is how much
 		TIMEOUT_PYTHONAPP_MAX = TIMEOUT_GAME_TICK
 	};
 
 	PythonApp(Network::EventDispatcher& dispatcher,
-		Network::NetworkInterface& ninterface,
+		Network::NetworkInterface& ninterface, 
 		COMPONENT_TYPE componentType,
 		COMPONENT_ID componentID);
 
 	~PythonApp();
-
+	
 	Ouroboros::script::Script& getScript(){ return script_; }
 	PyObjectPtr getEntryScript(){ return entryScript_; }
 
@@ -67,23 +67,23 @@ public:
 
 	virtual void handleTimeout(TimerHandle, void * arg);
 
-	/** Network Interface
+		/** Network Interface
 		Request to execute a python instruction
 	*/
 	void onExecScriptCommand(Network::Channel* pChannel, Ouroboros::MemoryStream& s);
 
-	/**
+	/** 
 		Console request start profile
 	*/
 	virtual void startProfile_(Network::Channel* pChannel, std::string profileName, int8 profileType, uint32 timelen);
 
 	/**
-		Get the app release status, get this value in the script
+		Get the app release status, which can be obtained in the script
 	*/
 	static PyObject* __py_getAppPublish(PyObject* self, PyObject* args);
 
 	/**
-		Set script output type prefix
+		Set the script output type prefix
 	*/
 	static PyObject* __py_setScriptLogType(PyObject* self, PyObject* args);
 
@@ -94,12 +94,12 @@ public:
 	virtual void onReloadScript(bool fullReload);
 
 	/**
-		Get the full path to a resource through a relative path
+		Get the full path of the resource through the relative path
 	*/
 	static PyObject* __py_getResFullPath(PyObject* self, PyObject* args);
 
 	/**
-		Determine if the resource exists through the relative path
+		Determine whether a resource exists through a relative path
 	*/
 	static PyObject* __py_hasRes(PyObject* self, PyObject* args);
 
@@ -114,7 +114,7 @@ public:
 	static PyObject* __py_listPathRes(PyObject* self, PyObject* args);
 
 	/**
-		Match relative path to get full path
+		Match the relative path to get the full path
 	*/
 	static PyObject* __py_matchPath(PyObject* self, PyObject* args);
 

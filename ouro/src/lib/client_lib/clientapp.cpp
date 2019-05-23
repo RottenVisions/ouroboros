@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "clientapp.h"
@@ -34,8 +34,8 @@ GAME_TIME g_ourotime = 0;
 
 OURO_SINGLETON_INIT(ClientApp);
 //-------------------------------------------------------------------------------------
-ClientApp::ClientApp(Network::EventDispatcher& dispatcher,
-					 Network::NetworkInterface& ninterface,
+ClientApp::ClientApp(Network::EventDispatcher& dispatcher, 
+					 Network::NetworkInterface& ninterface, 
 					 COMPONENT_TYPE componentType,
 					 COMPONENT_ID componentID):
 ClientObjectBase(ninterface, getScriptType()),
@@ -57,7 +57,7 @@ state_(C_STATE_INIT)
 	networkInterface_.pChannelTimeOutHandler(this);
 	networkInterface_.pChannelDeregisterHandler(this);
 
-	// Initialization entity call module to obtain channel Function address
+	// Initialize the entityCall module to get the channel function address
 	EntityCallAbstract::setFindChannelFunc(std::tr1::bind(&ClientApp::findChannelByEntityCall, this,
 		std::tr1::placeholders::_1));
 
@@ -73,7 +73,7 @@ ClientApp::~ClientApp()
 	SAFE_RELEASE(pBlowfishFilter_);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 void ClientApp::reset(void)
 {
 	state_ = C_STATE_INIT;
@@ -98,17 +98,17 @@ void ClientApp::reset(void)
 
 //-------------------------------------------------------------------------------------
 int ClientApp::registerPyObjectToScript(const char* attrName, PyObject* pyObj)
-{
-	return getScript().registerToModule(attrName, pyObj);
+{ 
+	return getScript().registerToModule(attrName, pyObj); 
 }
 
 //-------------------------------------------------------------------------------------
 int ClientApp::unregisterPyObjectToScript(const char* attrName)
-{
-	return getScript().unregisterToModule(attrName);
+{ 
+	return getScript().unregisterToModule(attrName); 
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 bool ClientApp::initializeBegin()
 {
 	gameTimer_ = this->dispatcher().addTimer(1000000 / g_ouroConfig.gameUpdateHertz(), this,
@@ -124,13 +124,13 @@ bool ClientApp::initializeBegin()
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 bool ClientApp::initializeEnd()
 {
 	// All scripts are loaded
-	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
-										const_cast<char*>("onInit"),
-										const_cast<char*>("i"),
+	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(), 
+										const_cast<char*>("onInit"), 
+										const_cast<char*>("i"), 
 										0);
 
 	if(pyResult != NULL)
@@ -153,18 +153,18 @@ bool ClientApp::initializeEnd()
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool ClientApp::initialize()
 {
 	if(!threadPool_.isInitialize())
 		threadPool_.createThreadPool(1, 1, 4);
-
+	
 	if(!initializeBegin())
 		return false;
 
 	if(!installPyModules())
 		return false;
-
+	
 	if(!installEntityDef())
 		return false;
 
@@ -181,7 +181,7 @@ bool ClientApp::installEntityDef()
 	if(!EntityDef::installScript(getScript().getModule()))
 		return false;
 
-	// Initialization all extension modules
+	// Initialize all extension modules
 	// assets/scripts/
 	if(!EntityDef::initialize(scriptBaseTypes_, g_componentType)){
 		return false;
@@ -199,19 +199,19 @@ bool ClientApp::installEntityDef()
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),	disconnect,			__py_disconnect,								METH_VARARGS,	0)
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),	kbassert,			__py_assert,									METH_VARARGS,	0)
 
-	// Get resource full path
+	// Get the full path of the resource
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),	getResFullPath,		__py_getResFullPath,							METH_VARARGS,	0)
 
-	// Whether there is a resource
+	// Is there a resource?
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),	hasRes,				__py_hasRes,									METH_VARARGS,	0)
 
-	// Open a file
+	// open a file
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),	open,				__py_ouroOpen,									METH_VARARGS,	0)
 
-	// Listed in the directory and all the files
+	// List all files in the directory
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),	listPathRes,		__py_listPathRes,								METH_VARARGS,	0)
 
-	// Match relative path to get full path
+	// Match the relative path to get the full path
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),	matchPath,			__py_matchPath,									METH_VARARGS,	0)
 	return true;
 }
@@ -236,7 +236,7 @@ bool ClientApp::installPyModules()
 	registerScript(EntityComponent::getScriptType());
 	onInstallPyModules();
 
-	// Registration settings the script Output Type
+	// registration settings script output type
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),	scriptLogType,	__py_setScriptLogType,	METH_VARARGS,	0)
 	if(PyModule_AddIntConstant(this->getScript().getModule(), "LOG_TYPE_NORMAL", log4cxx::ScriptLevel::SCRIPT_INT))
 	{
@@ -265,7 +265,7 @@ bool ClientApp::installPyModules()
 
 	registerPyObjectToScript("entities", pEntities_);
 
-	// The installation of the inlet module
+	// Install the entry module
 	PyObject *entryScriptFileName = PyUnicode_FromString(g_ouroConfig.entryScriptFile());
 	if(entryScriptFileName != NULL)
 	{
@@ -296,11 +296,11 @@ bool ClientApp::uninstallPyModules()
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 void ClientApp::finalise(void)
 {
-	// End notify script
-	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
+	// End the notification script
+	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(), 
 										const_cast<char*>("onFinish"),
 										const_cast<char*>(""));
 
@@ -323,7 +323,7 @@ void ClientApp::finalise(void)
 	pServerChannel_->pPacketSender(NULL);
 	SAFE_RELEASE(pTCPPacketSender_);
 	SAFE_RELEASE(pTCPPacketReceiver_);
-
+	
 	gameTimer_.cancel();
 	threadPool_.finalise();
 	ClientObjectBase::finalise();
@@ -333,7 +333,7 @@ void ClientApp::finalise(void)
 	uninstallPyScript();
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 double ClientApp::gameTimeInSeconds() const
 {
 	return double(g_ourotime) / 10;
@@ -365,7 +365,7 @@ void ClientApp::handleGameTick()
 {
 	++g_ourotime;
 	threadPool_.onMainThreadTick();
-
+	
 	networkInterface().processChannels(Ouroboros::Network::MessageHandlers::pMainMessageHandlers);
 	tickSend();
 
@@ -395,11 +395,11 @@ void ClientApp::handleGameTick()
 				bool ret = updateChannel(false, "", "", "", 0);
 				if(ret)
 				{
-					// First a handshake and then, etc. helloCB after re-login
-					Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+					// Shake hands first and wait for helloCB before logging in
+					Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 					(*pBundle).newMessage(BaseappInterface::hello);
-					(*pBundle) << OUROVersion::versionString();
-					(*pBundle) << OUROVersion::scriptVersionString();
+					(*pBundle) << KBEVersion::versionString();
+					(*pBundle) << KBEVersion::scriptVersionString();
 
 					if(Network::g_channelExternalEncryptType == 1)
 					{
@@ -438,14 +438,14 @@ void ClientApp::handleGameTick()
 	};
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool ClientApp::run(void)
 {
 	dispatcher_.processUntilBreak();
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 int ClientApp::processOnce(bool shouldIdle)
 {
 	return dispatcher_.processOnce(shouldIdle);
@@ -453,11 +453,11 @@ int ClientApp::processOnce(bool shouldIdle)
 
 //-------------------------------------------------------------------------------------
 void ClientApp::onTargetChanged()
-{
+{ 
 	// All scripts are loaded
-	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
-										const_cast<char*>("onTargetChanged"),
-										const_cast<char*>("i"),
+	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(), 
+										const_cast<char*>("onTargetChanged"), 
+										const_cast<char*>("i"), 
 										targetID_);
 
 	if(pyResult != NULL)
@@ -470,13 +470,13 @@ void ClientApp::onTargetChanged()
 	}
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 PyObject* ClientApp::__py_getAppPublish(PyObject* self, PyObject* args)
 {
 	return PyLong_FromLong(g_appPublish);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 PyObject* ClientApp::__py_getPlayer(PyObject* self, PyObject* args)
 {
 	client::Entity* pEntity = ClientApp::getSingleton().pPlayer();
@@ -489,7 +489,7 @@ PyObject* ClientApp::__py_getPlayer(PyObject* self, PyObject* args)
 	S_Return;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 PyObject* ClientApp::__py_fireEvent(PyObject* self, PyObject* args)
 {
 	if(PyTuple_Size(args) < 1)
@@ -508,43 +508,35 @@ PyObject* ClientApp::__py_fireEvent(PyObject* self, PyObject* args)
 		return NULL;
 	}
 
-	wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyname, NULL);
-	char* name = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-	PyMem_Free(PyUnicode_AsWideCharStringRet0);
-
 	EventData_Script eventdata;
-	eventdata.name = name;
-	free(name);
+	eventdata.name = PyUnicode_AsUTF8AndSize(pyname, NULL);
 
 	if(PyTuple_Size(args) - 1 > 0)
 	{
 		PyObject* pyitem = PyTuple_GetItem(args, 1);
 
-		PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyitem, NULL);
-		if(PyUnicode_AsWideCharStringRet0 == NULL)
+		const char* datas = PyUnicode_AsUTF8AndSize(pyitem, NULL);
+		if (datas == NULL)
 		{
 			PyErr_Format(PyExc_AssertionError, "ClientApp::fireEvent(%s): arg2 not is str!\n", eventdata.name.c_str());
 			PyErr_PrintEx(0);
 			return NULL;
 		}
 
-		char* datas = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-		PyMem_Free(PyUnicode_AsWideCharStringRet0);
 		eventdata.datas = datas;
-		free(datas);
 	}
 
 	ClientApp::getSingleton().fireEvent(&eventdata);
 	S_Return;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 PyObject* ClientApp::__py_setScriptLogType(PyObject* self, PyObject* args)
 {
 	int argCount = (int)PyTuple_Size(args);
 	if(argCount != 1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::scriptLogType(): args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::scriptLogType(): args error!");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
@@ -553,7 +545,7 @@ PyObject* ClientApp::__py_setScriptLogType(PyObject* self, PyObject* args)
 
 	if(PyArg_ParseTuple(args, "i", &type) == -1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::scriptLogType(): args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::scriptLogType(): args error!");
 		PyErr_PrintEx(0);
 	}
 
@@ -561,31 +553,32 @@ PyObject* ClientApp::__py_setScriptLogType(PyObject* self, PyObject* args)
 	S_Return;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ClientApp::shutDown()
 {
 	INFO_MSG("ClientApp::shutDown: shutting down\n");
 	dispatcher_.breakProcessing();
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ClientApp::onChannelDeregister(Network::Channel * pChannel)
 {
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ClientApp::onChannelTimeOut(Network::Channel * pChannel)
 {
 	INFO_MSG(fmt::format("ClientApp::onChannelTimeOut: "
-		"Channel {} timed out.\n", pChannel->c_str()));
+		"Channel {} timeout!\n", pChannel->c_str()));
 
+	pChannel->condemn("timedout");
 	networkInterface_.deregisterChannel(pChannel);
 	pChannel->destroy();
 	Network::Channel::reclaimPoolObject(pChannel);
 }
 
-//-------------------------------------------------------------------------------------
-bool ClientApp::updateChannel(bool loginapp, std::string accountName, std::string passwd,
+//-------------------------------------------------------------------------------------	
+bool ClientApp::updateChannel(bool loginapp, std::string accountName, std::string passwd, 
 								   std::string ip, Ouroboros::uint32 port)
 {
 	if(pServerChannel_->pEndPoint())
@@ -618,7 +611,7 @@ bool ClientApp::updateChannel(bool loginapp, std::string accountName, std::strin
 	return ret;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 bool ClientApp::createAccount(std::string accountName, std::string passwd, std::string datas,
 								   std::string ip, Ouroboros::uint32 port)
 {
@@ -638,7 +631,7 @@ bool ClientApp::createAccount(std::string accountName, std::string passwd, std::
 	return ret;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 bool ClientApp::login(std::string accountName, std::string passwd, std::string datas,
 								   std::string ip, Ouroboros::uint32 port)
 {
@@ -652,11 +645,11 @@ bool ClientApp::login(std::string accountName, std::string passwd, std::string d
 	bool ret = updateChannel(true, accountName, passwd, ip, port);
 	if(ret)
 	{
-		// First a handshake and then, etc. helloCB after re-login
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		// Shake hands first and wait for helloCB before logging in
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(LoginappInterface::hello);
-		(*pBundle) << OUROVersion::versionString();
-		(*pBundle) << OUROVersion::scriptVersionString();
+		(*pBundle) << KBEVersion::versionString();
+		(*pBundle) << KBEVersion::scriptVersionString();
 
 		if(Network::g_channelExternalEncryptType == 1)
 		{
@@ -677,9 +670,9 @@ bool ClientApp::login(std::string accountName, std::string passwd, std::string d
 	return ret;
 }
 
-//-------------------------------------------------------------------------------------
-void ClientApp::onHelloCB_(Network::Channel* pChannel, const std::string& verInfo,
-		const std::string& scriptVerInfo, const std::string& protocolMD5, const std::string& entityDefMD5,
+//-------------------------------------------------------------------------------------	
+void ClientApp::onHelloCB_(Network::Channel* pChannel, const std::string& verInfo, 
+		const std::string& scriptVerInfo, const std::string& protocolMD5, const std::string& entityDefMD5, 
 		COMPONENT_TYPE componentType)
 {
 	if(Network::g_channelExternalEncryptType == 1)
@@ -698,19 +691,19 @@ void ClientApp::onHelloCB_(Network::Channel* pChannel, const std::string& verInf
 	}
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ClientApp::onVersionNotMatch(Network::Channel * pChannel, MemoryStream& s)
 {
 	ClientObjectBase::onVersionNotMatch(pChannel, s);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ClientApp::onScriptVersionNotMatch(Network::Channel * pChannel, MemoryStream& s)
 {
 	ClientObjectBase::onScriptVersionNotMatch(pChannel, s);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ClientApp::onLoginSuccessfully(Network::Channel * pChannel, MemoryStream& s)
 {
 	ClientObjectBase::onLoginSuccessfully(pChannel, s);
@@ -719,34 +712,34 @@ void ClientApp::onLoginSuccessfully(Network::Channel * pChannel, MemoryStream& s
 	state_ = C_STATE_LOGIN_BASEAPP_CHANNEL;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ClientApp::onLoginFailed(Network::Channel * pChannel, MemoryStream& s)
 {
 	ClientObjectBase::onLoginFailed(pChannel, s);
 	canReset_ = true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ClientApp::onLoginBaseappFailed(Network::Channel * pChannel, SERVER_ERROR_CODE failedcode)
 {
 	ClientObjectBase::onLoginBaseappFailed(pChannel, failedcode);
 	canReset_ = true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ClientApp::onReloginBaseappFailed(Network::Channel * pChannel, SERVER_ERROR_CODE failedcode)
 {
 	ClientObjectBase::onReloginBaseappFailed(pChannel, failedcode);
 	canReset_ = true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ClientApp::onReloginBaseappSuccessfully(Network::Channel * pChannel, MemoryStream& s)
 {
 	ClientObjectBase::onReloginBaseappSuccessfully(pChannel, s);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void ClientApp::onAddSpaceGeometryMapping(SPACE_ID spaceID, std::string& respath)
 {
 }
@@ -757,7 +750,7 @@ PyObject* ClientApp::__py_getResFullPath(PyObject* self, PyObject* args)
 	int argCount = PyTuple_Size(args);
 	if (argCount != 1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::getResFullPath(): args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::getResFullPath(): args error!");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
@@ -766,7 +759,7 @@ PyObject* ClientApp::__py_getResFullPath(PyObject* self, PyObject* args)
 
 	if (PyArg_ParseTuple(args, "s", &respath) == -1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::getResFullPath(): args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::getResFullPath(): args error!");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
@@ -784,7 +777,7 @@ PyObject* ClientApp::__py_hasRes(PyObject* self, PyObject* args)
 	int argCount = PyTuple_Size(args);
 	if (argCount != 1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::hasRes(): args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::hasRes(): args error!");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
@@ -793,7 +786,7 @@ PyObject* ClientApp::__py_hasRes(PyObject* self, PyObject* args)
 
 	if (PyArg_ParseTuple(args, "s", &respath) == -1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::hasRes(): args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::hasRes(): args error!");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
@@ -807,7 +800,7 @@ PyObject* ClientApp::__py_ouroOpen(PyObject* self, PyObject* args)
 	int argCount = PyTuple_Size(args);
 	if (argCount != 2)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::open(): args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::open(): args error!");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
@@ -817,7 +810,7 @@ PyObject* ClientApp::__py_ouroOpen(PyObject* self, PyObject* args)
 
 	if (PyArg_ParseTuple(args, "s|s", &respath, &fargs) == -1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::open(): args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::open(): args error!");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
@@ -833,12 +826,12 @@ PyObject* ClientApp::__py_ouroOpen(PyObject* self, PyObject* args)
 		fargs);
 
 	Py_DECREF(ioMod);
-
+	
 	if(openedFile == NULL)
 	{
 		SCRIPT_ERROR_CHECK();
 	}
-
+	
 	return openedFile;
 }
 
@@ -848,7 +841,7 @@ PyObject* ClientApp::__py_matchPath(PyObject* self, PyObject* args)
 	int argCount = PyTuple_Size(args);
 	if (argCount != 1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::matchPath(): args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::matchPath(): args error!");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
@@ -857,7 +850,7 @@ PyObject* ClientApp::__py_matchPath(PyObject* self, PyObject* args)
 
 	if (PyArg_ParseTuple(args, "s", &respath) == -1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::matchPath(): args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::matchPath(): args error!");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
@@ -872,7 +865,7 @@ PyObject* ClientApp::__py_listPathRes(PyObject* self, PyObject* args)
 	int argCount = PyTuple_Size(args);
 	if (argCount < 1 || argCount > 2)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::listPathRes(): args[path, pathargs=\'*.*\'] is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::listPathRes(): args[path, pathargs=\'*.*\'] error!");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
@@ -885,7 +878,7 @@ PyObject* ClientApp::__py_listPathRes(PyObject* self, PyObject* args)
 	{
 		if (PyArg_ParseTuple(args, "O", &pathobj) == -1)
 		{
-			PyErr_Format(PyExc_TypeError, "Ouroboros::listPathRes(): args[path] is error!");
+			PyErr_Format(PyExc_TypeError, "Ouroboros::listPathRes(): args[path] error!");
 			PyErr_PrintEx(0);
 			S_Return;
 		}
@@ -894,7 +887,7 @@ PyObject* ClientApp::__py_listPathRes(PyObject* self, PyObject* args)
 	{
 		if (PyArg_ParseTuple(args, "O|O", &pathobj, &path_argsobj) == -1)
 		{
-			PyErr_Format(PyExc_TypeError, "Ouroboros::listPathRes(): args[path, pathargs=\'*.*\'] is error!");
+			PyErr_Format(PyExc_TypeError, "Ouroboros::listPathRes(): args[path, pathargs=\'*.*\'] error!");
 			PyErr_PrintEx(0);
 			S_Return;
 		}
@@ -917,7 +910,7 @@ PyObject* ClientApp::__py_listPathRes(PyObject* self, PyObject* args)
 					PyObject* pyobj = PySequence_GetItem(path_argsobj, i);
 					if (!PyUnicode_Check(pyobj))
 					{
-						PyErr_Format(PyExc_TypeError, "Ouroboros::listPathRes(): args[path, pathargs=\'*.*\'] is error!");
+						PyErr_Format(PyExc_TypeError, "Ouroboros::listPathRes(): args[path, pathargs=\'*.*\'] error!");
 						PyErr_PrintEx(0);
 						S_Return;
 					}
@@ -931,7 +924,7 @@ PyObject* ClientApp::__py_listPathRes(PyObject* self, PyObject* args)
 			}
 			else
 			{
-				PyErr_Format(PyExc_TypeError, "Ouroboros::listPathRes(): args[pathargs] is error!");
+				PyErr_Format(PyExc_TypeError, "Ouroboros::listPathRes(): args[pathargs] error!");
 				PyErr_PrintEx(0);
 				S_Return;
 			}
@@ -940,7 +933,7 @@ PyObject* ClientApp::__py_listPathRes(PyObject* self, PyObject* args)
 
 	if (!PyUnicode_Check(pathobj))
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::listPathRes(): args[path] is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::listPathRes(): args[path] error!");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
@@ -995,5 +988,5 @@ PyObject* ClientApp::__py_listPathRes(PyObject* self, PyObject* args)
 	free(respath);
 	return pyresults;
 }
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 }

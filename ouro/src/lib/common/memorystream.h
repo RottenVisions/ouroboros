@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_MEMORYSTREAM_H
 #define OURO_MEMORYSTREAM_H
@@ -7,41 +7,73 @@
 #include "common/objectpool.h"
 #include "helper/debug_helper.h"
 #include "common/memorystream_converter.h"
-
+	
 namespace Ouroboros{
 
 class MemoryStreamException
 {
     public:
-        MemoryStreamException(bool _add, size_t _pos, size_t _esize, size_t _size)
-            : _m_add(_add), _m_pos(_pos), _m_esize(_esize), _m_size(_size)
+        MemoryStreamException(bool _add, size_t _pos, size_t _opsize, size_t _size)
+            : _m_add(_add), _m_pos(_pos), _m_opsize(_opsize), _m_size(_size)
         {
             PrintPosError();
         }
 
         void PrintPosError() const
         {
-			ERROR_MSG(fmt::format("Attempted to {} in MemoryStream (pos:{}  size: {}).\n",
-				(_m_add ? "put" : "get"), _m_pos, _m_size));
+			ERROR_MSG(what());
         }
+
+		std::string what() const
+		{
+			return fmt::format("Attempted to {} in MemoryStream (pos:{}, size:{}, opsize:{})!\n",
+				(_m_add ? "put" : "get"), _m_pos, _m_size, _m_opsize);
+		}
+
     private:
         bool 		_m_add;
         size_t 		_m_pos;
-        size_t 		_m_esize;
+        size_t 		_m_opsize;
         size_t 		_m_size;
 };
 
-/*
-Binary Serialization and Deserialization of Common Data Types Note:
-End-to-end transfers may involve size-side issues,
-and can be converted by the following conversion: See MemoryStreamConverter.h for details.
+class MemoryStreamWriteOverflow
+{
+public:
+	MemoryStreamWriteOverflow(size_t _wpos, size_t _wsize, size_t _size)
+		: _m_wpos(_wpos), _m_writeSize(_wsize), _m_size(_size)
+	{
+		PrintPosError();
+	}
 
-	Instructions:
-			MemoryStream stream;
+	void PrintPosError() const
+	{
+		ERROR_MSG(what());
+	}
+
+	std::string what() const
+	{
+		return fmt::format("MemoryStream write overflowed! writePos:{}, bufferMaxSize:{}, writeSize:{}.\n",
+			_m_wpos, _m_size, _m_writeSize);
+	}
+
+private:
+	size_t 		_m_wpos;
+	size_t 		_m_writeSize;
+	size_t 		_m_size;
+};
+
+/*
+	Binary and deserialize common data types in binary
+	Note: The end-to-end transfer may involve a large-to-end problem, which can be converted by converting as follows:
+	See MemoryStreamConverter.h for details.
+
+		Instructions:
+			MemoryStream stream; 
 			stream << (int64)100000000;
 			stream << (uint8)1;
 			stream << (uint8)32;
-			stream << "ouro";
+			stream << "kbe";
 			stream.print_storage();
 			uint8 n, n1;
 			int64 x;
@@ -50,7 +82,7 @@ and can be converted by the following conversion: See MemoryStreamConverter.h fo
 			stream >> n;
 			stream >> n1;
 			stream >> a;
-			printf("reduction: %lld, %d, %d, %s", x, n, n1, a.c_str());
+			Printf("Restore: %lld, %d, %d, %s", x, n, n1, a.c_str());
 */
 class MemoryStream : public PoolObject
 {
@@ -64,12 +96,12 @@ public:
 
 public:
 	static ObjectPool<MemoryStream>& ObjPool();
-	static MemoryStream* createPoolObject();
+	static MemoryStream* createPoolObject(const std::string& logPoint);
 	static void reclaimPoolObject(MemoryStream* obj);
 	static void destroyObjPool();
 
-	typedef OUROShared_ptr< SmartPoolObject< MemoryStream > > SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
+	typedef KBEShared_ptr< SmartPoolObject< MemoryStream > > SmartPoolObjectPtr;
+	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 
 	virtual size_t getPoolObjectBytes();
 	virtual void onReclaimObject();
@@ -89,12 +121,9 @@ public:
     }
 
     MemoryStream(const MemoryStream &buf): rpos_(buf.rpos_), wpos_(buf.wpos_), data_(buf.data_) { }
-
-	virtual ~MemoryStream()
-	{
-		clear(true);
-	}
-
+	
+	virtual ~MemoryStream();
+	
     void clear(bool clearData)
     {
     	if(clearData)
@@ -114,7 +143,7 @@ public:
         EndianConvert(value);
         put(pos,(uint8 *)&value,sizeof(value));
     }
-
+	
 	void swap(MemoryStream & s)
 	{
 		size_t rpos = s.rpos(), wpos = s.wpos();
@@ -294,7 +323,7 @@ public:
 
             value += c;
         }
-
+        
         return *this;
     }
 
@@ -312,7 +341,7 @@ public:
 		*value = '\0';
         return *this;
     }
-
+    
     MemoryStream &operator>>(COMPONENT_TYPE &value)
     {
         value = static_cast<COMPONENT_TYPE>(read<int32>());
@@ -429,7 +458,7 @@ public:
 		// 0x40000000 = 1000000000000000000000000000000.
 		xPackData.uv = 0x40000000;
 		zPackData.uv = 0x40000000;
-
+		
 		uint8 tv;
 		uint32 data = 0;
 
@@ -442,21 +471,21 @@ public:
 		(*this) >> tv;
 		data |= tv;
 
-		// Copy index and mantissa
+		// copy index and mantissa
 		xPackData.uv |= (data & 0x7ff000) << 3;
 		zPackData.uv |= (data & 0x0007ff) << 15;
 
 		xPackData.fv -= 2.0f;
 		zPackData.fv -= 2.0f;
 
-		// Set marker bits
+		// Set the flag bit
 		xPackData.uv |= (data & 0x800000) << 8;
 		zPackData.uv |= (data & 0x000800) << 20;
 	}
 
 	void readPackY(float& y)
 	{
-		PackFloatXType yPackData;
+		PackFloatXType yPackData; 
 		yPackData.uv = 0x40000000;
 
 		uint16 data = 0;
@@ -469,17 +498,17 @@ public:
 
     uint8 *data() { return &data_[0]; }
 	const uint8 *data() const { return &data_[0]; }
-
-	// The size of the vector
+	
+	// the size of the vector
     virtual size_t size() const { return data_.size(); }
 
-	// Whether the vector is empty
+	// Is the vector empty?
     virtual bool empty() const { return data_.empty(); }
 
-	// The length between reading the index and writing the index
+	// Read the length between the index and the write index
 	virtual size_t length() const { return rpos() >= wpos() ? 0 : wpos() - rpos(); }
 
-	// Remaining fillable size
+	// the remaining fillable size
 	virtual size_t space() const { return wpos() >= size() ? 0 : size() - wpos(); }
 
 	// Force the read index to write index, indicating the end of the operation
@@ -487,7 +516,7 @@ public:
 
     void resize(size_t newsize)
     {
-    	OURO_ASSERT(newsize <= 1310700);
+    	OURO_ASSERT(newsize <= MAX_SIZE);
         data_.resize(newsize);
         rpos_ = 0;
         wpos_ = size();
@@ -495,13 +524,13 @@ public:
 
     void data_resize(size_t newsize)
     {
-    	OURO_ASSERT(newsize <= 1310700);
+    	OURO_ASSERT(newsize <= MAX_SIZE);
         data_.resize(newsize);
     }
 
     void reserve(size_t ressize)
     {
-    	OURO_ASSERT(ressize <= 1310700);
+    	OURO_ASSERT(ressize <= MAX_SIZE);
 
         if (ressize > size())
             data_.reserve(ressize);
@@ -553,10 +582,15 @@ public:
         if (!cnt)
             return;
 
-        assert(size() < MAX_SIZE);
+		size_t expectedSize = wpos_ + cnt;
+		if (expectedSize >= MAX_SIZE)
+		{
+			throw MemoryStreamWriteOverflow(wpos_, cnt, expectedSize);
+			return;
+		}
 
-        if (data_.size() < wpos_ + cnt)
-            data_.resize(wpos_ + cnt);
+        if (data_.size() < expectedSize)
+            data_.resize(expectedSize);
 
         memcpy(&data_[wpos_], src, cnt);
         wpos_ += cnt;
@@ -598,8 +632,8 @@ public:
 		y -= minf / 2.f;
 		z -= minf;
 
-		// Do not exceed the maximum value-256~256
-		// y Do not exceed-128~128
+		// The maximum value should not exceed -256~256
+		// y don't exceed -128~128
         uint32 packed = 0;
         packed |= ((int)(x / 0.25f) & 0x7FF);
         packed |= ((int)(z / 0.25f) & 0x7FF) << 11;
@@ -609,16 +643,16 @@ public:
 
     void appendPackXZ(float x, float z)
     {
-		PackFloatXType xPackData;
+		PackFloatXType xPackData; 
 		xPackData.fv = x;
 
-		PackFloatXType zPackData;
+		PackFloatXType zPackData; 
 		zPackData.fv = z;
-
-		// 0-7 places the mantissa, 8-10 places the exponent, 11 stores the sign
-		// As 24 bits are used to store 2 floats, and it is required to be able to reach numbers between -512 and 512
-		// 8 mantissas Can only put the maximum value of 256, the index is only 3 (decided floating point maximum is 2^(2^3)=256)
-		// we give up the first place to reach the range (-512~-2), (2~ Between 512)
+		
+		// 0-7 digits store the mantissa, 8-10 digits store the index, 11 digits store the logo
+		// Since 24 bits are used to store 2 floats, and it is required to be able to reach a number between -512 and 512
+		// The 8-bit mantissa can only have a maximum of 256, and the exponent has only 3 digits (the maximum value of the floating-point number is 2^(2^3)=256).
+		// We give up the first place to make the range reach (-512~-2), (2~512)
 		// So here we guarantee that the minimum number is -2.f or 2.f
 		xPackData.fv += xPackData.iv < 0 ? -2.f : 2.f;
 		zPackData.fv += zPackData.iv < 0 ? -2.f : 2.f;
@@ -630,27 +664,26 @@ public:
 		const uint32 xCeilingValues[] = { 0, 0x7ff000 };
 		const uint32 zCeilingValues[] = { 0, 0x0007ff };
 
-		// Here if the float overflows then set the float to the maximum number
-		// Here, the exponent upper 4 bits and the flag bit are checked. If the upper 4 bits are not 0, the overflow is guaranteed.
-		// If the lower 4 bits and the 8 bit mantissa are not 0, the overflow occurs.
+		// Here, if this floating point number overflows, set the floating point number to the maximum number.
+		// This checks the upper 4 bits of the exponent and the flag bit. If the upper four bits are not 0, it will overflow. If the lower 4 bits and the 8-bit mantissa are not 0, then overflow.
 		// 0x7c000000 = 1111100000000000000000000000000
 		// 0x40000000 = 1000000000000000000000000000000
 		// 0x3ffc000  = 0000011111111111100000000000000
 		data |= xCeilingValues[((xPackData.uv & 0x7c000000) != 0x40000000) || ((xPackData.uv & 0x3ffc000) == 0x3ffc000)];
 		data |= zCeilingValues[((zPackData.uv & 0x7c000000) != 0x40000000) || ((zPackData.uv & 0x3ffc000) == 0x3ffc000)];
-
-		// Copy the 8-bit mantissa and 3-digit exponent, if the highest digit of the remaining mantissa of the float is 1 then 1 is rounded and stored in data
+		
+		// Copy the 8-bit mantissa and the 3-bit exponent, if the floating-point number of the remaining mantissa is 1 then +1 is rounded up and stored in data
 		// 0x7ff000 = 11111111111000000000000
 		// 0x0007ff = 00000000000011111111111
 		// 0x4000	= 00000000100000000000000
 		data |= ((xPackData.uv >>  3) & 0x7ff000) + ((xPackData.uv & 0x4000) >> 2);
 		data |= ((zPackData.uv >> 15) & 0x0007ff) + ((zPackData.uv & 0x4000) >> 14);
-
-		// Make sure the value is within range
+		
+		// Make sure the value is in range
 		// 0x7ff7ff = 11111111111011111111111
 		data &= 0x7ff7ff;
 
-		// Copy marker bits
+		// copy the flag bit
 		// 0x800000 = 100000000000000000000000
 		// 0x000800 = 000000000000100000000000
 		data |=  (xPackData.uv >>  8) & 0x800000;
@@ -665,7 +698,7 @@ public:
 
 	void appendPackY(float y)
 	{
-		PackFloatXType yPackData;
+		PackFloatXType yPackData; 
 		yPackData.fv = y;
 
 		yPackData.fv += yPackData.iv < 0 ? -2.f : 2.f;
@@ -691,7 +724,7 @@ public:
         memcpy(&data_[pos], src, cnt);
     }
 
-	/** Output stream data */
+		/** Output stream data*/
     void print_storage() const
     {
 		char buf[1024];
@@ -713,7 +746,7 @@ public:
 		rpos_ = trpos;
     }
 
-	/** Output stream data string */
+		/** Output stream data string*/
     void textlike() const
     {
 		char buf[1024];
@@ -744,7 +777,7 @@ public:
 
 		ouro_snprintf(buf, 1024, "STORAGE_SIZE: %lu, rpos=%lu.\n", (unsigned long)wpos(), (unsigned long)rpos());
 		fbuffer += buf;
-
+		
 		uint32 i = 0;
 		for (size_t idx = rpos(); idx < wpos(); ++idx)
         {
@@ -908,8 +941,8 @@ inline void MemoryStream::read_skip<std::string>()
     read_skip<char*>();
 }
 
-// Create and recycle from the object pool 
-#define NEW_MEMORY_STREAM() MemoryStream::createPoolObject()
+// Create and recycle from the object pool
+#define NEW_MEMORY_STREAM() MemoryStream::createPoolObject(OBJECTPOOL_POINT)
 #define DELETE_MEMORY_STREAM(obj) { MemoryStream::reclaimPoolObject(obj); obj = NULL; }
 
 }

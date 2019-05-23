@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "entitycallabstract.h"
@@ -8,6 +8,7 @@
 #include "network/bundle.h"
 #include "network/network_interface.h"
 #include "server/components.h"
+#include "entitydef/entitydef.h"
 #include "client_lib/client_interface.h"
 
 #include "../../server/baseapp/baseapp_interface.h"
@@ -29,16 +30,16 @@ SCRIPT_MEMBER_DECLARE_BEGIN(EntityCallAbstract)
 SCRIPT_MEMBER_DECLARE_END()
 
 SCRIPT_GETSET_DECLARE_BEGIN(EntityCallAbstract)
-SCRIPT_GET_DECLARE("id",							pyGetID,				0,					0)
+SCRIPT_GET_DECLARE("id",							pyGetID,				0,					0)	
 SCRIPT_GETSET_DECLARE_END()
-SCRIPT_INIT(EntityCallAbstract, 0, 0, 0, 0, 0)
+SCRIPT_INIT(EntityCallAbstract, 0, 0, 0, 0, 0)		
 
 //-------------------------------------------------------------------------------------
-EntityCallAbstract::EntityCallAbstract(PyTypeObject* scriptType,
-											const Network::Address* pAddr,
-											COMPONENT_ID componentID,
-											ENTITY_ID eid,
-											uint16 utype,
+EntityCallAbstract::EntityCallAbstract(PyTypeObject* scriptType, 
+											const Network::Address* pAddr, 
+											COMPONENT_ID componentID, 
+											ENTITY_ID eid, 
+											uint16 utype, 
 											ENTITYCALL_TYPE type):
 ScriptObject(scriptType, false),
 componentID_(componentID),
@@ -63,10 +64,10 @@ void EntityCallAbstract::newCall(Network::Bundle& bundle)
 //-------------------------------------------------------------------------------------
 void EntityCallAbstract::newCall_(Network::Bundle& bundle)
 {
-	// If it is server-side entityCall
+	// If it is the server-side entityCall
 	if(g_componentType != CLIENT_TYPE && g_componentType != BOTS_TYPE)
 	{
-		// If ID is 0, this is a client component, otherwise it is a server.
+		// If the ID is 0, then this is a client component, otherwise it is the server.
 		if(componentID_ == 0)
 		{
 			bundle.newMessage(ClientInterface::onRemoteMethodCall);
@@ -77,7 +78,7 @@ void EntityCallAbstract::newCall_(Network::Bundle& bundle)
 
 			if(cinfos != NULL)
 			{
-				// Find the corresponding component delivery in the past, if the entityCall still need to transfer such as e.base.cell, then transfer from baseapp to cellapp
+				// Find the corresponding component to deliver in the past. If the entityCall still needs to be transferred, such as e.base.cell, then transfer from baseapp to cellapp.
 				if(cinfos->componentType == BASEAPP_TYPE)
 				{
 					bundle.newMessage(BaseappInterface::onEntityCall);
@@ -95,14 +96,14 @@ void EntityCallAbstract::newCall_(Network::Bundle& bundle)
 		}
 
 		bundle << id_;
-
-		// If it is a package sent to the client does not need to attach such a type
+		
+		// If it is a package sent to the client, there is no need to attach such a type.
 		if(componentID_ > 0)
 			bundle << type_;
 	}
 	else
 	{
-		// If the entityCall on the client calls the server method there is only a call to the cell or base
+		// If the entityCall on the client calls the server method only exists to call cell or base
 		switch(type_)
 		{
 		case ENTITYCALL_TYPE_BASE:
@@ -145,18 +146,18 @@ bool EntityCallAbstract::sendCall(Network::Bundle* pBundle)
 PyObject* EntityCallAbstract::__py_reduce_ex__(PyObject* self, PyObject* protocol)
 {
 	EntityCallAbstract* eentitycall = static_cast<EntityCallAbstract*>(self);
-
+	
 	PyObject* args = PyTuple_New(2);
 	PyObject* unpickleMethod = script::Pickler::getUnpickleFunc("EntityCall");
 	PyTuple_SET_ITEM(args, 0, unpickleMethod);
-
+	
 	PyObject* args1 = PyTuple_New(4);
 	PyTuple_SET_ITEM(args1, 0, PyLong_FromLong(eentitycall->id()));
 	PyTuple_SET_ITEM(args1, 1, PyLong_FromUnsignedLongLong(eentitycall->componentID()));
 	PyTuple_SET_ITEM(args1, 2, PyLong_FromUnsignedLong(eentitycall->utype()));
 
 	int16 mbType = static_cast<int16>(eentitycall->type());
-
+	
 	PyTuple_SET_ITEM(args1, 3, PyLong_FromLong(mbType));
 	PyTuple_SET_ITEM(args, 1, args1);
 
@@ -169,8 +170,8 @@ PyObject* EntityCallAbstract::__py_reduce_ex__(PyObject* self, PyObject* protoco
 
 //-------------------------------------------------------------------------------------
 PyObject* EntityCallAbstract::pyGetID()
-{
-	return PyLong_FromLong(id());
+{ 
+	return PyLong_FromLong(id()); 
 }
 
 //-------------------------------------------------------------------------------------
@@ -180,6 +181,12 @@ Network::Channel* EntityCallAbstract::getChannel(void)
 		return NULL;
 
 	return __findChannelFunc(*this);
+}
+
+//-------------------------------------------------------------------------------------
+ScriptDefModule* EntityCallAbstract::pScriptDefModule()
+{
+	return EntityDef::findScriptModule(utype_);
 }
 
 //-------------------------------------------------------------------------------------

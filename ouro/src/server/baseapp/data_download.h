@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_DATA_DOWNLOAD_H
 #define OURO_DATA_DOWNLOAD_H
@@ -16,11 +16,11 @@ class DataDownloads;
 class DataDownload : public thread::TPTask
 {
 public:
-	DataDownload(PyObjectPtr objptr,
+	DataDownload(PyObjectPtr objptr, 
 		const std::string & descr, int16 id);
 
 	virtual ~DataDownload();
-
+	
 	virtual bool checkDescr(){ return true; }
 
 	void pDataDownloads(DataDownloads* pDataDownloads){ pDataDownloads_ = pDataDownloads; }
@@ -51,7 +51,7 @@ protected:
 
 	uint32 totalBytes_;
 
-	// Total number of bytes sent
+	// The total number of bytes sent
 	uint32 totalSentBytes_;
 	uint32 remainSent_;
 	uint32 currSent_;
@@ -66,7 +66,7 @@ protected:
 class StringDataDownload : public DataDownload
 {
 public:
-	StringDataDownload(PyObjectPtr objptr,
+	StringDataDownload(PyObjectPtr objptr, 
 		const std::string & descr, int16 id);
 
 	virtual ~StringDataDownload();
@@ -81,7 +81,7 @@ public:
 class FileDataDownload : public DataDownload
 {
 public:
-	FileDataDownload(PyObjectPtr objptr,
+	FileDataDownload(PyObjectPtr objptr, 
 		const std::string & descr, int16 id);
 
 	virtual ~FileDataDownload();
@@ -91,7 +91,7 @@ public:
 	virtual int8 type();
 protected:
 	std::string path_;
-
+	
 };
 
 }

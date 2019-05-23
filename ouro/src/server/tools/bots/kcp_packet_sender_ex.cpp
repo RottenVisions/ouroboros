@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "kcp_packet_sender_ex.h"
@@ -42,7 +42,7 @@ Channel* KCPPacketSenderEx::getChannel()
 }
 
 //-------------------------------------------------------------------------------------
-void KCPPacketSenderEx::onGetError(Channel* pChannel)
+void KCPPacketSenderEx::onGetError(Channel* pChannel, const std::string& err)
 {
 	pClientObject_->destroy();
 }

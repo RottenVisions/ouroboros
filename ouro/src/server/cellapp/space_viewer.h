@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SPACE_VIEWER_H
 #define OURO_SPACE_VIEWER_H
@@ -10,7 +10,7 @@
 #include "helper/eventhistory_stats.h"
 #include "network/interfaces.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 class NetworkInterface;
@@ -35,14 +35,14 @@ public:
 		Position3D position;
 		Direction3D direction;
 
-		// Update the serial number. All entities are updated. Serial number 1. In some cases, the volume is larger. Each iteration of part of the entity update.
+		// Update the serial number. If all entities are updated, the serial number is +1. In some cases, the amount is relatively large.
 		int updateVersion;
 	};
 
 public:
 	SpaceViewer();
 	virtual ~SpaceViewer();
-
+	
 	virtual void timeout();
 	virtual void sendStream(MemoryStream* s, int type);
 
@@ -53,7 +53,7 @@ public:
 	}
 
 protected:
-	// Changed the cell of viewing space
+	// Changed the cell to view the space
 	void onChangedSpaceOrCell();
 	void resetViewer();
 
@@ -62,7 +62,7 @@ protected:
 
 	Network::Address addr_;
 
-	// Currently viewed space and cell
+	// The currently viewed space and cell
 	SPACE_ID spaceID_;
 	CELL_ID cellID_;
 
@@ -70,7 +70,7 @@ protected:
 
 	int updateType_;
 
-	// Update the serial number. All entities are updated. Serial number 1. In some cases, the volume is larger. Each iteration of part of the entity update.
+	// Update the serial number. If all entities are updated, the serial number is +1. In some cases, the amount is relatively large.
 	int lastUpdateVersion_;
 };
 

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_PY_FILE_DESCRIPTOR_H
 #define OURO_PY_FILE_DESCRIPTOR_H
@@ -15,9 +15,9 @@ class PyFileDescriptor : public Network::InputNotificationHandler, public Networ
 public:
 	PyFileDescriptor(int fd, PyObject* pyCallback, bool write);
 	virtual ~PyFileDescriptor();
-
-	/**
-		Descriptor
+	
+	/** 
+		Script request (register/unregister) file descriptor (read and write)
 	*/
 	static PyObject* __py_registerReadFileDescriptor(PyObject* self, PyObject* args);
 	static PyObject* __py_registerWriteFileDescriptor(PyObject* self, PyObject* args);

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_MYSQL_EXCEPTION_H
 #define OURO_MYSQL_EXCEPTION_H
@@ -18,6 +18,12 @@ public:
 
 	bool shouldRetry() const;
 	bool isLostConnection() const;
+
+	void setError(const std::string& errStr, unsigned int errNum)
+	{
+		errStr_ = errStr;
+		errNum_ = errNum;
+	}
 
 private:
 	std::string errStr_;

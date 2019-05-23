@@ -1,8 +1,8 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_ENGINE_COMPONENT_MGR_H
 #define OURO_ENGINE_COMPONENT_MGR_H
-
+	
 #include "common/timer.h"
 #include "common/tasks.h"
 #include "common/common.h"
@@ -10,7 +10,7 @@
 #include "thread/threadmutex.h"
 #include "thread/threadguard.h"
 #include "server/common.h"
-
+	
 namespace Ouroboros{
 
 namespace Network
@@ -20,14 +20,14 @@ class Address;
 class NetworkInterface;
 }
 
-// ComponentInfos.Flags flag
+// ComponentInfos.flags flag
 #define COMPONENT_FLAG_NORMAL 0x00000000
 #define COMPONENT_FLAG_SHUTTINGDOWN 0x00000001
 
 class Components : public Task, public Singleton<Components>
 {
 public:
-	static int32 ANY_UID;
+	static int32 ANY_UID; 
 
 	struct ComponentInfos
 	{
@@ -51,10 +51,11 @@ public:
 			pid = 0;
 			externalAddressEx[0] = '\0';
 			logTime = timestamp();
+			appFlags = APP_FLAGS_NONE;
 		}
 
-		OUROShared_ptr<Network::Address> pIntAddr, pExtAddr;		// Internal and external addresses
-		char externalAddressEx[MAX_NAME + 1];					// Mandatory exposure to external public address, see externalAddressEx in configuration
+		KBEShared_ptr<Network::Address> pIntAddr, pExtAddr; // internal and external addresses
+		char externalAddressEx[MAX_NAME + 1]; // Forced exposure to an external public address, see externalAddressEx in the configuration
 
 		int32 uid;
 		COMPONENT_ID cid;
@@ -65,7 +66,7 @@ public:
 		COMPONENT_TYPE componentType;
 		uint32 flags;
 
-		// Process state
+		// process status
 		COMPONENT_STATE state;
 
 		float cpu;
@@ -74,11 +75,12 @@ public:
 		uint64 extradata, extradata1, extradata2, extradata3;
 		uint32 pid;
 		uint64 logTime;
+		uint32 appFlags;
 	};
 
 	typedef std::vector<ComponentInfos> COMPONENTS;
 
-	/** Component add delete handler */
+		/** Component add delete handler*/
 	class ComponentsNotificationHandler
 	{
 	public:
@@ -96,17 +98,17 @@ public:
 	void finalise();
 
 	INLINE Network::NetworkInterface* pNetworkInterface()
-	{
+	{ 
 		return _pNetworkInterface;
 	}
 
-	void addComponent(int32 uid, const char* username,
+	void addComponent(int32 uid, const char* username, 
 		COMPONENT_TYPE componentType, COMPONENT_ID componentID, COMPONENT_ORDER globalorderid, COMPONENT_ORDER grouporderid, COMPONENT_GUS gus,
 		uint32 intaddr, uint16 intport, uint32 extaddr, uint16 extport, std::string& extaddrEx, uint32 pid,
 		float cpu, float mem, uint32 usedmem, uint64 extradata, uint64 extradata1, uint64 extradata2, uint64 extradata3,
 		Network::Channel* pChannel = NULL);
 
-	void delComponent(int32 uid, COMPONENT_TYPE componentType,
+	void delComponent(int32 uid, COMPONENT_TYPE componentType, 
 		COMPONENT_ID componentID, bool ignoreComponentID = false, bool shouldShowLog = true);
 
 	void removeComponentByChannel(Network::Channel * pChannel, bool isShutingdown = false);
@@ -115,8 +117,8 @@ public:
 
 	Components::COMPONENTS& getComponents(COMPONENT_TYPE componentType);
 
-	/**
-		Finding components
+	/** 
+		Find component
 	*/
 	Components::ComponentInfos* findComponent(COMPONENT_TYPE componentType, int32 uid, COMPONENT_ID componentID);
 	Components::ComponentInfos* findComponent(COMPONENT_TYPE componentType, COMPONENT_ID componentID);
@@ -124,8 +126,8 @@ public:
 	Components::ComponentInfos* findComponent(Network::Channel * pChannel);
 	Components::ComponentInfos* findComponent(Network::Address* pAddress);
 
-	/**
-		Finding local components through process id
+	/** 
+		Find local components by process id
 	*/
 	Components::ComponentInfos* findLocalComponent(uint32 pid);
 
@@ -136,28 +138,28 @@ public:
 	ORDER_LOG& getBaseappGroupOrderLog(){ return _baseappGrouplOrderLog; }
 	ORDER_LOG& getCellappGroupOrderLog(){ return _cellappGrouplOrderLog; }
 	ORDER_LOG& getLoginappGroupOrderLog(){ return _loginappGrouplOrderLog; }
-
-	/**
-		Check all components to prevent duplication of uuid. At this time you should get an error.
+	
+	/** 
+		Check all components to prevent duplicate uuid, and you should get an error.
 	*/
 	bool checkComponents(int32 uid, COMPONENT_ID componentID, uint32 pid);
 
-	/**
+	/** 
 		Set up a processor instance to receive component notifications
 	*/
 	void pHandler(ComponentsNotificationHandler* ph){ _pHandler = ph; };
 
-	/**
+	/** 
 		Check if a component port is valid.
 	*/
 	bool updateComponentInfos(const Components::ComponentInfos* info);
 
-	/**
-		Is it a local component.
+	/** 
+		Whether it is a local component.
 	*/
 	bool isLocalComponent(const Components::ComponentInfos* info);
 
-	/**
+	/** 
 		Whether the local component is running.
 	*/
 	const Components::ComponentInfos* lookupLocalComponentRunning(uint32 pid);
@@ -174,12 +176,12 @@ public:
 	Network::Channel* getLoggerChannel();
 
 	/**
-		Counting the number of all components under a certain UID
+		Count the number of all components under a UID
 	*/
 	size_t getGameSrvComponentsSize(int32 uid);
 
-	/**
-		Get the number of registrations necessary for the game server.
+	/** 
+		Get the number of registrations required for the game server.
 	*/
 	size_t getGameSrvComponentsSize();
 
@@ -187,7 +189,7 @@ public:
 	COMPONENT_ID componentID() const { return componentID_; }
 	void componentType(COMPONENT_TYPE t){ componentType_ = t; }
 	COMPONENT_TYPE componentType() const { return componentType_; }
-
+	
 	Network::EventDispatcher & dispatcher();
 
 	void onChannelDeregister(Network::Channel * pChannel, bool isShutingdown);
@@ -198,7 +200,7 @@ public:
 	void extraData4(uint64 v){ extraData4_ = v; }
 
 	bool findLogger();
-
+	
 	void broadcastSelf();
 
 private:
@@ -221,9 +223,9 @@ private:
 	COMPONENTS								_consoles;
 
 	Network::NetworkInterface*				_pNetworkInterface;
-
-	// Global start order of the component log and group (the same component is a group, such as: all baseapp is a group) Start-up order log
-	// Note: There is a dead app component in the middle. The log does not do a decrement operation. There is no need to do this matching from the intention of using.
+	
+	// The global startup order log and group of the component (the same component is a group, such as: all baseapp is a group) startup order log
+	// Note: There is a dead app component in the middle of the log. The log does not do the subtraction operation. It is not necessary to make this match from the intention of use.
 	ORDER_LOG								_globalOrderLog;
 	ORDER_LOG								_baseappGrouplOrderLog;
 	ORDER_LOG								_cellappGrouplOrderLog;
@@ -234,8 +236,8 @@ private:
 	// The category of this component
 	COMPONENT_TYPE							componentType_;
 
-	// The ID of this component
-	COMPONENT_ID							componentID_;
+	// the ID of this component
+	COMPONENT_ID							componentID_;	
 
 	uint8									state_;
 	int16									findIdx_;

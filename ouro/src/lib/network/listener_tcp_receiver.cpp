@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "listener_tcp_receiver.h"
@@ -53,7 +53,7 @@ int ListenerTcpReceiver::handleInputNotification(int fd)
 		}
 		else
 		{
-			Channel* pChannel = Network::Channel::createPoolObject();
+			Channel* pChannel = Network::Channel::createPoolObject(OBJECTPOOL_POINT);
 			bool ret = pChannel->initialize(networkInterface_, pNewEndPoint, traits_);
 			if(!ret)
 			{

@@ -1,15 +1,15 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "clientapp.h"
 #include "entity.h"
 #include "config.h"
 #include "clientobjectbase.h"
-#include "moveto_point_handler.h"
+#include "moveto_point_handler.h"	
 #include "entitydef/entity_call.h"
 #include "entitydef/entity_component.h"
-#include "network/channel.h"
-#include "network/bundle.h"
+#include "network/channel.h"	
+#include "network/bundle.h"	
 #include "network/fixed_messages.h"
 #include "pyscript/py_gc.h"
 
@@ -26,8 +26,12 @@ namespace client
 
 //-------------------------------------------------------------------------------------
 CLIENT_ENTITY_METHOD_DECLARE_BEGIN(ClientApp, Entity)
-SCRIPT_METHOD_DECLARE("moveToPoint",				pyMoveToPoint,					METH_VARARGS,				0)
-SCRIPT_METHOD_DECLARE("cancelController",			pyCancelController,				METH_VARARGS,				0)
+SCRIPT_METHOD_DECLARE("moveToPoint",				pyMoveToPoint,					METH_VARARGS,					0)
+SCRIPT_METHOD_DECLARE("cancelController",			pyCancelController,				METH_VARARGS,					0)
+SCRIPT_METHOD_DECLARE("isPlayer",					pyIsPlayer,						METH_VARARGS,					0)
+SCRIPT_METHOD_DECLARE("addTimer",					pyAddTimer,						METH_VARARGS,					0)	
+SCRIPT_METHOD_DECLARE("delTimer",					pyDelTimer,						METH_VARARGS,					0)	
+SCRIPT_METHOD_DECLARE("getComponent",				pyGetComponent,					METH_VARARGS | METH_KEYWORDS,	0)
 CLIENT_ENTITY_METHOD_DECLARE_END()
 
 SCRIPT_MEMBER_DECLARE_BEGIN(Entity)
@@ -41,8 +45,8 @@ SCRIPT_GETSET_DECLARE("position",					pyGetPosition,					pySetPosition,		0,		0)
 SCRIPT_GETSET_DECLARE("direction",					pyGetDirection,					pySetDirection,		0,		0)
 SCRIPT_GETSET_DECLARE("velocity",					pyGetMoveSpeed,					pySetMoveSpeed,		0,		0)
 CLIENT_ENTITY_GETSET_DECLARE_END()
-BASE_SCRIPT_INIT(Entity, 0, 0, 0, 0, 0)
-
+BASE_SCRIPT_INIT(Entity, 0, 0, 0, 0, 0)	
+	
 //-------------------------------------------------------------------------------------
 Entity::Entity(ENTITY_ID id, const ScriptDefModule* pScriptModule, EntityCall* base, EntityCall* cell):
 ScriptObject(getScriptType(), true),
@@ -70,61 +74,63 @@ isControlled_(false)
 //-------------------------------------------------------------------------------------
 Entity::~Entity()
 {
+	stopMove();
+
 	enterworld_ = false;
 	ENTITY_DECONSTRUCTION(Entity);
 	S_RELEASE(cellEntityCall_);
 	S_RELEASE(baseEntityCall_);
 
 	script::PyGC::decTracing("Entity");
-
+	
 	if(pClientApp_->pEntities())
 		pClientApp_->pEntities()->pGetbages()->erase(id());
 
 	Py_DECREF(pClientApp_);
-}
+}	
 
 //-------------------------------------------------------------------------------------
 void Entity::pClientApp(ClientObjectBase* p)
-{
+{ 
 	if(p)
 		Py_INCREF(p);
 	else
 		Py_DECREF(pClientApp_);
 
-	pClientApp_ = p;
+	pClientApp_ = p; 
 }
 
 //-------------------------------------------------------------------------------------
 PyObject* Entity::pyGetBaseEntityCall()
-{
+{ 
 	EntityCall* entityCall = baseEntityCall();
 	if(entityCall == NULL)
 		S_Return;
 
 	Py_INCREF(entityCall);
-	return entityCall;
+	return entityCall; 
 }
 
 //-------------------------------------------------------------------------------------
 PyObject* Entity::pyGetCellEntityCall()
-{
+{ 
 	EntityCall* entityCall = cellEntityCall();
 	if(entityCall == NULL)
 		S_Return;
 
 	Py_INCREF(entityCall);
-	return entityCall;
+	return entityCall; 
 }
 
 //-------------------------------------------------------------------------------------
 PyObject* Entity::pyGetClientApp()
-{
+{ 
 	ClientObjectBase* app = pClientApp();
 	if(app == NULL)
 		S_Return;
 
 	Py_INCREF(app);
-	return app;
+	return app; 
 }
 
 //-------------------------------------------------------------------------------------
@@ -132,7 +138,7 @@ PyObject* Entity::onScriptGetAttribute(PyObject* attr)
 {
 	DEBUG_OP_ATTRIBUTE("get", attr)
 	return ScriptObject::onScriptGetAttribute(attr);
-}
+}	
 
 //-------------------------------------------------------------------------------------
 void Entity::onInitializeScript()
@@ -149,7 +155,7 @@ void Entity::onDefDataChanged(EntityComponent* pEntityComponent, const PropertyD
 void Entity::onRemoteMethodCall(Network::Channel* pChannel, MemoryStream& s)
 {
 	ENTITY_METHOD_UID utype = 0;
-
+	
 	MethodDescription* pMethodDescription = NULL;
 	ScriptDefModule* pScriptModule = pScriptModule_;
 	PropertyDescription* pComponentPropertyDescription = NULL;
@@ -201,7 +207,7 @@ void Entity::onRemoteMethodCall(Network::Channel* pChannel, MemoryStream& s)
 
 	if(pMethodDescription == NULL)
 	{
-		ERROR_MSG(fmt::format("{2}::onRemoteMethodCall: can't found method. utype={0}, methodName=unknown, callerID:{1}.\n",
+		ERROR_MSG(fmt::format("{2}::onRemoteMethodCall: can't found method. utype={0}, methodName=unknown, callerID:{1}.\n", 
 			utype, id_, this->scriptName()));
 
 		if (pyCallObject != static_cast<PyObject*>(this))
@@ -212,7 +218,7 @@ void Entity::onRemoteMethodCall(Network::Channel* pChannel, MemoryStream& s)
 
 	if(g_debugEntity)
 	{
-		DEBUG_MSG(fmt::format("{3}::onRemoteMethodCall: {0}, {3}::{4}{1}(utype={2}).\n",
+		DEBUG_MSG(fmt::format("{3}::onRemoteMethodCall: {0}, {3}::{4}{1}(utype={2}).\n", 
 			id_, (pMethodDescription ? pMethodDescription->getName() : "unknown"), utype, this->scriptName(),
 			(pComponentPropertyDescription ? (std::string(pScriptModule->getName()) + "::") : "")));
 	}
@@ -240,7 +246,7 @@ void Entity::onRemoteMethodCall(Network::Channel* pChannel, MemoryStream& s)
 			}
 		}
 	}
-
+	
 	Py_XDECREF(pyFunc);
 
 	if (pyCallObject != static_cast<PyObject*>(this))
@@ -252,7 +258,7 @@ void Entity::onRemoteMethodCall(Network::Channel* pChannel, MemoryStream& s)
 //-------------------------------------------------------------------------------------
 void Entity::onUpdatePropertys(MemoryStream& s)
 {
-	// Since new component attributes may be generated during attribute update, it is necessary to set this
+	// Since this may result in new component properties during the property update process, you need to set it here.
 	EntityDef::context().currClientappID = pClientApp_->appID();
 	EntityDef::context().currEntityID = id();
 	EntityDef::context().currComponentType = CLIENT_TYPE;
@@ -296,7 +302,7 @@ void Entity::onUpdatePropertys(MemoryStream& s)
 
 		if(pScriptModule_->usePropertyDescrAlias())
 		{
-			// Parent attribute ID
+			// parent attribute ID
 			s >> aliasID;
 			s >> child_aliasID;
 			uid = aliasID;
@@ -304,7 +310,7 @@ void Entity::onUpdatePropertys(MemoryStream& s)
 		}
 		else
 		{
-			// Parent attribute ID
+			// parent attribute ID
 			s >> uid;
 			s >> child_uid;
 		}
@@ -316,7 +322,7 @@ void Entity::onUpdatePropertys(MemoryStream& s)
 			{
 				Position3D pos;
 
-#ifdef CLIENT_NO_FLOAT
+#ifdef CLIENT_NO_FLOAT		
 				int32 x, y, z;
 				s >> x >> y >> z;
 
@@ -334,7 +340,7 @@ void Entity::onUpdatePropertys(MemoryStream& s)
 			{
 				Direction3D dir;
 
-#ifdef CLIENT_NO_FLOAT
+#ifdef CLIENT_NO_FLOAT		
 				int32 x, y, z;
 				s >> x >> y >> z;
 
@@ -368,13 +374,19 @@ void Entity::onUpdatePropertys(MemoryStream& s)
 		}
 		else
 		{
-			// Get parent attribute to find attribute name
+			// Get the parent property first to find the property name
 			if (pScriptModule_->usePropertyDescrAlias())
 				pPropertyDescription = pScriptModule()->findAliasPropertyDescription(aliasID);
 			else
 				pPropertyDescription = pScriptModule()->findClientPropertyDescription(uid);
 
-			// Then get the component properties, and then find the sub-attribute
+			if (pPropertyDescription == NULL)
+			{
+				ERROR_MSG(fmt::format("{}::onUpdatePropertys: not found EntityComponentProperty(uid={}, aliasID={})!\n", pScriptModule_->getName(), uid, aliasID));
+				return;
+			}
+
+			// Then get the component properties and find the child properties from it
 			EntityComponent* pEntityComponent = static_cast<EntityComponent*>(PyObject_GetAttrString(this, pPropertyDescription->getName()));
 			if (!pEntityComponent)
 			{
@@ -389,7 +401,7 @@ void Entity::onUpdatePropertys(MemoryStream& s)
 
 		if(pPropertyDescription == NULL)
 		{
-			ERROR_MSG(fmt::format("Entity::onUpdatePropertys: not found {}\n", uid));
+			ERROR_MSG(fmt::format("Entity::onUpdatePropertys: not found uid={}, aliasID={}, child_uid={}\n", uid, aliasID, child_uid));
 
 			if (setToObj != static_cast<PyObject*>(this))
 				Py_DECREF(setToObj);
@@ -454,7 +466,7 @@ PyObject* Entity::pyGetPosition()
 //-------------------------------------------------------------------------------------
 void Entity::onPositionChanged()
 {
-	if(pClientApp_->entityID() == this->id())
+	if(isPlayer())
 		return;
 
 	EventData_PositionChanged eventdata;
@@ -462,7 +474,7 @@ void Entity::onPositionChanged()
 	eventdata.y = position_.y;
 	eventdata.z = position_.z;
 	eventdata.speed = velocity_;
-
+	
 	eventdata.entityID = id();
 
 	pClientApp_->fireEvent(&eventdata);
@@ -510,7 +522,7 @@ PyObject* Entity::pyGetDirection()
 //-------------------------------------------------------------------------------------
 void Entity::onDirectionChanged()
 {
-	if(pClientApp_->entityID() == this->id())
+	if(isPlayer())
 		return;
 
 	EventData_DirectionChanged eventdata;
@@ -600,7 +612,7 @@ void Entity::onBecomePlayer()
 	std::string moduleName = "Player";
 	moduleName += this->pScriptModule_->getName();
 
-	PyObject* pyModule =
+	PyObject* pyModule = 
 		PyImport_ImportModule(const_cast<char*>(this->pScriptModule_->getName()));
 
 	if(pyModule == NULL)
@@ -609,13 +621,13 @@ void Entity::onBecomePlayer()
 	}
 	else
 	{
-		PyObject* pyClass =
+		PyObject* pyClass = 
 			PyObject_GetAttrString(pyModule, const_cast<char *>(moduleName.c_str()));
 
 		if(pyClass == NULL)
 		{
-			SCRIPT_ERROR_CHECK();
-			ERROR_MSG(fmt::format("{}::onBecomePlayer(): please implement {}.\n", this->pScriptModule_->getName(), moduleName));
+			// is not mandatory to implement the Player** class
+			PyErr_Clear();
 		}
 		else
 		{
@@ -635,7 +647,7 @@ void Entity::onBecomeNonPlayer()
 {
 	if(!enterworld_)
 		return;
-
+	
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 	CALL_ENTITY_AND_COMPONENTS_METHOD(this, SCRIPT_OBJECT_CALL_ARGS0(pyTempObj, const_cast<char*>("onBecomeNonPlayer"), GETERR));
 
@@ -657,7 +669,7 @@ bool Entity::stopMove()
 }
 
 //-------------------------------------------------------------------------------------
-uint32 Entity::moveToPoint(const Position3D& destination, float velocity, float distance, PyObject* userData,
+uint32 Entity::moveToPoint(const Position3D& destination, float velocity, float distance, PyObject* userData, 
 						 bool faceMovement, bool moveVertically)
 {
 	stopMove();
@@ -670,7 +682,7 @@ uint32 Entity::moveToPoint(const Position3D& destination, float velocity, float 
 
 	velocity = velocity / hertz;
 
-	pMoveHandlerID_ = pClientApp_->scriptCallbacks().addCallback(0.0f, 0.1f, new MoveToPointHandler(pClientApp_->scriptCallbacks(), this, 0, destination, velocity,
+	pMoveHandlerID_ = pClientApp_->scriptCallbacks().addCallback(0.0f, 0.1f, new MoveToPointHandler(pClientApp_->scriptCallbacks(), this, 0, destination, velocity, 
 		distance, faceMovement, moveVertically, userData));
 
 	return pMoveHandlerID_;
@@ -682,8 +694,8 @@ PyObject* Entity::pyMoveToPoint(PyObject_ptr pyDestination, float velocity, floa
 {
 	if(this->isDestroyed())
 	{
-		PyErr_Format(PyExc_AssertionError, "%s::moveToPoint: %d is destroyed!\n",
-			scriptName(), id());
+		PyErr_Format(PyExc_AssertionError, "%s::moveToPoint: %d is destroyed!\n",		
+			scriptName(), id());		
 		PyErr_PrintEx(0);
 		return 0;
 	}
@@ -704,7 +716,7 @@ PyObject* Entity::pyMoveToPoint(PyObject_ptr pyDestination, float velocity, floa
 		return 0;
 	}
 
-	// Extract coordinate information
+	// Extract the coordinate information
 	script::ScriptVector3::convertPyObjectToVector3(destination, pyDestination);
 	Py_INCREF(userData);
 
@@ -756,7 +768,7 @@ void Entity::cancelController(uint32 id)
 		return;
 	}
 
-	// For the time being only the callback, mainly because it is used in the move, it may not be very suitable at present
+	// There is only a callback for the time being, mainly because it is used in mobile, it may not be very suitable at present.
 	if(id == (uint32)pMoveHandlerID_)
 		this->stopMove();
 }
@@ -772,34 +784,30 @@ PyObject* Entity::__py_pyCancelController(PyObject* self, PyObject* args)
 
 	if(currargsSize != 1)
 	{
-		PyErr_Format(PyExc_AssertionError, "%s::cancel: args require 1 args(controllerID|int or \"Movement\"|str), gived %d! is script[%s].\n",
-			pobj->scriptName(), currargsSize);
-
-		PyErr_PrintEx(0);
-		return 0;
+		PyErr_Format(PyExc_AssertionError, "%s::cancel: args require 1 args(controllerID|int or \"Movement\"|str), gived %d! is script[%s].\n",								
+			pobj->scriptName(), currargsSize);														
+																																
+		PyErr_PrintEx(0);																										
+		return 0;																								
 	}
 
 	if(PyArg_ParseTuple(args, "O", &pyargobj) == -1)
 	{
-		PyErr_Format(PyExc_TypeError, "%s::cancel: args(controllerID|int or \"Movement\"|str) is error!", pobj->scriptName());
+		PyErr_Format(PyExc_TypeError, "%s::cancel: args(controllerID|int or \"Movement\"|str) error!", pobj->scriptName());
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+	
 	if(pyargobj == NULL)
 	{
-		PyErr_Format(PyExc_TypeError, "%s::cancel: args(controllerID|int or \"Movement\"|str) is error!", pobj->scriptName());
+		PyErr_Format(PyExc_TypeError, "%s::cancel: args(controllerID|int or \"Movement\"|str) error!", pobj->scriptName());
 		PyErr_PrintEx(0);
 		return 0;
 	}
 
 	if(PyUnicode_Check(pyargobj))
 	{
-		wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyargobj, NULL);
-		char* s = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-		PyMem_Free(PyUnicode_AsWideCharStringRet0);
-
-		if(strcmp(s, "Movement") == 0)
+		if (strcmp(PyUnicode_AsUTF8AndSize(pyargobj, NULL), "Movement") == 0)
 		{
 			pobj->stopMove();
 		}
@@ -807,11 +815,8 @@ PyObject* Entity::__py_pyCancelController(PyObject* self, PyObject* args)
 		{
 			PyErr_Format(PyExc_TypeError, "%s::cancel: args not is \"Movement\"!", pobj->scriptName());
 			PyErr_PrintEx(0);
-			free(s);
 			return 0;
 		}
-
-		free(s);
 
 		S_Return;
 	}
@@ -819,7 +824,7 @@ PyObject* Entity::__py_pyCancelController(PyObject* self, PyObject* args)
 	{
 		if(!PyLong_Check(pyargobj))
 		{
-			PyErr_Format(PyExc_TypeError, "%s::cancel: args(controllerID|int) is error!", pobj->scriptName());
+			PyErr_Format(PyExc_TypeError, "%s::cancel: args(controllerID|int) error!", pobj->scriptName());
 			PyErr_PrintEx(0);
 			return 0;
 		}
@@ -829,6 +834,21 @@ PyObject* Entity::__py_pyCancelController(PyObject* self, PyObject* args)
 
 	pobj->cancelController(id);
 	S_Return;
+}
+
+//-------------------------------------------------------------------------------------
+bool Entity::isPlayer()
+{
+	return id() == pClientApp_->entityID();
+}
+
+//-------------------------------------------------------------------------------------
+PyObject* Entity::pyIsPlayer()
+{
+	if (isPlayer())
+		Py_RETURN_TRUE;
+	else
+		Py_RETURN_FALSE;
 }
 
 //-------------------------------------------------------------------------------------
@@ -892,3 +912,5 @@ void Entity::onControlled(bool p_controlled)
 //-------------------------------------------------------------------------------------
 }
 }
+
+

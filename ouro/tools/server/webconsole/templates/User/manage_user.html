@@ -27,7 +27,7 @@
           <td>{{ u.ouro_root }}</td>
           <td>{{ u.ouro_res_path }}</td>
           <td>{{ u.ouro_bin_path }}</td>
-          <td><button class="ct-stop-btn btn" onClick="requestChangeUser({{u.id}})">Modify the information</button> <button class="ct-stop-btn btn" onClick="requestChangePwd({{u.id}}, '{{u.name}}')">修改密码</button> <button class="ct-stop-btn btn" onClick="user_delete({{ u.id }},'{{ u.name }}')">删除</button></td>
+          <td><button class="ct-stop-btn btn" onClick="requestChangeUser({{u.id}})">Modify the information</button> <button class="ct-stop-btn btn" onClick="requestChangePwd({{u.id}}, '{{u.name}}')">Change Password</button> <button class="ct-stop-btn btn" onClick="user_delete({{ u.id }},'{{ u.name }}')">Delete</button></td>
         </tr>
         {% endfor %}
       </tbody>

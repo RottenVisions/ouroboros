@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_PY_MEMORYSTREAM_H
@@ -12,10 +12,10 @@
 namespace Ouroboros{ namespace script{
 
 class PyMemoryStream : public ScriptObject
-{
-	/** Subclassing fills some py operations into derived classes */
+{		
+		/** Subclassing populates some py operations into derived classes*/
 	INSTANCE_SCRIPT_HREADER(PyMemoryStream, ScriptObject)
-public:
+public:	
 	static PySequenceMethods seqMethods;
 
 	PyMemoryStream(bool readonly = false);
@@ -28,24 +28,24 @@ public:
 
 
 	/**
-	Supports pickler method
+	Support for the pickler method
 	*/
 	static PyObject* __py_reduce_ex__(PyObject* self, PyObject* protocol);
 
 	/**
-	Unpickle method
+	Unpick method
 	*/
 	static PyObject* __unpickle__(PyObject* self, PyObject* args);
 
 	/**
-	Script is called when it is installed
+	Called when the script is installed
 	*/
 	static void onInstallScript(PyObject* mod);
 
 	static PyObject* py_new();
 
 	/**
-	Initialize the fixed dictionary
+	Initialize a fixed dictionary
 	*/
 	void initialize(std::string strDictInitData);
 	void initialize(PyObject* pyDictInitData);
@@ -61,20 +61,20 @@ public:
 
 	void createFromStream(MemoryStream* mstream);
 
-	/**
-		Get the description of the object 
+	/** 
+		Get the description of the object
 	*/
 	PyObject* tp_repr();
 	PyObject* tp_str();
 
-	static PyObject* __py_append(PyObject* self, PyObject* args, PyObject* kwargs);
-	static PyObject* __py_pop(PyObject* self, PyObject* args, PyObject* kwargs);
-
+	static PyObject* __py_append(PyObject* self, PyObject* args, PyObject* kwargs);	
+	static PyObject* __py_pop(PyObject* self, PyObject* args, PyObject* kwargs);	
+	
 	static Py_ssize_t seq_length(PyObject* self);
 	INLINE int length(void) const;
 
-	static PyObject* __py_bytes(PyObject* self, PyObject* args, PyObject* kwargs);
-
+	static PyObject* __py_bytes(PyObject* self, PyObject* args, PyObject* kwargs);	
+	
 	static PyObject* __py_rpos(PyObject* self, PyObject* args, PyObject* kwargs);
 	static PyObject* __py_wpos(PyObject* self, PyObject* args, PyObject* kwargs);
 

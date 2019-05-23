@@ -1,10 +1,10 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "baseapp.h"
 #include "backuper.h"
 #include "server/serverconfig.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 float backupPeriod = 0.0;
 
 //-------------------------------------------------------------------------------------
@@ -27,44 +27,44 @@ void Backuper::tick()
 	if (periodInTicks == 0)
 		return;
 
-	// Here is a batch operation for the backup entity
-	// Probably the algorithm is to convert the backup period filled in the configuration to the number of ticks, part of each tick backup entity
+	// Here is a batch operation on the backup entity.
+	// Probably the algorithm is to convert the backup period filled in the configuration into the number of tick, and each tick backs up a part of the entity.
 	float numToBackUpFloat = float(Baseapp::getSingleton().pEntities()->size()) / periodInTicks + backupRemainder_;
 
-	// The number of backups
+	// The number of this backup
 	int numToBackUp = int(numToBackUpFloat);
 
-	// Calculate the amount of loss due to accuracy
+	// Calculate the amount of loss caused by the precision
 	backupRemainder_ = numToBackUpFloat - numToBackUp;
 
-	// If there is no content in the backup table, regenerate a new one
+	// If the backup table has no content, regenerate a new one.
 	if (backupEntityIDs_.empty())
 	{
 		this->createBackupTable();
 	}
 
-	MemoryStream* s = MemoryStream::createPoolObject();
-
+	MemoryStream* s = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
+	
 	while((numToBackUp > 0) && !backupEntityIDs_.empty())
 	{
 		Entity * pEntity = Baseapp::getSingleton().findEntity(backupEntityIDs_.back());
 		backupEntityIDs_.pop_back();
-
+		
 		if (pEntity && backup(*pEntity, *s))
 		{
 			--numToBackUp;
 		}
-
+		
 		s->clear(false);
 	}
-
+	
 	MemoryStream::reclaimPoolObject(s);
 }
 
 //-------------------------------------------------------------------------------------
 bool Backuper::backup(Entity& entity, MemoryStream& s)
 {
-	// This begins to write the data that needs to be backed up to the stream
+	// Here we start writing the data that needs to be backed up to the stream
 	entity.writeBackupData(&s);
 
 	if(entity.shouldAutoBackup() == OURO_NEXT_ONLY)

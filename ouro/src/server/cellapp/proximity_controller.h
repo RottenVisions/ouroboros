@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_PROXIMITYCONTROLLER_H
 #define OURO_PROXIMITYCONTROLLER_H
 
-#include "controller.h"
+#include "controller.h"	
 
 
 namespace Ouroboros{
@@ -12,7 +12,7 @@ class TrapTrigger;
 class CoordinateNode;
 
 /*
-	Trap
+	π‹¿Ìtrap°£
 */
 class ProximityController : public Controller
 {
@@ -20,7 +20,7 @@ public:
 	ProximityController(Entity* pEntity, float xz, float y, int32 userarg, uint32 id = 0);
 	ProximityController(Entity* pEntity);
 	~ProximityController();
-
+	
 	bool reinstall(CoordinateNode* pCoordinateNode);
 
 	void onEnter(Entity* pEntity, float xz, float y);
@@ -31,7 +31,7 @@ public:
 
 protected:
 	TrapTrigger* pTrapTrigger_;
-	float xz_;
+	float xz_; 
 	float y_;
 };
 

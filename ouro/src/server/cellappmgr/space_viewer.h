@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SPACE_VIEWER_H
 #define OURO_SPACE_VIEWER_H
@@ -10,7 +10,7 @@
 #include "helper/eventhistory_stats.h"
 #include "network/interfaces.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 class NetworkInterface;
@@ -25,7 +25,7 @@ class SpaceViewer
 public:
 	SpaceViewer();
 	virtual ~SpaceViewer();
-
+	
 	virtual void timeout();
 	virtual void sendStream(MemoryStream* s);
 
@@ -40,7 +40,7 @@ protected:
 
 	Network::Address addr_;
 
-	// Currently viewed space
+	// currently viewed space
 	SPACE_ID spaceID_;
 };
 

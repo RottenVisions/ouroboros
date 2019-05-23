@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_NETWORKCHANCEL_H
 #define OURO_NETWORKCHANCEL_H
@@ -19,7 +19,7 @@
 #include "network/packet_filter.h"
 #include "network/ikcp.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 
@@ -29,13 +29,13 @@ class MessageHandlers;
 class PacketReader;
 class PacketSender;
 
-class Channel : public TimerHandler, public Task, public PoolObject
+class Channel : public TimerHandler, public PoolObject
 {
 public:
-	typedef OUROShared_ptr< SmartPoolObject< Channel > > SmartPoolObjectPtr;
-	static SmartPoolObjectPtr createSmartPoolObj();
+	typedef KBEShared_ptr< SmartPoolObject< Channel > > SmartPoolObjectPtr;
+	static SmartPoolObjectPtr createSmartPoolObj(const std::string& logPoint);
 	static ObjectPool<Channel>& ObjPool();
-	static Channel* createPoolObject();
+	static Channel* createPoolObject(const std::string& logPoint);
 	static void reclaimPoolObject(Channel* obj);
 	static void destroyObjPool();
 	virtual void onReclaimObject();
@@ -50,48 +50,48 @@ public:
 		/// This describes the properties of a channel from client to server.
 		EXTERNAL = 1,
 	};
-
+	
 	enum ChannelTypes
 	{
 		/// Ordinary channel
 		CHANNEL_NORMAL = 0,
 
-		// Browser web channel
+		// browser web channel
 		CHANNEL_WEB = 1,
 	};
 
-	typedef std::vector<Packet*> BufferedReceives;
-
 	enum Flags
 	{
-		FLAG_SENDING = 0x00000001,		// Send message
-		FLAG_DESTROYED = 0x00000002,	// The channel has been destroyed
-		FLAG_HANDSHAKE = 0x00000004,	// Have shaken hands
-		FLAG_CONDEMN = 0x00000008,		// The channel has become illegal
+		FLAG_SENDING = 0x00000001, // in the send message
+		FLAG_DESTROYED = 0x00000002, // channel has been destroyed
+		FLAG_HANDSHAKE = 0x00000004, // has shaken hands
+		FLAG_CONDEMN_AND_WAIT_DESTROY = 0x00000008, // The channel has become illegal and will be closed after the data has been sent.
+		FLAG_CONDEMN_AND_DESTROY = 0x00000010, // The channel has become illegal and will be closed
+		FLAG_CONDEMN					= FLAG_CONDEMN_AND_WAIT_DESTROY | FLAG_CONDEMN_AND_DESTROY,
 	};
 
 public:
 	Channel();
 
-	Channel(NetworkInterface & networkInterface,
-		const EndPoint * pEndPoint,
-		Traits traits,
-		ProtocolType pt = PROTOCOL_TCP,
+	Channel(NetworkInterface & networkInterface, 
+		const EndPoint * pEndPoint, 
+		Traits traits, 
+		ProtocolType pt = PROTOCOL_TCP, 
 		ProtocolSubType spt = SUB_PROTOCOL_DEFAULT,
-		PacketFilterPtr pFilter = NULL,
+		PacketFilterPtr pFilter = NULL, 
 		ChannelID id = CHANNEL_ID_NULL);
 
 	virtual ~Channel();
-
+	
 	static Channel * get(NetworkInterface & networkInterface,
 			const Address& addr);
-
+	
 	static Channel * get(NetworkInterface & networkInterface,
 			const EndPoint* pSocket);
-
+	
 	void startInactivityDetection( float inactivityPeriod,
 			float checkPeriod = 1.f );
-
+	
 	void stopInactivityDetection();
 
 	PacketFilterPtr pFilter() const { return pFilter_; }
@@ -110,20 +110,20 @@ public:
 
 	typedef std::vector<Bundle*> Bundles;
 	Bundles & bundles();
+	const Bundles & bundles() const;
 
 	/**
-		Create a send bundle. The bundle may be obtained from send into the send queue if the queue is empty
-		Create a new one
+		Create a send bundle, which may be obtained from the send into the send queue, if the queue is empty
+		Then create a new one
 	*/
 	Bundle* createSendBundle();
+	void clearBundle();
 
 	int32 bundlesLength();
 
-	const Bundles & bundles() const;
 	INLINE void pushBundle(Bundle* pBundle);
-	void clearBundle();
-
-	bool sending() const { return (flags_ & FLAG_SENDING) > 0;}
+	
+	bool sending() const;
 	void stopSend();
 
 	void send(Bundle* pBundle = NULL);
@@ -146,7 +146,7 @@ public:
 	Traits traits() const { return traits_; }
 	bool isExternal() const { return traits_ == EXTERNAL; }
 	bool isInternal() const { return traits_ == INTERNAL; }
-
+		
 	void onPacketReceived(int bytes);
 	void onPacketSent(int bytes, bool sentCompleted);
 	void onSendCompleted();
@@ -155,34 +155,45 @@ public:
 	ChannelID id() const	{ return id_; }
 	void id(ChannelID v) { id_ = v; }
 
-	uint32	numPacketsSent() const		{ return numPacketsSent_; }
-	uint32	numPacketsReceived() const	{ return numPacketsReceived_; }
-	uint32	numBytesSent() const		{ return numBytesSent_; }
-	uint32	numBytesReceived() const	{ return numBytesReceived_; }
+	uint32	numPacketsSent() const { return numPacketsSent_; }
+	uint32	numPacketsReceived() const { return numPacketsReceived_; }
+	uint32	numBytesSent() const { return numBytesSent_; }
+	uint32	numBytesReceived() const { return numBytesReceived_; }
 
-	uint64 lastReceivedTime() const		{ return lastReceivedTime_; }
-	void updateLastReceivedTime()		{ lastReceivedTime_ = timestamp(); }
+	uint64 lastReceivedTime() const { return lastReceivedTime_; }
+	void updateLastReceivedTime() { lastReceivedTime_ = timestamp(); }
 
 	void addReceiveWindow(Packet* pPacket);
 
-	BufferedReceives& bufferedReceives(){ return bufferedReceives_; }
+	uint64 inactivityExceptionPeriod() const { return inactivityExceptionPeriod_; }
 
-	virtual bool process();
-	void processPackets(Ouroboros::Network::MessageHandlers* pMsgHandlers);
+	void updateTick(Ouroboros::Network::MessageHandlers* pMsgHandlers);
+	void processPackets(Ouroboros::Network::MessageHandlers* pMsgHandlers, Packet* pPacket);
 
-	bool isCondemn() const { return (flags_ & FLAG_CONDEMN) > 0; }
-	void condemn();
+	uint32 condemn() const
+	{
+		if ((flags_ & FLAG_CONDEMN_AND_DESTROY) > 0)
+			return FLAG_CONDEMN_AND_DESTROY;
+
+		if ((flags_ & FLAG_CONDEMN_AND_WAIT_DESTROY) > 0)
+			return FLAG_CONDEMN_AND_WAIT_DESTROY;
+
+		return 0;
+	}
+
+	void condemn(const std::string& reason, bool waitSendCompletedDestroy = false);
+	std::string condemnReason() const { return condemnReason_; }
 
 	bool hasHandshake() const { return (flags_ & FLAG_HANDSHAKE) > 0; }
 
 	void setFlags(bool add, uint32 flag)
-	{
+	{ 
 		if(add)
 			flags_ |= flag;
 		else
 			flags_ &= ~flag;
 	}
-
+	
 	ENTITY_ID proxyID() const { return proxyID_; }
 	void proxyID(ENTITY_ID pid){ proxyID_ = pid; }
 
@@ -192,17 +203,17 @@ public:
 	COMPONENT_ID componentID() const{ return componentID_; }
 	void componentID(COMPONENT_ID cid){ componentID_ = cid; }
 
-	virtual void handshake();
+	bool handshake(Packet* pPacket);
 
 	Ouroboros::Network::MessageHandlers* pMsgHandlers() const { return pMsgHandlers_; }
 	void pMsgHandlers(Ouroboros::Network::MessageHandlers* pMsgHandlers) { pMsgHandlers_ = pMsgHandlers; }
 
-	bool initialize(NetworkInterface & networkInterface,
-		const EndPoint * pEndPoint,
-		Traits traits,
-		ProtocolType pt = PROTOCOL_TCP,
+	bool initialize(NetworkInterface & networkInterface, 
+		const EndPoint * pEndPoint, 
+		Traits traits, 
+		ProtocolType pt = PROTOCOL_TCP, 
 		ProtocolSubType spt = SUB_PROTOCOL_DEFAULT,
-		PacketFilterPtr pFilter = NULL,
+		PacketFilterPtr pFilter = NULL, 
 		ChannelID id = CHANNEL_ID_NULL);
 
 	bool finalise();
@@ -213,12 +224,19 @@ public:
 
 	bool init_kcp();
 	bool fina_kcp();
+	void kcpUpdate();
+	void addKcpUpdate(int64 microseconds = 1);
 
 	ProtocolType protocoltype() const { return protocoltype_; }
 	ProtocolSubType protocolSubtype() const { return protocolSubtype_; }
 
 	void protocoltype(ProtocolType v) { protocoltype_ = v; }
 	void protocolSubtype(ProtocolSubType v) { protocolSubtype_ = v; }
+
+	/**
+		round-trip time (RTT) Microseconds
+	*/
+	uint32 getRTT();
 
 private:
 	static int kcp_output(const char *buf, int len, ikcpcb *kcp, void *user);
@@ -228,7 +246,8 @@ private:
 
 	enum TimeOutType
 	{
-		TIMEOUT_INACTIVITY_CHECK
+		TIMEOUT_INACTIVITY_CHECK = 0,
+		KCP_UPDATE = 1
 	};
 
 	virtual void handleTimeout(TimerHandle, void * pUser);
@@ -243,16 +262,16 @@ private:
 	ProtocolSubType				protocolSubtype_;
 
 	ChannelID					id_;
-
+	
 	TimerHandle					inactivityTimerHandle_;
-
+	
 	uint64						inactivityExceptionPeriod_;
-
+	
 	uint64						lastReceivedTime_;
-
+	
 	Bundles						bundles_;
-
-	BufferedReceives			bufferedReceives_;
+	
+	uint32						lastTickBufferedReceives_;
 
 	PacketReader*				pPacketReader_;
 
@@ -265,28 +284,32 @@ private:
 	uint32						lastTickBytesSent_;
 
 	PacketFilterPtr				pFilter_;
-
+	
 	EndPoint *					pEndPoint_;
 	PacketReceiver*				pPacketReceiver_;
 	PacketSender*				pPacketSender_;
 
-	// If you are an external channel and proxy a front end, bind the front-end proxy ID
+	// If the external channel and proxy a front end will bind the front-end proxy ID
 	ENTITY_ID					proxyID_;
 
-	// Extended use
+	// extended
 	std::string					strextra_;
 
-	// Channel category
+	// channel category
 	ChannelTypes				channelType_;
 
 	COMPONENT_ID				componentID_;
 
-	// Support for specifying a channel to use a message handlers
+	// Support to specify a channel to use a message handlers
 	Ouroboros::Network::MessageHandlers* pMsgHandlers_;
 
 	uint32						flags_;
 
 	ikcpcb*						pKCP_;
+	TimerHandle					kcpUpdateTimerHandle_;
+	bool						hasSetNextKcpUpdate_;
+
+	std::string					condemnReason_;
 };
 
 }

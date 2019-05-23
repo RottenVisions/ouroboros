@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_PENDING_LOGIN_MGR_H
 #define OURO_PENDING_LOGIN_MGR_H
@@ -11,7 +11,7 @@
 #include "server/components.h"
 #include "network/address.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 namespace Network
 {
@@ -20,7 +20,7 @@ class EventDispatcher;
 }
 
 /*
-	Log in to the server successfully, but when you haven't entered the game world, you need to cache the account for further processing
+	Log in to the server to detect success, but when you have not entered the game world, you need to cache the account for subsequent processing.
 */
 class PendingLoginMgr : public Task
 {
@@ -53,7 +53,7 @@ public:
 		bool needCheckPassword;
 	};
 
-	typedef OUROUnordered_map<std::string, PLInfos*> PTINFO_MAP;
+	typedef KBEUnordered_map<std::string, PLInfos*> PTINFO_MAP;
 
 public:
 	PendingLoginMgr(Network::NetworkInterface & networkInterface);
@@ -62,9 +62,9 @@ public:
 	Network::EventDispatcher & dispatcher();
 
 	bool add(PLInfos* infos);
-
+	
 	bool process();
-
+	
 	PendingLoginMgr::PLInfos* remove(std::string& accountName);
 	PendingLoginMgr::PLInfos* find(std::string& accountName);
 
@@ -74,7 +74,7 @@ private:
 	Network::NetworkInterface & networkInterface_;
 
 	bool start_;
-
+	
 	PTINFO_MAP pPLMap_;
 
 };

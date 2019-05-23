@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "witness.h"
 #include "cellapp.h"
@@ -21,10 +21,10 @@ SCRIPT_MEMBER_DECLARE_END()
 
 SCRIPT_GETSET_DECLARE_BEGIN(ClientsRemoteEntityMethod)
 SCRIPT_GETSET_DECLARE_END()
-SCRIPT_INIT(ClientsRemoteEntityMethod, tp_call, 0, 0, 0, 0)
+SCRIPT_INIT(ClientsRemoteEntityMethod, tp_call, 0, 0, 0, 0)	
 
 //-------------------------------------------------------------------------------------
-ClientsRemoteEntityMethod::ClientsRemoteEntityMethod(PropertyDescription* pComponentPropertyDescription,
+ClientsRemoteEntityMethod::ClientsRemoteEntityMethod(PropertyDescription* pComponentPropertyDescription, 
 													const ScriptDefModule* pScriptModule,
 													MethodDescription* methodDescription,
 													 bool otherClients,
@@ -44,30 +44,30 @@ ClientsRemoteEntityMethod::~ClientsRemoteEntityMethod()
 }
 
 //-------------------------------------------------------------------------------------
-PyObject* ClientsRemoteEntityMethod::tp_call(PyObject* self, PyObject* args,
-	PyObject* kwds)
+PyObject* ClientsRemoteEntityMethod::tp_call(PyObject* self, PyObject* args, 
+	PyObject* kwds)	
 {
 	ClientsRemoteEntityMethod* rmethod = static_cast<ClientsRemoteEntityMethod*>(self);
-	return rmethod->callmethod(args, kwds);
-}
+	return rmethod->callmethod(args, kwds);	
+}		
 
 //-------------------------------------------------------------------------------------
 PyObject* ClientsRemoteEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 {
-	// Get other entities in the entityView scope
-	// Push this method call to the clients of these entities
+	// Get other entities within the scope of entityView
+	// Push this method call to the client of these entities
 	MethodDescription* methodDescription = getDescription();
 
 	Entity* pEntity = Cellapp::getSingleton().findEntity(id_);
 	if(pEntity == NULL || /*pEntity->pWitness() == NULL ||*/
 		pEntity->isDestroyed() /*|| pEntity->clientEntityCall() == NULL*/)
 	{
-		//WARNING_MSG(fmt::format("EntityRemoteMethod::callClientMethod: not found entity({}).\n",
+		//WARNING_MSG(fmt::format("EntityRemoteMethod::callClientMethod: not found entity({}).\n", 
 		//	entityCall->id()));
 
 		S_Return;
 	}
-
+	
 	const std::list<ENTITY_ID>& entities = pEntity->witnesses();
 
 	if(otherClients_)
@@ -75,13 +75,13 @@ PyObject* ClientsRemoteEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 		if(pEntity->witnessesSize() == 0)
 			S_Return;
 	}
-
-	// Send it to yourself
+	
+	// send it to yourself first
 	if(methodDescription->checkArgs(args))
 	{
-		MemoryStream* mstream = MemoryStream::createPoolObject();
+		MemoryStream* mstream = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 
-		// If it is a message broadcast to the component
+		// if it is a message broadcast to the component
 		if (pComponentPropertyDescription_)
 		{
 			if (pScriptModule_->usePropertyDescrAlias())
@@ -97,7 +97,18 @@ PyObject* ClientsRemoteEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 				(*mstream) << (ENTITY_PROPERTY_UID)0;
 		}
 
-		methodDescription->addToStream(mstream, args);
+		try
+		{
+			methodDescription->addToStream(mstream, args);
+		}
+		catch (MemoryStreamWriteOverflow & err)
+		{
+			ERROR_MSG(fmt::format("ClientsRemoteEntityMethod::callmethod: {}::{} {}, error={}!\n",
+				pEntity->scriptName(), methodDescription->getName(), pEntity->id(), err.what()));
+
+			MemoryStream::reclaimPoolObject(mstream);
+			S_Return;
+		}
 
 		if((!otherClients_ && (pEntity->pWitness() && (pEntity->clientEntityCall()))))
 		{
@@ -105,7 +116,7 @@ PyObject* ClientsRemoteEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 			Network::Channel* pChannel = pEntity->clientEntityCall()->getChannel();
 
 			if (!pChannel)
-				pSendBundle = Network::Bundle::createPoolObject();
+				pSendBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 			else
 				pSendBundle = pChannel->createSendBundle();
 
@@ -119,7 +130,7 @@ PyObject* ClientsRemoteEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 				if(Network::g_trace_packet_use_logfile)
 					DebugHelper::getSingleton().changeLogger("packetlogs");
 
-				DEBUG_MSG(fmt::format("ClientsRemoteEntityMethod::callmethod: pushUpdateData: ClientInterface::onRemoteMethodCall({}::{})\n",
+				DEBUG_MSG(fmt::format("ClientsRemoteEntityMethod::callmethod: pushUpdateData: ClientInterface::onRemoteMethodCall({}::{})\n", 
 					pEntity->scriptName(), methodDescription->getName()));
 
 				switch(Network::g_trace_packet)
@@ -135,7 +146,7 @@ PyObject* ClientsRemoteEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 					break;
 				};
 
-				if(Network::g_trace_packet_use_logfile)
+				if(Network::g_trace_packet_use_logfile)	
 					DebugHelper::getSingleton().changeLogger(COMPONENT_NAME_EX(g_componentType));
 			}
 
@@ -149,14 +160,14 @@ PyObject* ClientsRemoteEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 			pEntity->pWitness()->sendToClient(ClientInterface::onRemoteMethodCall, pSendBundle);
 		}
 
-		// Broadcast to others
+		// broadcast to others
 		std::list<ENTITY_ID>::const_iterator iter = entities.begin();
 		for(; iter != entities.end(); ++iter)
 		{
 			Entity* pViewEntity = Cellapp::getSingleton().findEntity((*iter));
 			if(pViewEntity == NULL || pViewEntity->pWitness() == NULL || pViewEntity->isDestroyed())
 				continue;
-
+			
 			EntityCall* entityCall = pViewEntity->clientEntityCall();
 			if(entityCall == NULL)
 				continue;
@@ -166,16 +177,16 @@ PyObject* ClientsRemoteEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 				continue;
 
 			// This possibility exists, for example, the data comes from createWitnessFromStream()
-			// Or if their own entity is not yet created on the target client
+			// Another example is that your own entity has not been created on the target client.
 			if (!pViewEntity->pWitness()->entityInView(pEntity->id()))
 				continue;
-
+			
 			Network::Bundle* pSendBundle = pChannel->createSendBundle();
 			NETWORK_ENTITY_MESSAGE_FORWARD_CLIENT_BEGIN(pViewEntity->id(), (*pSendBundle));
-
+			
 			int ialiasID = -1;
-			const Network::MessageHandler& msgHandler =
-			pViewEntity->pWitness()->getViewEntityMessageHandler(ClientInterface::onRemoteMethodCall,
+			const Network::MessageHandler& msgHandler = 
+			pViewEntity->pWitness()->getViewEntityMessageHandler(ClientInterface::onRemoteMethodCall, 
 					ClientInterface::onRemoteMethodCallOptimized, pEntity->id(), ialiasID);
 
 			ENTITY_MESSAGE_FORWARD_CLIENT_BEGIN(pSendBundle, msgHandler, viewEntityMessage);
@@ -199,10 +210,10 @@ PyObject* ClientsRemoteEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 				if(Network::g_trace_packet_use_logfile)
 					DebugHelper::getSingleton().changeLogger("packetlogs");
 
-				DEBUG_MSG(fmt::format("ClientsRemoteEntityMethod::callmethod: pushUpdateData: ClientInterface::onRemoteOtherEntityMethodCall({}::{})\n",
+				DEBUG_MSG(fmt::format("ClientsRemoteEntityMethod::callmethod: pushUpdateData: ClientInterface::onRemoteOtherEntityMethodCall({}::{})\n", 
 					pViewEntity->scriptName(), methodDescription->getName()));
 
-				switch(Network::g_trace_packet)
+				switch(Network::g_trace_packet)	
 				{
 				case 1:
 					mstream->hexlike();
@@ -222,9 +233,9 @@ PyObject* ClientsRemoteEntityMethod::callmethod(PyObject* args, PyObject* kwds)
 			ENTITY_MESSAGE_FORWARD_CLIENT_END(pSendBundle, msgHandler, viewEntityMessage);
 
 			// Record the amount of data generated by this event
-			g_publicClientEventHistoryStats.trackEvent(pViewEntity->scriptName(),
-				methodDescription->getName(),
-				pSendBundle->currMsgLength(),
+			g_publicClientEventHistoryStats.trackEvent(pViewEntity->scriptName(), 
+				methodDescription->getName(), 
+				pSendBundle->currMsgLength(), 
 				"::");
 
 			pViewEntity->pWitness()->sendToClient(ClientInterface::onRemoteMethodCallOptimized, pSendBundle);

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_VOLATILEINFO_H
@@ -6,14 +6,14 @@
 
 #include "common/common.h"
 #include "helper/debug_helper.h"
-#include "pyscript/scriptobject.h"
+#include "pyscript/scriptobject.h"	
 
 namespace Ouroboros{
 
 class VolatileInfo : public script::ScriptObject
 {
 	/**
-	Subclassing fills some py operations into derived classes
+	Subclassing populates some py operations into a derived class
 	*/
 	INSTANCE_SCRIPT_HREADER(VolatileInfo, ScriptObject)
 
@@ -21,7 +21,7 @@ public:
 	static const float ALWAYS;
 	static const float NEVER;
 
-	VolatileInfo(float position = VolatileInfo::ALWAYS, float yaw = VolatileInfo::ALWAYS,
+	VolatileInfo(float position = VolatileInfo::ALWAYS, float yaw = VolatileInfo::ALWAYS, 
 		float roll = VolatileInfo::ALWAYS, float pitch = VolatileInfo::ALWAYS):
 		ScriptObject(getScriptType(), false),
 		position_(position),
@@ -82,19 +82,19 @@ public:
 	float roll() const { return roll_; };
 	float pitch() const { return pitch_; };
 
-	void position(float v) {
-		position_ = v;
+	void position(float v) { 
+		position_ = v; 
 	};
 
-	void yaw(float v) {
+	void yaw(float v) { 
 		yaw_ = v;
 	};
 
-	void roll(float v) {
+	void roll(float v) { 
 		roll_ = v;
 	};
 
-	void pitch(float v) {
+	void pitch(float v) { 
 		pitch_ = v;
 	};
 
@@ -116,7 +116,7 @@ public:
 	void addToStream(Ouroboros::MemoryStream& s);
 	void createFromStream(Ouroboros::MemoryStream& s);
 
-protected:
+protected:	
 	float position_;
 	float yaw_;
 	float roll_;

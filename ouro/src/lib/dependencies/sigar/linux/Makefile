@@ -11,8 +11,8 @@ CSRCS =				\
 	sigar_util		\
 	linux_sigar
 
-ifndef OURO_ROOT
-export OURO_ROOT := $(subst /ouro/src/lib/dependencies/$(LIB)/linux,,$(CURDIR))
+ifndef KBE_ROOT
+export KBE_ROOT := $(subst /kbe/src/lib/dependencies/$(LIB)/linux,,$(CURDIR))
 endif
 
-include $(OURO_ROOT)/ouro/src/build/common.mak
+include $(KBE_ROOT)/kbe/src/build/common.mak

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_ENTITY_TABLE_H
 #define OURO_ENTITY_TABLE_H
@@ -9,7 +9,7 @@
 #include "entitydef/common.h"
 #include "thread/threadmutex.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 class DBUtil;
 class DBInterface;
@@ -34,7 +34,7 @@ class MemoryStream;
 #define TABLE_ITEM_TYPE_PYTHON		11
 #define TABLE_ITEM_TYPE_COMPONENT	12
 
-#define OURO_TABLE_PERFIX						"ouro"
+#define OURO_TABLE_PERFIX						"kbe"
 #define ENTITY_TABLE_PERFIX						"tbl"
 #define TABLE_ID_CONST_STR						"id"
 #define TABLE_PARENTID_CONST_STR				"parentID"
@@ -73,7 +73,7 @@ struct ACCOUNT_INFOS
 };
 
 /**
-	Maintain a field in the table in the database in the entity
+	Maintain a field in the table of the entity in the database
 */
 class EntityTableItem
 {
@@ -104,7 +104,7 @@ public:
 
 	void indexType(std::string index) { indexType_ = index; }
 	const char* indexType() { return indexType_.c_str(); }
-
+	
 	const char* itemDBType() { return itemDBType_.c_str(); }
 
 	void utype(int32/*ENTITY_PROPERTY_UID*/ utype) { utype_ = utype; }
@@ -126,9 +126,9 @@ public:
 	const PropertyDescription* pPropertyDescription() const { return pPropertyDescription_; }
 
 	/**
-		initialization
+		Initialize
 	*/
-	virtual bool initialize(const PropertyDescription* pPropertyDescription,
+	virtual bool initialize(const PropertyDescription* pPropertyDescription, 
 		const DataType* pDataType, std::string itemName) = 0;
 
 	void tableName(std::string name) { tableName_ = name; }
@@ -140,7 +140,7 @@ public:
 	virtual bool syncToDB(DBInterface* pdbi, void* pData = NULL) = 0;
 
 	/**
-		update data
+				update data
 	*/
 	virtual bool writeItem(DBInterface* pdbi, DBID dbid, MemoryStream* s, ScriptDefModule* pModule) = 0;
 
@@ -150,7 +150,7 @@ public:
 	virtual bool queryTable(DBInterface* pdbi, DBID dbid, MemoryStream* s, ScriptDefModule* pModule) = 0;
 
 protected:
-	// Field Name
+		// Field Name
 	std::string itemName_;
 	std::string tableName_;
 	int32/*ENTITY_PROPERTY_UID*/ utype_;
@@ -174,7 +174,7 @@ protected:
 class EntityTable
 {
 public:
-	typedef std::map<int32/*ENTITY_PROPERTY_UID*/, OUROShared_ptr<EntityTableItem> > TABLEITEM_MAP;
+	typedef std::map<int32/*ENTITY_PROPERTY_UID*/, KBEShared_ptr<EntityTableItem> > TABLEITEM_MAP;
 
 	EntityTable(EntityTables* pEntityTables) :
 	tableName_(),
@@ -187,12 +187,12 @@ public:
 	};
 
 	virtual ~EntityTable(){};
-
+	
 	void tableName(std::string name){ tableName_ = name; }
 	const char* tableName(){ return tableName_.c_str(); }
 
 	/**
-		initialization
+		Initialize
 	*/
 	virtual bool initialize(ScriptDefModule* sm, std::string name) = 0;
 
@@ -202,16 +202,16 @@ public:
 	virtual bool syncToDB(DBInterface* pdbi) = 0;
 
 	/**
-		Synchronous entity table index into the database
+		Synchronize the entity table index into the database
 	*/
 	virtual bool syncIndexToDB(DBInterface* pdbi) = 0;
 
-	/**
+	/** 
 		Create a table item
 	*/
 	virtual EntityTableItem* createItem(std::string type, std::string defaultVal) = 0;
 
-	/**
+	/** 
 		Get all table fields
 	*/
 	const EntityTable::TABLEITEM_MAP& tableItems() const { return tableItems_; }
@@ -230,7 +230,7 @@ public:
 	virtual DBID writeTable(DBInterface* pdbi, DBID dbid, int8 shouldAutoLoad, MemoryStream* s, ScriptDefModule* pModule);
 
 	/**
-		Delete entity from database
+		Remove entity from the database
 	*/
 	virtual bool removeEntity(DBInterface* pdbi, DBID dbid, ScriptDefModule* pModule);
 
@@ -240,16 +240,16 @@ public:
 	virtual bool queryTable(DBInterface* pdbi, DBID dbid, MemoryStream* s, ScriptDefModule* pModule);
 
 	/**
-		Set whether to automatically load
+		Set whether to load automatically
 	*/
 	virtual void entityShouldAutoLoad(DBInterface* pdbi, DBID dbid, bool shouldAutoLoad){};
 
 	bool hasSync() const { return sync_; }
 
 	/**
-		Query the automatically loaded entity
+		Query automatically loaded entities
 	*/
-	virtual void queryAutoLoadEntities(DBInterface* pdbi, ScriptDefModule* pModule,
+	virtual void queryAutoLoadEntities(DBInterface* pdbi, ScriptDefModule* pModule, 
 		ENTITY_ID start, ENTITY_ID end, std::vector<DBID>& outs){}
 
 	EntityTables* pEntityTables() const { return pEntityTables_; }
@@ -257,17 +257,17 @@ public:
 
 protected:
 
-	// Table name
+	// table name
 	std::string tableName_;
 
-	// All fields
+	// all fields
 	TABLEITEM_MAP tableItems_;
 
-	// Item references consistent with the ScriptDefModule
-	std::vector<EntityTableItem*> tableFixedOrderItems_;
+	// an item reference that is consistent with the ScriptDefModule
+	std::vector<EntityTableItem*> tableFixedOrderItems_; 
 
-	// Whether it is a child table
-	bool isChild_;
+	// Is it a child table?
+	bool isChild_; 
 
 	bool sync_;
 
@@ -295,15 +295,15 @@ public:
 		}
 	};
 
-	typedef OUROUnordered_map<std::string, EntityTables> ENTITY_TABLES_MAP;
+	typedef KBEUnordered_map<std::string, EntityTables> ENTITY_TABLES_MAP;
 	static ENTITY_TABLES_MAP sEntityTables;
 	static EntityTables& findByInterfaceName(const std::string& dbInterfaceName);
 
-	typedef OUROUnordered_map<std::string, OUROShared_ptr<EntityTable>, case_insensitive_hasher, case_insensitive_comparer> TABLES_MAP;
+	typedef KBEUnordered_map<std::string, KBEShared_ptr<EntityTable>, case_insensitive_hasher, case_insensitive_comparer> TABLES_MAP;
 
 	EntityTables();
 	virtual ~EntityTables();
-
+	
 	bool load(DBInterface* pdbi);
 	bool syncToDB(DBInterface* pdbi);
 
@@ -311,8 +311,8 @@ public:
 		dbInterfaceName_ = dbInterfaceName;
 	}
 
-	/**
-		Get all tables
+	/** 
+		Get all the tables
 	*/
 	const EntityTables::TABLES_MAP& tables() const { return tables_; }
 
@@ -320,17 +320,17 @@ public:
 
 	EntityTable* findTable(std::string name);
 
-	void addOUROTable(EntityTable* pTable);
+	void addKBETable(EntityTable* pTable);
 
-	EntityTable* findOUROTable(std::string name);
+	EntityTable* findKBETable(std::string name);
 
 	/**
-		Write entity to database
+		Write entity to the database
 	*/
 	DBID writeEntity(DBInterface* pdbi, DBID dbid, int8 shouldAutoLoad, MemoryStream* s, ScriptDefModule* pModule);
 
 	/**
-		Delete entity from database
+		Remove entity from the database
 	*/
 	bool removeEntity(DBInterface* pdbi, DBID dbid, ScriptDefModule* pModule);
 
@@ -339,16 +339,16 @@ public:
 	*/
 	bool queryEntity(DBInterface* pdbi, DBID dbid, MemoryStream* s, ScriptDefModule* pModule);
 
-	void onTableSyncSuccessfully(OUROShared_ptr<EntityTable> pEntityTable, bool error);
+	void onTableSyncSuccessfully(KBEShared_ptr<EntityTable> pEntityTable, bool error);
 
 	/**
-		Query the automatically loaded entity
+		Query automatically loaded entities
 	*/
-	void queryAutoLoadEntities(DBInterface* pdbi, ScriptDefModule* pModule,
+	void queryAutoLoadEntities(DBInterface* pdbi, ScriptDefModule* pModule, 
 		ENTITY_ID start, ENTITY_ID end, std::vector<DBID>& outs);
 
 protected:
-	// All tables
+	// all tables
 	TABLES_MAP tables_;
 	TABLES_MAP ouro_tables_;
 

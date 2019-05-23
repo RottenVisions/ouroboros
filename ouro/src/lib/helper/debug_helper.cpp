@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "debug_helper.h"
@@ -14,7 +14,7 @@
 #include "network/tcp_packet.h"
 #include "server/serverconfig.h"
 
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 #include <unistd.h>
 #include <syslog.h>
 #endif
@@ -41,7 +41,7 @@
 #include "../../server/tools/logger/logger_interface.h"
 
 namespace Ouroboros{
-
+	
 OURO_SINGLETON_INIT(DebugHelper);
 
 DebugHelper dbghelper;
@@ -69,7 +69,7 @@ log4cxx::LoggerPtr g_logger(log4cxx::Logger::getLogger(""));
 			printf("IOException: %s\nWARN=%s\n", ioex.what(), s.c_str());	\
 		}	\
     }
-
+    
 #define OURO_LOG4CXX_INFO(logger, s)	\
 	{	\
 		try {	\
@@ -79,7 +79,7 @@ log4cxx::LoggerPtr g_logger(log4cxx::Logger::getLogger(""));
 			printf("IOException: %s\nINFO=%s\n", ioex.what(), s.c_str());	\
 		}	\
     }
-
+    
 #define OURO_LOG4CXX_DEBUG(logger, s)	\
 	{	\
 		try {	\
@@ -99,7 +99,7 @@ log4cxx::LoggerPtr g_logger(log4cxx::Logger::getLogger(""));
 			printf("IOException: %s\nFATAL=%s\n", ioex.what(), s.c_str());	\
 		}	\
     }
-
+    
 #define OURO_LOG4CXX_LOG(logger, level, s)	\
 	{	\
 		try {	\
@@ -109,7 +109,7 @@ log4cxx::LoggerPtr g_logger(log4cxx::Logger::getLogger(""));
 			printf("IOException: %s\nLOG=%s\n", ioex.what(), s.c_str());	\
 		}	\
     }
-
+    
 #endif
 
 #define DBG_PT_SIZE 1024 * 4
@@ -137,9 +137,9 @@ void myassert(const char * exp, const char * func, const char * file, unsigned i
 																\
 		char* ccattr = strutil::wchar2char(exe_path);			\
 		if(CHANGED)												\
-			printf("Logging(changed) to: %s/logs/"NAME"%s.*.log\n\n", ccattr, COMPONENT_NAME_EX(g_componentType));\
+			printf("Logging(changed) to: %s/logs/" NAME "%s.*.log\n\n", ccattr, COMPONENT_NAME_EX(g_componentType));\
 		else													\
-			printf("Logging to: %s/logs/"NAME"%s.*.log\n\n", ccattr, COMPONENT_NAME_EX(g_componentType));\
+			printf("Logging to: %s/logs/" NAME "%s.*.log\n\n", ccattr, COMPONENT_NAME_EX(g_componentType));\
 		free(ccattr);											\
 	}															\
 
@@ -235,6 +235,7 @@ pDispatcher_(NULL),
 scriptMsgType_(log4cxx::ScriptLevel::SCRIPT_INT),
 noSyncLog_(false),
 canLogFile_(true),
+loseLoggerTime_(timestamp()),
 
 #if OURO_PLATFORM == PLATFORM_WIN32
 mainThreadID_(GetCurrentThreadId()),
@@ -244,13 +245,14 @@ mainThreadID_(pthread_self()),
 memoryStreamPool_("DebugHelperMemoryStream")
 {
 	g_pDebugHelperSyncHandler = new DebugHelperSyncHandler();
+	loseLoggerTime_ = timestamp();
 }
 
 //-------------------------------------------------------------------------------------
 DebugHelper::~DebugHelper()
 {
 	finalise(true);
-}
+}	
 
 //-------------------------------------------------------------------------------------
 void DebugHelper::shouldWriteToSyslog(bool v)
@@ -302,7 +304,7 @@ void DebugHelper::unlockthread()
 void DebugHelper::initialize(COMPONENT_TYPE componentType)
 {
 #ifndef NO_USE_LOG4CXX
-
+	
 	char helpConfig[MAX_PATH];
 	if(componentType == CLIENT_TYPE || componentType == CONSOLE_TYPE)
 	{
@@ -437,49 +439,57 @@ void DebugHelper::sync()
 		return;
 	}
 
-	// Put child thread logs in bufferedLogPackets_
+	// Put the child thread log into bufferedLogPackets_
 	while (childThreadBufferedLogPackets_.size() > 0)
 	{
-		// Take an object from the main object pool and swap the object vector memory in the child thread
+		// Take an object from the main object pool, swap the object vector memory in the child thread
 		MemoryStream* pMemoryStream = childThreadBufferedLogPackets_.front();
 		childThreadBufferedLogPackets_.pop();
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		bufferedLogPackets_.push(pBundle);
 
 		pBundle->newMessage(LoggerInterface::writeLog);
 		pBundle->finiCurrPacket();
 		pBundle->newPacket();
 
-		// Swap their memory in
+		// swap their memory in
 		pBundle->pCurrPacket()->swap(*pMemoryStream);
 		pBundle->currMsgLength(pBundle->currMsgLength() + pBundle->pCurrPacket()->length());
 
-		// Return all objects to the object pool
+		// return all objects to the object pool
 		memoryStreamPool_.reclaimObject(pMemoryStream);
 	}
 
-	if(Network::Address::NONE == loggerAddr_)
+	if (Network::Address::NONE == loggerAddr_)
 	{
-		if(g_ouroSrvConfig.tickMaxBufferedLogs() > 0)
+		// Force the memory to be cleaned if the logger is not found for more than 300 seconds
+		if (timestamp() - loseLoggerTime_ > uint64(300 * stampsPerSecond()))
 		{
-			if(hasBufferedLogPackets_ > g_ouroSrvConfig.tickMaxBufferedLogs())
-			{
-				clearBufferedLog();
-			}
+			clearBufferedLog();
 		}
 		else
 		{
-			if(hasBufferedLogPackets_ > 256)
+			if (g_ouroSrvConfig.tickMaxBufferedLogs() > 0)
 			{
-				clearBufferedLog();
+				if (hasBufferedLogPackets_ > g_ouroSrvConfig.tickMaxBufferedLogs())
+				{
+					clearBufferedLog();
+				}
+			}
+			else
+			{
+				if (hasBufferedLogPackets_ > 256)
+				{
+					clearBufferedLog();
+				}
 			}
 		}
 
 		unlockthread();
 		return;
 	}
-
+	
 	Network::Channel* pLoggerChannel = pNetworkInterface_->findChannel(loggerAddr_);
 	if(pLoggerChannel == NULL)
 	{
@@ -497,7 +507,7 @@ void DebugHelper::sync()
 				clearBufferedLog();
 			}
 		}
-
+		
 		unlockthread();
 		return;
 	}
@@ -505,7 +515,7 @@ void DebugHelper::sync()
 	static bool alertmsg = false;
 	if(!alertmsg)
 	{
-		OURO_LOG4CXX_WARN(g_logger, fmt::format("Forwarding logs to logger[{}]...\n",
+		OURO_LOG4CXX_WARN(g_logger, fmt::format("Forwarding logs to logger[{}]...\n", 
 			pLoggerChannel->c_str()));
 
 		alertmsg = true;
@@ -522,7 +532,7 @@ void DebugHelper::sync()
 	{
 		if((g_ouroSrvConfig.tickMaxSyncLogs() > 0 && i++ >= g_ouroSrvConfig.tickMaxSyncLogs()))
 			break;
-
+		
 		Network::Bundle* pBundle = bufferedLogPackets_.front();
 		bufferedLogPackets_.pop();
 
@@ -531,7 +541,7 @@ void DebugHelper::sync()
 		--hasBufferedLogPackets_;
 	}
 
-	// Delayed transmission is required here. Otherwise, an error occurs in the sending process, causing log output to be deadlocked.
+	// There is a delay to send here, otherwise an error will occur during the sending process, causing a deadlock in the log output.
 	if(bundles.size() > 0 && !pLoggerChannel->sending())
 		pLoggerChannel->delayedSend();
 
@@ -542,15 +552,15 @@ void DebugHelper::sync()
 
 //-------------------------------------------------------------------------------------
 void DebugHelper::pDispatcher(Network::EventDispatcher* dispatcher)
-{
-	pDispatcher_ = dispatcher;
+{ 
+	pDispatcher_ = dispatcher; 
 	g_pDebugHelperSyncHandler->startActiveTick();
 }
 
 //-------------------------------------------------------------------------------------
 void DebugHelper::pNetworkInterface(Network::NetworkInterface* networkInterface)
-{
-	pNetworkInterface_ = networkInterface;
+{ 
+	pNetworkInterface_ = networkInterface; 
 }
 
 //-------------------------------------------------------------------------------------
@@ -563,21 +573,21 @@ void DebugHelper::onMessage(uint32 logType, const char * str, uint32 length)
 
 		switch(logType)
 		{
-		case OUROLOG_ERROR:
+		case KBELOG_ERROR:
 			lid = LOG_ERR;
 			break;
-		case OUROLOG_CRITICAL:
+		case KBELOG_CRITICAL:
 			lid = LOG_CRIT;
 			break;
-		case OUROLOG_WARNING:
+		case KBELOG_WARNING:
 			lid = LOG_WARNING;
 			break;
 		default:
 			lid = LOG_INFO;
 			break;
 		};
-
-		if(lid == OUROLOG_ERROR || lid == OUROLOG_CRITICAL)
+		
+		if(lid == KBELOG_ERROR || lid == KBELOG_CRITICAL)
 			syslog( LOG_CRIT, "%s", str );
 	}
 
@@ -589,15 +599,15 @@ void DebugHelper::onMessage(uint32 logType, const char * str, uint32 length)
 	if(length <= 0 || noSyncLog_)
 		return;
 
-	if(g_componentType == MACHINE_TYPE ||
-		g_componentType == CONSOLE_TYPE ||
-		g_componentType == LOGGER_TYPE ||
+	if(g_componentType == MACHINE_TYPE || 
+		g_componentType == CONSOLE_TYPE || 
+		g_componentType == LOGGER_TYPE || 
 		g_componentType == CLIENT_TYPE)
 		return;
 
 	if (!isMainThread)
 	{
-		MemoryStream* pMemoryStream = memoryStreamPool_.createObject();
+		MemoryStream* pMemoryStream = memoryStreamPool_.createObject(OBJECTPOOL_POINT);
 
 		(*pMemoryStream) << getUserUID();
 		(*pMemoryStream) << logType;
@@ -626,14 +636,14 @@ void DebugHelper::onMessage(uint32 logType, const char * str, uint32 length)
 
 #ifdef NO_USE_LOG4CXX
 #else
-			OURO_LOG4CXX_WARN(g_logger, fmt::format("DebugHelper::onMessage: bufferedLogPackets is full({} > ouroboros[_defs].xml->logger->tick_max_buffered_logs->{})!\n",
+			OURO_LOG4CXX_WARN(g_logger, fmt::format("DebugHelper::onMessage: bufferedLogPackets is full({} > ouroboros[_defs].xml->logger->tick_max_buffered_logs->{})!\n", 
 				hasBufferedLogPackets_, g_ouroSrvConfig.tickMaxBufferedLogs()));
 #endif
 
 			Network::g_trace_packet = v;
 
 			clearBufferedLog();
-
+			
 #ifdef NO_USE_LOG4CXX
 #else
 			OURO_LOG4CXX_WARN(g_logger, fmt::format("DebugHelper::onMessage: discard logs!\n"));
@@ -643,7 +653,7 @@ void DebugHelper::onMessage(uint32 logType, const char * str, uint32 length)
 
 		int8 trace_packet = Network::g_trace_packet;
 		Network::g_trace_packet = 0;
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 		pBundle->newMessage(LoggerInterface::writeLog);
 
@@ -683,8 +693,14 @@ void DebugHelper::unregisterLogger(Network::MessageID msgID, Network::Address* p
 {
 	loggerAddr_ = Network::Address::NONE;
 	canLogFile_ = true;
+	loseLoggerTime_ = timestamp();
 	ALERT_LOG_TO("", true);
 	printBufferedLogs();
+}
+
+//-------------------------------------------------------------------------------------
+void DebugHelper::DebugHelper::onNoLogger()
+{
 }
 
 //-------------------------------------------------------------------------------------
@@ -703,30 +719,30 @@ void DebugHelper::printBufferedLogs()
 	OURO_LOG4CXX_INFO(g_logger, std::string("The following logs sent to logger failed:\n"));
 #endif
 
-	// Put child thread logs in bufferedLogPackets_
+	// Put the child thread log into bufferedLogPackets_
 	while (childThreadBufferedLogPackets_.size() > 0)
 	{
-		// Take an object from the main object pool and swap the object vector memory in the child thread
+		// Take an object from the main object pool, swap the object vector memory in the child thread
 		MemoryStream* pMemoryStream = childThreadBufferedLogPackets_.front();
 		childThreadBufferedLogPackets_.pop();
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		bufferedLogPackets_.push(pBundle);
 
 		pBundle->newMessage(LoggerInterface::writeLog);
 		pBundle->finiCurrPacket();
 		pBundle->newPacket();
 
-		// Swap their memory in
+		// swap their memory in
 		pBundle->pCurrPacket()->swap(*pMemoryStream);
 		pBundle->currMsgLength(pBundle->currMsgLength() + pBundle->pCurrPacket()->length());
 
-		// Return all objects to the object pool
+		// return all objects to the object pool
 		memoryStreamPool_.reclaimObject(pMemoryStream);
 	}
 
 	while(!bufferedLogPackets_.empty())
-	{
+	{		
 		Network::Bundle* pBundle = bufferedLogPackets_.front();
 		bufferedLogPackets_.pop();
 
@@ -743,7 +759,7 @@ void DebugHelper::printBufferedLogs()
 		COMPONENT_ORDER componentGlobalOrder;
 		COMPONENT_ORDER componentGroupOrder;
 		int64 t;
-		GAME_TIME ourotime;
+		GAME_TIME kbetime;
 
 		std::string str;
 
@@ -760,10 +776,10 @@ void DebugHelper::printBufferedLogs()
 		(*pBundle) >> componentGlobalOrder;
 		(*pBundle) >> componentGroupOrder;
 		(*pBundle) >> t;
-		(*pBundle) >> ourotime;
+		(*pBundle) >> kbetime;
 		(*pBundle).readBlob(str);
 
-		time_t tt = static_cast<time_t>(t);
+		time_t tt = static_cast<time_t>(t);	
 	    tm* aTm = localtime(&tt);
 	    //       YYYY   year
 	    //       MM     month (2 digits 01-12)
@@ -777,53 +793,53 @@ void DebugHelper::printBufferedLogs()
 			Network::Bundle::ObjPool().reclaimObject(pBundle);
 			continue;
 		}
-
+	
 		char timebuf[MAX_BUF];
-	    ouro_snprintf(timebuf, MAX_BUF, " [%-4d-%02d-%02d %02d:%02d:%02d %03d] ", aTm->tm_year+1900, aTm->tm_mon+1,
-			aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec, ourotime);
+	    ouro_snprintf(timebuf, MAX_BUF, " [%-4d-%02d-%02d %02d:%02d:%02d %03d] ", aTm->tm_year+1900, aTm->tm_mon+1, 
+			aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec, kbetime);
 
 		std::string logstr = fmt::format("==>{}", timebuf);
 		logstr += str;
-
+		
 #ifdef NO_USE_LOG4CXX
 #else
 		switch (logtype)
 		{
-		case OUROLOG_PRINT:
+		case KBELOG_PRINT:
 			OURO_LOG4CXX_INFO(g_logger, logstr);
 			break;
-		case OUROLOG_ERROR:
+		case KBELOG_ERROR:
 			OURO_LOG4CXX_ERROR(g_logger, logstr);
 			break;
-		case OUROLOG_WARNING:
+		case KBELOG_WARNING:
 			OURO_LOG4CXX_WARN(g_logger, logstr);
 			break;
-		case OUROLOG_DEBUG:
+		case KBELOG_DEBUG:
 			OURO_LOG4CXX_DEBUG(g_logger, logstr);
 			break;
-		case OUROLOG_INFO:
+		case KBELOG_INFO:
 			OURO_LOG4CXX_INFO(g_logger, logstr);
 			break;
-		case OUROLOG_CRITICAL:
+		case KBELOG_CRITICAL:
 			OURO_LOG4CXX_FATAL(g_logger, logstr);
 			break;
-		case OUROLOG_SCRIPT_INFO:
+		case KBELOG_SCRIPT_INFO:
 			setScriptMsgType(log4cxx::ScriptLevel::SCRIPT_INFO);
 			OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), logstr);
 			break;
-		case OUROLOG_SCRIPT_ERROR:
+		case KBELOG_SCRIPT_ERROR:
 			setScriptMsgType(log4cxx::ScriptLevel::SCRIPT_ERR);
 			OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), logstr);
 			break;
-		case OUROLOG_SCRIPT_DEBUG:
+		case KBELOG_SCRIPT_DEBUG:
 			setScriptMsgType(log4cxx::ScriptLevel::SCRIPT_DBG);
 			OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), logstr);
 			break;
-		case OUROLOG_SCRIPT_WARNING:
+		case KBELOG_SCRIPT_WARNING:
 			setScriptMsgType(log4cxx::ScriptLevel::SCRIPT_WAR);
 			OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), logstr);
 			break;
-		case OUROLOG_SCRIPT_NORMAL:
+		case KBELOG_SCRIPT_NORMAL:
 			setScriptMsgType(log4cxx::ScriptLevel::SCRIPT_INFO);
 			OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), logstr);
 			break;
@@ -842,7 +858,7 @@ void DebugHelper::printBufferedLogs()
 //-------------------------------------------------------------------------------------
 void DebugHelper::print_msg(const std::string& s)
 {
-	Ouroboros::thread::ThreadGuard tg(&this->logMutex);
+	Ouroboros::thread::ThreadGuard tg(&this->logMutex); 
 
 #ifdef NO_USE_LOG4CXX
 #else
@@ -850,20 +866,20 @@ void DebugHelper::print_msg(const std::string& s)
 		OURO_LOG4CXX_INFO(g_logger, s);
 #endif
 
-	onMessage(OUROLOG_PRINT, s.c_str(), (uint32)s.size());
+	onMessage(KBELOG_PRINT, s.c_str(), (uint32)s.size());
 }
 
 //-------------------------------------------------------------------------------------
 void DebugHelper::error_msg(const std::string& s)
 {
-	Ouroboros::thread::ThreadGuard tg(&this->logMutex);
+	Ouroboros::thread::ThreadGuard tg(&this->logMutex); 
 
 #ifdef NO_USE_LOG4CXX
 #else
 	OURO_LOG4CXX_ERROR(g_logger, s);
 #endif
 
-	onMessage(OUROLOG_ERROR, s.c_str(), (uint32)s.size());
+	onMessage(KBELOG_ERROR, s.c_str(), (uint32)s.size());
 
 	set_errorcolor();
 	printf("%s%02d: [ERROR]: %s", COMPONENT_NAME_EX_2(g_componentType), g_componentGroupOrder, s.c_str());
@@ -873,7 +889,7 @@ void DebugHelper::error_msg(const std::string& s)
 //-------------------------------------------------------------------------------------
 void DebugHelper::info_msg(const std::string& s)
 {
-	Ouroboros::thread::ThreadGuard tg(&this->logMutex);
+	Ouroboros::thread::ThreadGuard tg(&this->logMutex); 
 
 #ifdef NO_USE_LOG4CXX
 #else
@@ -881,37 +897,37 @@ void DebugHelper::info_msg(const std::string& s)
 		OURO_LOG4CXX_INFO(g_logger, s);
 #endif
 
-	onMessage(OUROLOG_INFO, s.c_str(), (uint32)s.size());
+	onMessage(KBELOG_INFO, s.c_str(), (uint32)s.size());
 }
 
 //-------------------------------------------------------------------------------------
-int OUROLOG_TYPE_MAPPING(int type)
+int KBELOG_TYPE_MAPPING(int type)
 {
 #ifdef NO_USE_LOG4CXX
-	return OUROLOG_SCRIPT_INFO;
+	return KBELOG_SCRIPT_INFO;
 #else
 	switch(type)
 	{
 	case log4cxx::ScriptLevel::SCRIPT_INFO:
-		return OUROLOG_SCRIPT_INFO;
+		return KBELOG_SCRIPT_INFO;
 	case log4cxx::ScriptLevel::SCRIPT_ERR:
-		return OUROLOG_SCRIPT_ERROR;
+		return KBELOG_SCRIPT_ERROR;
 	case log4cxx::ScriptLevel::SCRIPT_DBG:
-		return OUROLOG_SCRIPT_DEBUG;
+		return KBELOG_SCRIPT_DEBUG;
 	case log4cxx::ScriptLevel::SCRIPT_WAR:
-		return OUROLOG_SCRIPT_WARNING;
+		return KBELOG_SCRIPT_WARNING;
 	default:
 		break;
 	}
 
-	return OUROLOG_SCRIPT_NORMAL;
+	return KBELOG_SCRIPT_NORMAL;
 #endif
 }
 
 //-------------------------------------------------------------------------------------
 void DebugHelper::script_info_msg(const std::string& s)
 {
-	Ouroboros::thread::ThreadGuard tg(&this->logMutex);
+	Ouroboros::thread::ThreadGuard tg(&this->logMutex); 
 
 #ifdef NO_USE_LOG4CXX
 #else
@@ -919,9 +935,9 @@ void DebugHelper::script_info_msg(const std::string& s)
 		OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), s);
 #endif
 
-	onMessage(OUROLOG_TYPE_MAPPING(scriptMsgType_), s.c_str(), (uint32)s.size());
+	onMessage(KBELOG_TYPE_MAPPING(scriptMsgType_), s.c_str(), (uint32)s.size());
 
-	// If it is manually set by the user, the error message is also output.
+	// If the user manually set the output is also an error message
 	if(log4cxx::ScriptLevel::SCRIPT_ERR == scriptMsgType_)
 	{
 		set_errorcolor();
@@ -933,7 +949,7 @@ void DebugHelper::script_info_msg(const std::string& s)
 //-------------------------------------------------------------------------------------
 void DebugHelper::script_error_msg(const std::string& s)
 {
-	Ouroboros::thread::ThreadGuard tg(&this->logMutex);
+	Ouroboros::thread::ThreadGuard tg(&this->logMutex); 
 
 	setScriptMsgType(log4cxx::ScriptLevel::SCRIPT_ERR);
 
@@ -943,7 +959,7 @@ void DebugHelper::script_error_msg(const std::string& s)
 		OURO_LOG4CXX_LOG(g_logger,  log4cxx::ScriptLevel::toLevel(scriptMsgType_), s);
 #endif
 
-	onMessage(OUROLOG_SCRIPT_ERROR, s.c_str(), (uint32)s.size());
+	onMessage(KBELOG_SCRIPT_ERROR, s.c_str(), (uint32)s.size());
 
 	set_errorcolor();
 	printf("%s%02d: [S_ERROR]: %s", COMPONENT_NAME_EX_2(g_componentType), g_componentGroupOrder, s.c_str());
@@ -965,7 +981,7 @@ void DebugHelper::resetScriptMsgType()
 //-------------------------------------------------------------------------------------
 void DebugHelper::debug_msg(const std::string& s)
 {
-	Ouroboros::thread::ThreadGuard tg(&this->logMutex);
+	Ouroboros::thread::ThreadGuard tg(&this->logMutex); 
 
 #ifdef NO_USE_LOG4CXX
 #else
@@ -973,13 +989,13 @@ void DebugHelper::debug_msg(const std::string& s)
 		OURO_LOG4CXX_DEBUG(g_logger, s);
 #endif
 
-	onMessage(OUROLOG_DEBUG, s.c_str(), (uint32)s.size());
+	onMessage(KBELOG_DEBUG, s.c_str(), (uint32)s.size());
 }
 
 //-------------------------------------------------------------------------------------
 void DebugHelper::warning_msg(const std::string& s)
 {
-	Ouroboros::thread::ThreadGuard tg(&this->logMutex);
+	Ouroboros::thread::ThreadGuard tg(&this->logMutex); 
 
 #ifdef NO_USE_LOG4CXX
 #else
@@ -987,7 +1003,7 @@ void DebugHelper::warning_msg(const std::string& s)
 		OURO_LOG4CXX_WARN(g_logger, s);
 #endif
 
-	onMessage(OUROLOG_WARNING, s.c_str(), (uint32)s.size());
+	onMessage(KBELOG_WARNING, s.c_str(), (uint32)s.size());
 
 #if OURO_PLATFORM == PLATFORM_WIN32
 	set_warningcolor();
@@ -999,7 +1015,7 @@ void DebugHelper::warning_msg(const std::string& s)
 //-------------------------------------------------------------------------------------
 void DebugHelper::critical_msg(const std::string& s)
 {
-	Ouroboros::thread::ThreadGuard tg(&this->logMutex);
+	Ouroboros::thread::ThreadGuard tg(&this->logMutex); 
 
 	char buf[DBG_PT_SIZE];
 	ouro_snprintf(buf, DBG_PT_SIZE, "%s(%d) -> %s\n\t%s\n", _currFile.c_str(), _currLine, _currFuncName.c_str(), s.c_str());
@@ -1015,7 +1031,7 @@ void DebugHelper::critical_msg(const std::string& s)
 	set_normalcolor();
 #endif
 
-	onMessage(OUROLOG_CRITICAL, buf, (uint32)strlen(buf));
+	onMessage(KBELOG_CRITICAL, buf, (uint32)strlen(buf));
 	backtrace_msg();
 }
 
@@ -1045,7 +1061,7 @@ void DebugHelper::set_warningcolor()
 }
 
 //-------------------------------------------------------------------------------------
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 #define MAX_DEPTH 50
 #include <execinfo.h>
 #include <cxxabi.h>
@@ -1075,7 +1091,7 @@ void DebugHelper::backtrace_msg()
 
 			int status = 0;
 			size_t demangledBufferLength = 0;
-			char * demangledBuffer = abi::__cxa_demangle( mangled.c_str(), 0,
+			char * demangledBuffer = abi::__cxa_demangle( mangled.c_str(), 0, 
 				&demangledBufferLength, &status );
 
 			if (demangledBuffer)
@@ -1093,7 +1109,7 @@ void DebugHelper::backtrace_msg()
 			}
 		}
 
-		std::string ss = fmt::format("Stack: #{} {}\n",
+		std::string ss = fmt::format("Stack: #{} {}\n", 
 			i,
 			((gotFunctionName) ? functionName.c_str() : traceString.c_str()));
 
@@ -1102,7 +1118,7 @@ void DebugHelper::backtrace_msg()
 			OURO_LOG4CXX_INFO(g_logger, ss);
 #endif
 
-			onMessage(OUROLOG_PRINT, ss.c_str(), ss.size());
+			onMessage(KBELOG_PRINT, ss.c_str(), ss.size());
 
 	}
 
@@ -1128,3 +1144,5 @@ void DebugHelper::closeLogger()
 
 
 }
+
+

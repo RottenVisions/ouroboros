@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "websocket_packet_filter.h"
@@ -10,7 +10,7 @@
 #include "network/network_interface.h"
 #include "network/packet_receiver.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 
@@ -59,7 +59,7 @@ Reason WebSocketPacketFilter::send(Channel * pChannel, PacketSender& sender, Pac
 		return PacketFilter::send(pChannel, sender, pPacket, userarg);
 
 	Bundle* pBundle = pPacket->pBundle();
-	TCPPacket* pRetTCPPacket = TCPPacket::createPoolObject();
+	TCPPacket* pRetTCPPacket = TCPPacket::createPoolObject(OBJECTPOOL_POINT);
 	websocket::WebSocketProtocol::FrameType frameType = websocket::WebSocketProtocol::BINARY_FRAME;
 
 	if (pBundle)
@@ -111,11 +111,11 @@ Reason WebSocketPacketFilter::send(Channel * pChannel, PacketSender& sender, Pac
 //-------------------------------------------------------------------------------------
 Reason WebSocketPacketFilter::recv(Channel * pChannel, PacketReceiver & receiver, Packet * pPacket)
 {
-	while(pPacket->length() > 0)
+	while (pPacket->length() > 0)
 	{
-		if(fragmentDatasFlag_ == FRAGMENT_MESSAGE_HREAD)
+		if (fragmentDatasFlag_ == FRAGMENT_MESSAGE_HREAD)
 		{
-			if(pFragmentDatasRemain_ == 0)
+			if (pFragmentDatasRemain_ == 0)
 			{
 				OURO_ASSERT(pTCPPacket_ == NULL);
 
@@ -123,14 +123,14 @@ Reason WebSocketPacketFilter::recv(Channel * pChannel, PacketReceiver & receiver
 
 				reset();
 
-				// If no cache has been created, try to parse the header directly. If the information is parsed successfully, continue to the next step.
+				// If no cache has been created, try to parse the header directly. If the information is sufficiently parsed, continue to the next step.
 				pFragmentDatasRemain_ = websocket::WebSocketProtocol::getFrame(pPacket, msg_opcode_, msg_fin_, msg_masked_,
 					msg_mask_, msg_length_field_, msg_payload_length_, msg_frameType_);
 
-				if(pFragmentDatasRemain_ > 0)
+				if (pFragmentDatasRemain_ > 0)
 				{
 					pPacket->rpos(rpos);
-					pTCPPacket_ = TCPPacket::createPoolObject();
+					pTCPPacket_ = TCPPacket::createPoolObject(OBJECTPOOL_POINT);
 					pTCPPacket_->append(*(static_cast<MemoryStream*>(pPacket)));
 					pPacket->done();
 				}
@@ -144,9 +144,9 @@ Reason WebSocketPacketFilter::recv(Channel * pChannel, PacketReceiver & receiver
 			{
 				OURO_ASSERT(pTCPPacket_ != NULL);
 
-				// If the length is greater than the remaining read length, you can start parsing
-				// Otherwise, continue to cache the package memory
-				if((int32)pPacket->length() >= pFragmentDatasRemain_)
+				// If the length is greater than the remaining read length, then you can start parsing
+				// Otherwise the package memory continues to be cached
+				if ((int32)pPacket->length() >= pFragmentDatasRemain_)
 				{
 					size_t wpos = pPacket->wpos();
 					size_t rpos = pPacket->rpos();
@@ -159,31 +159,31 @@ Reason WebSocketPacketFilter::recv(Channel * pChannel, PacketReceiver & receiver
 					// Restore the write location back
 					pPacket->wpos(wpos);
 
-					// Discard data that has already been read
+					// discard data that has already been read
 					pPacket->read_skip(pFragmentDatasRemain_);
 
 					size_t buffer_rpos = pTCPPacket_->rpos();
 					pFragmentDatasRemain_ = websocket::WebSocketProtocol::getFrame(pTCPPacket_, msg_opcode_, msg_fin_, msg_masked_,
 						msg_mask_, msg_length_field_, msg_payload_length_, msg_frameType_);
 
-					// If it is still greater than 0, it means the need to continue receiving packets
-					if(pFragmentDatasRemain_ > 0)
+					// If it is still greater than 0, it means that it needs to continue to receive the package.
+					if (pFragmentDatasRemain_ > 0)
 					{
-						// Since we did not complete the analysis at a time, we retrace the data and try to resolve again.
+						// Since there is no parsing at a time, we retire the data and try to parse again next time.
 						pTCPPacket_->rpos(buffer_rpos);
 
-						// If the current package has data and is greater than or equal to the data we need, continue to the next cycle and immediately parse
+						// If the current package has data and is greater than or equal to the data we need, continue to the next loop and parse immediately.
 						if ((int32)pPacket->length() >= pFragmentDatasRemain_)
 							continue;
 					}
 					else
 					{
-						// The frame is parsed and the object is recycled
+						// frame parsing is completed, the object is recycled
 						TCPPacket::reclaimPoolObject(pTCPPacket_);
 						pTCPPacket_ = NULL;
 
-						// Is there data to carry? If not, do not enter data resolution
-						if(msg_payload_length_ > 0)
+						// Is there data to carry? If not, do not enter data parsing
+						if (msg_payload_length_ > 0)
 						{
 							fragmentDatasFlag_ = FRAGMENT_MESSAGE_DATAS;
 							pFragmentDatasRemain_ = (int32)msg_payload_length_;
@@ -199,62 +199,77 @@ Reason WebSocketPacketFilter::recv(Channel * pChannel, PacketReceiver & receiver
 				}
 			}
 
-			if(websocket::WebSocketProtocol::ERROR_FRAME == msg_frameType_)
+			if (websocket::WebSocketProtocol::ERROR_FRAME == msg_frameType_)
 			{
-				ERROR_MSG(fmt::format("WebSocketPacketReader::recv: frame is error! addr={}!\n",
+				ERROR_MSG(fmt::format("WebSocketPacketFilter::recv: frame error! addr={}!\n",
 					pChannel_->c_str()));
 
-				this->pChannel_->condemn();
+				this->pChannel_->condemn("WebSocketPacketFilter::recv: frame error!");
 				reset();
 
 				TCPPacket::reclaimPoolObject(static_cast<TCPPacket*>(pPacket));
 				return REASON_WEBSOCKET_ERROR;
 			}
-			else if(msg_frameType_ == websocket::WebSocketProtocol::TEXT_FRAME ||
-					msg_frameType_ == websocket::WebSocketProtocol::INCOMPLETE_TEXT_FRAME ||
-					msg_frameType_ == websocket::WebSocketProtocol::PING_FRAME ||
-					msg_frameType_ == websocket::WebSocketProtocol::PONG_FRAME)
+			else if (msg_frameType_ == websocket::WebSocketProtocol::TEXT_FRAME ||
+				msg_frameType_ == websocket::WebSocketProtocol::INCOMPLETE_TEXT_FRAME ||
+				msg_frameType_ == websocket::WebSocketProtocol::PONG_FRAME)
 			{
-				ERROR_MSG(fmt::format("WebSocketPacketReader::recv: Does not support FRAME_TYPE({})! addr={}!\n",
-					(int)msg_frameType_, pChannel_->c_str()));
+				ERROR_MSG(fmt::format("WebSocketPacketFilter::recv: Does not support FRAME_TYPE({})! addr={}!\n",
+					websocket::WebSocketProtocol::getFrameTypeName(msg_frameType_), pChannel_->c_str()));
 
-				this->pChannel_->condemn();
+				this->pChannel_->condemn("WebSocketPacketFilter::recv: Does not support FRAME_TYPE");
 				reset();
 
 				TCPPacket::reclaimPoolObject(static_cast<TCPPacket*>(pPacket));
 				return REASON_WEBSOCKET_ERROR;
 			}
-			else if(msg_frameType_ == websocket::WebSocketProtocol::CLOSE_FRAME)
+			else if (msg_frameType_ == websocket::WebSocketProtocol::CLOSE_FRAME)
 			{
-				this->pChannel_->condemn();
+				this->pChannel_->condemn("");
 				reset();
 
 				TCPPacket::reclaimPoolObject(static_cast<TCPPacket*>(pPacket));
 				return REASON_SUCCESS;
 			}
-			else if(msg_frameType_ == websocket::WebSocketProtocol::INCOMPLETE_FRAME)
+			else if (msg_frameType_ == websocket::WebSocketProtocol::INCOMPLETE_FRAME)
 			{
-				// Continue to wait for subsequent content to arrive
+				// continue to wait for subsequent content to arrive
+			}
+			else if (msg_frameType_ == websocket::WebSocketProtocol::PING_FRAME)
+			{
+				if (pFragmentDatasRemain_ <= 0)
+				{
+					Reason reason = onPing(pChannel, pPacket);
+					if (reason != REASON_SUCCESS)
+					{
+						reset();
+
+						TCPPacket::reclaimPoolObject(static_cast<TCPPacket*>(pPacket));
+						return reason;
+					}
+				}
+
+				continue;
 			}
 		}
 		else
 		{
 			if (pFragmentDatasRemain_ <= 0)
 			{
-				ERROR_MSG(fmt::format("WebSocketPacketReader::recv: pFragmentDatasRemain_ <= 0! addr={}!\n",
+				ERROR_MSG(fmt::format("WebSocketPacketFilter::recv: pFragmentDatasRemain_ <= 0! addr={}!\n",
 					pChannel_->c_str()));
 
-				this->pChannel_->condemn();
+				this->pChannel_->condemn("WebSocketPacketFilter::recv: pFragmentDatasRemain_ <= 0!");
 				reset();
 
 				TCPPacket::reclaimPoolObject(static_cast<TCPPacket*>(pPacket));
 				return REASON_WEBSOCKET_ERROR;
 			}
 
-			if(pTCPPacket_ == NULL)
-				pTCPPacket_ = TCPPacket::createPoolObject();
+			if (pTCPPacket_ == NULL)
+				pTCPPacket_ = TCPPacket::createPoolObject(OBJECTPOOL_POINT);
 
-			if(pFragmentDatasRemain_ <= (int32)pPacket->length())
+			if (pFragmentDatasRemain_ <= (int32)pPacket->length())
 			{
 				pTCPPacket_->append(pPacket->data() + pPacket->rpos(), pFragmentDatasRemain_);
 				pPacket->read_skip((size_t)pFragmentDatasRemain_);
@@ -267,28 +282,58 @@ Reason WebSocketPacketFilter::recv(Channel * pChannel, PacketReceiver & receiver
 				pPacket->done();
 			}
 
-			if(!websocket::WebSocketProtocol::decodingDatas(pTCPPacket_, msg_masked_, msg_mask_))
+			Reason reason = REASON_SUCCESS;
+
+			if (msg_frameType_ == websocket::WebSocketProtocol::PING_FRAME)
 			{
-				ERROR_MSG(fmt::format("WebSocketPacketReader::recv: decoding-frame is error! addr={}!\n",
-					pChannel_->c_str()));
+				// Continue to wait until the rest of the content arrives
+				if (pFragmentDatasRemain_ > 0)
+					continue;
 
-				this->pChannel_->condemn();
-				reset();
+				if (!websocket::WebSocketProtocol::decodingDatas(pTCPPacket_, msg_masked_, msg_mask_))
+				{
+					ERROR_MSG(fmt::format("WebSocketPacketFilter::recv: decoding-frame error! addr={}!\n",
+						pChannel_->c_str()));
 
-				TCPPacket::reclaimPoolObject(static_cast<TCPPacket*>(pPacket));
-				return REASON_WEBSOCKET_ERROR;
+					this->pChannel_->condemn("WebSocketPacketFilter::recv: decoding-frame error!");
+					reset();
+
+					TCPPacket::reclaimPoolObject(static_cast<TCPPacket*>(pPacket));
+					return REASON_WEBSOCKET_ERROR;
+				}
+
+				reason = onPing(pChannel, pTCPPacket_);
+			}
+			else
+			{
+				if (!websocket::WebSocketProtocol::decodingDatas(pTCPPacket_, msg_masked_, msg_mask_))
+				{
+					ERROR_MSG(fmt::format("WebSocketPacketFilter::recv: decoding-frame error! addr={}!\n",
+						pChannel_->c_str()));
+
+					this->pChannel_->condemn("WebSocketPacketFilter::recv: decoding-frame error!");
+					reset();
+
+					TCPPacket::reclaimPoolObject(static_cast<TCPPacket*>(pPacket));
+					return REASON_WEBSOCKET_ERROR;
+				}
+
+				reason = PacketFilter::recv(pChannel, receiver, pTCPPacket_);
+				OURO_ASSERT(reason == REASON_SUCCESS);
+
+				// pTCPPacket_ does not need to be recycled here
+				pTCPPacket_ = NULL;
 			}
 
-			Reason reason = PacketFilter::recv(pChannel, receiver, pTCPPacket_);
-
-			// pTCPPacket_ does not need to be recycled here
-			pTCPPacket_ = NULL;
-
-			if(pFragmentDatasRemain_ == 0)
+			if (pFragmentDatasRemain_ == 0)
 				reset();
 
-			if(reason != REASON_SUCCESS)
+			if (reason != REASON_SUCCESS)
+			{
+				TCPPacket::reclaimPoolObject(static_cast<TCPPacket*>(pPacket));
+				reset();
 				return reason;
+			}
 		}
 	}
 
@@ -297,5 +342,42 @@ Reason WebSocketPacketFilter::recv(Channel * pChannel, PacketReceiver & receiver
 }
 
 //-------------------------------------------------------------------------------------
+Reason WebSocketPacketFilter::onPing(Channel * pChannel, Packet* pPacket)
+{
+	OURO_ASSERT(pFragmentDatasRemain_ == 0);
+
+	TCPPacket* pPongPacket = TCPPacket::createPoolObject(OBJECTPOOL_POINT);
+	websocket::WebSocketProtocol::makeFrame(websocket::WebSocketProtocol::PONG_FRAME, pPacket, pPongPacket);
+
+	if (msg_payload_length_ > 0)
+	{
+		pPongPacket->append(pPacket->data() + pPacket->rpos(), msg_payload_length_);
+		pPacket->read_skip((size_t)msg_payload_length_);
+	}
+
+	int sendSize = pPongPacket->length();
+
+	while (sendSize > 0)
+	{
+		int ret = pChannel->pEndPoint()->send(pPongPacket->data() + (pPongPacket->length() - sendSize), sendSize);
+		if (ret <= 0)
+		{
+			ERROR_MSG(fmt::format("WebSocketPacketFilter::recv: send({}) pong-frame error! addr={}, sendSize={}\n",
+				ret, pChannel_->c_str(), sendSize));
+
+			break;
+		}
+
+		sendSize -= ret;
+	}
+
+	TCPPacket::reclaimPoolObject(pPongPacket);
+
+	pFragmentDatasRemain_ = 0;
+	fragmentDatasFlag_ = FRAGMENT_MESSAGE_HREAD;
+	return REASON_SUCCESS;
 }
+
+//-------------------------------------------------------------------------------------
+} 
 }

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "helper/debug_helper.h"
@@ -96,7 +96,7 @@ void MachineInfos::fetchLinuxCpuInfo()
 	char procLine[BUFSIZ];
 	char* pInterest;
 	float mhz;
-	typedef OUROUnordered_map<std::string, unsigned int> modelNameMap;
+	typedef KBEUnordered_map<std::string, unsigned int> modelNameMap;
 	modelNameMap modelNames;
 
 	pProcCpu = fopen( "/proc/cpuinfo", "r" );

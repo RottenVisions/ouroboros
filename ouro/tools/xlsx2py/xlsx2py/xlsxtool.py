@@ -1,6 +1,6 @@
 #-*- coding: gb2312 -*-
 """
-工具
+tool
 """
 import os
 import sys
@@ -10,8 +10,8 @@ from xml.dom.minidom import *
 
 def exportMenu(msgIndex, YCallback = None, NCallback = None, OCallback = None):
 	"""
-	简单的询问Y(yes),N(no)， Y:pass，N：exit, Other:continue
-	now assume 输入 Y
+	Simply ask Y(yes), N(no), Y:pass, N:exit, Other: continue
+	Now assume input Y
 	"""
 	if YCallback:
 		YCallback()
@@ -19,13 +19,13 @@ def exportMenu(msgIndex, YCallback = None, NCallback = None, OCallback = None):
 
 	# xlsxError.info_input(msgIndex)
 	
-	# msg = "------------请输入Y(yes), N(no)"
+	# msg = "------------Please enter Y(yes), N(no)"
 	# if OCallback:
 		# msg += ',other(o)'
 	
 	# print( msg,'------------------' )
 
-	# print( "您的输入:" )
+	# print( "Your input:" )
 
 	# input_command = raw_input()
 
@@ -41,13 +41,13 @@ def exportMenu(msgIndex, YCallback = None, NCallback = None, OCallback = None):
 			# if OCallback:OCallback()
 			# return
 		# else:
-			# print( "是Y还是N：", )
+			# print( "Y or N:", )
 			# input_command = raw_input()
 
 
 def checkExtName(filePath, extName):
 	"""
-	检测扩展名，请将.也丢进来
+	Detect extensions, please also drop in.
 	"""
 	if filePath == "" or extName == '':
 		return
@@ -59,7 +59,7 @@ def checkExtName(filePath, extName):
 
 def __checkPath(dirPath):
 		"""
-		必须有driverName E:,D: ==
+		Must have driverName E:, D: ==
 		"""
 		driveName = os.path.splitdrive(dirPath)[0]
 		if not os.path.isdir(driveName):
@@ -71,7 +71,7 @@ def __checkPath(dirPath):
 		
 def __onCheckPath(dirPath):
 	"""
-	递归创建目录
+	Recursively create a directory
 	"""
 	if not os.path.isdir(dirPath):
 		prvdir = os.path.split(dirPath)[0]
@@ -82,7 +82,7 @@ def __onCheckPath(dirPath):
 
 def createDir(dirPath):
 	"""
-	创建目录
+		Create a directory
 	"""
 	__checkPath(dirPath)	
 	#__checkOkCreate(dirPath)
@@ -92,7 +92,7 @@ def createDir(dirPath):
 def getFileMTime(fileName):
 	return os.stat(fileName)[-2]
 
-###########字符串处理####################
+###########String Processing###################
 def inputList(var_list):
 	"""
 	"""
@@ -104,7 +104,7 @@ def inputList(var_list):
 
 def inputElement(element):
 	"""
-	对字串编码处理
+	String encoding
 	"""
 	if isinstance(element, str):
 		#element.strip().replace
@@ -116,7 +116,7 @@ def inputElement(element):
 
 def str2List(error_str, pywinerr_list):
 	"""
-	字符串 -> list,不检测括号的匹配
+	String -> list, does not detect the matching of the brackets
 	"""
 	begin_pos = error_str.find('(')
 	next_pos = error_str.find(')')

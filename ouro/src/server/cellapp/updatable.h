@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_UPDATABLE_H
 #define OURO_UPDATABLE_H
@@ -8,8 +8,8 @@
 #include "common/common.h"
 
 // #define NDEBUG
-// windows include
-#if OURO_PLATFORM == PLATFORM_WIN32
+// windows include	
+#if OURO_PLATFORM == PLATFORM_WIN32	
 #else
 // linux include
 #endif
@@ -17,8 +17,8 @@
 namespace Ouroboros{
 
 /*
-	Used to describe an object that will always be updated, the app will call every tick
-	Updatable to update the state, need to implement different Updatable to complete different update features.
+	Used to describe an object that will always be updated, the app will call all the tick
+	Updatable to update the state, you need to implement different Updatable to complete different update features.
 */
 class Updatable
 {
@@ -34,7 +34,7 @@ public:
 
 	std::string c_str() { return updatableName; }
 
-	// Its own position in the Updatables container
+	// its position in the Updatables container
 	int removeIdx;
 
 	std::string updatableName;

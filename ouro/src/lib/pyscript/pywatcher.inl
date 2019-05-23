@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 namespace Ouroboros {
@@ -12,7 +12,7 @@ INLINE T PyWatcherObject<T>::getValue()
 	PyObject* pyObj1 = PyObject_CallFunction(pyCallable_, const_cast<char*>(""));
 	if(!pyObj1)
 	{
-		PyErr_Format(PyExc_Exception, "PyWatcherObject::addToStream: callFunction is error! path=%s name=%s.\n",
+		PyErr_Format(PyExc_Exception, "PyWatcherObject::addToStream: callFunction error! path=%s name=%s.\n",
 			path(), name());
 		PyErr_PrintEx(0);
 	}

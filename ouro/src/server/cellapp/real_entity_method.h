@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OUROBOROS_REAL_ENTITY_METHOD_H
@@ -9,13 +9,13 @@
 #pragma warning (disable : 4910)
 #pragma warning (disable : 4251)
 #endif
-// common include
+// common include	
 #include "entitydef/datatype.h"
 #include "entitydef/datatypes.h"
 #include "helper/debug_helper.h"
-#include "pyscript/scriptobject.h"
+#include "pyscript/scriptobject.h"	
 //#define NDEBUG
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
@@ -28,32 +28,32 @@ class PropertyDescription;
 
 class RealEntityMethod : public script::ScriptObject
 {
-	/** Subclassing fills some py operations into derived classes */
-	INSTANCE_SCRIPT_HREADER(RealEntityMethod, script::ScriptObject)
-public:
+		/** Subclassing populates some py operations into derived classes*/
+	INSTANCE_SCRIPT_HREADER(RealEntityMethod, script::ScriptObject)	
+public:	
 	RealEntityMethod(PropertyDescription* pComponentPropertyDescription, MethodDescription* methodDescription,
 		Entity* ghostEntity);
-
+	
 	virtual ~RealEntityMethod();
 
 	const char* getName(void) const
-	{
-		return methodDescription_->getName();
+	{ 
+		return methodDescription_->getName(); 
 	};
 
 	MethodDescription* getDescription(void) const
-	{
-		return methodDescription_;
+	{ 
+		return methodDescription_; 
 	}
 
-	static PyObject* tp_call(PyObject* self,
+	static PyObject* tp_call(PyObject* self, 
 			PyObject* args, PyObject* kwds);
 
 	PyObject* callmethod(PyObject* args, PyObject* kwds);
 
 protected:
-	PropertyDescription*					pComponentPropertyDescription_;		// Is it a method in a component
-	MethodDescription*						methodDescription_;					// Description of this method
+	PropertyDescription* pComponentPropertyDescription_; // Is it a method in a component?
+	MethodDescription* methodDescription_; // Description of this method
 
 	ENTITY_ID								ghostEntityID_;						// ghostEntityID_
 	COMPONENT_ID							realCell_;

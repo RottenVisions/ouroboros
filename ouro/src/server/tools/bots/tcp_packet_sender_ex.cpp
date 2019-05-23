@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "tcp_packet_sender_ex.h"
@@ -42,7 +42,7 @@ Channel* TCPPacketSenderEx::getChannel()
 }
 
 //-------------------------------------------------------------------------------------
-void TCPPacketSenderEx::onGetError(Channel* pChannel)
+void TCPPacketSenderEx::onGetError(Channel* pChannel, const std::string& err)
 {
 	pClientObject_->destroy();
 }

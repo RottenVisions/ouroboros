@@ -63,12 +63,12 @@ BOOL CLogWindow::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	m_componentlist.AddString(L"CellApp");
-	m_componentlist.AddString(L"BaseApp");
-	m_componentlist.AddString(L"CellAppMgr");
-	m_componentlist.AddString(L"BaseAppMgr");
-	m_componentlist.AddString(L"LoginApp");
-	m_componentlist.AddString(L"DBMgr");
+	m_componentlist.AddString(L"cellapp");
+	m_componentlist.AddString(L"baseapp");
+	m_componentlist.AddString(L"cellappmgr");
+	m_componentlist.AddString(L"baseappmgr");
+	m_componentlist.AddString(L"loginapp");
+	m_componentlist.AddString(L"dbmgr");
 
 	for(int i=0; i< m_componentlist.GetCount(); i++)
 	{
@@ -279,10 +279,10 @@ void CLogWindow::onReceiveRemoteLog(std::string str, bool fromServer)
 	if(fromServer)
 		m_logs_.push_back(str);
 
-	CString s;
-	wchar_t* wstr = Ouroboros::strutil::char2wchar(str.c_str());
-	s = wstr;
-	free(wstr);
+	std::wstring wstr;
+	Ouroboros::strutil::utf82wchar(str.c_str(), wstr);
+
+	CString s(wstr.c_str());
 	s.Replace(L"\n", L"");
 	s.Replace(L"\r\n", L"");
 	s.Replace(L"\n\r", L"");
@@ -350,13 +350,13 @@ void CLogWindow::onConnectionState(bool success, Ouroboros::Network::Address add
 void CLogWindow::OnBnClickedButton1()
 {
 	// TODO: Add your control notification handler code here
-	// Request server to pull logs
+	// Request the server to pull the log
 	CguiconsoleDlg* dlg = static_cast<CguiconsoleDlg*>(theApp.m_pMainWnd);
 
 	HTREEITEM item = dlg->hasCheckApp(LOGGER_TYPE);
 	if(item == NULL)
 	{
-		::AfxMessageBox(L"Logged failed Selection!");
+		::AfxMessageBox(L"logger no select!");
 		return;
 	}
 
@@ -371,13 +371,13 @@ void CLogWindow::pullLogs(Ouroboros::Network::Address addr)
 	Network::Channel* pChannel = dlg->networkInterface().findChannel(addr);
 	if(pChannel == NULL)
 	{
-		::AfxMessageBox(L"Logger Error!");
+		::AfxMessageBox(L"logger error!");
 		return;
 	}
 
 	if(!pulling)
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(LoggerInterface::registerLogWatcher);
 
 		int32 uid = dlg->getSelTreeItemUID();
@@ -435,7 +435,7 @@ void CLogWindow::pullLogs(Ouroboros::Network::Address addr)
 	{
 		m_autopull.SetWindowTextW(L"auto");
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(LoggerInterface::deregisterLogWatcher);
 		pChannel->send(pBundle);
 	}
@@ -453,27 +453,27 @@ std::vector<Ouroboros::COMPONENT_TYPE> CLogWindow::getSelComponents()
 			CString s;
 			m_componentlist.GetText(i, s);
 
-			if(s == "CellApp")
+			if(s == "cellapp")
 			{
 				vec.push_back(Ouroboros::CELLAPP_TYPE);
 			}
-			else if(s == "BaseApp")
+			else if(s == "baseapp")
 			{
 				vec.push_back(Ouroboros::BASEAPP_TYPE);
 			}
-			else if(s == "CellAppMgr")
+			else if(s == "cellappmgr")
 			{
 				vec.push_back(Ouroboros::CELLAPPMGR_TYPE);
 			}
-			else if(s == "BaseAppMgr")
+			else if(s == "baseappmgr")
 			{
 				vec.push_back(Ouroboros::BASEAPPMGR_TYPE);
 			}
-			else if(s == "LoginApp")
+			else if(s == "loginapp")
 			{
 				vec.push_back(Ouroboros::LOGINAPP_TYPE);
 			}
-			else if(s == "DBMgr")
+			else if(s == "dbmgr")
 			{
 				vec.push_back(Ouroboros::DBMGR_TYPE);
 			}
@@ -495,47 +495,47 @@ Ouroboros::uint32 CLogWindow::getSelLogTypes()
 
 			if(s == "PRINT")
 			{
-				types |= OUROLOG_PRINT;
+				types |= KBELOG_PRINT;
 			}
 			else if(s == "ERROR")
 			{
-				types |= OUROLOG_ERROR;
+				types |= KBELOG_ERROR;
 			}
 			else if(s == "DEBUG")
 			{
-				types |= OUROLOG_DEBUG;
+				types |= KBELOG_DEBUG;
 			}
 			else if(s == "INFO")
 			{
-				types |= OUROLOG_INFO;
+				types |= KBELOG_INFO;
 			}
 			else if(s == "WARNING")
 			{
-				types |= OUROLOG_WARNING;
+				types |= KBELOG_WARNING;
 			}
 			else if(s == "CRITICAL")
 			{
-				types |= OUROLOG_CRITICAL;
+				types |= KBELOG_CRITICAL;
 			}
 			else if(s == "S_INFO")
 			{
-				types |= OUROLOG_SCRIPT_INFO;
+				types |= KBELOG_SCRIPT_INFO;
 			}
 			else if(s == "S_ERR")
 			{
-				types |= OUROLOG_SCRIPT_ERROR;
+				types |= KBELOG_SCRIPT_ERROR;
 			}
 			else if(s == "S_DBG")
 			{
-				types |= OUROLOG_SCRIPT_DEBUG;
+				types |= KBELOG_SCRIPT_DEBUG;
 			}
 			else if(s == "S_WARN")
 			{
-				types |= OUROLOG_SCRIPT_WARNING;
+				types |= KBELOG_SCRIPT_WARNING;
 			}
 			else if(s == "S_NORM")
 			{
-				types |= OUROLOG_SCRIPT_NORMAL;
+				types |= KBELOG_SCRIPT_NORMAL;
 			}
 		}
 	}
@@ -607,7 +607,7 @@ void CLogWindow::OnLbnSelchangeMsgtypeList2()
 
 void CLogWindow::updateSettingToServer()
 {
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(LoggerInterface::updateLogWatcherSetting);
 
 	CguiconsoleDlg* dlg = static_cast<CguiconsoleDlg*>(theApp.m_pMainWnd);
@@ -657,7 +657,7 @@ void CLogWindow::updateSettingToServer()
 	HTREEITEM item = dlg->hasCheckApp(LOGGER_TYPE);
 	if(item == NULL)
 	{
-		::AfxMessageBox(L"Logger failed Selection!");
+		::AfxMessageBox(L"logger no select!");
 		Network::Bundle::reclaimPoolObject(pBundle);
 		return;
 	}
@@ -667,7 +667,7 @@ void CLogWindow::updateSettingToServer()
 	Network::Channel* pChannel = dlg->networkInterface().findChannel(addr);
 	if(pChannel == NULL)
 	{
-		::AfxMessageBox(L"Logger Error!");
+		::AfxMessageBox(L"logger error!");
 		Network::Bundle::reclaimPoolObject(pBundle);
 		return;
 	}

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "entity_table_redis.h"
 #include "ouro_table_redis.h"
@@ -12,7 +12,7 @@
 #include "entity_table_redis.inl"
 #endif
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 
 //-------------------------------------------------------------------------------------
@@ -29,10 +29,10 @@ EntityTableRedis::~EntityTableRedis()
 //-------------------------------------------------------------------------------------
 bool EntityTableRedis::initialize(ScriptDefModule* sm, std::string name)
 {
-	// Get table name
+	// Get the table name
 	tableName(name);
 
-	// Find all storage attributes and create all the fields
+	// find all storage properties and create all the fields
 	ScriptDefModule::PROPERTYDESCRIPTION_MAP& pdescrsMap = sm->getPersistentPropertyDescriptions();
 	ScriptDefModule::PROPERTYDESCRIPTION_MAP::const_iterator iter = pdescrsMap.begin();
 
@@ -47,36 +47,36 @@ bool EntityTableRedis::initialize(ScriptDefModule* sm, std::string name)
 		pETItem->tableName(this->tableName());
 
 		bool ret = pETItem->initialize(pdescrs, pdescrs->getDataType(), pdescrs->getName());
-
+		
 		if(!ret)
 		{
 			delete pETItem;
 			return false;
 		}
-
+		
 		addItem(pETItem);
 	}
 
-	// Special handling, database storage direction and location
+	// special handling, database save direction and location
 	if(sm->hasCell())
 	{
 		ENTITY_PROPERTY_UID posuid = ENTITY_BASE_PROPERTY_UTYPE_POSITION_XYZ;
 		ENTITY_PROPERTY_UID diruid = ENTITY_BASE_PROPERTY_UTYPE_DIRECTION_ROLL_PITCH_YAW;
 
-		Network::FixedMessages::MSGInfo* msgInfo =
+		Network::FixedMessages::MSGInfo* msgInfo =	
 					Network::FixedMessages::getSingleton().isFixed("Property::position");
 
 		if(msgInfo != NULL)
 		{
 			posuid = msgInfo->msgid;
 			msgInfo = NULL;
-		}
+		}	
 
 		msgInfo = Network::FixedMessages::getSingleton().isFixed("Property::direction");
 		if(msgInfo != NULL)
 		{
 			diruid = msgInfo->msgid;
-			msgInfo = NULL;
+			msgInfo = NULL;	
 		}
 
 		EntityTableItem* pETItem = this->createItem("VECTOR3", "");
@@ -104,7 +104,7 @@ void EntityTableRedis::init_db_item_name()
 	EntityTable::TABLEITEM_MAP::iterator iter = tableItems_.begin();
 	for(; iter != tableItems_.end(); ++iter)
 	{
-		// Special case for handling fixedDict field names
+		// Special case for handling the name of the fixedDict field
 		std::string exstrFlag = "";
 		if(iter->second->type() == TABLE_ITEM_TYPE_FIXEDDICT)
 		{
@@ -131,8 +131,8 @@ bool EntityTableRedis::syncToDB(DBInterface* pdbi)
 
 	// DEBUG_MSG(fmt::format("EntityTableRedis::syncToDB(): {}.\n", tableName()));
 
-	// For redis do not need to create the table in the beginning, data is generated when the data is written, so there is no need to create a table
-	// Get the items of the current table, check whether each item matches the current, and synchronize it with the current table description
+	// For redis, you don't need to create the table at first, the data is generated when the data is written, so there is no need to create a table here.
+	// Get the items of the current table, check whether each item matches the current, and synchronize it to the current table description
 
 	//DBInterfaceRedis::TABLE_FIELDS outs;
 	//static_cast<DBInterfaceRedis*>(pdbi)->getFields(outs, this->tableName());
@@ -154,7 +154,7 @@ bool EntityTableRedis::syncToDB(DBInterface* pdbi)
 
 	pdbi->getTableItemNames(ttablename.c_str(), dbTableItemNames);
 
-	// Check for table fields that need to be deleted
+	// Check if there are any table fields that need to be deleted
 	std::vector<std::string>::iterator iter0 = dbTableItemNames.begin();
 	for (; iter0 != dbTableItemNames.end(); ++iter0)
 	{
@@ -186,7 +186,7 @@ bool EntityTableRedis::syncToDB(DBInterface* pdbi)
 		}
 	}
 
-	// Synchronization table index
+	// Synchronous table index
 	if (!syncIndexToDB(pdbi))
 		return false;
 
@@ -195,7 +195,7 @@ bool EntityTableRedis::syncToDB(DBInterface* pdbi)
 }
 
 //-------------------------------------------------------------------------------------
-void EntityTableRedis::queryAutoLoadEntities(DBInterface* pdbi, ScriptDefModule* pModule,
+void EntityTableRedis::queryAutoLoadEntities(DBInterface* pdbi, ScriptDefModule* pModule, 
 		ENTITY_ID start, ENTITY_ID end, std::vector<DBID>& outs)
 {
 }
@@ -476,7 +476,7 @@ bool EntityTableItemRedis_ARRAY::isSameKey(std::string key)
 }
 
 //-------------------------------------------------------------------------------------
-bool EntityTableItemRedis_ARRAY::initialize(const PropertyDescription* pPropertyDescription,
+bool EntityTableItemRedis_ARRAY::initialize(const PropertyDescription* pPropertyDescription, 
 											const DataType* pDataType, std::string name)
 {
 	return true;
@@ -515,7 +515,7 @@ bool EntityTableItemRedis_FIXED_DICT::isSameKey(std::string key)
 }
 
 //-------------------------------------------------------------------------------------
-bool EntityTableItemRedis_FIXED_DICT::initialize(const PropertyDescription* pPropertyDescription,
+bool EntityTableItemRedis_FIXED_DICT::initialize(const PropertyDescription* pPropertyDescription, 
 												 const DataType* pDataType, std::string name)
 {
 	return true;
@@ -549,7 +549,7 @@ void EntityTableItemRedis_FIXED_DICT::init_db_item_name(const char* exstrFlag)
 }
 
 //-------------------------------------------------------------------------------------
-bool EntityTableItemRedisBase::initialize(const PropertyDescription* pPropertyDescription,
+bool EntityTableItemRedisBase::initialize(const PropertyDescription* pPropertyDescription, 
 										  const DataType* pDataType, std::string name)
 {
 	itemName(name);
@@ -590,13 +590,13 @@ bool EntityTableItemRedis_STRING::syncToDB(DBInterface* pdbi, void* pData)
 }
 
 //-------------------------------------------------------------------------------------
-void EntityTableItemRedis_STRING::addToStream(MemoryStream* s,
+void EntityTableItemRedis_STRING::addToStream(MemoryStream* s, 
 											  redis::DBContext& context, DBID resultDBID)
 {
 }
 
 //-------------------------------------------------------------------------------------
-void EntityTableItemRedis_STRING::getWriteSqlItem(DBInterface* pdbi,
+void EntityTableItemRedis_STRING::getWriteSqlItem(DBInterface* pdbi, 
 												  MemoryStream* s, redis::DBContext& context)
 {
 	if(s == NULL)
@@ -615,13 +615,13 @@ bool EntityTableItemRedis_UNICODE::syncToDB(DBInterface* pdbi, void* pData)
 }
 
 //-------------------------------------------------------------------------------------
-void EntityTableItemRedis_UNICODE::addToStream(MemoryStream* s,
+void EntityTableItemRedis_UNICODE::addToStream(MemoryStream* s, 
 											   redis::DBContext& context, DBID resultDBID)
 {
 }
 
 //-------------------------------------------------------------------------------------
-void EntityTableItemRedis_UNICODE::getWriteSqlItem(DBInterface* pdbi, MemoryStream* s,
+void EntityTableItemRedis_UNICODE::getWriteSqlItem(DBInterface* pdbi, MemoryStream* s, 
 												   redis::DBContext& context)
 {
 	if(s == NULL)

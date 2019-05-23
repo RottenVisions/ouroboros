@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 #ifndef OURO_COMMON_H
 #define OURO_COMMON_H
 #include "common/platform.h"
@@ -6,11 +6,11 @@
 #include "common/ouroversion.h"
 #include "common/ouromalloc.h"
 #include "common/stringconv.h"
-#include "common/format.h"
+#include "fmt/format.h"
 
 namespace Ouroboros{
 
-/** Safe release of a pointer memory */
+/** Securely release a pointer memory*/
 #define SAFE_RELEASE(i)										\
 	if (i)													\
 		{													\
@@ -18,7 +18,7 @@ namespace Ouroboros{
 			i = NULL;										\
 		}
 
-/** Safe release of a pointer array memory */
+/** Safely release a pointer array memory*/
 #define SAFE_RELEASE_ARRAY(i)								\
 	if (i)													\
 		{													\
@@ -32,15 +32,15 @@ namespace Ouroboros{
     #define INLINE
 #endif
 
-/** Kbe time */
+/** kbe time*/
 extern GAME_TIME g_ourotime;
 
-/** Account category */
+/** Account category*/
 enum ACCOUNT_TYPE
 {
-	ACCOUNT_TYPE_NORMAL = 1,	// Ordinary account
-	ACCOUNT_TYPE_MAIL = 2,		// Email account(Need to activate)
-	ACCOUNT_TYPE_SMART = 3		// Intelligent Recognition
+	ACCOUNT_TYPE_NORMAL = 1, // Ordinary account
+	ACCOUNT_TYPE_MAIL = 2, // email account (requires activation)
+	ACCOUNT_TYPE_SMART = 3 // Smart recognition
 };
 
 enum ACCOUNT_FLAGS
@@ -50,62 +50,26 @@ enum ACCOUNT_FLAGS
 	ACCOUNT_FLAG_NOT_ACTIVATED = 0x000000002
 };
 
-/** Entity'''s entityCall category */
-enum ENTITYCALL_TYPE
-{
-	ENTITYCALL_TYPE_CELL												= 0,
-	ENTITYCALL_TYPE_BASE												= 1,
-	ENTITYCALL_TYPE_CLIENT												= 2,
-	ENTITYCALL_TYPE_CELL_VIA_BASE										= 3,
-	ENTITYCALL_TYPE_BASE_VIA_CELL										= 4,
-	ENTITYCALL_TYPE_CLIENT_VIA_CELL										= 5,
-	ENTITYCALL_TYPE_CLIENT_VIA_BASE										= 6,
-};
-
-/** entityCall's category swapping to string name strict match with ENTITYCALL_TYPE index */
-const char ENTITYCALL_TYPE_TO_NAME_TABLE[][8] =
-{
-	"cell",
-	"base",
-	"client",
-	"cell",
-	"base",
-	"client",
-	"client",
-};
-
-/** entityCall's category swapping to string name strict match with ENTITYCALL_TYPE index */
-const char ENTITYCALL_TYPE_TO_NAME_TABLE_EX[][14] =
-{
-	"cell",
-	"base",
-	"client",
-	"cellViaBase",
-	"baseViaCell",
-	"clientViaCell",
-	"clientViaBase",
-};
-
-/** Defining server component states */
+/** Define the status of each component of the server*/
 enum COMPONENT_STATE
 {
-	// Initial state
+	// initial state
 	COMPONENT_STATE_INIT = 0,
 
-	// Process is running
+	// The process is running
 	COMPONENT_STATE_RUN = 1,
 
-	// Process starts shutting down
+	// The process starts to close
 	COMPONENT_STATE_SHUTTINGDOWN_BEGIN = 2,
 
-	// Process is shutting down
+	// The process is shutting down
 	COMPONENT_STATE_SHUTTINGDOWN_RUNNING = 3,
 
-	// The process is closed
+	// The process is closed.
 	COMPONENT_STATE_STOP = 4
 };
 
-/** Define server component categories */
+/** Define server component categories*/
 enum COMPONENT_TYPE
 {
 	UNKNOWN_COMPONENT_TYPE	= 0,
@@ -126,11 +90,11 @@ enum COMPONENT_TYPE
 	COMPONENT_END_TYPE		= 15,
 };
 
-/** Current server component category and ID */
+/** Current server component category and ID*/
 extern COMPONENT_TYPE g_componentType;
 extern COMPONENT_ID g_componentID;
 
-/** Define server component names */
+/** Define server component names*/
 const char COMPONENT_NAME[][255] = {
 	"unknown",
 	"dbmgr",
@@ -186,7 +150,7 @@ const char COMPONENT_NAME_2[][255] = {
 };
 
 inline const char* COMPONENT_NAME_EX(COMPONENT_TYPE CTYPE)
-{
+{									
 	if(CTYPE < 0 || CTYPE >= COMPONENT_END_TYPE)
 	{
 		return COMPONENT_NAME[UNKNOWN_COMPONENT_TYPE];
@@ -196,7 +160,7 @@ inline const char* COMPONENT_NAME_EX(COMPONENT_TYPE CTYPE)
 }
 
 inline const char* COMPONENT_NAME_EX_1(COMPONENT_TYPE CTYPE)
-{
+{									
 	if(CTYPE < 0 || CTYPE >= COMPONENT_END_TYPE)
 	{
 		return COMPONENT_NAME_1[UNKNOWN_COMPONENT_TYPE];
@@ -206,7 +170,7 @@ inline const char* COMPONENT_NAME_EX_1(COMPONENT_TYPE CTYPE)
 }
 
 inline const char* COMPONENT_NAME_EX_2(COMPONENT_TYPE CTYPE)
-{
+{									
 	if(CTYPE < 0 || CTYPE >= COMPONENT_END_TYPE)
 	{
 		return COMPONENT_NAME_2[UNKNOWN_COMPONENT_TYPE];
@@ -226,27 +190,27 @@ inline COMPONENT_TYPE ComponentName2ComponentType(const char* name)
 	return UNKNOWN_COMPONENT_TYPE;
 }
 
-// All components list
-const COMPONENT_TYPE ALL_COMPONENT_TYPES[] = {BASEAPPMGR_TYPE, CELLAPPMGR_TYPE, DBMGR_TYPE, CELLAPP_TYPE,
+// All component lists
+const COMPONENT_TYPE ALL_COMPONENT_TYPES[] = {BASEAPPMGR_TYPE, CELLAPPMGR_TYPE, DBMGR_TYPE, CELLAPP_TYPE, 
 						BASEAPP_TYPE, LOGINAPP_TYPE, MACHINE_TYPE, CONSOLE_TYPE, TOOL_TYPE, LOGGER_TYPE,
 						WATCHER_TYPE, INTERFACES_TYPE, BOTS_TYPE, UNKNOWN_COMPONENT_TYPE};
 
 // All backend component list
-const COMPONENT_TYPE ALL_SERVER_COMPONENT_TYPES[] = {BASEAPPMGR_TYPE, CELLAPPMGR_TYPE, DBMGR_TYPE, CELLAPP_TYPE,
-						BASEAPP_TYPE, LOGINAPP_TYPE, MACHINE_TYPE, LOGGER_TYPE,
+const COMPONENT_TYPE ALL_SERVER_COMPONENT_TYPES[] = {BASEAPPMGR_TYPE, CELLAPPMGR_TYPE, DBMGR_TYPE, CELLAPP_TYPE, 
+						BASEAPP_TYPE, LOGINAPP_TYPE, MACHINE_TYPE, LOGGER_TYPE, 
 						WATCHER_TYPE, INTERFACES_TYPE, BOTS_TYPE, UNKNOWN_COMPONENT_TYPE};
 
 // All backend component list
-const COMPONENT_TYPE ALL_GAME_SERVER_COMPONENT_TYPES[] = {BASEAPPMGR_TYPE, CELLAPPMGR_TYPE, DBMGR_TYPE, CELLAPP_TYPE,
+const COMPONENT_TYPE ALL_GAME_SERVER_COMPONENT_TYPES[] = {BASEAPPMGR_TYPE, CELLAPPMGR_TYPE, DBMGR_TYPE, CELLAPP_TYPE, 
 						BASEAPP_TYPE, LOGINAPP_TYPE, INTERFACES_TYPE, UNKNOWN_COMPONENT_TYPE};
 
-// All auxiliary components
+// all auxiliary components
 const COMPONENT_TYPE ALL_HELPER_COMPONENT_TYPE[] = {LOGGER_TYPE, UNKNOWN_COMPONENT_TYPE};
 
-// Whether the return is a valid component
+// Returns whether it is a valid component
 #define VALID_COMPONENT(C_TYPE) ((C_TYPE) > 0 && (C_TYPE) < COMPONENT_END_TYPE)
 
-/** Check if it is a game server component category */
+/** Check if it is a game server component category*/
 inline bool isGameServerComponentType(COMPONENT_TYPE componentType)
 {
 	int i = 0;
@@ -268,36 +232,36 @@ enum COMPONENT_CLIENT_TYPE
 {
 	UNKNOWN_CLIENT_COMPONENT_TYPE	= 0,
 
-	// Mobile class, mobile phone, tablet
+	// mobile class, mobile phone, tablet
 	// Mobile, Phone, Pad
 	CLIENT_TYPE_MOBILE				= 1,
 
-	// Standalone Windows application
+	// standalone Windows application
 	// Windows Application program
 	CLIENT_TYPE_WIN					= 2,
 
 	// Standalone Linux application
 	// Linux Application program
 	CLIENT_TYPE_LINUX				= 3,
-
-	// Mac application
+		
+	// Mac app
 	// Mac Application program
 	CLIENT_TYPE_MAC					= 4,
-
+				
 	// Web, HTML5, Flash
 	CLIENT_TYPE_BROWSER				= 5,
 
 	// bots
 	CLIENT_TYPE_BOTS				= 6,
 
-	// Lightweight class
+	// light end class
 	CLIENT_TYPE_MINI				= 7,
 
 	// End
 	CLIENT_TYPE_END					= 8
 };
 
-/** Define the category name of the front-end application */
+/** Define the category name of the front-end application*/
 const char COMPONENT_CLIENT_NAME[][255] = {
 	"UNKNOWN_CLIENT_COMPONENT_TYPE",
 	"CLIENT_TYPE_MOBILE",
@@ -309,21 +273,83 @@ const char COMPONENT_CLIENT_NAME[][255] = {
 	"CLIENT_TYPE_MINI",
 };
 
-// All front-end application categories
-const COMPONENT_CLIENT_TYPE ALL_CLIENT_TYPES[] = {CLIENT_TYPE_MOBILE, CLIENT_TYPE_WIN, CLIENT_TYPE_LINUX, CLIENT_TYPE_MAC,
+// category of all front-end apps
+const COMPONENT_CLIENT_TYPE ALL_CLIENT_TYPES[] = {CLIENT_TYPE_MOBILE, CLIENT_TYPE_WIN, CLIENT_TYPE_LINUX, CLIENT_TYPE_MAC, 
 												CLIENT_TYPE_BROWSER, CLIENT_TYPE_BOTS, CLIENT_TYPE_MINI, UNKNOWN_CLIENT_COMPONENT_TYPE};
 
 typedef int8 CLIENT_CTYPE;
 
+/**entity's entityCall category*/
+enum ENTITYCALL_TYPE
+{
+	ENTITYCALL_TYPE_CELL = 0,
+	ENTITYCALL_TYPE_BASE = 1,
+	ENTITYCALL_TYPE_CLIENT = 2,
+	ENTITYCALL_TYPE_CELL_VIA_BASE = 3,
+	ENTITYCALL_TYPE_BASE_VIA_CELL = 4,
+	ENTITYCALL_TYPE_CLIENT_VIA_CELL = 5,
+	ENTITYCALL_TYPE_CLIENT_VIA_BASE = 6,
+};
+
+/** Get the component type corresponding to the entity by the category of entityCall*/
+inline COMPONENT_TYPE entityCallType2ComponentType(ENTITYCALL_TYPE type)
+{
+	switch (type)
+	{
+	case ENTITYCALL_TYPE_CELL:
+		return CELLAPP_TYPE;
+	case ENTITYCALL_TYPE_BASE:
+		return BASEAPP_TYPE;
+	case ENTITYCALL_TYPE_CLIENT:
+		return CLIENT_TYPE;
+	case ENTITYCALL_TYPE_CELL_VIA_BASE:
+		return CELLAPP_TYPE;
+	case ENTITYCALL_TYPE_BASE_VIA_CELL:
+		return BASEAPP_TYPE;
+	case ENTITYCALL_TYPE_CLIENT_VIA_CELL:
+		return CLIENT_TYPE;
+	case ENTITYCALL_TYPE_CLIENT_VIA_BASE:
+		return CLIENT_TYPE;
+	default:
+		break;
+	};
+
+	return UNKNOWN_COMPONENT_TYPE;
+};
+
+/**The class of entityCall is changed to a string name. Strictly match the ENTITYCALL_TYPE index.*/
+const char ENTITYCALL_TYPE_TO_NAME_TABLE[][8] =
+{
+	"cell",
+	"base",
+	"client",
+	"cell",
+	"base",
+	"client",
+	"client",
+};
+
+/**The class of entityCall is changed to a string name. Strictly match the ENTITYCALL_TYPE index.*/
+const char ENTITYCALL_TYPE_TO_NAME_TABLE_EX[][14] =
+{
+	"cell",
+	"base",
+	"client",
+	"cellViaBase",
+	"baseViaCell",
+	"clientViaCell",
+	"clientViaBase",
+};
+
 /*
- APP set flag
+ ?APP set logo
 */
-// Default (not set flag)
+// default (not set)
 #define APP_FLAGS_NONE								0x00000000
 // Do not participate in load balancing
 #define APP_FLAGS_NOT_PARTCIPATING_LOAD_BALANCING	0x00000001
 
-// Create a map with the name given by the tag value, providing initialization python exposed to the script
+// Create a map that gets the name by tag value, providing initialization python exposed to the script
 inline std::map<uint32, std::string> createAppFlagsMaps()
 {
 	std::map<uint32, std::string> datas;
@@ -332,17 +358,17 @@ inline std::map<uint32, std::string> createAppFlagsMaps()
 	return datas;
 }
 
-// Whether the front end supports floating-point numbers
+// Does the front end support floating point numbers?
 // #define CLIENT_NO_FLOAT
 
-// The default border or minimum size of a cell
+// The default or minimum size of a cell
 #define CELL_DEF_MIN_AREA_SIZE						500.0f
 
-/** A chunk size of one space */
+/** A chunk size of a space*/
 #define SPACE_CHUNK_SIZE							100
 
 
-/** Check the validity of the user name */
+/** Check the legality of the username*/
 inline bool validName(const char* name, int size)
 {
 	if(size >= 256)
@@ -365,15 +391,15 @@ inline bool validName(const std::string& name)
 	return validName(name.c_str(), (int)name.size());
 }
 
-/** Check email address validity
-Use strict expressions with the following expressions
+/** Check email address legality
+For strict matching, please use the following expression
 [a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?
 */
 #ifdef USE_REGEX
 #include <regex>
 #endif
 
-inline bool email_isvalid(const char *address)
+inline bool email_isvalid(const char *address) 
 {
 #ifdef USE_REGEX
 	std::tr1::regex _mail_pattern("^[_a-z0-9-]+(\\.[_a-z0-9-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,4})$");
@@ -393,7 +419,7 @@ inline bool email_isvalid(const char *address)
 
 	/* first we validate the name portion (name@domain) */
 	for (c = address;  *c;  c++) {
-	if (*c == '\"' && (c == address || *(c - 1) == '.' || *(c - 1) ==
+	if (*c == '\"' && (c == address || *(c - 1) == '.' || *(c - 1) == 
 		'\"')) {
 	  while (*++c) {
 		if (*c == '\"') break;
@@ -409,7 +435,7 @@ inline bool email_isvalid(const char *address)
 	if (*c <= ' ' || *c >= 127) return false;
 	if (strchr(rfc822_specials, *c)) return false;
 	}
-	if (c == address || *(c - 1) == '.') return false;
+	if (c == address || *(c - 1) == '.' || *c == '\0') return false;
 
 	/* next we validate the domain portion (name@domain) */
 	if (!*(domain = ++c)) return false;
@@ -424,6 +450,9 @@ inline bool email_isvalid(const char *address)
 
 	return (count >= 1);
 }
+
+// Extension number of the component ID
+#define COMPONENT_ID_MULTIPLE	1000000000 
 
 }
 #endif // OURO_COMMON_H

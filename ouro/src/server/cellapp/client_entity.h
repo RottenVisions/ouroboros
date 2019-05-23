@@ -1,10 +1,10 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_CLIENT_ENTITY_H
 #define OURO_CLIENT_ENTITY_H
-
-// common include
+	
+// common include	
 #include "common/common.h"
 //#include "network/channel.h"
 #include "pyscript/scriptobject.h"
@@ -15,17 +15,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <iostream>
-#include <map>
-#include <vector>
-// windows include
+#include <iostream>	
+#include <map>	
+#include <vector>	
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
-#include <time.h>
+#include <time.h> 
 #else
 // linux include
 #include <errno.h>
 #endif
-
+	
 namespace Ouroboros{
 
 namespace Network
@@ -40,7 +40,7 @@ class PropertyDescription;
 
 class ClientEntityComponent : public script::ScriptObject
 {
-	/** Subclassing fills some py operations into derived classes */
+		/** Subclassing populates some py operations into derived classes*/
 	INSTANCE_SCRIPT_HREADER(ClientEntityComponent, ScriptObject)
 public:
 	ClientEntityComponent(PropertyDescription* pComponentPropertyDescription, ClientEntity* pClientEntity);
@@ -50,7 +50,7 @@ public:
 	ScriptDefModule* pComponentScriptDefModule();
 
 	/**
-		Script request get property or method
+		Script request to get property or method
 	*/
 	PyObject* onScriptGetAttribute(PyObject* attr);
 
@@ -70,24 +70,24 @@ protected:
 
 class ClientEntity : public script::ScriptObject
 {
-	/** Subclassing fills some py operations into derived classes */
+		/** Subclassing populates some py operations into derived classes*/
 	INSTANCE_SCRIPT_HREADER(ClientEntity, ScriptObject)
 public:
 	ClientEntity(ENTITY_ID srcEntityID, ENTITY_ID clientEntityID);
-
+	
 	~ClientEntity();
-
-	/**
-		Script request get property or method
+	
+	/** 
+		Script request to get property or method
 	*/
-	PyObject* onScriptGetAttribute(PyObject* attr);
-
-	/**
-		Get the description of the object 
+	PyObject* onScriptGetAttribute(PyObject* attr);						
+			
+	/** 
+		Get the description of the object
 	*/
 	PyObject* tp_repr();
 	PyObject* tp_str();
-
+	
 	void c_str(char* s, size_t size);
 
 	ENTITY_ID srcEntityID() const {

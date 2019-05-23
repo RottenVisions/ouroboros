@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_TASK_H
 #define OURO_TASK_H
@@ -9,7 +9,7 @@ namespace Ouroboros
 {
 
 /**
- *	Abstract one task
+ ?* Abstract a task
  */
 class Task
 {

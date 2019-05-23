@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_CONSOLE_HELPER_H
@@ -13,43 +13,43 @@
 
 namespace Ouroboros{
 namespace ConsoleInterface {
-
-	class ConsoleExecCommandCBMessageHandlerArgs1 : public Network::MessageArgs
-	{
+	
+	class ConsoleExecCommandCBMessageHandlerArgs1 : public Network::MessageArgs	
+	{	
 	public:
 		std::string strarg;
 	public:
-		ConsoleExecCommandCBMessageHandlerArgs1():Network::MessageArgs(){}
-		ConsoleExecCommandCBMessageHandlerArgs1(std::string init_strarg):
+		ConsoleExecCommandCBMessageHandlerArgs1():Network::MessageArgs(){}	
+		ConsoleExecCommandCBMessageHandlerArgs1(std::string init_strarg):				
 		Network::MessageArgs(),
-		strarg(init_strarg)
+		strarg(init_strarg)				
 		{}
-		~ConsoleExecCommandCBMessageHandlerArgs1(){}
-
-		static void staticAddToBundle(Network::Bundle& s,
-			std::string init_strarg)
+		~ConsoleExecCommandCBMessageHandlerArgs1(){}	
+		
+		static void staticAddToBundle(Network::Bundle& s,			
+			std::string init_strarg)			
 		{
-			s.appendBlob(init_strarg);
+			s.appendBlob(init_strarg);		
 		}
-		static void staticAddToStream(MemoryStream& s,
-			std::string init_strarg)
+		static void staticAddToStream(MemoryStream& s,			
+			std::string init_strarg)			
 		{
-			s.appendBlob(init_strarg);
+			s.appendBlob(init_strarg);			
 		}
-		virtual int32 dataSize(void)
+		virtual int32 dataSize(void)				
 		{
-			return NETWORK_VARIABLE_MESSAGE;
+			return NETWORK_VARIABLE_MESSAGE;			
 		}
 		virtual void addToStream(MemoryStream& s)
 		{
-			s.appendBlob(strarg);
+			s.appendBlob(strarg);	
 		}
-		virtual void createFromStream(MemoryStream& s)
+		virtual void createFromStream(MemoryStream& s)				
 		{
-			s.readBlob(strarg);
+			s.readBlob(strarg);	
 		}
-	};
-
+	};	
+				
 	class ConsoleExecCommandCBMessageHandler : public Network::MessageHandler
 	{
 	public:
@@ -68,8 +68,8 @@ namespace ConsoleInterface {
 		}
 
 		virtual int32 msglenMax()
-		{
-			return NETWORK_MESSAGE_MAX_SIZE * 1000;
+		{ 
+			return NETWORK_MESSAGE_MAX_SIZE * 1000; 
 		}
 
 		virtual void handle(Network::Channel* pChannel, MemoryStream& s)
@@ -78,36 +78,36 @@ namespace ConsoleInterface {
 	};
 
 
-	class ConsoleLogMessageHandlerArgsStream : public Network::MessageArgs
-	{
+	class ConsoleLogMessageHandlerArgsStream : public Network::MessageArgs	
+	{				
 	public:
-		ConsoleLogMessageHandlerArgsStream():Network::MessageArgs(){}
-		~ConsoleLogMessageHandlerArgsStream(){}
-
-		virtual int32 dataSize(void)
+		ConsoleLogMessageHandlerArgsStream():Network::MessageArgs(){}				
+		~ConsoleLogMessageHandlerArgsStream(){}	
+	
+		virtual int32 dataSize(void)				
 		{
-			return NETWORK_VARIABLE_MESSAGE;
-		}
+			return NETWORK_VARIABLE_MESSAGE;			
+		}		
 
-		virtual MessageArgs::MESSAGE_ARGS_TYPE type(void)
-		{
-			return MESSAGE_ARGS_TYPE_VARIABLE;
-		}
+		virtual MessageArgs::MESSAGE_ARGS_TYPE type(void)		
+		{														
+			return MESSAGE_ARGS_TYPE_VARIABLE;					
+		}												
 
 		virtual int32 msglenMax()
-		{
-			return NETWORK_MESSAGE_MAX_SIZE * 1000;
+		{ 
+			return NETWORK_MESSAGE_MAX_SIZE * 1000; 
 		}
 
 		virtual void addToStream(MemoryStream& s)
 		{
-		}
+		}			
 
-		virtual void createFromStream(MemoryStream& s)
-		{
-		}
-	};
-
+		virtual void createFromStream(MemoryStream& s)				
+		{	
+		}	
+	};	
+				
 	class ConsoleLogMessageHandler : public Network::MessageHandler
 	{
 	public:
@@ -129,37 +129,37 @@ namespace ConsoleInterface {
 		{
 		};
 	};
-
-	class ConsoleWatcherCBHandlerMessageArgsStream : public Network::MessageArgs
-	{
+	
+	class ConsoleWatcherCBHandlerMessageArgsStream : public Network::MessageArgs	
+	{				
 	public:
-		ConsoleWatcherCBHandlerMessageArgsStream():Network::MessageArgs(){}
-		~ConsoleWatcherCBHandlerMessageArgsStream(){}
-
-		virtual int32 dataSize(void)
+		ConsoleWatcherCBHandlerMessageArgsStream():Network::MessageArgs(){}				
+		~ConsoleWatcherCBHandlerMessageArgsStream(){}	
+	
+		virtual int32 dataSize(void)				
 		{
-			return NETWORK_VARIABLE_MESSAGE;
-		}
+			return NETWORK_VARIABLE_MESSAGE;			
+		}		
 
-		virtual MessageArgs::MESSAGE_ARGS_TYPE type(void)
-		{
-			return MESSAGE_ARGS_TYPE_VARIABLE;
-		}
+		virtual MessageArgs::MESSAGE_ARGS_TYPE type(void)		
+		{														
+			return MESSAGE_ARGS_TYPE_VARIABLE;					
+		}													
 
 		virtual int32 msglenMax()
-		{
-			return NETWORK_MESSAGE_MAX_SIZE * 1000;
+		{ 
+			return NETWORK_MESSAGE_MAX_SIZE * 1000; 
 		}
 
 		virtual void addToStream(MemoryStream& s)
 		{
-		}
+		}			
 
-		virtual void createFromStream(MemoryStream& s)
-		{
-		}
-	};
-
+		virtual void createFromStream(MemoryStream& s)				
+		{	
+		}	
+	};	
+				
 	class ConsoleWatcherCBMessageHandler : public Network::MessageHandler
 	{
 	public:
@@ -182,36 +182,36 @@ namespace ConsoleInterface {
 		};
 	};
 
-	class ConsoleProfileHandlerArgsStream : public Network::MessageArgs
-	{
+	class ConsoleProfileHandlerArgsStream : public Network::MessageArgs	
+	{				
 	public:
-		ConsoleProfileHandlerArgsStream():Network::MessageArgs(){}
-		~ConsoleProfileHandlerArgsStream(){}
-
-		virtual int32 dataSize(void)
+		ConsoleProfileHandlerArgsStream():Network::MessageArgs(){}				
+		~ConsoleProfileHandlerArgsStream(){}	
+	
+		virtual int32 dataSize(void)				
 		{
-			return NETWORK_VARIABLE_MESSAGE;
-		}
+			return NETWORK_VARIABLE_MESSAGE;			
+		}		
 
-		virtual MessageArgs::MESSAGE_ARGS_TYPE type(void)
-		{
-			return MESSAGE_ARGS_TYPE_VARIABLE;
-		}
+		virtual MessageArgs::MESSAGE_ARGS_TYPE type(void)		
+		{														
+			return MESSAGE_ARGS_TYPE_VARIABLE;					
+		}												
 
 		virtual int32 msglenMax()
-		{
-			return NETWORK_MESSAGE_MAX_SIZE * 1000;
+		{ 
+			return NETWORK_MESSAGE_MAX_SIZE * 1000; 
 		}
 
 		virtual void addToStream(MemoryStream& s)
 		{
-		}
+		}			
 
-		virtual void createFromStream(MemoryStream& s)
-		{
-		}
-	};
-
+		virtual void createFromStream(MemoryStream& s)				
+		{	
+		}	
+	};	
+				
 	class ConsoleProfileHandler : public Network::MessageHandler
 	{
 	public:

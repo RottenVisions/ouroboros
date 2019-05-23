@@ -7,8 +7,8 @@ import sys
 
 class ExcelTool:
 	"""
-	简单的封装excel各种操作
-	系统要求， windows系统， 安装python2.6以及pywin32-214.win32-py2.6.exe, 以及ms office
+	Simple package excel various operations
+	System requirements, windows system, install python2.6 and pywin32-214.win32-py2.6.exe, and ms office
 	"""
 	def __init__(self, fileName):
 		#try:
@@ -24,13 +24,13 @@ class ExcelTool:
 
 	def getWorkbook(self, forcedClose = False):
 		"""
-		如果Workbook已经打开需要先关闭后打开
-		forcedClose：是否强制关闭，后打开该Workbook
+		If the Workbook is already open, you need to close it and open it.
+		forcedClose: Whether to force the shutdown, then open the Workbook
 		"""
 		try:
 			wn  = len(self.__xapp.Workbooks)
 		except:
-			print('程序异常退出，这可能是你打开编辑了"某文件"而没有保存该文件造成的，请保存该文件')
+			Print('The program exits abnormally. This may be caused by you opening the edited "file" without saving the file. Please save the file')
 			sys.exit(1)
 
 		for x in range(0, wn):
@@ -41,7 +41,7 @@ class ExcelTool:
 					Workbook.Close(SaveChanges = False)
 				return False
 
-		self.__xlsx = self.__xapp.Workbooks.Open(self.fileName)			#打开文件
+		Self.__xlsx = self.__xapp.Workbooks.Open(self.fileName) #Open the file
 		return True
 
 	def getXApp(self):
@@ -52,7 +52,7 @@ class ExcelTool:
 
 	def close(self, saveChanges = False):
 		"""
-		关闭excel应用
+		Close the excel app
 		"""
 		if self.__xapp:
 			self.__xlsx.Close(SaveChanges = saveChanges)
@@ -63,19 +63,19 @@ class ExcelTool:
 
 	def getSheetCount(self):
 		"""
-		获得工作表个数
+		Get the number of worksheets
 		"""
 		return self.__xlsx.Sheets.Count
 
 	def getSheetNameByIndex(self, index):
 		"""
-		获得excel上指定索引位置上的表名称
+		Get the table name on the specified index location on excel
 		"""
 		return self.getSheetByIndex(index).Name
 
 	def getSheetByIndex(self, index):
 		"""
-		获得excel上指定索引位置上的表
+		Get the table on the specified index position on excel
 		"""
 		if index in range(1, len(self.__xlsx.Sheets)+1):
 			return self.__xlsx.Sheets(index)
@@ -85,54 +85,54 @@ class ExcelTool:
 
 	def getRowCount(self, sheetIndex):
 		"""
-		获得一排有多少元素
+		How many elements are in a row?
 		"""
 		return self.getSheetByIndex(sheetIndex).Cells(1).CurrentRegion.Columns.Count
 
 	def getColCount(self, sheetIndex):
 		"""
-		获得一列有多少元素
+		Get a list of how many elements
 		"""
 		return self.getSheetByIndex(sheetIndex).Cells(1).CurrentRegion.Rows.Count
 
 	def getValue(self, sheet, row, col):
 		"""
-		获得某个工作表的某个位置上的值
+		Get the value at a location on a worksheet
 		"""
 		return sheet.Cells(row, col).Value
 
 	def getText(self, sheet, row, col):
 		"""
-		获得某个工作表的某个位置上的值
+		Get the value at a location on a worksheet
 		"""
 		return sheet.Cells(row, col).Text
 
 	def getRowValues(self, sheet, row):
 		"""
-		整排
+		Whole row
 		"""
 		return sheet.Cells(1).CurrentRegion.Rows[row].Value[0]
 
 	def getSheetRowIters(self, sheet, row):
 		"""
-		行迭代器
+		Row iterator
 		"""
 		return sheet.Cells(1).CurrentRegion.Rows
 
 	def getSheetColIters(self, sheet, col):
 		"""
-		列迭代器
+		Column iterator
 		"""
 		return sheet.Cells(1).CurrentRegion.Columns
 
 	def getColValues(self, sheet, col):
 		"""
-		整列
+				Alignment
 		"""
 		return sheet.Cells(1).CurrentRegion.Columns[col].Value
 
 #---------------------------------------------------------------------
-#   使用例子
+#使用example
 #---------------------------------------------------------------------
 def main():
 	xbook = ExcelTool("d:\\test1.xlsx")

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "cellapp.h"
 #include "witness.h"
@@ -94,14 +94,10 @@ PyObject* ClientEntityComponent::onScriptGetAttribute(PyObject* attr)
 		return 0;
 	}
 
-	wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(attr, NULL);
-	char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-	PyMem_Free(PyUnicode_AsWideCharStringRet0);
+	const char* ccattr = PyUnicode_AsUTF8AndSize(attr, NULL);
 
 	ScriptDefModule* pScriptDefModule = pComponentScriptDefModule();
 	MethodDescription* pMethodDescription = pScriptDefModule->findClientMethodDescription(ccattr);
-
-	free(ccattr);
 
 	if (pMethodDescription != NULL)
 	{
@@ -140,7 +136,7 @@ SCRIPT_MEMBER_DECLARE_END()
 
 SCRIPT_GETSET_DECLARE_BEGIN(ClientEntity)
 SCRIPT_GETSET_DECLARE_END()
-SCRIPT_INIT(ClientEntity, 0, 0, 0, 0, 0)
+SCRIPT_INIT(ClientEntity, 0, 0, 0, 0, 0)		
 
 //-------------------------------------------------------------------------------------
 ClientEntity::ClientEntity(ENTITY_ID srcEntityID,
@@ -163,24 +159,24 @@ PyObject* ClientEntity::onScriptGetAttribute(PyObject* attr)
 
 	if(srcEntity == NULL)
 	{
-		PyErr_Format(PyExc_AssertionError, "Entity::clientEntity: srcEntityID(%d) not found!\n",
-			 srcEntityID_);
+		PyErr_Format(PyExc_AssertionError, "Entity::clientEntity: srcEntityID(%d) not found!\n",		
+			 srcEntityID_);		
 		PyErr_PrintEx(0);
 		return 0;
 	}
 
 	if(srcEntity->isDestroyed())
 	{
-		PyErr_Format(PyExc_AssertionError, "Entity::clientEntity: srcEntityID(%d) is destroyed!\n",
-			srcEntityID_);
+		PyErr_Format(PyExc_AssertionError, "Entity::clientEntity: srcEntityID(%d) is destroyed!\n",		
+			srcEntityID_);		
 		PyErr_PrintEx(0);
 		return 0;
 	}
 
 	if(srcEntity->pWitness() == NULL)
 	{
-		PyErr_Format(PyExc_AssertionError, "%s::clientEntity: no client, srcEntityID(%d).\n",
-			srcEntity->scriptName(), srcEntity->id());
+		PyErr_Format(PyExc_AssertionError, "%s::clientEntity: no client, srcEntityID(%d).\n",		
+			srcEntity->scriptName(), srcEntity->id());		
 		PyErr_PrintEx(0);
 		return 0;
 	}
@@ -191,35 +187,30 @@ PyObject* ClientEntity::onScriptGetAttribute(PyObject* attr)
 
 	if(e == NULL)
 	{
-		PyErr_Format(PyExc_AssertionError, "%s::clientEntity: not found entity(%d), srcEntityID(%d).\n",
-			srcEntity->scriptName(), clientEntityID_, srcEntity->id());
+		PyErr_Format(PyExc_AssertionError, "%s::clientEntity: not found entity(%d), srcEntityID(%d).\n",		
+			srcEntity->scriptName(), clientEntityID_, srcEntity->id());		
 		PyErr_PrintEx(0);
 		return 0;
 	}
 
-	wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(attr, NULL);
-	char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-	PyMem_Free(PyUnicode_AsWideCharStringRet0);
+	const char* ccattr = PyUnicode_AsUTF8AndSize(attr, NULL);
 
 	MethodDescription* pMethodDescription = const_cast<ScriptDefModule*>(e->pScriptModule())->findClientMethodDescription(ccattr);
 
 	if(pMethodDescription != NULL)
 	{
-		free(ccattr);
 		return new ClientEntityMethod(NULL, e->pScriptModule(), pMethodDescription, srcEntityID_, clientEntityID_);
 	}
 	else
 	{
-		// Is it a component method call
+		// Is it a component method call?
 		PropertyDescription* pComponentPropertyDescription = const_cast<ScriptDefModule*>(e->pScriptModule())->findComponentPropertyDescription(ccattr);
 		if (pComponentPropertyDescription)
 		{
-			free(ccattr);
 			return new ClientEntityComponent(pComponentPropertyDescription, this);
 		}
 	}
 
-	free(ccattr);
 	return ScriptObject::onScriptGetAttribute(attr);
 }
 
@@ -247,3 +238,4 @@ PyObject* ClientEntity::tp_str()
 //-------------------------------------------------------------------------------------
 
 }
+

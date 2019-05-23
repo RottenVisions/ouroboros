@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #if defined(DEFINE_IN_INTERFACE)
@@ -9,18 +9,18 @@
 #ifndef OURO_MACHINE_INTERFACE_MACRO_H
 #define OURO_MACHINE_INTERFACE_MACRO_H
 
-// common include
+// common include	
 #include "network/interface_defs.h"
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
 #endif
-
+	
 namespace Ouroboros{
 
 /**
-	Machine message macro, parameter is stream, need to unlock
+	Machine message macro, the parameter is stream, you need to unlock it yourself.
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_STREAM
@@ -41,7 +41,7 @@ namespace Ouroboros{
 													Ouroboros::MemoryStream& s)	\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_STREAM(NAME)									\
@@ -82,7 +82,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS0(NAME)										\
@@ -103,7 +103,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, only one parameter message
+	Machine message macro, message with only one parameter
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS1
@@ -126,7 +126,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS1(NAME, ARG_TYPE1, ARG_NAME1)				\
@@ -146,7 +146,7 @@ namespace Ouroboros{
 																				\
 
 /**
-	Machine message macro, only two parameters message
+	Machine message macro, message with only two parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS2
@@ -174,7 +174,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS2(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -231,7 +231,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS3(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -296,7 +296,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS4(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -327,7 +327,7 @@ namespace Ouroboros{
 											ARG_TYPE4, ARG_NAME4)				\
 
 /**
-	Machine message macro, only five parameters of the message
+	Machine message macro, message with only five parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS5
@@ -368,7 +368,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS5(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -404,7 +404,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, only six parameters of the message
+	Machine message macro, message with only six parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS6
@@ -449,7 +449,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS6(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -489,7 +489,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, only seven parameters of the message
+	Machine message macro, message with only seven parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS7
@@ -539,7 +539,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS7(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -584,7 +584,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, only eight parameters of the message
+	Machine message macro, message with only eight parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS8
@@ -638,7 +638,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS8(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -686,7 +686,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, only nine parameters of the message
+	Machine message macro, message with only nine parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS9
@@ -744,7 +744,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS9(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -796,7 +796,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, only ten arguments message
+	Machine message macro, message with only ten parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS10
@@ -859,7 +859,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS10(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -915,7 +915,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, only eleven parameters message
+	Machine message macro, message with only one parameter
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS11
@@ -982,7 +982,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS11(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -1042,7 +1042,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, only fifteen parameter messages
+	Machine message macro, message with only fifteen parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS15
@@ -1126,7 +1126,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS15(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -1202,7 +1202,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, only 16 parameter messages
+	Machine message macro, message with only 16 parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS16
@@ -1291,7 +1291,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS16(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -1371,7 +1371,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, only eighteen parameters message
+	Machine message macro, message with only eighteen parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS18
@@ -1468,7 +1468,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS18(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -1556,7 +1556,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, with only 20 parameter messages
+	Machine message macro, message with only twenty parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS20
@@ -1662,7 +1662,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS20(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -1758,7 +1758,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, only twenty-one parameter message
+	Machine message macro, message with only twenty one parameter
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS21
@@ -1868,7 +1868,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS21(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -1969,7 +1969,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, with only twenty-two parameter messages
+	Machine message macro, only twenty-two parameter messages
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS22
@@ -2084,7 +2084,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS22(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -2189,7 +2189,7 @@ namespace Ouroboros{
 
 
 /**
-	Machine message macro, with only twenty-four parameter messages
+	Machine message macro, message with only twenty four parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef MACHINE_MESSAGE_HANDLER_ARGS24
@@ -2312,7 +2312,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define MACHINE_MESSAGE_HANDLER_ARGS24(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -2425,7 +2425,7 @@ namespace Ouroboros{
 
 
 /**
-Machine message macro, only twenty-five parameter message
+Machine message macro, message with only twenty-five parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 #undef MACHINE_MESSAGE_HANDLER_ARGS25

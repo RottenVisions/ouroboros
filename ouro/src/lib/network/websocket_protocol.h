@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_WEBSOCKET_PROTOCOL_H
 #define OURO_WEBSOCKET_PROTOCOL_H
@@ -24,9 +24,9 @@ namespace websocket{
 class WebSocketProtocol
 {
 public:
-	enum FrameType
+	enum FrameType 
 	{
-		// Next frame and end
+		// next frame and end
 		NEXT_FRAME = 0x0,
 		END_FRAME = 0x80,
 
@@ -36,26 +36,27 @@ public:
 		OPENING_FRAME = 0x3300,
 		CLOSING_FRAME = 0x3400,
 
-		// Unfinished frames
+		// unfinished frame
 		INCOMPLETE_TEXT_FRAME = 0x01,
 		INCOMPLETE_BINARY_FRAME = 0x02,
 
-		// Text frames and binary frames
+		// text frame and binary frame END_FRAME + *_FRAME
 		TEXT_FRAME = 0x81,
 		BINARY_FRAME = 0x82,
 
-		PING_FRAME = 0x19,
-		PONG_FRAME = 0x1A,
+		// END_FRAME + *_FRAME
+		PING_FRAME = 0x89,
+		PONG_FRAME = 0x8A,
 
-		// Close the connection
+		// close the connection
 		CLOSE_FRAME = 0x08
 	};
 
 	/**
-		Is it websocket protocol
+		Is it a websocket protocol?
 	*/
 	static bool isWebSocketProtocol(MemoryStream* s);
-
+	
 	/**
 		Websocket protocol handshake
 	*/
@@ -65,10 +66,13 @@ public:
 		Frame parsing related
 	*/
 	static int makeFrame(FrameType frame_type, Packet* pInPacket, Packet* pOutPacket);
-	static int getFrame(Packet* pPacket, uint8& msg_opcode, uint8& msg_fin, uint8& msg_masked, uint32& msg_mask,
+	static int getFrame(Packet* pPacket, uint8& msg_opcode, uint8& msg_fin, uint8& msg_masked, uint32& msg_mask, 
 		int32& msg_length_field, uint64& msg_payload_length, FrameType& frameType);
 
 	static bool decodingDatas(Packet* pPacket, uint8 msg_masked, uint32 msg_mask);
+
+	static std::string getFrameTypeName(FrameType frame_type);
+
 };
 
 }
@@ -76,3 +80,4 @@ public:
 }
 
 #endif // OURO_WEBSOCKET_PROTOCOL_H
+

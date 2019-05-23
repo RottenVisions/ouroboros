@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "baseapp.h"
@@ -16,6 +16,7 @@
 #include "sync_entitystreamtemplate_handler.h"
 #include "common/timestamp.h"
 #include "common/ouroversion.h"
+#include "common/sha1.h"
 #include "network/common.h"
 #include "network/tcp_packet.h"
 #include "network/udp_packet.h"
@@ -37,11 +38,11 @@
 #include "../../server/loginapp/loginapp_interface.h"
 
 namespace Ouroboros{
-
+	
 ServerConfig g_serverConfig;
 OURO_SINGLETON_INIT(Baseapp);
 
-// Create a dictionary for generating entities that contains all of the entity's persistent attributes and data
+// Create a dictionary for generating entities that contains all persistent properties and data for the entity
 PyObject* createDictDataFromPersistentStream(MemoryStream& s, const char* entityType)
 {
 	PyObject* pyDict = PyDict_New();
@@ -55,7 +56,7 @@ PyObject* createDictDataFromPersistentStream(MemoryStream& s, const char* entity
 		return pyDict;
 	}
 
-	// First remove the storage attributes from celldata
+	// First take the storage properties in celldata
 	ScriptDefModule::PROPERTYDESCRIPTION_MAP& propertyDescrs = pScriptModule->getPersistentPropertyDescriptions();
 	ScriptDefModule::PROPERTYDESCRIPTION_MAP::const_iterator iter = propertyDescrs.begin();
 
@@ -69,16 +70,20 @@ PyObject* createDictDataFromPersistentStream(MemoryStream& s, const char* entity
 
 			if (propertyDescription->getDataType()->type() == DATA_TYPE_ENTITY_COMPONENT)
 			{
-				// If an entity does not have a cell part, and the component attribute does not have a base part, it is ignored
+				// If an entity has no cell part and the component attribute has no base part, it is ignored
 				if (!pScriptModule->hasCell())
 				{
 					if (!propertyDescription->hasBase())
 						continue;
 				}
 
-				bool hasComponentData = false;
 				EntityComponentType* pEntityComponentType = ((EntityComponentType*)propertyDescription->getDataType());
 
+				// Consistent with dbmgr, if there is no persistent attribute dbmgr will not transfer data.
+				if (pEntityComponentType->pScriptDefModule()->getPersistentPropertyDescriptions().size() == 0)
+					continue;
+
+				bool hasComponentData = false;
 				s >> hasComponentData;
 
 				if (hasComponentData)
@@ -213,8 +218,8 @@ PyObject* createDictDataFromPersistentStream(MemoryStream& s, const char* entity
 }
 
 //-------------------------------------------------------------------------------------
-Baseapp::Baseapp(Network::EventDispatcher& dispatcher,
-			 Network::NetworkInterface& ninterface,
+Baseapp::Baseapp(Network::EventDispatcher& dispatcher, 
+			 Network::NetworkInterface& ninterface, 
 			 COMPONENT_TYPE componentType,
 			 COMPONENT_ID componentID):
 	EntityApp<Entity>(dispatcher, ninterface, componentType, componentID),
@@ -243,15 +248,30 @@ Baseapp::Baseapp(Network::EventDispatcher& dispatcher,
 //-------------------------------------------------------------------------------------
 Baseapp::~Baseapp()
 {
-	// No need to actively release
+	// no need to actively release
 	pInitProgressHandler_ = NULL;
 
 	EntityCallAbstract::resetCallHooks();
 }
 
-//-------------------------------------------------------------------------------------
-bool Baseapp::canShutdown()
+//-------------------------------------------------------------------------------------	
+ShutdownHandler::CAN_SHUTDOWN_STATE Baseapp::canShutdown()
 {
+	Components::COMPONENTS& cellapp_components = Components::getSingleton().getComponents(CELLAPP_TYPE);
+	if (cellapp_components.size() > 0)
+	{
+		std::string s;
+		for (size_t i = 0; i < cellapp_components.size(); ++i)
+		{
+			s += fmt::format("{}, ", cellapp_components[i].cid);
+		}
+
+		INFO_MSG(fmt::format("Baseapp::canShutdown(): Waiting for cellapp[{}] destruction!\n",
+			s));
+
+		return ShutdownHandler::CAN_SHUTDOWN_STATE_FALSE;
+	}
+
 	if (getEntryScript().get() && PyObject_HasAttrString(getEntryScript().get(), "onReadyForShutDown") > 0)
 	{
 		// All scripts are loaded
@@ -264,37 +284,20 @@ bool Baseapp::canShutdown()
 			bool isReady = (pyResult == Py_True);
 			Py_DECREF(pyResult);
 
-			if (isReady)
-				return true;
-			else
-				return false;
+			if (!isReady)
+				return ShutdownHandler::CAN_SHUTDOWN_STATE_USER_FALSE;
 		}
 		else
 		{
 			SCRIPT_ERROR_CHECK();
-			return false;
+			return ShutdownHandler::CAN_SHUTDOWN_STATE_USER_FALSE;
 		}
-	}
-
-	Components::COMPONENTS& cellapp_components = Components::getSingleton().getComponents(CELLAPP_TYPE);
-	if(cellapp_components.size() > 0)
-	{
-		std::string s;
-		for(size_t i=0; i<cellapp_components.size(); ++i)
-		{
-			s += fmt::format("{}, ", cellapp_components[i].cid);
-		}
-
-		INFO_MSG(fmt::format("Baseapp::canShutdown(): Waiting for cellapp[{}] destruction!\n",
-			s));
-
-		return false;
 	}
 
 	int count = 0;
-	Entities<Entity>::ENTITYS_MAP& entities =  this->pEntities()->getEntities();
+	Entities<Entity>::ENTITYS_MAP& entities = this->pEntities()->getEntities();
 	Entities<Entity>::ENTITYS_MAP::iterator iter = entities.begin();
-	for(; iter != entities.end(); ++iter)
+	for (; iter != entities.end(); ++iter)
 	{
 		//if(static_cast<Entity*>(iter->second.get())->hasDB())
 		{
@@ -302,41 +305,41 @@ bool Baseapp::canShutdown()
 		}
 	}
 
-	if(count > 0)
+	if (count > 0)
 	{
 		lastShutdownFailReason_ = "destroyHasDBBases";
 		INFO_MSG(fmt::format("Baseapp::canShutdown(): Wait for the entity's into the database! The remaining {}.\n",
 			count));
 
-		return false;
+		return ShutdownHandler::CAN_SHUTDOWN_STATE_FALSE;
 	}
 
-	return true;
+	return ShutdownHandler::CAN_SHUTDOWN_STATE_TRUE;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void Baseapp::onShutdownBegin()
 {
 	EntityApp<Entity>::onShutdownBegin();
 
-	// Notification script
+	// notification script
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-	SCRIPT_OBJECT_CALL_ARGS1(getEntryScript().get(), const_cast<char*>("onBaseAppShutDown"),
+	SCRIPT_OBJECT_CALL_ARGS1(getEntryScript().get(), const_cast<char*>("onBaseAppShutDown"), 
 		const_cast<char*>("i"), 0, false);
 
 	pRestoreEntityHandlers_.clear();
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void Baseapp::onShutdown(bool first)
 {
 	EntityApp<Entity>::onShutdown(first);
 
 	if(first)
 	{
-		// Notification script
+		// notification script
 		SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-		SCRIPT_OBJECT_CALL_ARGS1(getEntryScript().get(), const_cast<char*>("onBaseAppShutDown"),
+		SCRIPT_OBJECT_CALL_ARGS1(getEntryScript().get(), const_cast<char*>("onBaseAppShutDown"), 
 			const_cast<char*>("i"), 1, false);
 	}
 
@@ -349,11 +352,11 @@ void Baseapp::onShutdown(bool first)
 		while(count > 0 && entities.size() > 0)
 		{
 			std::vector<ENTITY_ID> vecs;
-
+			
 			Entities<Entity>::ENTITYS_MAP::iterator iter = entities.begin();
 			for(; iter != entities.end(); ++iter)
 			{
-				//if(static_cast<Entity*>(iter->second.get())->hasDB() &&
+				//if(static_cast<Entity*>(iter->second.get())->hasDB() && 
 				//	static_cast<Entity*>(iter->second.get())->cellEntityCall() == NULL)
 				{
 					vecs.push_back(static_cast<Entity*>(iter->second.get())->id());
@@ -369,25 +372,25 @@ void Baseapp::onShutdown(bool first)
 				Entity* e = this->findEntity((*iter1));
 				if(!e)
 					continue;
-
+				
 				this->destroyEntity((*iter1), true);
 			}
 		}
 	}
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void Baseapp::onShutdownEnd()
 {
 	EntityApp<Entity>::onShutdownEnd();
 
-	// Notification script
+	// notification script
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-	SCRIPT_OBJECT_CALL_ARGS1(getEntryScript().get(), const_cast<char*>("onBaseAppShutDown"),
+	SCRIPT_OBJECT_CALL_ARGS1(getEntryScript().get(), const_cast<char*>("onBaseAppShutDown"), 
 		const_cast<char*>("i"), 2, false);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool Baseapp::initializeWatcher()
 {
 	ProfileVal::setWarningPeriod(stampsPerSecond() / g_ouroSrvConfig.gameUpdateHertz());
@@ -412,7 +415,7 @@ bool Baseapp::installPyModules()
 	registerScript(Proxy::getScriptType());
 	registerScript(EntityComponent::getScriptType());
 
-	// Register app tags to scripts
+	// register the app tag to the script
 	std::map<uint32, std::string> flagsmaps = createAppFlagsMaps();
 	std::map<uint32, std::string>::iterator fiter = flagsmaps.begin();
 	for (; fiter != flagsmaps.end(); ++fiter)
@@ -423,7 +426,7 @@ bool Baseapp::installPyModules()
 		}
 	}
 
-	// Register the method to create the entity to py
+	// Register to create an entity method to py
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),		time,							__py_gametime,												METH_VARARGS,			0);
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),		createEntity,					__py_createEntity,											METH_VARARGS,			0);
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),		createEntityLocally,			__py_createEntity,											METH_VARARGS,			0);
@@ -446,14 +449,14 @@ bool Baseapp::installPyModules()
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),		lookUpEntityByDBID,				__py_lookUpEntityByDBID,									METH_VARARGS,			0);
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(), 		setAppFlags,					__py_setFlags,												METH_VARARGS,			0);
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(), 		getAppFlags,					__py_getFlags,												METH_VARARGS,			0);
-
+		
 	return EntityApp<Entity>::installPyModules();
 }
 
 //-------------------------------------------------------------------------------------
 void Baseapp::onInstallPyModules()
 {
-	// Add globalData, globalBases support
+	// add globalData, globalBases support
 	pBaseAppData_ = new GlobalDataClient(DBMGR_TYPE, GlobalDataServer::BASEAPP_DATA);
 	registerPyObjectToScript("baseAppData", pBaseAppData_);
 
@@ -475,7 +478,7 @@ void Baseapp::onInstallPyModules()
 
 //-------------------------------------------------------------------------------------
 bool Baseapp::uninstallPyModules()
-{
+{	
 	if(g_ouroSrvConfig.getBaseApp().profiles.open_pyprofile)
 	{
 		script::PyProfile::stop("ouroboros");
@@ -487,7 +490,7 @@ bool Baseapp::uninstallPyModules()
 	}
 
 	unregisterPyObjectToScript("baseAppData");
-	S_RELEASE(pBaseAppData_);
+	S_RELEASE(pBaseAppData_); 
 
 	Entity::uninstallScript();
 	Proxy::uninstallScript();
@@ -515,9 +518,9 @@ void Baseapp::onUpdateLoad()
 	Network::Channel* pChannel = Components::getSingleton().getBaseappmgrChannel();
 	if(pChannel != NULL)
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(BaseappmgrInterface::updateBaseapp);
-		BaseappmgrInterface::updateBaseappArgs5::staticAddToBundle((*pBundle),
+		BaseappmgrInterface::updateBaseappArgs5::staticAddToBundle((*pBundle), 
 			componentID_, (ENTITY_ID)(pEntities_->getEntities().size() - numProxices()), (ENTITY_ID)numProxices(), getLoad(), flags_);
 
 		pChannel->send(pBundle);
@@ -556,7 +559,7 @@ void Baseapp::handleGameTick()
 {
 	AUTO_SCOPED_PROFILE("gameTick");
 
-	// Must be at the front
+	// must be at the forefront
 	updateLoad();
 
 	EntityApp<Entity>::handleGameTick();
@@ -580,6 +583,25 @@ void Baseapp::handleArchive()
 }
 
 //-------------------------------------------------------------------------------------
+bool Baseapp::initialize()
+{
+	if (!EntityApp<Entity>::initialize())
+		return false;
+
+	ScriptDefModule* pModule = EntityDef::findScriptModule(g_ouroSrvConfig.getDBMgr().dbAccountEntityScriptType);
+
+	if (!PyType_IsSubtype(pModule->getScriptType(), Proxy::getScriptType()))
+	{
+		ERROR_MSG(fmt::format("Baseapp::initialize: ouroboros[_defs].xml->dbmgr->account_system->AccountEntityScriptType({}), entity must be inherited from Ouroboros.Proxy!\n",
+			g_ouroSrvConfig.getDBMgr().dbAccountEntityScriptType));
+
+		return false;
+	}
+
+	return true;
+}
+
+//-------------------------------------------------------------------------------------
 bool Baseapp::initializeBegin()
 {
 	return true;
@@ -597,7 +619,7 @@ bool Baseapp::initializeEnd()
 		pResmgrTimerHandle_ = this->dispatcher().addTimer(int(Resmgr::respool_checktick * 1000000),
 			Resmgr::getSingletonPtr(), NULL);
 
-		INFO_MSG(fmt::format("Baseapp::initializeEnd: started resmgr tick({}s)!\n",
+		INFO_MSG(fmt::format("Baseapp::initializeEnd: started resmgr tick({}s)!\n", 
 			Resmgr::respool_checktick));
 	}
 
@@ -606,8 +628,8 @@ bool Baseapp::initializeEnd()
 
 	new SyncEntityStreamTemplateHandler(this->networkInterface());
 
-	// If you need pyprofile then install it here
-	// Unload and output results at the end
+	// Install here if you need pyprofile
+	// Unload and output the result at the end
 	if(g_ouroSrvConfig.getBaseApp().profiles.open_pyprofile)
 	{
 		script::PyProfile::start("ouroboros");
@@ -616,8 +638,8 @@ bool Baseapp::initializeEnd()
 	pTelnetServer_ = new TelnetServer(&this->dispatcher(), &this->networkInterface());
 	pTelnetServer_->pScript(&this->getScript());
 
-	bool ret = pTelnetServer_->start(g_ouroSrvConfig.getBaseApp().telnet_passwd,
-		g_ouroSrvConfig.getBaseApp().telnet_deflayer,
+	bool ret = pTelnetServer_->start(g_ouroSrvConfig.getBaseApp().telnet_passwd, 
+		g_ouroSrvConfig.getBaseApp().telnet_deflayer, 
 		g_ouroSrvConfig.getBaseApp().telnet_port);
 
 	Components::getSingleton().extraData4(pTelnetServer_->port());
@@ -652,12 +674,12 @@ void Baseapp::onCellAppDeath(Network::Channel * pChannel)
 {
 	if(pChannel && pChannel->isExternal())
 		return;
-
+	
 	if(shuttingdown_ != SHUTDOWN_STATE_STOP)
 	{
 		return;
 	}
-
+	
 	PyObject* pyarg = PyTuple_New(1);
 
 	PyObject* pyobj = PyTuple_New(2);
@@ -671,9 +693,9 @@ void Baseapp::onCellAppDeath(Network::Channel * pChannel)
 
 	{
 		SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-		PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
-											const_cast<char*>("onCellAppDeath"),
-											const_cast<char*>("O"),
+		PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(), 
+											const_cast<char*>("onCellAppDeath"), 
+											const_cast<char*>("O"), 
 											pyarg);
 
 		Py_DECREF(pyarg);
@@ -690,7 +712,7 @@ void Baseapp::onCellAppDeath(Network::Channel * pChannel)
 	while (iter != entitiesMap.end())
 	{
 		Entity* pEntity = static_cast<Entity*>(iter->second.get());
-
+		
 		EntityCall* cell = pEntity->cellEntityCall();
 		if(cell && cell->componentID() == pChannel->componentID())
 		{
@@ -704,7 +726,7 @@ void Baseapp::onCellAppDeath(Network::Channel * pChannel)
 		iter++;
 	}
 
-	pRestoreEntityHandlers_.push_back(OUROShared_ptr< RestoreEntityHandler >(pRestoreEntityHandler));
+	pRestoreEntityHandlers_.push_back(KBEShared_ptr< RestoreEntityHandler >(pRestoreEntityHandler));
 }
 
 //-------------------------------------------------------------------------------------
@@ -712,16 +734,16 @@ void Baseapp::onRequestRestoreCB(Network::Channel* pChannel, Ouroboros::MemorySt
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	COMPONENT_ID cid, source_cid;
 	bool canRestore = true;
 
 	s >> cid >> source_cid >> canRestore;
 
-	DEBUG_MSG(fmt::format("Baseapp::onRequestRestoreCB: cid={}, source_cid={}, canRestore={}, channel={}.\n",
+	DEBUG_MSG(fmt::format("Baseapp::onRequestRestoreCB: cid={}, source_cid={}, canRestore={}, channel={}.\n", 
 		cid, source_cid, canRestore, pChannel->c_str()));
 
-	std::vector< OUROShared_ptr< RestoreEntityHandler > >::iterator resiter = pRestoreEntityHandlers_.begin();
+	std::vector< KBEShared_ptr< RestoreEntityHandler > >::iterator resiter = pRestoreEntityHandlers_.begin();
 	for(; resiter != pRestoreEntityHandlers_.end(); ++resiter)
 	{
 		if((*resiter)->cellappID() == source_cid)
@@ -735,7 +757,7 @@ void Baseapp::onRequestRestoreCB(Network::Channel* pChannel, Ouroboros::MemorySt
 //-------------------------------------------------------------------------------------
 void Baseapp::onRestoreEntitiesOver(RestoreEntityHandler* pRestoreEntityHandler)
 {
-	std::vector< OUROShared_ptr< RestoreEntityHandler > >::iterator resiter = pRestoreEntityHandlers_.begin();
+	std::vector< KBEShared_ptr< RestoreEntityHandler > >::iterator resiter = pRestoreEntityHandlers_.begin();
 	for(; resiter != pRestoreEntityHandlers_.end(); ++resiter)
 	{
 		if((*resiter).get() == pRestoreEntityHandler)
@@ -751,7 +773,7 @@ void Baseapp::onRestoreSpaceCellFromOtherBaseapp(Network::Channel* pChannel, Our
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	COMPONENT_ID baseappID = 0, cellappID = 0;
 	SPACE_ID spaceID = 0;
 	ENTITY_ID spaceEntityID = 0;
@@ -764,7 +786,7 @@ void Baseapp::onRestoreSpaceCellFromOtherBaseapp(Network::Channel* pChannel, Our
 		"restoreEntityHandlers({4})\n",
 		baseappID, spaceID, spaceEntityID, destroyed, pRestoreEntityHandlers_.size(), cellappID));
 
-	std::vector< OUROShared_ptr< RestoreEntityHandler > >::iterator resiter = pRestoreEntityHandlers_.begin();
+	std::vector< KBEShared_ptr< RestoreEntityHandler > >::iterator resiter = pRestoreEntityHandlers_.begin();
 	for(; resiter != pRestoreEntityHandlers_.end(); ++resiter)
 	{
 		(*resiter)->onRestoreSpaceCellFromOtherBaseapp(baseappID, cellappID, spaceID, spaceEntityID, utype, destroyed);
@@ -790,8 +812,8 @@ void Baseapp::onChannelDeregister(Network::Channel * pChannel)
 	}
 
 	EntityApp<Entity>::onChannelDeregister(pChannel);
-
-	// Clients with associated entities need to set the entity client
+	
+	// If the client with the associated entity exits, you need to set the client for the entity.
 	if(pid > 0)
 	{
 		Proxy* proxy = static_cast<Proxy*>(this->findEntity(pid));
@@ -803,7 +825,7 @@ void Baseapp::onChannelDeregister(Network::Channel * pChannel)
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::onGetEntityAppFromDbmgr(Network::Channel* pChannel, int32 uid, std::string& username,
+void Baseapp::onGetEntityAppFromDbmgr(Network::Channel* pChannel, int32 uid, std::string& username, 
 						COMPONENT_TYPE componentType, COMPONENT_ID componentID, COMPONENT_ORDER globalorderID, COMPONENT_ORDER grouporderID,
 						uint32 intaddr, uint16 intport, uint32 extaddr, uint16 extport, std::string& extaddrEx)
 {
@@ -819,19 +841,19 @@ void Baseapp::onGetEntityAppFromDbmgr(Network::Channel* pChannel, int32 uid, std
 		{
 			ERROR_MSG(fmt::format("Baseapp::onGetEntityAppFromDbmgr: Illegal app(uid:{0}, username:{1}, componentType:{2}, "
 					"componentID:{3}, globalorderID={9}, grouporderID={10}, intaddr:{4}, intport:{5}, extaddr:{6}, extport:{7},  from {8})\n",
-					uid,
+					uid, 
 					username,
-					COMPONENT_NAME_EX((COMPONENT_TYPE)componentType),
+					COMPONENT_NAME_EX((COMPONENT_TYPE)componentType), 
 					componentID,
 					inet_ntoa((struct in_addr&)intaddr),
 					ntohs(intport),
 					(extaddr != 0 ? inet_ntoa((struct in_addr&)extaddr) : "nonsupport"),
 					ntohs(extport),
 					pChannel->c_str(),
-					((int32)globalorderID),
+					((int32)globalorderID), 
 					((int32)grouporderID)));
 
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 			(*pBundle).newMessage(DbmgrInterface::reqKillServer);
 			(*pBundle) << g_componentID << g_componentType << Ouroboros::getUsername() << Ouroboros::getUserUID() << "Duplicate app-id.";
 			pChannel->send(pBundle);
@@ -843,24 +865,24 @@ void Baseapp::onGetEntityAppFromDbmgr(Network::Channel* pChannel, int32 uid, std
 
 	Ouroboros::COMPONENT_TYPE tcomponentType = (Ouroboros::COMPONENT_TYPE)componentType;
 	OURO_ASSERT(Components::getSingleton().getDbmgr() != NULL);
-
-	cinfos =
+	
+	cinfos = 
 		Components::getSingleton().findComponent(tcomponentType, uid, componentID);
 
 	if (cinfos == NULL)
 	{
 		ERROR_MSG(fmt::format("Baseapp::onGetEntityAppFromDbmgr: Illegal app(uid:{0}, username:{1}, componentType:{2}, "
 				"componentID:{3}, globalorderID={9}, grouporderID={10}, intaddr:{4}, intport:{5}, extaddr:{6}, extport:{7},  from {8})\n",
-				uid,
+				uid, 
 				username,
-				COMPONENT_NAME_EX((COMPONENT_TYPE)componentType),
+				COMPONENT_NAME_EX((COMPONENT_TYPE)componentType), 
 				componentID,
 				inet_ntoa((struct in_addr&)intaddr),
 				ntohs(intport),
 				(extaddr != 0 ? inet_ntoa((struct in_addr&)extaddr) : "nonsupport"),
 				ntohs(extport),
 				pChannel->c_str(),
-				((int32)globalorderID),
+				((int32)globalorderID), 
 				((int32)grouporderID)));
 
 		return;
@@ -871,20 +893,20 @@ void Baseapp::onGetEntityAppFromDbmgr(Network::Channel* pChannel, int32 uid, std
 	int ret = Components::getSingleton().connectComponent(tcomponentType, uid, componentID);
 	OURO_ASSERT(ret != -1);
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	switch(tcomponentType)
 	{
 	case BASEAPP_TYPE:
 		(*pBundle).newMessage(BaseappInterface::onRegisterNewApp);
-		BaseappInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle),
+		BaseappInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), 
 			getUserUID(), getUsername(), BASEAPP_TYPE, componentID_, startGlobalOrder_, startGroupOrder_,
 			this->networkInterface().intTcpAddr().ip, this->networkInterface().intTcpAddr().port,
 			this->networkInterface().extTcpAddr().ip, this->networkInterface().extTcpAddr().port, g_ouroSrvConfig.getConfig().externalAddress);
 		break;
 	case CELLAPP_TYPE:
 		(*pBundle).newMessage(CellappInterface::onRegisterNewApp);
-		CellappInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle),
+		CellappInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), 
 			getUserUID(), getUsername(), BASEAPP_TYPE, componentID_, startGlobalOrder_, startGroupOrder_,
 			this->networkInterface().intTcpAddr().ip, this->networkInterface().intTcpAddr().port,
 			this->networkInterface().extTcpAddr().ip, this->networkInterface().extTcpAddr().port, g_ouroSrvConfig.getConfig().externalAddress);
@@ -893,7 +915,7 @@ void Baseapp::onGetEntityAppFromDbmgr(Network::Channel* pChannel, int32 uid, std
 		OURO_ASSERT(false && "no support!\n");
 		break;
 	};
-
+	
 	cinfos->pChannel->send(pBundle);
 }
 
@@ -931,7 +953,7 @@ PyObject* Baseapp::__py_createEntity(PyObject* self, PyObject* args)
 		PyErr_PrintEx(0);
 		return NULL;
 	}
-
+	
 	PyObject* e = Baseapp::getSingleton().createEntity(entityType, params);
 	if(e != NULL)
 		Py_INCREF(e);
@@ -1046,8 +1068,7 @@ PyObject* Baseapp::__py_createEntityFromDBID(PyObject* self, PyObject* args)
 {
 	int argCount = (int)PyTuple_Size(args);
 	PyObject* pyCallback = NULL;
-	wchar_t* wEntityType = NULL;
-	char* entityType = NULL;
+	const char* entityType = NULL;
 	int ret = -1;
 	DBID dbid = 0;
 	PyObject* pyEntityType = NULL;
@@ -1074,7 +1095,7 @@ PyObject* Baseapp::__py_createEntityFromDBID(PyObject* self, PyObject* args)
 	default:
 		{
 			PyErr_Format(PyExc_AssertionError, "%s: args require 2 or 3 args, gived %d!\n",
-				__FUNCTION__, argCount);
+				__FUNCTION__, argCount);	
 			PyErr_PrintEx(0);
 			return NULL;
 		}
@@ -1089,11 +1110,7 @@ PyObject* Baseapp::__py_createEntityFromDBID(PyObject* self, PyObject* args)
 
 	if (pyDBInterfaceName)
 	{
-		wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyDBInterfaceName, NULL);
-		char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-		dbInterfaceName = ccattr;
-		PyMem_Free(PyUnicode_AsWideCharStringRet0);
-		free(ccattr);
+		dbInterfaceName = PyUnicode_AsUTF8AndSize(pyDBInterfaceName, NULL);
 
 		DBInterfaceInfo* pDBInterfaceInfo = g_ouroSrvConfig.dbInterface(dbInterfaceName);
 		if (pDBInterfaceInfo->isPure)
@@ -1118,13 +1135,8 @@ PyObject* Baseapp::__py_createEntityFromDBID(PyObject* self, PyObject* args)
 
 	if(pyEntityType)
 	{
-		wEntityType = PyUnicode_AsWideCharString(pyEntityType, NULL);
-		if(wEntityType)
-		{
-			entityType = strutil::wchar2char(wEntityType);
-			PyMem_Free(wEntityType);
-		}
-		else
+		entityType = PyUnicode_AsUTF8AndSize(pyEntityType, NULL);
+		if (!entityType)
 		{
 			SCRIPT_ERROR_CHECK();
 		}
@@ -1132,13 +1144,10 @@ PyObject* Baseapp::__py_createEntityFromDBID(PyObject* self, PyObject* args)
 
 	if(entityType == NULL || strlen(entityType) <= 0 || ret == -1)
 	{
-		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityFromDBID: args error, entityType=%s!",
+		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityFromDBID: args error, entityType=%s!", 
 			(entityType ? entityType : "NULL"));
 
 		PyErr_PrintEx(0);
-
-		if(entityType)
-			free(entityType);
 
 		return NULL;
 	}
@@ -1147,7 +1156,6 @@ PyObject* Baseapp::__py_createEntityFromDBID(PyObject* self, PyObject* args)
 	{
 		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityFromDBID: entityType(%s) error!", entityType);
 		PyErr_PrintEx(0);
-		free(entityType);
 		return NULL;
 	}
 
@@ -1155,7 +1163,6 @@ PyObject* Baseapp::__py_createEntityFromDBID(PyObject* self, PyObject* args)
 	{
 		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityFromDBID: dbid error!");
 		PyErr_PrintEx(0);
-		free(entityType);
 		return NULL;
 	}
 
@@ -1165,13 +1172,10 @@ PyObject* Baseapp::__py_createEntityFromDBID(PyObject* self, PyObject* args)
 
 		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityFromDBID: callback error!");
 		PyErr_PrintEx(0);
-		free(entityType);
 		return NULL;
 	}
 
 	Baseapp::getSingleton().createEntityFromDBID(entityType, dbid, pyCallback, dbInterfaceName);
-
-	free(entityType);
 	S_Return;
 }
 
@@ -1199,7 +1203,7 @@ void Baseapp::createEntityFromDBID(const char* entityType, DBID dbid, PyObject* 
 	int dbInterfaceIndex = pDBInterfaceInfo->index;
 	if (dbInterfaceIndex < 0)
 	{
-		PyErr_Format(PyExc_TypeError, "Baseapp::createEntityFromDBID: not found dbInterface(%s)!",
+		PyErr_Format(PyExc_TypeError, "Baseapp::createEntityFromDBID: not found dbInterface(%s)!", 
 			dbInterfaceName.c_str());
 
 		PyErr_PrintEx(0);
@@ -1212,15 +1216,15 @@ void Baseapp::createEntityFromDBID(const char* entityType, DBID dbid, PyObject* 
 		callbackID = callbackMgr().save(pyCallback);
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	pBundle->newMessage(DbmgrInterface::queryEntity);
 
 	ENTITY_ID entityID = idClient_.alloc();
 	OURO_ASSERT(entityID > 0);
 
-	DbmgrInterface::queryEntityArgs7::staticAddToBundle((*pBundle),
+	DbmgrInterface::queryEntityArgs7::staticAddToBundle((*pBundle), 
 		dbInterfaceIndex, g_componentID, 0, dbid, entityType, callbackID, entityID);
-
+	
 	dbmgrinfos->pChannel->send(pBundle);
 }
 
@@ -1229,7 +1233,7 @@ void Baseapp::onCreateEntityFromDBIDCallback(Network::Channel* pChannel, Ourobor
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	std::string entityType;
 	DBID dbid;
 	CALLBACK_ID callbackID;
@@ -1281,11 +1285,11 @@ void Baseapp::onCreateEntityFromDBIDCallback(Network::Channel* pChannel, Ourobor
 				}
 				else
 				{
-					// If the createEntityFromDBID class interface return entity has been checked out and is in the current process, but the current process can not find the entity should give an error
-					// This situation is usually in the asynchronous environment from the db query to check out, but when the callback may have caused the entity has been destroyed
+					// If the createEntityFromDBID class interface returns an entity that has been checked out and is on the current process, but the entity cannot find the entity on the current process, an error should be given.
+					// This situation is usually caused by a query from the db to the already detected environment in an asynchronous environment, but the entity may have been destroyed when the callback is executed.
 					if(wasActiveCID != g_componentID)
 					{
-						baseEntityRef = static_cast<PyObject*>(new EntityCall(EntityDef::findScriptModule(entityType.c_str()),
+						baseEntityRef = static_cast<PyObject*>(new EntityCall(EntityDef::findScriptModule(entityType.c_str()), 
 							NULL, wasActiveCID, wasActiveEntityID, ENTITYCALL_TYPE_BASE));
 					}
 					else
@@ -1314,8 +1318,8 @@ void Baseapp::onCreateEntityFromDBIDCallback(Network::Channel* pChannel, Ourobor
 			if(pyfunc != NULL)
 			{
 				SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-				PyObject* pyResult = PyObject_CallFunction(pyfunc.get(),
-													const_cast<char*>("OKi"),
+				PyObject* pyResult = PyObject_CallFunction(pyfunc.get(), 
+													const_cast<char*>("OKi"), 
 													baseEntityRef, dbid, wasActive);
 
 				if(pyResult != NULL)
@@ -1325,13 +1329,13 @@ void Baseapp::onCreateEntityFromDBIDCallback(Network::Channel* pChannel, Ourobor
 			}
 			else
 			{
-				ERROR_MSG(fmt::format("Baseapp::onCreateEntityFromDBID: can't found callback:{}.\n",
+				ERROR_MSG(fmt::format("Baseapp::onCreateEntityFromDBID: not found callback:{}.\n",
 					callbackID));
 			}
 
 			Py_DECREF(baseEntityRef);
 		}
-
+		
 		s.done();
 		return;
 	}
@@ -1347,10 +1351,16 @@ void Baseapp::onCreateEntityFromDBIDCallback(Network::Channel* pChannel, Ourobor
 		static_cast<Entity*>(e)->dbid(dbInterfaceIndex, dbid);
 		static_cast<Entity*>(e)->initializeEntity(pyDict);
 		Py_DECREF(pyDict);
+
+		OURO_SHA1 sha;
+		uint32 digest[5];
+		sha.Input(s.data(), s.length());
+		sha.Result(digest);
+		static_cast<Entity*>(e)->setDirty((uint32*)&digest[0]);
 	}
 	else
 	{
-		ERROR_MSG(fmt::format("Baseapp::onCreateEntityFromDBID: create {}({}) is failed, e == NULL!\n",
+		ERROR_MSG(fmt::format("Baseapp::onCreateEntityFromDBID: create {}({}) is failed, e == NULL!\n", 
 			entityType.c_str(), dbid));
 
 		if(callbackID > 0)
@@ -1358,7 +1368,7 @@ void Baseapp::onCreateEntityFromDBIDCallback(Network::Channel* pChannel, Ourobor
 			PyObjectPtr pyfunc = pyCallbackMgr_.take(callbackID);
 			if(pyfunc)
 			{
-				// No need to notify the script
+				// no need to notify the script
 			}
 		}
 
@@ -1375,8 +1385,8 @@ void Baseapp::onCreateEntityFromDBIDCallback(Network::Channel* pChannel, Ourobor
 		if(pyfunc != NULL)
 		{
 			SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-			PyObject* pyResult = PyObject_CallFunction(pyfunc.get(),
-												const_cast<char*>("OKi"),
+			PyObject* pyResult = PyObject_CallFunction(pyfunc.get(), 
+												const_cast<char*>("OKi"), 
 												e, dbid, wasActive);
 
 			if(pyResult != NULL)
@@ -1386,7 +1396,7 @@ void Baseapp::onCreateEntityFromDBIDCallback(Network::Channel* pChannel, Ourobor
 		}
 		else
 		{
-			ERROR_MSG(fmt::format("Baseapp::onCreateEntityFromDBID: can't found callback:{}.\n",
+			ERROR_MSG(fmt::format("Baseapp::onCreateEntityFromDBID: not found callback:{}.\n",
 				callbackID));
 		}
 	}
@@ -1397,8 +1407,7 @@ PyObject* Baseapp::__py_createEntityAnywhereFromDBID(PyObject* self, PyObject* a
 {
 	int argCount = (int)PyTuple_Size(args);
 	PyObject* pyCallback = NULL;
-	wchar_t* wEntityType = NULL;
-	char* entityType = NULL;
+	const char* entityType = NULL;
 	int ret = -1;
 	DBID dbid = 0;
 	PyObject* pyEntityType = NULL;
@@ -1425,7 +1434,7 @@ PyObject* Baseapp::__py_createEntityAnywhereFromDBID(PyObject* self, PyObject* a
 		default:
 		{
 				PyErr_Format(PyExc_AssertionError, "%s: args require 2 or 3 args, gived %d!\n",
-					__FUNCTION__, argCount);
+					__FUNCTION__, argCount);	
 				PyErr_PrintEx(0);
 				return NULL;
 		}
@@ -1440,11 +1449,7 @@ PyObject* Baseapp::__py_createEntityAnywhereFromDBID(PyObject* self, PyObject* a
 
 	if (pyDBInterfaceName)
 	{
-		wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyDBInterfaceName, NULL);
-		char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-		dbInterfaceName = ccattr;
-		PyMem_Free(PyUnicode_AsWideCharStringRet0);
-		free(ccattr);
+		dbInterfaceName = PyUnicode_AsUTF8AndSize(pyDBInterfaceName, NULL);
 
 		DBInterfaceInfo* pDBInterfaceInfo = g_ouroSrvConfig.dbInterface(dbInterfaceName);
 		if (pDBInterfaceInfo->isPure)
@@ -1469,13 +1474,8 @@ PyObject* Baseapp::__py_createEntityAnywhereFromDBID(PyObject* self, PyObject* a
 
 	if(pyEntityType)
 	{
-		wEntityType = PyUnicode_AsWideCharString(pyEntityType, NULL);
-		if(wEntityType)
-		{
-			entityType = strutil::wchar2char(wEntityType);
-			PyMem_Free(wEntityType);
-		}
-		else
+		entityType = PyUnicode_AsUTF8AndSize(pyEntityType, NULL);
+		if (!entityType)
 		{
 			SCRIPT_ERROR_CHECK();
 		}
@@ -1483,14 +1483,10 @@ PyObject* Baseapp::__py_createEntityAnywhereFromDBID(PyObject* self, PyObject* a
 
 	if(entityType == NULL || strlen(entityType) <= 0 || ret == -1)
 	{
-		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityAnywhereFromDBID: args error, entityType=%s!",
+		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityAnywhereFromDBID: args error, entityType=%s!", 
 			(entityType ? entityType : "NULL"));
 
 		PyErr_PrintEx(0);
-
-		if(entityType)
-			free(entityType);
-
 		return NULL;
 	}
 
@@ -1498,7 +1494,6 @@ PyObject* Baseapp::__py_createEntityAnywhereFromDBID(PyObject* self, PyObject* a
 	{
 		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityAnywhereFromDBID: entityType error!");
 		PyErr_PrintEx(0);
-		free(entityType);
 		return NULL;
 	}
 
@@ -1506,7 +1501,6 @@ PyObject* Baseapp::__py_createEntityAnywhereFromDBID(PyObject* self, PyObject* a
 	{
 		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityAnywhereFromDBID: dbid error!");
 		PyErr_PrintEx(0);
-		free(entityType);
 		return NULL;
 	}
 
@@ -1516,13 +1510,10 @@ PyObject* Baseapp::__py_createEntityAnywhereFromDBID(PyObject* self, PyObject* a
 
 		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityAnywhereFromDBID: callback error!");
 		PyErr_PrintEx(0);
-		free(entityType);
 		return NULL;
 	}
 
 	Baseapp::getSingleton().createEntityAnywhereFromDBID(entityType, dbid, pyCallback, dbInterfaceName);
-
-	free(entityType);
 	S_Return;
 }
 
@@ -1532,7 +1523,7 @@ void Baseapp::createEntityAnywhereFromDBID(const char* entityType, DBID dbid, Py
 	Network::Channel* pBaseappmgrChannel = Components::getSingleton().getBaseappmgrChannel();
 	if (pBaseappmgrChannel == NULL)
 	{
-		ERROR_MSG(fmt::format("Baseapp::createEntityAnywhereFromDBID: create {}({}) is error, not found baseappmgr!\n",
+		ERROR_MSG(fmt::format("Baseapp::createEntityAnywhereFromDBID: create {}({}) error, not found baseappmgr!\n",
 			entityType, dbid));
 
 		return;
@@ -1551,7 +1542,7 @@ void Baseapp::createEntityAnywhereFromDBID(const char* entityType, DBID dbid, Py
 	int dbInterfaceIndex = pDBInterfaceInfo->index;
 	if (dbInterfaceIndex < 0)
 	{
-		PyErr_Format(PyExc_TypeError, "Baseapp::createEntityAnywhereFromDBID: not found dbInterface(%s)!",
+		PyErr_Format(PyExc_TypeError, "Baseapp::createEntityAnywhereFromDBID: not found dbInterface(%s)!", 
 			dbInterfaceName.c_str());
 
 		PyErr_PrintEx(0);
@@ -1566,7 +1557,7 @@ void Baseapp::createEntityAnywhereFromDBID(const char* entityType, DBID dbid, Py
 		callbackID = callbackMgr().save(pyCallback);
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	pBundle->newMessage(BaseappmgrInterface::reqCreateEntityAnywhereFromDBIDQueryBestBaseappID);
 	(*pBundle) << entityType << dbid << callbackID << udbInterfaceIndex;
 	pBaseappmgrChannel->send(pBundle);
@@ -1577,11 +1568,11 @@ void Baseapp::onGetCreateEntityAnywhereFromDBIDBestBaseappID(Network::Channel* p
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	COMPONENT_ID targetComponentID;
 	s >> targetComponentID;
 
-	// If 0 indicates there is no available, then create it yourself
+	// If 0 is not available, then create it yourself.
 	if (targetComponentID == 0)
 		targetComponentID = g_componentID;
 
@@ -1611,7 +1602,7 @@ void Baseapp::onGetCreateEntityAnywhereFromDBIDBestBaseappID(Network::Channel* p
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	pBundle->newMessage(DbmgrInterface::queryEntity);
 
 	ENTITY_ID entityID = idClient_.alloc();
@@ -1628,7 +1619,7 @@ void Baseapp::onCreateEntityAnywhereFromDBIDCallback(Network::Channel* pChannel,
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	size_t currpos = s.rpos();
 
 	std::string entityType;
@@ -1673,11 +1664,11 @@ void Baseapp::onCreateEntityAnywhereFromDBIDCallback(Network::Channel* pChannel,
 				}
 				else
 				{
-					// If the createEntityFromDBID class interface return entity has been checked out and is in the current process, but the current process can not find the entity should give an error
-					// This situation is usually in the asynchronous environment from the db query to check out, but when the callback may have caused the entity has been destroyed
+					// If the createEntityFromDBID class interface returns an entity that has been checked out and is on the current process, but the entity cannot find the entity on the current process, an error should be given.
+					// This situation is usually caused by a query from the db to the already detected environment in an asynchronous environment, but the entity may have been destroyed when the callback is executed.
 					if(wasActiveCID != g_componentID)
 					{
-						baseEntityRef = static_cast<PyObject*>(new EntityCall(EntityDef::findScriptModule(entityType.c_str()),
+						baseEntityRef = static_cast<PyObject*>(new EntityCall(EntityDef::findScriptModule(entityType.c_str()), 
 							NULL, wasActiveCID, wasActiveEntityID, ENTITYCALL_TYPE_BASE));
 					}
 					else
@@ -1693,7 +1684,7 @@ void Baseapp::onCreateEntityAnywhereFromDBIDCallback(Network::Channel* pChannel,
 			}
 			else
 			{
-				ERROR_MSG(fmt::format("Baseapp::createEntityAnywhereFromDBID: create {}({}) is failed.\n",
+				ERROR_MSG(fmt::format("Baseapp::createEntityAnywhereFromDBID: create {}({}) is failed.\n", 
 					entityType.c_str(), dbid));
 
 				wasActive = false;
@@ -1706,8 +1697,8 @@ void Baseapp::onCreateEntityAnywhereFromDBIDCallback(Network::Channel* pChannel,
 			if(pyfunc != NULL)
 			{
 				SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-				PyObject* pyResult = PyObject_CallFunction(pyfunc.get(),
-													const_cast<char*>("OKi"),
+				PyObject* pyResult = PyObject_CallFunction(pyfunc.get(), 
+													const_cast<char*>("OKi"), 
 													baseEntityRef, dbid, wasActive);
 
 				if(pyResult != NULL)
@@ -1717,13 +1708,13 @@ void Baseapp::onCreateEntityAnywhereFromDBIDCallback(Network::Channel* pChannel,
 			}
 			else
 			{
-				ERROR_MSG(fmt::format("Baseapp::createEntityAnywhereFromDBID: can't found callback:{}.\n",
+				ERROR_MSG(fmt::format("Baseapp::createEntityAnywhereFromDBID: not found callback:{}.\n",
 					callbackID));
 			}
 
 			Py_DECREF(baseEntityRef);
 		}
-
+		
 		s.done();
 		return;
 	}
@@ -1731,7 +1722,7 @@ void Baseapp::onCreateEntityAnywhereFromDBIDCallback(Network::Channel* pChannel,
 	Network::Channel* pBaseappmgrChannel = Components::getSingleton().getBaseappmgrChannel();
 	if(pBaseappmgrChannel == NULL)
 	{
-		ERROR_MSG(fmt::format("Baseapp::createEntityAnywhereFromDBID: create {}({}) error, not found baseappmgr!\n",
+		ERROR_MSG(fmt::format("Baseapp::createEntityAnywhereFromDBID: create {}({}) error, not found baseappmgr!\n", 
 			entityType.c_str(), dbid));
 
 		if (callbackID > 0)
@@ -1747,13 +1738,13 @@ void Baseapp::onCreateEntityAnywhereFromDBIDCallback(Network::Channel* pChannel,
 
 	s.rpos((int)currpos);
 
-	MemoryStream* stream = MemoryStream::createPoolObject();
+	MemoryStream* stream = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 	(*stream) << createToComponentID << g_componentID;
 	stream->append(s);
 	s.done();
 
-	// Notify baseappmgr to create entity on other baseapp
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	// Inform baseappmgr to create an entity on other baseapps
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	pBundle->newMessage(BaseappmgrInterface::reqCreateEntityAnywhereFromDBID);
 	pBundle->append((*stream));
 	pBaseappmgrChannel->send(pBundle);
@@ -1765,7 +1756,7 @@ void Baseapp::createEntityAnywhereFromDBIDOtherBaseapp(Network::Channel* pChanne
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	std::string entityType;
 	DBID dbid;
 	CALLBACK_ID callbackID;
@@ -1806,10 +1797,16 @@ void Baseapp::createEntityAnywhereFromDBIDOtherBaseapp(Network::Channel* pChanne
 		static_cast<Entity*>(e)->dbid(dbInterfaceIndex, dbid);
 		static_cast<Entity*>(e)->initializeEntity(pyDict);
 		Py_DECREF(pyDict);
+
+		OURO_SHA1 sha;
+		uint32 digest[5];
+		sha.Input(s.data(), s.length());
+		sha.Result(digest);
+		static_cast<Entity*>(e)->setDirty((uint32*)&digest[0]);
 	}
 	else
 	{
-		ERROR_MSG(fmt::format("Baseapp::createEntityAnywhereFromDBIDOtherBaseapp: create {}({}) is failed, e == NULL!\n",
+		ERROR_MSG(fmt::format("Baseapp::createEntityAnywhereFromDBIDOtherBaseapp: create {}({}) is failed, e == NULL!\n", 
 			entityType.c_str(), dbid));
 
 		if(callbackID > 0 && g_componentID == sourceBaseappID)
@@ -1817,26 +1814,26 @@ void Baseapp::createEntityAnywhereFromDBIDOtherBaseapp(Network::Channel* pChanne
 			PyObjectPtr pyfunc = pyCallbackMgr_.take(callbackID);
 			if(pyfunc)
 			{
-				// No need to notify the script
+				// no need to notify the script
 			}
 		}
 
 		return;
 	}
 
-	// Whether the local component is the originator, if callbacks are called locally
+	// Whether the local component is the originating source, if the callback is called directly locally
 	if(g_componentID == sourceBaseappID)
 	{
 		onCreateEntityAnywhereFromDBIDOtherBaseappCallback(pChannel, g_componentID, entityType, static_cast<Entity*>(e)->id(), callbackID, dbid);
 	}
 	else
 	{
-		// Notify baseapp, created
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		// notify baseapp, created
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		pBundle->newMessage(BaseappInterface::onCreateEntityAnywhereFromDBIDOtherBaseappCallback);
 
 
-		BaseappInterface::onCreateEntityAnywhereFromDBIDOtherBaseappCallbackArgs5::staticAddToBundle((*pBundle),
+		BaseappInterface::onCreateEntityAnywhereFromDBIDOtherBaseappCallbackArgs5::staticAddToBundle((*pBundle), 
 			g_componentID, entityType, static_cast<Entity*>(e)->id(), callbackID, dbid);
 
 		Components::ComponentInfos* baseappinfos = Components::getSingleton().findComponent(BASEAPP_TYPE, sourceBaseappID);
@@ -1849,18 +1846,18 @@ void Baseapp::createEntityAnywhereFromDBIDOtherBaseapp(Network::Channel* pChanne
 			WARNING_MSG(fmt::format("Baseapp::createEntityAnywhereFromDBID: not found sourceBaseapp({}), message is buffered.\n", sourceBaseappID));
 			return;
 		}
-
+		
 		baseappinfos->pChannel->send(pBundle);
 	}
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::onCreateEntityAnywhereFromDBIDOtherBaseappCallback(Network::Channel* pChannel, COMPONENT_ID createByBaseappID,
+void Baseapp::onCreateEntityAnywhereFromDBIDOtherBaseappCallback(Network::Channel* pChannel, COMPONENT_ID createByBaseappID, 
 															   std::string entityType, ENTITY_ID createdEntityID, CALLBACK_ID callbackID, DBID dbid)
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	if(callbackID > 0)
 	{
 		ScriptDefModule* sm = EntityDef::findScriptModule(entityType.c_str());
@@ -1887,20 +1884,20 @@ void Baseapp::onCreateEntityAnywhereFromDBIDOtherBaseappCallback(Network::Channe
 			Entity* pEntity = this->findEntity(createdEntityID);
 
 			PyObject* pyResult = NULL;
-
+			
 			SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
 			if(pEntity)
 			{
-				pyResult = PyObject_CallFunction(pyfunc.get(),
-												const_cast<char*>("OKi"),
+				pyResult = PyObject_CallFunction(pyfunc.get(), 
+												const_cast<char*>("OKi"), 
 												pEntity, dbid, 0);
 			}
 			else
 			{
 				PyObject* mb = static_cast<PyObject*>(new EntityCall(sm, NULL, createByBaseappID, createdEntityID, ENTITYCALL_TYPE_BASE));
-				pyResult = PyObject_CallFunction(pyfunc.get(),
-												const_cast<char*>("OKi"),
+				pyResult = PyObject_CallFunction(pyfunc.get(), 
+												const_cast<char*>("OKi"), 
 												mb, dbid, 0);
 				Py_DECREF(mb);
 			}
@@ -1923,8 +1920,7 @@ PyObject* Baseapp::__py_createEntityRemotelyFromDBID(PyObject* self, PyObject* a
 {
 	int argCount = (int)PyTuple_Size(args);
 	PyObject* pyCallback = NULL, *pyEntityCall = NULL;
-	wchar_t* wEntityType = NULL;
-	char* entityType = NULL;
+	const char* entityType = NULL;
 	int ret = -1;
 	DBID dbid = 0;
 	PyObject* pyEntityType = NULL;
@@ -1951,7 +1947,7 @@ PyObject* Baseapp::__py_createEntityRemotelyFromDBID(PyObject* self, PyObject* a
 		default:
 		{
 				PyErr_Format(PyExc_AssertionError, "%s: args require 3 ~ 5 args, gived %d!\n",
-					__FUNCTION__, argCount);
+					__FUNCTION__, argCount);	
 				PyErr_PrintEx(0);
 				return NULL;
 		}
@@ -1966,11 +1962,7 @@ PyObject* Baseapp::__py_createEntityRemotelyFromDBID(PyObject* self, PyObject* a
 
 	if (pyDBInterfaceName)
 	{
-		wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyDBInterfaceName, NULL);
-		char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-		dbInterfaceName = ccattr;
-		PyMem_Free(PyUnicode_AsWideCharStringRet0);
-		free(ccattr);
+		dbInterfaceName = PyUnicode_AsUTF8AndSize(pyDBInterfaceName, NULL);
 
 		DBInterfaceInfo* pDBInterfaceInfo = g_ouroSrvConfig.dbInterface(dbInterfaceName);
 		if (pDBInterfaceInfo->isPure)
@@ -1995,13 +1987,8 @@ PyObject* Baseapp::__py_createEntityRemotelyFromDBID(PyObject* self, PyObject* a
 
 	if(pyEntityType)
 	{
-		wEntityType = PyUnicode_AsWideCharString(pyEntityType, NULL);
-		if(wEntityType)
-		{
-			entityType = strutil::wchar2char(wEntityType);
-			PyMem_Free(wEntityType);
-		}
-		else
+		entityType = PyUnicode_AsUTF8AndSize(pyEntityType, NULL);
+		if (!entityType)
 		{
 			SCRIPT_ERROR_CHECK();
 		}
@@ -2009,14 +1996,10 @@ PyObject* Baseapp::__py_createEntityRemotelyFromDBID(PyObject* self, PyObject* a
 
 	if(entityType == NULL || strlen(entityType) <= 0 || ret == -1)
 	{
-		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityRemotelyFromDBID: args error, entityType=%s!",
+		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityRemotelyFromDBID: args error, entityType=%s!", 
 			(entityType ? entityType : "NULL"));
 
 		PyErr_PrintEx(0);
-
-		if(entityType)
-			free(entityType);
-
 		return NULL;
 	}
 
@@ -2024,7 +2007,6 @@ PyObject* Baseapp::__py_createEntityRemotelyFromDBID(PyObject* self, PyObject* a
 	{
 		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityRemotelyFromDBID: entityType error!");
 		PyErr_PrintEx(0);
-		free(entityType);
 		return NULL;
 	}
 
@@ -2032,7 +2014,6 @@ PyObject* Baseapp::__py_createEntityRemotelyFromDBID(PyObject* self, PyObject* a
 	{
 		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityRemotelyFromDBID: dbid error!");
 		PyErr_PrintEx(0);
-		free(entityType);
 		return NULL;
 	}
 
@@ -2042,7 +2023,6 @@ PyObject* Baseapp::__py_createEntityRemotelyFromDBID(PyObject* self, PyObject* a
 
 		PyErr_Format(PyExc_AssertionError, "Baseapp::createEntityRemotelyFromDBID: callback error!");
 		PyErr_PrintEx(0);
-		free(entityType);
 		return NULL;
 	}
 
@@ -2066,8 +2046,6 @@ PyObject* Baseapp::__py_createEntityRemotelyFromDBID(PyObject* self, PyObject* a
 	}
 
 	Baseapp::getSingleton().createEntityRemotelyFromDBID(entityType, dbid, baseEntityCall->componentID(), pyCallback, dbInterfaceName);
-
-	free(entityType);
 	S_Return;
 }
 
@@ -2094,7 +2072,7 @@ void Baseapp::createEntityRemotelyFromDBID(const char* entityType, DBID dbid, CO
 	int dbInterfaceIndex = pDBInterfaceInfo->index;
 	if (dbInterfaceIndex < 0)
 	{
-		PyErr_Format(PyExc_TypeError, "Baseapp::createEntityRemotelyFromDBID: not found dbInterface(%s)!",
+		PyErr_Format(PyExc_TypeError, "Baseapp::createEntityRemotelyFromDBID: not found dbInterface(%s)!", 
 			dbInterfaceName.c_str());
 
 		PyErr_PrintEx(0);
@@ -2107,7 +2085,7 @@ void Baseapp::createEntityRemotelyFromDBID(const char* entityType, DBID dbid, CO
 		callbackID = callbackMgr().save(pyCallback);
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	pBundle->newMessage(DbmgrInterface::queryEntity);
 
 	ENTITY_ID entityID = idClient_.alloc();
@@ -2124,7 +2102,7 @@ void Baseapp::onCreateEntityRemotelyFromDBIDCallback(Network::Channel* pChannel,
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	size_t currpos = s.rpos();
 
 	std::string entityType;
@@ -2169,11 +2147,11 @@ void Baseapp::onCreateEntityRemotelyFromDBIDCallback(Network::Channel* pChannel,
 				}
 				else
 				{
-					// If the createEntityFromDBID class interface return entity has been checked out and is in the current process, but the current process can not find the entity should give an error
-					// This situation is usually in the asynchronous environment from the db query to check out, but when the callback may have caused the entity has been destroyed
+					// If the createEntityFromDBID class interface returns an entity that has been checked out and is on the current process, but the entity cannot find the entity on the current process, an error should be given.
+					// This situation is usually caused by a query from the db to the already detected environment in an asynchronous environment, but the entity may have been destroyed when the callback is executed.
 					if(wasActiveCID != g_componentID)
 					{
-						baseEntityRef = static_cast<PyObject*>(new EntityCall(EntityDef::findScriptModule(entityType.c_str()),
+						baseEntityRef = static_cast<PyObject*>(new EntityCall(EntityDef::findScriptModule(entityType.c_str()), 
 							NULL, wasActiveCID, wasActiveEntityID, ENTITYCALL_TYPE_BASE));
 					}
 					else
@@ -2189,7 +2167,7 @@ void Baseapp::onCreateEntityRemotelyFromDBIDCallback(Network::Channel* pChannel,
 			}
 			else
 			{
-				ERROR_MSG(fmt::format("Baseapp::createEntityRemotelyFromDBID: create {}({}) is failed.\n",
+				ERROR_MSG(fmt::format("Baseapp::createEntityRemotelyFromDBID: create {}({}) is failed.\n", 
 					entityType.c_str(), dbid));
 
 				wasActive = false;
@@ -2202,8 +2180,8 @@ void Baseapp::onCreateEntityRemotelyFromDBIDCallback(Network::Channel* pChannel,
 			if(pyfunc != NULL)
 			{
 				SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-				PyObject* pyResult = PyObject_CallFunction(pyfunc.get(),
-													const_cast<char*>("OKi"),
+				PyObject* pyResult = PyObject_CallFunction(pyfunc.get(), 
+													const_cast<char*>("OKi"), 
 													baseEntityRef, dbid, wasActive);
 
 				if(pyResult != NULL)
@@ -2213,13 +2191,13 @@ void Baseapp::onCreateEntityRemotelyFromDBIDCallback(Network::Channel* pChannel,
 			}
 			else
 			{
-				ERROR_MSG(fmt::format("Baseapp::createEntityRemotelyFromDBID: can't found callback:{}.\n",
+				ERROR_MSG(fmt::format("Baseapp::createEntityRemotelyFromDBID: not found callback:{}.\n",
 					callbackID));
 			}
 
 			Py_DECREF(baseEntityRef);
 		}
-
+		
 		s.done();
 		return;
 	}
@@ -2227,7 +2205,7 @@ void Baseapp::onCreateEntityRemotelyFromDBIDCallback(Network::Channel* pChannel,
 	Network::Channel* pBaseappmgrChannel = Components::getSingleton().getBaseappmgrChannel();
 	if(pBaseappmgrChannel == NULL)
 	{
-		ERROR_MSG(fmt::format("Baseapp::createEntityRemotelyFromDBID: create {}({}) error, not found baseappmgr!\n",
+		ERROR_MSG(fmt::format("Baseapp::createEntityRemotelyFromDBID: create {}({}) error, not found baseappmgr!\n", 
 			entityType.c_str(), dbid));
 
 		if (callbackID > 0)
@@ -2243,13 +2221,13 @@ void Baseapp::onCreateEntityRemotelyFromDBIDCallback(Network::Channel* pChannel,
 
 	s.rpos((int)currpos);
 
-	MemoryStream* stream = MemoryStream::createPoolObject();
+	MemoryStream* stream = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 	(*stream) << createToComponentID << g_componentID;
 	stream->append(s);
 	s.done();
 
-	// Notify baseappmgr to create entity on other baseapp
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	// Inform baseappmgr to create an entity on other baseapps
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	pBundle->newMessage(BaseappmgrInterface::reqCreateEntityRemotelyFromDBID);
 	pBundle->append((*stream));
 	pBaseappmgrChannel->send(pBundle);
@@ -2261,7 +2239,7 @@ void Baseapp::createEntityRemotelyFromDBIDOtherBaseapp(Network::Channel* pChanne
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	std::string entityType;
 	DBID dbid;
 	CALLBACK_ID callbackID;
@@ -2302,10 +2280,16 @@ void Baseapp::createEntityRemotelyFromDBIDOtherBaseapp(Network::Channel* pChanne
 		static_cast<Entity*>(e)->dbid(dbInterfaceIndex, dbid);
 		static_cast<Entity*>(e)->initializeEntity(pyDict);
 		Py_DECREF(pyDict);
+
+		OURO_SHA1 sha;
+		uint32 digest[5];
+		sha.Input(s.data(), s.length());
+		sha.Result(digest);
+		static_cast<Entity*>(e)->setDirty((uint32*)&digest[0]);
 	}
 	else
 	{
-		ERROR_MSG(fmt::format("Baseapp::createEntityRemotelyFromDBIDOtherBaseapp: create {}({}) is failed, e == NULL!\n",
+		ERROR_MSG(fmt::format("Baseapp::createEntityRemotelyFromDBIDOtherBaseapp: create {}({}) is failed, e == NULL!\n", 
 			entityType.c_str(), dbid));
 
 		if(callbackID > 0 && g_componentID == sourceBaseappID)
@@ -2313,26 +2297,26 @@ void Baseapp::createEntityRemotelyFromDBIDOtherBaseapp(Network::Channel* pChanne
 			PyObjectPtr pyfunc = pyCallbackMgr_.take(callbackID);
 			if(pyfunc)
 			{
-				// No need to notify the script
+				// no need to notify the script
 			}
 		}
 
 		return;
 	}
 
-	// Whether the local component is the originator, if callbacks are called locally
+	// Whether the local component is the originating source, if the callback is called directly locally
 	if(g_componentID == sourceBaseappID)
 	{
 		onCreateEntityRemotelyFromDBIDOtherBaseappCallback(pChannel, g_componentID, entityType, static_cast<Entity*>(e)->id(), callbackID, dbid);
 	}
 	else
 	{
-		// Notify baseapp, created
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		// notify baseapp, created
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		pBundle->newMessage(BaseappInterface::onCreateEntityRemotelyFromDBIDOtherBaseappCallback);
 
 
-		BaseappInterface::onCreateEntityRemotelyFromDBIDOtherBaseappCallbackArgs5::staticAddToBundle((*pBundle),
+		BaseappInterface::onCreateEntityRemotelyFromDBIDOtherBaseappCallbackArgs5::staticAddToBundle((*pBundle), 
 			g_componentID, entityType, static_cast<Entity*>(e)->id(), callbackID, dbid);
 
 		Components::ComponentInfos* baseappinfos = Components::getSingleton().findComponent(BASEAPP_TYPE, sourceBaseappID);
@@ -2345,18 +2329,18 @@ void Baseapp::createEntityRemotelyFromDBIDOtherBaseapp(Network::Channel* pChanne
 			WARNING_MSG(fmt::format("Baseapp::createEntityRemotelyFromDBID: not found sourceBaseapp({}), message is buffered.\n", sourceBaseappID));
 			return;
 		}
-
+		
 		baseappinfos->pChannel->send(pBundle);
 	}
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::onCreateEntityRemotelyFromDBIDOtherBaseappCallback(Network::Channel* pChannel, COMPONENT_ID createByBaseappID,
+void Baseapp::onCreateEntityRemotelyFromDBIDOtherBaseappCallback(Network::Channel* pChannel, COMPONENT_ID createByBaseappID, 
 															   std::string entityType, ENTITY_ID createdEntityID, CALLBACK_ID callbackID, DBID dbid)
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	if(callbackID > 0)
 	{
 		ScriptDefModule* sm = EntityDef::findScriptModule(entityType.c_str());
@@ -2383,20 +2367,20 @@ void Baseapp::onCreateEntityRemotelyFromDBIDOtherBaseappCallback(Network::Channe
 			Entity* pEntity = this->findEntity(createdEntityID);
 
 			PyObject* pyResult = NULL;
-
+			
 			SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
 			if(pEntity)
 			{
-				pyResult = PyObject_CallFunction(pyfunc.get(),
-												const_cast<char*>("OKi"),
+				pyResult = PyObject_CallFunction(pyfunc.get(), 
+												const_cast<char*>("OKi"), 
 												pEntity, dbid, 0);
 			}
 			else
 			{
 				PyObject* mb = static_cast<PyObject*>(new EntityCall(sm, NULL, createByBaseappID, createdEntityID, ENTITYCALL_TYPE_BASE));
-				pyResult = PyObject_CallFunction(pyfunc.get(),
-												const_cast<char*>("OKi"),
+				pyResult = PyObject_CallFunction(pyfunc.get(), 
+												const_cast<char*>("OKi"), 
 												mb, dbid, 0);
 				Py_DECREF(mb);
 			}
@@ -2426,9 +2410,9 @@ void Baseapp::createCellEntityInNewSpace(Entity* pEntity, PyObject* pyCellappInd
 		return;
 	}
 
-	// If cellappIndex is 0, it means that the cellapp is not mandatory
-	// Non-zero case, the selected cellapp can be replaced by 1,2,3,4
-	// If 4 cellapps are expected, if there are not enough 4, only 3, then 4 represents 1
+	// If cellappIndex is 0, it means that cellapp is not mandatory.
+	// In case of non-zero, the selected cellapp can be replaced by 1, 2, 3, 4
+	// If there are 4 cellapps expected, if there are not enough 4, only 3, then 4 means 1
 	uint32 cellappIndex = 0;
 
 	if (PyLong_Check(pyCellappIndex))
@@ -2437,7 +2421,7 @@ void Baseapp::createCellEntityInNewSpace(Entity* pEntity, PyObject* pyCellappInd
 	ENTITY_ID id = pEntity->id();
 	std::string entityType = pEntity->ob_type->tp_name;
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	(*pBundle).newMessage(CellappmgrInterface::reqCreateCellEntityInNewSpace);
 
@@ -2450,11 +2434,25 @@ void Baseapp::createCellEntityInNewSpace(Entity* pEntity, PyObject* pyCellappInd
 	bool hasClient = (clientEntityCall != NULL);
 	(*pBundle) << hasClient;
 
-	MemoryStream* s = MemoryStream::createPoolObject();
-	pEntity->addCellDataToStream(CELLAPP_TYPE, ED_FLAG_ALL, s);
+	MemoryStream* s = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
+
+	try
+	{
+		pEntity->addCellDataToStream(CELLAPP_TYPE, ED_FLAG_ALL, s);
+	}
+	catch (MemoryStreamWriteOverflow & err)
+	{
+		ERROR_MSG(fmt::format("{}::createCellEntityInNewSpace({}): {}\n",
+			pEntity->scriptName(), pEntity->id(), err.what()));
+
+		MemoryStream::reclaimPoolObject(s);
+		Network::Bundle::reclaimPoolObject(pBundle);
+		return;
+	}
+
 	(*pBundle).append(*s);
 	MemoryStream::reclaimPoolObject(s);
-
+	
 	Components::ComponentInfos* pComponents = Components::getSingleton().getCellappmgr();
 	if(pComponents)
 	{
@@ -2467,7 +2465,7 @@ void Baseapp::createCellEntityInNewSpace(Entity* pEntity, PyObject* pyCellappInd
 			ERROR_MSG("Baseapp::createCellEntityInNewSpace: cellappmgr channel is NULL.\n");
 			Network::Bundle::reclaimPoolObject(pBundle);
 		}
-
+		
 		return;
 	}
 
@@ -2481,7 +2479,7 @@ void Baseapp::restoreSpaceInCell(Entity* pEntity)
 	ENTITY_ID id = pEntity->id();
 	std::string entityType = pEntity->ob_type->tp_name;
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	(*pBundle).newMessage(CellappmgrInterface::reqRestoreSpaceInCell);
 
@@ -2494,11 +2492,25 @@ void Baseapp::restoreSpaceInCell(Entity* pEntity)
 	bool hasClient = (clientEntityCall != NULL);
 	(*pBundle) << hasClient;
 
-	MemoryStream* s = MemoryStream::createPoolObject();
-	pEntity->addCellDataToStream(CELLAPP_TYPE, ED_FLAG_ALL, s);
+	MemoryStream* s = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
+
+	try
+	{
+		pEntity->addCellDataToStream(CELLAPP_TYPE, ED_FLAG_ALL, s);
+	}
+	catch (MemoryStreamWriteOverflow & err)
+	{
+		ERROR_MSG(fmt::format("{}::restoreSpaceInCell({}): {}\n",
+			pEntity->scriptName(), pEntity->id(), err.what()));
+
+		MemoryStream::reclaimPoolObject(s);
+		Network::Bundle::reclaimPoolObject(pBundle);
+		return;
+	}
+
 	(*pBundle).append(*s);
 	MemoryStream::reclaimPoolObject(s);
-
+	
 	Components::ComponentInfos* pComponents = Components::getSingleton().getCellappmgr();
 	if(pComponents)
 	{
@@ -2511,10 +2523,10 @@ void Baseapp::restoreSpaceInCell(Entity* pEntity)
 			ERROR_MSG("Baseapp::restoreSpaceInCell: cellappmgr channel is NULL.\n");
 			Network::Bundle::reclaimPoolObject(pBundle);
 		}
-
+		
 		return;
 	}
-
+	
 	Network::Bundle::reclaimPoolObject(pBundle);
 	ERROR_MSG("Baseapp::restoreSpaceInCell: not found cellappmgr.\n");
 }
@@ -2530,7 +2542,7 @@ void Baseapp::createEntityAnywhere(const char* entityType, PyObject* params, PyO
 		initDataLength = (uint32)strInitData.length();
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(BaseappmgrInterface::reqCreateEntityAnywhere);
 
 	(*pBundle) << entityType;
@@ -2560,7 +2572,7 @@ void Baseapp::createEntityAnywhere(const char* entityType, PyObject* params, PyO
 			ERROR_MSG("Baseapp::createEntityAnywhere: baseappmgr channel is NULL.\n");
 			Network::Bundle::reclaimPoolObject(pBundle);
 		}
-
+		
 		return;
 	}
 
@@ -2594,19 +2606,19 @@ void Baseapp::onCreateEntityAnywhere(Network::Channel* pChannel, MemoryStream& s
 
 	if(pEntity == NULL)
 	{
-		ERROR_MSG(fmt::format("Baseapp::onCreateEntityAnywhere: create error! entityType={}, componentID={}, callbackID={}\n",
+		ERROR_MSG(fmt::format("Baseapp::onCreateEntityAnywhere: create error! entityType={}, componentID={}, callbackID={}\n", 
 			entityType, componentID, callbackID));
 
 		return;
 	}
 
-	// If you are not creating a baseapp that creates an entity, you need to forward the callback to the originator
+	// If you are not creating on the baseapp that initiated the creation of the entity, you need to forward the callback to the initiator.
 	if(componentID != componentID_)
 	{
 		Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(componentID);
 		if(cinfos == NULL || cinfos->pChannel == NULL)
 		{
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 			ForwardItem* pFI = new ForwardItem();
 			pFI->pHandler = NULL;
 			pFI->pBundle = pBundle;
@@ -2623,8 +2635,8 @@ void Baseapp::onCreateEntityAnywhere(Network::Channel* pChannel, MemoryStream& s
 
 		Network::Channel* lpChannel = cinfos->pChannel;
 
-		// Need baseappmgr forwarded to destination baseapp
-		Network::Bundle* pForwardbundle = Network::Bundle::createPoolObject();
+		// need baseappmgr to forward to the target baseapp
+		Network::Bundle* pForwardbundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pForwardbundle).newMessage(BaseappInterface::onCreateEntityAnywhereCallback);
 		(*pForwardbundle) << callbackID;
 		(*pForwardbundle) << entityType;
@@ -2649,7 +2661,7 @@ void Baseapp::onCreateEntityAnywhereCallback(Network::Channel* pChannel, Ourobor
 	std::string entityType;
 	ENTITY_ID eid = 0;
 	COMPONENT_ID componentID = 0;
-
+	
 	s >> callbackID;
 	s >> entityType;
 	s >> eid;
@@ -2658,13 +2670,13 @@ void Baseapp::onCreateEntityAnywhereCallback(Network::Channel* pChannel, Ourobor
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::_onCreateEntityAnywhereCallback(Network::Channel* pChannel, CALLBACK_ID callbackID,
+void Baseapp::_onCreateEntityAnywhereCallback(Network::Channel* pChannel, CALLBACK_ID callbackID, 
 	std::string& entityType, ENTITY_ID eid, COMPONENT_ID componentID)
 {
 	if(callbackID == 0)
 	{
-		// No callback set
-		//ERROR_MSG(fmt::format("Baseapp::_onCreateEntityAnywhereCallback: error(callbackID == 0)! entityType={}, componentID={}\n",
+		// no callback is set
+		//ERROR_MSG(fmt::format("Baseapp::_onCreateEntityAnywhereCallback: error(callbackID == 0)! entityType={}, componentID={}\n", 
 		//	entityType, componentID));
 
 		return;
@@ -2684,13 +2696,13 @@ void Baseapp::_onCreateEntityAnywhereCallback(Network::Channel* pChannel, CALLBA
 			Py_DECREF(pyargs);
 			return;
 		}
-
-		// Set entityCall if entity belongs to another baseapp
+		
+		// If the entity belongs to another baseapp, set its entityCall
 		Network::Channel* pOtherBaseappChannel = Components::getSingleton().findComponent(componentID)->pChannel;
 		OURO_ASSERT(pOtherBaseappChannel != NULL);
 		PyObject* mb = static_cast<EntityCall*>(new EntityCall(sm, NULL, componentID, eid, ENTITYCALL_TYPE_BASE));
 		PyTuple_SET_ITEM(pyargs, 0, mb);
-
+		
 		if(pyCallback != NULL)
 		{
 			PyObject* pyRet = PyObject_CallObject(pyCallback.get(), pyargs);
@@ -2705,7 +2717,7 @@ void Baseapp::_onCreateEntityAnywhereCallback(Network::Channel* pChannel, CALLBA
 		}
 		else
 		{
-			ERROR_MSG(fmt::format("Baseapp::onCreateEntityAnywhereCallback: can't found callback:{}.\n",
+			ERROR_MSG(fmt::format("Baseapp::onCreateEntityAnywhereCallback: not found callback:{}.\n",
 				callbackID));
 		}
 
@@ -2740,7 +2752,7 @@ void Baseapp::_onCreateEntityAnywhereCallback(Network::Channel* pChannel, CALLBA
 		}
 		else
 		{
-			ERROR_MSG(fmt::format("Baseapp::onCreateEntityAnywhereCallback: can't found callback:{}.\n",
+			ERROR_MSG(fmt::format("Baseapp::onCreateEntityAnywhereCallback: not found callback:{}.\n",
 				callbackID));
 		}
 	}
@@ -2760,7 +2772,7 @@ void Baseapp::createEntityRemotely(const char* entityType, COMPONENT_ID componen
 		initDataLength = (uint32)strInitData.length();
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(BaseappmgrInterface::reqCreateEntityRemotely);
 
 	// Created on this component
@@ -2834,13 +2846,13 @@ void Baseapp::onCreateEntityRemotely(Network::Channel* pChannel, MemoryStream& s
 		return;
 	}
 
-	// If you are not creating a baseapp that creates an entity, you need to forward the callback to the originator
+	// If you are not creating on the baseapp that initiated the creation of the entity, you need to forward the callback to the initiator.
 	if (reqComponentID != componentID_)
 	{
 		Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(reqComponentID);
 		if (cinfos == NULL || cinfos->pChannel == NULL)
 		{
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 			ForwardItem* pFI = new ForwardItem();
 			pFI->pHandler = NULL;
 			pFI->pBundle = pBundle;
@@ -2857,8 +2869,8 @@ void Baseapp::onCreateEntityRemotely(Network::Channel* pChannel, MemoryStream& s
 
 		Network::Channel* lpChannel = cinfos->pChannel;
 
-		// Need baseappmgr forwarded to destination baseapp
-		Network::Bundle* pForwardbundle = Network::Bundle::createPoolObject();
+		// need baseappmgr to forward to the target baseapp
+		Network::Bundle* pForwardbundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pForwardbundle).newMessage(BaseappInterface::onCreateEntityRemotelyCallback);
 		(*pForwardbundle) << callbackID;
 		(*pForwardbundle) << entityType;
@@ -2897,8 +2909,8 @@ void Baseapp::_onCreateEntityRemotelyCallback(Network::Channel* pChannel, CALLBA
 {
 	if (callbackID == 0)
 	{
-		// No callback set
-		//ERROR_MSG(fmt::format("Baseapp::_onCreateEntityRemotelyCallback: error(callbackID == 0)! entityType={}, componentID={}\n",
+		// no callback is set
+		//ERROR_MSG(fmt::format("Baseapp::_onCreateEntityRemotelyCallback: error(callbackID == 0)! entityType={}, componentID={}\n", 
 		//	entityType, componentID));
 
 		return;
@@ -2919,7 +2931,7 @@ void Baseapp::_onCreateEntityRemotelyCallback(Network::Channel* pChannel, CALLBA
 			return;
 		}
 
-		// Set entityCall if entity belongs to another baseapp
+		// If the entity belongs to another baseapp, set its entityCall
 		Network::Channel* pOtherBaseappChannel = Components::getSingleton().findComponent(componentID)->pChannel;
 		OURO_ASSERT(pOtherBaseappChannel != NULL);
 		PyObject* mb = static_cast<EntityCall*>(new EntityCall(sm, NULL, componentID, eid, ENTITYCALL_TYPE_BASE));
@@ -2939,7 +2951,7 @@ void Baseapp::_onCreateEntityRemotelyCallback(Network::Channel* pChannel, CALLBA
 		}
 		else
 		{
-			ERROR_MSG(fmt::format("Baseapp::onCreateEntityRemotelyCallback: can't found callback:{}.\n",
+			ERROR_MSG(fmt::format("Baseapp::onCreateEntityRemotelyCallback: not found callback:{}.\n",
 				callbackID));
 		}
 
@@ -2974,7 +2986,7 @@ void Baseapp::_onCreateEntityRemotelyCallback(Network::Channel* pChannel, CALLBA
 		}
 		else
 		{
-			ERROR_MSG(fmt::format("Baseapp::onCreateEntityRemotelyCallback: can't found callback:{}.\n",
+			ERROR_MSG(fmt::format("Baseapp::onCreateEntityRemotelyCallback: not found callback:{}.\n",
 				callbackID));
 		}
 	}
@@ -2994,7 +3006,7 @@ void Baseapp::createCellEntity(EntityCallAbstract* createToCellEntityCall, Entit
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(CellappInterface::onCreateCellEntityFromBaseapp);
 
 	ENTITY_ID id = pEntity->id();
@@ -3002,19 +3014,33 @@ void Baseapp::createCellEntity(EntityCallAbstract* createToCellEntityCall, Entit
 
 	EntityCall* clientEntityCall = pEntity->clientEntityCall();
 	bool hasClient = (clientEntityCall != NULL);
-
-	(*pBundle) << createToCellEntityCall->id();				// Created on the cellspace where the entityCall is located
+	
+	(*pBundle) << createToCellEntityCall->id(); // Create on the cellspace where the entityCall is located
 	(*pBundle) << entityType;
 	(*pBundle) << id;
 	(*pBundle) << componentID_;
 	(*pBundle) << hasClient;
 	(*pBundle) << pEntity->inRestore();
 
-	MemoryStream* s = MemoryStream::createPoolObject();
-	pEntity->addCellDataToStream(CELLAPP_TYPE, ED_FLAG_ALL, s);
+	MemoryStream* s = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
+
+	try
+	{
+		pEntity->addCellDataToStream(CELLAPP_TYPE, ED_FLAG_ALL, s);
+	}
+	catch (MemoryStreamWriteOverflow & err)
+	{
+		ERROR_MSG(fmt::format("{}::createCellEntity({}): {}\n",
+			pEntity->scriptName(), pEntity->id(), err.what()));
+
+		MemoryStream::reclaimPoolObject(s);
+		Network::Bundle::reclaimPoolObject(pBundle);
+		return;
+	}
+
 	(*pBundle).append(*s);
 	MemoryStream::reclaimPoolObject(s);
-
+	
 	if(createToCellEntityCall->getChannel() == NULL)
 	{
 		ERROR_MSG(fmt::format("Baseapp::createCellEntity: not found cellapp(createToCellEntityCall:"
@@ -3037,7 +3063,7 @@ void Baseapp::onCreateCellFailure(Network::Channel* pChannel, ENTITY_ID entityID
 
 	Entity* pEntity = pEntities_->find(entityID);
 
-	// Possible client dropped during
+	// Maybe the client is offline during the period
 	if(pEntity == NULL)
 	{
 		ERROR_MSG(fmt::format("Baseapp::onCreateCellFailure: not found entity({})!\n", entityID));
@@ -3048,7 +3074,7 @@ void Baseapp::onCreateCellFailure(Network::Channel* pChannel, ENTITY_ID entityID
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::onEntityGetCell(Network::Channel* pChannel, ENTITY_ID id,
+void Baseapp::onEntityGetCell(Network::Channel* pChannel, ENTITY_ID id, 
 							  COMPONENT_ID componentID, SPACE_ID spaceID)
 {
 	if(pChannel->isExternal())
@@ -3057,11 +3083,11 @@ void Baseapp::onEntityGetCell(Network::Channel* pChannel, ENTITY_ID id,
 	Entity* pEntity = pEntities_->find(id);
 
 	// DEBUG_MSG("Baseapp::onEntityGetCell: entityID %d.\n", id);
-
-	// Possible client dropped during
+	
+	// Maybe the client is offline during the period
 	if(pEntity == NULL)
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 		(*pBundle).newMessage(CellappInterface::onDestroyCellEntityFromBaseapp);
 		(*pBundle) << id;
@@ -3073,7 +3099,7 @@ void Baseapp::onEntityGetCell(Network::Channel* pChannel, ENTITY_ID id,
 	if(pEntity->spaceID() != spaceID)
 		pEntity->spaceID(spaceID);
 
-	// If there is a client entity, you need to inform the client that its own entity has entered the world.
+	// If there is a client entity, you need to tell the client that the entity has entered the world.
 	if(pEntity->clientEntityCall() != NULL)
 	{
 		onClientEntityEnterWorld(static_cast<Proxy*>(pEntity), componentID);
@@ -3095,8 +3121,8 @@ void Baseapp::onClientEntityEnterWorld(Proxy* pEntity, COMPONENT_ID componentID)
 bool Baseapp::createClientProxies(Proxy* pEntity, bool reload)
 {
 	Py_INCREF(pEntity);
-
-	// Bind the relationship of the channel proxy with the entity, which can provide identification of identity in the following communication
+	
+	// Bind the relationship of the channel proxy to the entity, providing identity legality identification in subsequent communications
 	Network::Channel* pChannel = pEntity->clientEntityCall()->getChannel();
 	pChannel->proxyID(pEntity->id());
 	pEntity->addr(pChannel->addr());
@@ -3104,12 +3130,12 @@ bool Baseapp::createClientProxies(Proxy* pEntity, bool reload)
 	// Regenerate an ID
 	if(reload)
 		pEntity->rndUUID(genUUID64());
-
+	
 	// Some data must be accessed immediately after the entity is created
 	pEntity->initClientBasePropertys();
 
-	// Let the client know that proxices has been created and initialize some of the properties
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	// Let the client know that the promises have been created and initialize some of the properties
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(ClientInterface::onCreatedProxies);
 	(*pBundle) << pEntity->rndUUID();
 	(*pBundle) << pEntity->id();
@@ -3117,7 +3143,7 @@ bool Baseapp::createClientProxies(Proxy* pEntity, bool reload)
 	//pEntity->clientEntityCall()->sendCall((*pBundle));
 	pEntity->sendToClient(ClientInterface::onCreatedProxies, pBundle);
 
-	// This should be called by the client after the entity has been created.
+	// This interface should be called by the client after the entity has been created.
 	//if(!reload)
 	pEntity->onClientEnabled();
 	Py_DECREF(pEntity);
@@ -3135,7 +3161,7 @@ PyObject* Baseapp::__py_executeRawDatabaseCommand(PyObject* self, PyObject* args
 
 	char* data = NULL;
 	Py_ssize_t size;
-
+	
 	if (argCount == 4)
 		ret = PyArg_ParseTuple(args, "s#|O|i|O", &data, &size, &pycallback, &eid, &pyDBInterfaceName);
 	else if(argCount == 3)
@@ -3151,21 +3177,17 @@ PyObject* Baseapp::__py_executeRawDatabaseCommand(PyObject* self, PyObject* args
 		PyErr_PrintEx(0);
 		S_Return;
 	}
-
+	
 	std::string dbInterfaceName = "default";
 	if (pyDBInterfaceName)
 	{
-		wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyDBInterfaceName, NULL);
-		char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-		dbInterfaceName = ccattr;
-		PyMem_Free(PyUnicode_AsWideCharStringRet0);
-		free(ccattr);
-
+		dbInterfaceName = PyUnicode_AsUTF8AndSize(pyDBInterfaceName, NULL);
+		
 		if (!g_ouroSrvConfig.dbInterface(dbInterfaceName))
 		{
-			PyErr_Format(PyExc_TypeError, "Ouroboros::executeRawDatabaseCommand: args4, incorrect dbInterfaceName(%s)!",
+			PyErr_Format(PyExc_TypeError, "Ouroboros::executeRawDatabaseCommand: args4, incorrect dbInterfaceName(%s)!", 
 				dbInterfaceName.c_str());
-
+			
 			PyErr_PrintEx(0);
 			S_Return;
 		}
@@ -3200,10 +3222,10 @@ void Baseapp::executeRawDatabaseCommand(const char* datas, uint32 size, PyObject
 		return;
 	}
 
-	//INFO_MSG(fmt::format("Ouroboros::executeRawDatabaseCommand{}:{}.\n",
+	//INFO_MSG(fmt::format("Ouroboros::executeRawDatabaseCommand{}:{}.\n", 
 	//	(eid > 0 ? (fmt::format("(entityID={})", eid)) : ""), datas));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(DbmgrInterface::executeRawDatabaseCommand);
 	(*pBundle) << eid;
 	(*pBundle) << (uint16)dbInterfaceIndex;
@@ -3225,7 +3247,7 @@ void Baseapp::onExecuteRawDatabaseCommandCB(Network::Channel* pChannel, Ouroboro
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	std::string err;
 	CALLBACK_ID callbackID = 0;
 	uint32 nrows = 0;
@@ -3268,7 +3290,7 @@ void Baseapp::onExecuteRawDatabaseCommandCB(Network::Channel* pChannel, Ouroboro
 					s.readBlob(cell);
 
 					PyObject* pCell = NULL;
-
+						
 					if(cell == "OURO_QUERY_DB_NULL")
 					{
 						Py_INCREF(Py_None);
@@ -3317,7 +3339,7 @@ void Baseapp::onExecuteRawDatabaseCommandCB(Network::Channel* pChannel, Ouroboro
 
 	s.done();
 
-	//DEBUG_MSG(fmt::format("Baseapp::onExecuteRawDatabaseCommandCB: nrows={}, nfields={}, err={}.\n",
+	//DEBUG_MSG(fmt::format("Baseapp::onExecuteRawDatabaseCommandCB: nrows={}, nfields={}, err={}.\n", 
 	//	nrows, nfields, err.c_str()));
 
 	if(callbackID > 0)
@@ -3327,8 +3349,8 @@ void Baseapp::onExecuteRawDatabaseCommandCB(Network::Channel* pChannel, Ouroboro
 		PyObjectPtr pyfunc = pyCallbackMgr_.take(callbackID);
 		if(pyfunc != NULL)
 		{
-			PyObject* pyResult = PyObject_CallFunction(pyfunc.get(),
-												const_cast<char*>("OOOO"),
+			PyObject* pyResult = PyObject_CallFunction(pyfunc.get(), 
+												const_cast<char*>("OOOO"), 
 												pResultSet, pAffectedRows, pLastInsertID, pErrorMsg);
 
 			if(pyResult != NULL)
@@ -3338,7 +3360,7 @@ void Baseapp::onExecuteRawDatabaseCommandCB(Network::Channel* pChannel, Ouroboro
 		}
 		else
 		{
-			ERROR_MSG(fmt::format("Baseapp::onExecuteRawDatabaseCommandCB: can't found callback:{}.\n",
+			ERROR_MSG(fmt::format("Baseapp::onExecuteRawDatabaseCommandCB: not found callback:{}.\n",
 				callbackID));
 		}
 	}
@@ -3369,7 +3391,7 @@ PyObject* Baseapp::__py_charge(PyObject* self, PyObject* args)
 		PyErr_PrintEx(0);
 		return NULL;
 	}
-
+	
 	if (pChargeID == NULL)
 	{
 		PyErr_Format(PyExc_TypeError, "Ouroboros::charge: ordersID not is string!");
@@ -3397,7 +3419,7 @@ PyObject* Baseapp::__py_charge(PyObject* self, PyObject* args)
 		PyErr_PrintEx(0);
 		return NULL;
 	}
-
+	
 	if(!PyCallable_Check(pycallback))
 	{
 		PyErr_Format(PyExc_TypeError, "Ouroboros::charge: invalid pycallback!");
@@ -3420,7 +3442,7 @@ PyObject* Baseapp::__py_charge(PyObject* self, PyObject* args)
 
 	if(Baseapp::getSingleton().isShuttingdown())
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::charge(%s): shuttingdown, operation not allowed! dbid=%" PRIu64,
+		PyErr_Format(PyExc_TypeError, "Ouroboros::charge(%s): shuttingdown, operation not allowed! dbid=%" PRIu64, 
 			pChargeID, dbid);
 
 		PyErr_PrintEx(0);
@@ -3434,16 +3456,16 @@ PyObject* Baseapp::__py_charge(PyObject* self, PyObject* args)
 //-------------------------------------------------------------------------------------
 void Baseapp::charge(std::string chargeID, DBID dbid, const std::string& datas, PyObject* pycallback)
 {
-	CALLBACK_ID callbackID = callbackMgr().save(pycallback, uint64(g_ouroSrvConfig.interfaces_orders_timeout_ +
+	CALLBACK_ID callbackID = callbackMgr().save(pycallback, uint64(g_ouroSrvConfig.interfaces_orders_timeout_ + 
 		g_ouroSrvConfig.callback_timeout_));
 
-	INFO_MSG(fmt::format("Baseapp::charge: chargeID={0}, dbid={3}, datas={1}, pycallback={2}.\n",
+	INFO_MSG(fmt::format("Baseapp::charge: chargeID={0}, dbid={3}, datas={1}, pycallback={2}.\n", 
 		chargeID,
 		datas,
 		callbackID,
 		dbid));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	(*pBundle).newMessage(DbmgrInterface::charge);
 	(*pBundle) << chargeID;
@@ -3468,7 +3490,7 @@ void Baseapp::onChargeCB(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	std::string chargeID;
 	CALLBACK_ID callbackID;
 	std::string datas;
@@ -3481,7 +3503,7 @@ void Baseapp::onChargeCB(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 	s >> callbackID;
 	s >> retcode;
 
-	INFO_MSG(fmt::format("Baseapp::onChargeCB: chargeID={0}, dbid={3}, datas={1}, pycallback={2}.\n",
+	INFO_MSG(fmt::format("Baseapp::onChargeCB: chargeID={0}, dbid={3}, datas={1}, pycallback={2}.\n", 
 		chargeID,
 		datas,
 		callbackID,
@@ -3499,8 +3521,8 @@ void Baseapp::onChargeCB(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 		if(pycallback != NULL)
 		{
 			SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-			PyObject* pyResult = PyObject_CallFunction(pycallback.get(),
-												const_cast<char*>("OOOO"),
+			PyObject* pyResult = PyObject_CallFunction(pycallback.get(), 
+												const_cast<char*>("OOOO"), 
 												pyOrder, pydbid, pySuccess, pyBytes);
 
 			if(pyResult != NULL)
@@ -3510,16 +3532,16 @@ void Baseapp::onChargeCB(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 		}
 		else
 		{
-			ERROR_MSG(fmt::format("Baseapp::onChargeCB: can't found callback:{}.\n",
+			ERROR_MSG(fmt::format("Baseapp::onChargeCB: not found callback:{}.\n",
 				callbackID));
 		}
 	}
 	else
 	{
 		SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-		PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
-										const_cast<char*>("onLoseChargeCB"),
-										const_cast<char*>("OOOO"),
+		PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(), 
+										const_cast<char*>("onLoseChargeCB"), 
+										const_cast<char*>("OOOO"), 
 										pyOrder, pydbid, pySuccess, pyBytes);
 
 		if(pyResult != NULL)
@@ -3535,9 +3557,9 @@ void Baseapp::onChargeCB(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::onDbmgrInitCompleted(Network::Channel* pChannel,
-		GAME_TIME gametime, ENTITY_ID startID, ENTITY_ID endID,
-		COMPONENT_ORDER startGlobalOrder, COMPONENT_ORDER startGroupOrder,
+void Baseapp::onDbmgrInitCompleted(Network::Channel* pChannel, 
+		GAME_TIME gametime, ENTITY_ID startID, ENTITY_ID endID, 
+		COMPONENT_ORDER startGlobalOrder, COMPONENT_ORDER startGroupOrder, 
 		const std::string& digest)
 {
 	if(pChannel->isExternal())
@@ -3546,18 +3568,18 @@ void Baseapp::onDbmgrInitCompleted(Network::Channel* pChannel,
 	EntityApp<Entity>::onDbmgrInitCompleted(pChannel, gametime, startID, endID,
 		startGlobalOrder, startGroupOrder, digest);
 
-	// Synchronize your new information (startGlobalOrder, startGroupOrder, etc.) again to the machine
+	// Synchronize your new information (startGlobalOrder, startGroupOrder, etc.) to machine again
 	Components::getSingleton().broadcastSelf();
 
-	// Here need to update python environment variables
+	// Here you need to update the python environment variables
 	this->getScript().setenv("OURO_BOOTIDX_GLOBAL", getenv("OURO_BOOTIDX_GLOBAL"));
 	this->getScript().setenv("OURO_BOOTIDX_GROUP", getenv("OURO_BOOTIDX_GROUP"));
 
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
-	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
-										const_cast<char*>("onInit"),
-										const_cast<char*>("i"),
+	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(), 
+										const_cast<char*>("onInit"), 
+										const_cast<char*>("i"), 
 										0);
 
 	if(pyResult != NULL)
@@ -3576,7 +3598,7 @@ void Baseapp::onBroadcastBaseAppDataChanged(Network::Channel* pChannel, Ouroboro
 
 	std::string key, value;
 	bool isDelete;
-
+	
 	s >> isDelete;
 
 	s.readBlob(key);
@@ -3599,8 +3621,8 @@ void Baseapp::onBroadcastBaseAppDataChanged(Network::Channel* pChannel, Ouroboro
 		{
 			SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
-			// Notification script
-			SCRIPT_OBJECT_CALL_ARGS1(getEntryScript().get(), const_cast<char*>("onBaseAppDataDel"),
+			// notification script
+			SCRIPT_OBJECT_CALL_ARGS1(getEntryScript().get(), const_cast<char*>("onBaseAppDataDel"), 
 				const_cast<char*>("O"), pyKey, false);
 		}
 	}
@@ -3618,8 +3640,8 @@ void Baseapp::onBroadcastBaseAppDataChanged(Network::Channel* pChannel, Ouroboro
 		{
 			SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
-			// Notification script
-			SCRIPT_OBJECT_CALL_ARGS2(getEntryScript().get(), const_cast<char*>("onBaseAppData"),
+			// notification script
+			SCRIPT_OBJECT_CALL_ARGS2(getEntryScript().get(), const_cast<char*>("onBaseAppData"), 
 				const_cast<char*>("OO"), pyKey, pyValue, false);
 		}
 
@@ -3638,7 +3660,7 @@ void Baseapp::registerPendingLogin(Network::Channel* pChannel, Ouroboros::Memory
 		return;
 	}
 
-	std::string									loginName;
+	std::string									loginName; 
 	std::string									accountName;
 	std::string									password;
 	std::string									datas;
@@ -3653,12 +3675,12 @@ void Baseapp::registerPendingLogin(Network::Channel* pChannel, Ouroboros::Memory
 	s >> loginName >> accountName >> password >> needCheckPassword >> entityID >> entityDBID >> flags >> deadline >> clientType >> forceInternalLogin;
 	s.readBlob(datas);
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(BaseappmgrInterface::onPendingAccountGetBaseappAddr);
 
 	(*pBundle) << loginName;
 	(*pBundle) << accountName;
-
+	
 	if (!forceInternalLogin && strlen((const char*)&g_ouroSrvConfig.getBaseApp().externalAddress) > 0)
 	{
 		(*pBundle) << g_ouroSrvConfig.getBaseApp().externalAddress;
@@ -3687,7 +3709,7 @@ void Baseapp::registerPendingLogin(Network::Channel* pChannel, Ouroboros::Memory
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::loginBaseappFailed(Network::Channel* pChannel, std::string& accountName,
+void Baseapp::loginBaseappFailed(Network::Channel* pChannel, std::string& accountName, 
 								 SERVER_ERROR_CODE failedcode, bool relogin)
 {
 	if(failedcode == SERVER_ERR_NAME)
@@ -3708,7 +3730,7 @@ void Baseapp::loginBaseappFailed(Network::Channel* pChannel, std::string& accoun
 	if(pChannel == NULL)
 		return;
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	if(relogin)
 		(*pBundle).newMessage(ClientInterface::onReloginBaseappFailed);
@@ -3720,8 +3742,8 @@ void Baseapp::loginBaseappFailed(Network::Channel* pChannel, std::string& accoun
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::loginBaseapp(Network::Channel* pChannel,
-						   std::string& accountName,
+void Baseapp::loginBaseapp(Network::Channel* pChannel, 
+						   std::string& accountName, 
 						   std::string& password)
 {
 	accountName = Ouroboros::strutil::ouro_trim(accountName);
@@ -3741,7 +3763,7 @@ void Baseapp::loginBaseapp(Network::Channel* pChannel,
 		return;
 	}
 
-	INFO_MSG(fmt::format("Baseapp::loginBaseapp: new user[{0}], channel[{1}].\n",
+	INFO_MSG(fmt::format("Baseapp::loginBaseapp: new user[{0}], channel[{1}].\n", 
 		accountName, pChannel->c_str()));
 
 	Components::ComponentInfos* dbmgrinfos = Components::getSingleton().getDbmgr();
@@ -3799,15 +3821,6 @@ void Baseapp::loginBaseapp(Network::Channel* pChannel,
 		return;
 	}
 
-	// Although access to the third-party dbmgr does not check the password, the password submitted at least in the loginapp should match the one submitted this time.
-	// Otherwise, it is easy to be attacked by other connection attacks.
-	if (!ptinfos->needCheckPassword && ptinfos->password != password)
-	{
-		loginBaseappFailed(pChannel, accountName, SERVER_ERR_NAME_PASSWORD);
-		pendingLoginMgr_.removeNextTick(accountName);
-		return;
-	}
-
 	// If the entityID is greater than 0, the entity is alive.
 	if(ptinfos->entityID > 0)
 	{
@@ -3823,11 +3836,11 @@ void Baseapp::loginBaseapp(Network::Channel* pChannel,
 			return;
 		}
 
-		// Prevents destruction in onLogOnAttempt
+		// Prevent destruction in onLogOnAttempt
 		Py_INCREF(pEntity);
 
-		// Notification script abnormal login request script determines whether to allow this channel to force login
-		int32 ret = pEntity->onLogOnAttempt(pChannel->addr().ipAsString(),
+		// Notification script exception login request has a script to decide whether to allow this channel to force login
+		int32 ret = pEntity->onLogOnAttempt(pChannel->addr().ipAsString(), 
 			ntohs(pChannel->addr().port), password.c_str());
 
 		if (pEntity->isDestroyed())
@@ -3843,20 +3856,20 @@ void Baseapp::loginBaseapp(Network::Channel* pChannel,
 		case LOG_ON_ACCEPT:
 			if(pEntity->clientEntityCall() != NULL)
 			{
-				// Announcement sign in elsewhere
+				// Announcement to log in elsewhere
 				Network::Channel* pOldClientChannel = pEntity->clientEntityCall()->getChannel();
 				if(pOldClientChannel != NULL)
 				{
 					INFO_MSG(fmt::format("Baseapp::loginBaseapp: script LOG_ON_ACCEPT. oldClientChannel={}\n",
 						pOldClientChannel->c_str()));
-
+					
 					kickChannel(pOldClientChannel, SERVER_ERR_ACCOUNT_LOGIN_ANOTHER);
 				}
 				else
 				{
 					INFO_MSG("Baseapp::loginBaseapp: script LOG_ON_ACCEPT.\n");
 				}
-
+				
 				pEntity->clientEntityCall()->addr(pChannel->addr());
 				pEntity->addr(pChannel->addr());
 				pEntity->setClientType(ptinfos->ctype);
@@ -3866,8 +3879,8 @@ void Baseapp::loginBaseapp(Network::Channel* pChannel,
 			}
 			else
 			{
-				// Client entityCall to create the entity
-				EntityCall* entityClientEntityCall = new EntityCall(pEntity->pScriptModule(),
+				// Create an entity client entityCall
+				EntityCall* entityClientEntityCall = new EntityCall(pEntity->pScriptModule(), 
 					&pChannel->addr(), 0, pEntity->id(), ENTITYCALL_TYPE_CLIENT);
 
 				pEntity->clientEntityCall(entityClientEntityCall);
@@ -3875,7 +3888,7 @@ void Baseapp::loginBaseapp(Network::Channel* pChannel,
 				pEntity->setClientType(ptinfos->ctype);
 				pEntity->setLoginDatas(ptinfos->datas);
 
-				// Bind the relationship of the channel proxy with the entity, which can provide identification of identity in the following communication
+				// Bind the relationship of the channel proxy to the entity, providing identity legality identification in subsequent communications
 				entityClientEntityCall->getChannel()->proxyID(pEntity->id());
 				createClientProxies(pEntity, true);
 				pEntity->onGetWitness();
@@ -3893,7 +3906,7 @@ void Baseapp::loginBaseapp(Network::Channel* pChannel,
 	}
 	else
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(DbmgrInterface::queryAccount);
 
 		ENTITY_ID entityID = idClient_.alloc();
@@ -3905,12 +3918,36 @@ void Baseapp::loginBaseapp(Network::Channel* pChannel,
 		dbmgrinfos->pChannel->send(pBundle);
 	}
 
-	// Record client address
+	// Record the client address
 	ptinfos->addr = pChannel->addr();
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::reloginBaseapp(Network::Channel* pChannel, std::string& accountName,
+void Baseapp::logoutBaseapp(Network::Channel* pChannel, uint64 key, ENTITY_ID entityID)
+{
+	INFO_MSG(fmt::format("Baseapp::logoutBaseapp: key={}, entityID={}.\n", key, entityID));
+
+	Entity* pEntity = findEntity(entityID);
+	if (pEntity == NULL || !PyObject_TypeCheck(pEntity, Proxy::getScriptType()) || pEntity->isDestroyed())
+	{
+		return;
+	}
+
+	Proxy* proxy = static_cast<Proxy*>(pEntity);
+
+	if (key == 0 || proxy->rndUUID() != key)
+	{
+		return;
+	}
+
+	if (pChannel && !pChannel->isDestroyed())
+	{
+		pChannel->condemn("");
+	}
+}
+
+//-------------------------------------------------------------------------------------
+void Baseapp::reloginBaseapp(Network::Channel* pChannel, std::string& accountName, 
 							 std::string& password, uint64 key, ENTITY_ID entityID)
 {
 	accountName = Ouroboros::strutil::ouro_trim(accountName);
@@ -3923,9 +3960,9 @@ void Baseapp::reloginBaseapp(Network::Channel* pChannel, std::string& accountNam
 		loginBaseappFailed(pChannel, accountName, SERVER_ERR_ILLEGAL_LOGIN, true);
 		return;
 	}
-
+	
 	Proxy* proxy = static_cast<Proxy*>(pEntity);
-
+	
 	if(key == 0 || proxy->rndUUID() != key)
 	{
 		loginBaseappFailed(pChannel, accountName, SERVER_ERR_ILLEGAL_LOGIN, true);
@@ -3939,41 +3976,44 @@ void Baseapp::reloginBaseapp(Network::Channel* pChannel, std::string& accountNam
 
 		WARNING_MSG(fmt::format("Baseapp::reloginBaseapp: accountName={}, key={}, "
 			"entityID={}, ClientEntityCall({}) is exist, will be kicked out!\n",
-			accountName, key, entityID,
+			accountName, key, entityID, 
 			(pMBChannel ? pMBChannel->c_str() : "unknown")));
-
+		
 		if(pMBChannel)
 		{
 			pMBChannel->proxyID(0);
-			pMBChannel->condemn();
+			pMBChannel->condemn("", true);
+			Py_INCREF(entityClientEntityCall);
+			proxy->onClientDeath();
+			proxy->clientEntityCall(entityClientEntityCall);
 		}
 
 		entityClientEntityCall->addr(pChannel->addr());
 	}
 	else
 	{
-		// Client entityCall to create the entity
-		entityClientEntityCall = new EntityCall(proxy->pScriptModule(),
+		// Create an entity client entityCall
+		entityClientEntityCall = new EntityCall(proxy->pScriptModule(), 
 			&pChannel->addr(), 0, proxy->id(), ENTITYCALL_TYPE_CLIENT);
 
 		proxy->clientEntityCall(entityClientEntityCall);
 	}
 
-	// Bind the relationship of the channel proxy with the entity, which can provide identification of identity in the following communication
+	// Bind the relationship of the channel proxy to the entity, providing identity legality identification in subsequent communications
 	proxy->addr(pChannel->addr());
 	pChannel->proxyID(proxy->id());
 	proxy->rndUUID(Ouroboros::genUUID64());
 
-	// Reconnection of the client also requires retransmission of complete data to the client, which is equivalent to the data obtained after login.
-	// Because it cannot be ensured that the data including the scene has changed during disconnection
-	// Client needs to rebuild all data
+	// Client reconnection also needs to resend the complete data to the client, which is equivalent to the data obtained after login.
+	// Because the data such as the scene has not been changed during the disconnection
+	// client needs to rebuild all data
 	Py_INCREF(proxy);
 	createClientProxies(proxy, true);
 	proxy->onGetWitness();
 	Py_DECREF(proxy);
 	// proxy->onClientEnabled();
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(ClientInterface::onReloginBaseappSuccessfully);
 	(*pBundle) << proxy->rndUUID();
 	pChannel->send(pBundle);
@@ -3988,13 +4028,13 @@ void Baseapp::kickChannel(Network::Channel* pChannel, SERVER_ERROR_CODE failedco
 	INFO_MSG(fmt::format("Baseapp::kickChannel: pChannel={}, failedcode={}, proxyID={}.\n",
 		pChannel->c_str(), failedcode, pChannel->proxyID()));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(ClientInterface::onKicked);
 	ClientInterface::onKickedArgs1::staticAddToBundle((*pBundle), failedcode);
 	pChannel->send(pBundle);
 
 	pChannel->proxyID(0);
-	pChannel->condemn();
+	pChannel->condemn("", true);
 }
 
 //-------------------------------------------------------------------------------------
@@ -4048,9 +4088,9 @@ void Baseapp::onQueryAccountCBFromDbmgr(Network::Channel* pChannel, Ouroboros::M
 	{
 		ERROR_MSG(fmt::format("Baseapp::onQueryAccountCBFromDbmgr: create {} is failed! error(baseEntity == NULL)\n",
 			accountName.c_str()));
-
+		
 		s.done();
-
+		
 		loginBaseappFailed(pClientChannel, accountName, SERVER_ERR_SRV_NO_READY);
 		return;
 	}
@@ -4079,22 +4119,28 @@ void Baseapp::onQueryAccountCBFromDbmgr(Network::Channel* pChannel, Ouroboros::M
 	pEntity->initializeEntity(pyDict);
 	Py_DECREF(pyDict);
 
+	OURO_SHA1 sha;
+	uint32 digest[5];
+	sha.Input(s.data(), s.length());
+	sha.Result(digest);
+	pEntity->setDirty((uint32*)&digest[0]);
+
 	if(pClientChannel != NULL)
 	{
-		// Client entityCall to create the entity
-		EntityCall* entityClientEntityCall = new EntityCall(pEntity->pScriptModule(),
+		// Create an entity client entityCall
+		EntityCall* entityClientEntityCall = new EntityCall(pEntity->pScriptModule(), 
 			&pClientChannel->addr(), 0, pEntity->id(), ENTITYCALL_TYPE_CLIENT);
 
 		pEntity->clientEntityCall(entityClientEntityCall);
 		pEntity->addr(pClientChannel->addr());
 
 		createClientProxies(pEntity);
-
+		
 		/*
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(DbmgrInterface::onAccountOnline);
 
-		DbmgrInterface::onAccountOnlineArgs3::staticAddToBundle((*pBundle), accountName,
+		DbmgrInterface::onAccountOnlineArgs3::staticAddToBundle((*pBundle), accountName, 
 			componentID_, pEntity->id());
 
 		pChannel->send(pBundle);
@@ -4105,18 +4151,24 @@ void Baseapp::onQueryAccountCBFromDbmgr(Network::Channel* pChannel, Ouroboros::M
 		accountName, pEntity->rndUUID(), pEntity->id(), flags, deadline));
 
 	SAFE_RELEASE(ptinfos);
+
+	if (!pClientChannel)
+	{
+		pEntity->onClientDeath();
+	}
+
 	Py_DECREF(pEntity);
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::forwardMessageToClientFromCellapp(Network::Channel* pChannel,
+void Baseapp::forwardMessageToClientFromCellapp(Network::Channel* pChannel, 
 												Ouroboros::MemoryStream& s)
 {
 	AUTO_SCOPED_PROFILE("forwardMessageToClientFromCellapp");
-
+	
 	if(pChannel->isExternal())
 		return;
-
+	
 	ENTITY_ID eid;
 	s >> eid;
 
@@ -4137,7 +4189,7 @@ void Baseapp::forwardMessageToClientFromCellapp(Network::Channel* pChannel,
 				{
 					std::vector<std::string>::iterator iter = std::find(Network::g_trace_packet_disables.begin(),
 															Network::g_trace_packet_disables.end(),
-																pMessageHandler->name);
+																pMessageHandler->name);	
 
 					if(iter != Network::g_trace_packet_disables.end())
 					{
@@ -4147,7 +4199,7 @@ void Baseapp::forwardMessageToClientFromCellapp(Network::Channel* pChannel,
 
 				if(isprint)
 				{
-					WARNING_MSG(fmt::format("Baseapp::forwardMessageToClientFromCellapp: entityID {} not found, {}(msgid={}).\n",
+					WARNING_MSG(fmt::format("Baseapp::forwardMessageToClientFromCellapp: entityID {} not found, {}(msgid={}).\n", 
 						eid, (pMessageHandler == NULL ? "unknown" : pMessageHandler->name), fmsgid));
 				}
 				else
@@ -4193,7 +4245,7 @@ void Baseapp::forwardMessageToClientFromCellapp(Network::Channel* pChannel,
 				if(isprint)
 				{
 					ERROR_MSG(fmt::format("Baseapp::forwardMessageToClientFromCellapp: "
-						"error(not found clientEntityCall)! entityID({}), {}(msgid={}).\n",
+						"error(not found clientEntityCall)! entityID({}), {}(msgid={}).\n", 
 						eid,(pMessageHandler == NULL ? "unknown" : pMessageHandler->name), fmsgid));
 				}
 				else
@@ -4216,7 +4268,7 @@ void Baseapp::forwardMessageToClientFromCellapp(Network::Channel* pChannel,
 		s.done();
 		return;
 	}
-
+	
 	if(s.length() <= 0)
 		return;
 
@@ -4224,7 +4276,7 @@ void Baseapp::forwardMessageToClientFromCellapp(Network::Channel* pChannel,
 
 	Network::Channel* pClientChannel = entityCall->getChannel();
 	Network::Bundle* pSendBundle = NULL;
-
+	
 	static Network::MessageHandler* pMessageHandler = NULL;
 
 	int rpos = s.rpos();
@@ -4235,9 +4287,9 @@ void Baseapp::forwardMessageToClientFromCellapp(Network::Channel* pChannel,
 		pMessageHandler = ClientInterface::messageHandlers.find(fmsgid);
 
 	s.rpos(rpos);
-
+		
 	if (!pClientChannel || pBufferedSendToClientMessages)
-		pSendBundle = Network::Bundle::createPoolObject();
+		pSendBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	else
 		pSendBundle = pClientChannel->createSendBundle();
 
@@ -4245,9 +4297,13 @@ void Baseapp::forwardMessageToClientFromCellapp(Network::Channel* pChannel,
 	pSendBundle->pCurrMsgHandler(pMessageHandler);
 
 	if (!pBufferedSendToClientMessages)
-		static_cast<Proxy*>(pEntity)->sendToClient(pSendBundle);
+	{
+		static_cast<Proxy*>(pEntity)->sendToClient(pSendBundle, true);
+	}
 	else
+	{
 		pBufferedSendToClientMessages->pushMessages(pSendBundle);
+	}
 
 	if(Network::g_trace_packet > 0 && s.length() >= sizeof(Network::MessageID))
 	{
@@ -4276,12 +4332,12 @@ void Baseapp::forwardMessageToClientFromCellapp(Network::Channel* pChannel,
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::forwardMessageToCellappFromCellapp(Network::Channel* pChannel,
+void Baseapp::forwardMessageToCellappFromCellapp(Network::Channel* pChannel, 
 												Ouroboros::MemoryStream& s)
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	ENTITY_ID eid;
 	s >> eid;
 
@@ -4297,27 +4353,27 @@ void Baseapp::forwardMessageToCellappFromCellapp(Network::Channel* pChannel,
 	if(entityCall == NULL)
 	{
 		ERROR_MSG(fmt::format("Baseapp::forwardMessageToCellappFromCellapp: "
-			"error(not found cellEntityCall)! entityID={}.\n",
+			"error(not found cellEntityCall)! entityID={}.\n", 
 			eid));
 
 		s.done();
 		return;
 	}
-
+	
 	if(s.length() <= 0)
 		return;
 
 	Network::Channel* pClientChannel = entityCall->getChannel();
 	Network::Bundle* pSendBundle = NULL;
-
+	
 	if(!pChannel)
-		pSendBundle = Network::Bundle::createPoolObject();
+		pSendBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	else
 		pSendBundle = pClientChannel->createSendBundle();
-
+	
 	(*pSendBundle).append(s);
 	pEntity->sendToCellapp(pSendBundle);
-
+	
 	if(Network::g_trace_packet > 0 && s.length() >= sizeof(Network::MessageID))
 	{
 		Network::MessageID fmsgid = 0;
@@ -4366,7 +4422,7 @@ void Baseapp::onEntityCall(Network::Channel* pChannel, Ouroboros::MemoryStream& 
 	ENTITYCALL_TYPE calltype;
 	s >> calltype;
 
-	// Try to find the recipient information in this area to see if the recipient is in this area
+	// Try to find the recipient information in this area to see if the recipient belongs to this area
 	Entity* pEntity = pEntities_->find(eid);
 	if(pEntity == NULL)
 	{
@@ -4374,27 +4430,26 @@ void Baseapp::onEntityCall(Network::Channel* pChannel, Ouroboros::MemoryStream& 
 		s.done();
 		return;
 	}
-
-
+	
 	switch(calltype)
 	{
-		// This component is a baseapp, then confirm the destination of the mail is here, then perform the final operation
-		case ENTITYCALL_TYPE_BASE:
+		// This component is baseapp, then confirm that the destination of the mail is here, then perform the final operation
+		case ENTITYCALL_TYPE_BASE:		
 			pEntity->onRemoteMethodCall(pChannel, s);
 			break;
 
 		// entity.cell.base.xxx
-		case ENTITYCALL_TYPE_CELL_VIA_BASE:
+		case ENTITYCALL_TYPE_CELL_VIA_BASE: 
 			{
 				EntityCallAbstract* entityCall = static_cast<EntityCallAbstract*>(pEntity->cellEntityCall());
 				if(entityCall == NULL)
 				{
-					WARNING_MSG(fmt::format("Baseapp::onEntityCall: not found cellEntityCall! "
-						"entitycallType={}, entityID={}.\n", calltype, eid));
+					//WARNING_MSG(fmt::format("Baseapp::onEntityCall: not found cellEntityCall! "
+					//	"entitycallType={}, entityID={}.\n", calltype, eid));
 
 					break;
 				}
-
+				
 				Network::Channel* pChannel = entityCall->getChannel();
 				if (pChannel)
 				{
@@ -4411,13 +4466,13 @@ void Baseapp::onEntityCall(Network::Channel* pChannel, Ouroboros::MemoryStream& 
 				EntityCallAbstract* entityCall = static_cast<EntityCallAbstract*>(pEntity->clientEntityCall());
 				if(entityCall == NULL)
 				{
-					WARNING_MSG(fmt::format("Baseapp::onEntityCall: not found clientEntityCall! "
-						"entitycallType={}, entityID={}.\n",
-						calltype, eid));
+					//WARNING_MSG(fmt::format("Baseapp::onEntityCall: not found clientEntityCall! "
+					//	"entitycallType={}, entityID={}.\n", 
+					//	calltype, eid));
 
 					break;
 				}
-
+				
 				Network::Channel* pChannel = entityCall->getChannel();
 				if (pChannel)
 				{
@@ -4460,32 +4515,32 @@ void Baseapp::onRemoteCallCellMethodFromClient(Network::Channel* pChannel, Ourob
 	{
 		ERROR_MSG(fmt::format("Baseapp::onRemoteCallCellMethodFromClient: pChannel does not bind proxy! addr={}\n",
 			pChannel->c_str()));
-
-		pChannel->condemn();
+				
+		pChannel->condemn("Baseapp::onRemoteCallCellMethodFromClient: pChannel does not bind proxy!");
 		s.done();
 		return;
 	}
-
+	
 	if(s.length() <= 0)
 		return;
 
 	Ouroboros::Proxy* e = static_cast<Ouroboros::Proxy*>
-			(Ouroboros::Baseapp::getSingleton().findEntity(srcEntityID));
+			(Ouroboros::Baseapp::getSingleton().findEntity(srcEntityID));		
 
 	if(e == NULL || e->cellEntityCall() == NULL)
 	{
 		WARNING_MSG(fmt::format("Baseapp::onRemoteCallCellMethodFromClient: {} {} no cell.\n",
 			(e == NULL ? "unknown" : e->scriptName()), srcEntityID));
-
+		
 		s.done();
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(CellappInterface::onRemoteCallMethodFromClient);
 	(*pBundle) << srcEntityID;
 	(*pBundle).append(s);
-
+	
 	e->sendToCellapp(pBundle);
 	s.done();
 }
@@ -4506,12 +4561,12 @@ void Baseapp::onUpdateDataFromClient(Network::Channel* pChannel, Ouroboros::Memo
 	{
 		ERROR_MSG(fmt::format("Baseapp::onUpdateDataFromClient: pChannel does not bind proxy! addr={}\n",
 			pChannel->c_str()));
-
-		pChannel->condemn();
+				
+		pChannel->condemn("Baseapp::onUpdateDataFromClient: pChannel does not bind proxy!");
 		s.done();
 		return;
 	}
-
+	
 	static size_t datasize = (sizeof(float) * 6 + sizeof(uint8) + sizeof(uint32));
 	if(s.length() <= 0 || s.length() != datasize)
 	{
@@ -4523,27 +4578,27 @@ void Baseapp::onUpdateDataFromClient(Network::Channel* pChannel, Ouroboros::Memo
 	}
 
 	Ouroboros::Proxy* e = static_cast<Ouroboros::Proxy*>
-			(Ouroboros::Baseapp::getSingleton().findEntity(srcEntityID));
+			(Ouroboros::Baseapp::getSingleton().findEntity(srcEntityID));	
 
 	if(e == NULL || e->cellEntityCall() == NULL)
 	{
 		ERROR_MSG(fmt::format("Baseapp::onUpdateDataFromClient: {} {} no cell.\n",
 			(e == NULL ? "unknown" : e->scriptName()), srcEntityID));
-
+		
 		s.done();
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(CellappInterface::onUpdateDataFromClient);
 	(*pBundle) << srcEntityID;
 	(*pBundle).append(s);
-
+	
 	e->sendToCellapp(pBundle);
 	s.done();
 }
 
-//-------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------- 
 void Baseapp::onUpdateDataFromClientForControlledEntity(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 {
 	if(shuttingdown_ != SHUTDOWN_STATE_STOP)
@@ -4551,14 +4606,14 @@ void Baseapp::onUpdateDataFromClientForControlledEntity(Network::Channel* pChann
 		s.done();
 		return;
 	}
-
+	
 	ENTITY_ID srcEntityID = pChannel->proxyID();
 	if(srcEntityID <= 0)
 	{
 		s.done();
 		return;
 	}
-
+	
 	static size_t datasize = (sizeof(int32) + sizeof(float) * 6 + sizeof(uint8) + sizeof(uint32));
 	if(s.length() <= 0 || s.length() != datasize)
 	{
@@ -4570,22 +4625,22 @@ void Baseapp::onUpdateDataFromClientForControlledEntity(Network::Channel* pChann
 	}
 
 	Ouroboros::Proxy* e = static_cast<Ouroboros::Proxy*>
-			(Ouroboros::Baseapp::getSingleton().findEntity(srcEntityID));
+			(Ouroboros::Baseapp::getSingleton().findEntity(srcEntityID));	
 
 	if(e == NULL || e->cellEntityCall() == NULL)
 	{
 		ERROR_MSG(fmt::format("Baseapp::onUpdateDataFromClientForControlledEntity: {} {} has no cell.\n",
 			(e == NULL ? "unknown" : e->scriptName()), srcEntityID));
-
+		
 		s.done();
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::ObjPool().createObject();
+	Network::Bundle* pBundle = Network::Bundle::ObjPool().createObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(CellappInterface::onUpdateDataFromClientForControlledEntity);
 	(*pBundle) << srcEntityID;
 	(*pBundle).append(s);
-
+	
 	e->sendToCellapp(pBundle);
 	s.done();
 }
@@ -4603,8 +4658,8 @@ void Baseapp::onBackupEntityCellData(Network::Channel* pChannel, Ouroboros::Memo
 
 	if(pEntity)
 	{
-		INFO_MSG(fmt::format("Baseapp::onBackupEntityCellData: {}({}), {} bytes.\n",
-			pEntity->scriptName(), entityID, s.length()));
+		//INFO_MSG(fmt::format("Baseapp::onBackupEntityCellData: {}({}), {} bytes.\n",
+		//	pEntity->scriptName(), entityID, s.length()));
 
 		pEntity->onBackupCellData(pChannel, s);
 	}
@@ -4649,7 +4704,7 @@ void Baseapp::onCellWriteToDBCompleted(Network::Channel* pChannel, Ouroboros::Me
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::onWriteToDBCallback(Network::Channel* pChannel, ENTITY_ID eid,
+void Baseapp::onWriteToDBCallback(Network::Channel* pChannel, ENTITY_ID eid, 
 	DBID entityDBID, uint16 dbInterfaceIndex, CALLBACK_ID callbackID, bool success)
 {
 	if(pChannel->isExternal())
@@ -4673,7 +4728,7 @@ void Baseapp::onClientActiveTick(Network::Channel* pChannel)
 
 	onAppActiveTick(pChannel, CLIENT_TYPE, 0);
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	pBundle->newMessage(ClientInterface::onAppActiveTickCB);
 	pChannel->send(pBundle);
 }
@@ -4688,32 +4743,32 @@ void Baseapp::onEntityAutoLoadCBFromDBMgr(Network::Channel* pChannel, MemoryStre
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::onHello(Network::Channel* pChannel,
-						const std::string& verInfo,
+void Baseapp::onHello(Network::Channel* pChannel, 
+						const std::string& verInfo, 
 						const std::string& scriptVerInfo,
 						const std::string& encryptedKey)
 {
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
-
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+	
 	pBundle->newMessage(ClientInterface::onHelloCB);
-	(*pBundle) << OUROVersion::versionString();
-	(*pBundle) << OUROVersion::scriptVersionString();
+	(*pBundle) << KBEVersion::versionString();
+	(*pBundle) << KBEVersion::scriptVersionString();
 	(*pBundle) << Network::MessageHandlers::getDigestStr();
 	(*pBundle) << EntityDef::md5().getDigestStr();
 	(*pBundle) << g_componentType;
 
-	// This message does not allow encryption, so the setting is encrypted and ignored again. This occurs when the first send message is not immediately generated but is notified by epoll (usually for testing, the normal environment does not appear).
-	// The web protocol must be encrypted so it cannot be set to true
+	// This message does not allow encryption, so set encryption to ignore re-encryption. This happens when the first send message is not immediately generated but is notified by epoll (usually used for testing, the normal environment will not appear)
+	// The web protocol must be encrypted, so it cannot be set to true.
 	if (pChannel->type() != Ouroboros::Network::Channel::CHANNEL_WEB)
 		pBundle->pCurrPacket()->encrypted(true);
 
 	pChannel->send(pBundle);
-
+	
 	if(Network::g_channelExternalEncryptType > 0)
 	{
 		if(encryptedKey.size() > 3)
 		{
-			// Replaced with an encrypted filter
+			// replaced with an encrypted filter
 			pChannel->pFilter(Network::createEncryptionFilter(Network::g_channelExternalEncryptType, encryptedKey));
 		}
 		else
@@ -4730,10 +4785,10 @@ void Baseapp::lookApp(Network::Channel* pChannel)
 	if(pChannel->isExternal())
 		return;
 
-	DEBUG_MSG(fmt::format("Baseapp::lookApp: {}\n", pChannel->c_str()));
+	//DEBUG_MSG(fmt::format("Baseapp::lookApp: {}\n", pChannel->c_str()));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
-
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+	
 	(*pBundle) << g_componentType;
 	(*pBundle) << componentID_;
 
@@ -4804,7 +4859,9 @@ void Baseapp::importClientMessages(Network::Channel* pChannel)
 		}
 	}
 
-	pChannel->send(new Network::Bundle(bundle));
+	Network::Bundle* pNewBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+	pNewBundle->copy(bundle);
+	pChannel->send(pNewBundle);
 }
 
 //-------------------------------------------------------------------------------------
@@ -4812,7 +4869,7 @@ void Baseapp::importClientEntityDef(Network::Channel* pChannel)
 {
 	if (!pBundleImportEntityDefDatas_)
 	{
-		pBundleImportEntityDefDatas_ = Network::Bundle::createPoolObject();
+		pBundleImportEntityDefDatas_ = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 		ENTITY_PROPERTY_UID posuid = ENTITY_BASE_PROPERTY_UTYPE_POSITION_XYZ;
 		ENTITY_PROPERTY_UID diruid = ENTITY_BASE_PROPERTY_UTYPE_DIRECTION_ROLL_PITCH_YAW;
@@ -4833,7 +4890,7 @@ void Baseapp::importClientEntityDef(Network::Channel* pChannel)
 			spaceuid = msgInfo->msgid;
 
 		pBundleImportEntityDefDatas_->newMessage(ClientInterface::onImportClientEntityDef);
-
+		
 		const DataTypes::UID_DATATYPE_MAP& dataTypes = DataTypes::uid_dataTypes();
 		uint16 aliassize = (uint16)dataTypes.size();
 		(*pBundleImportEntityDefDatas_) << aliassize;
@@ -4850,7 +4907,7 @@ void Baseapp::importClientEntityDef(Network::Channel* pChannel)
 			if(strcmp(datatype->getName(), "FIXED_DICT") == 0)
 			{
 				FixedDictType* dictdatatype = const_cast<FixedDictType*>(static_cast<const FixedDictType*>(datatype));
-
+				
 				FixedDictType::FIXEDDICT_KEYTYPE_MAP& keys = dictdatatype->getKeyTypes();
 
 				uint8 keysize = (uint8)keys.size();
@@ -4888,7 +4945,7 @@ void Baseapp::importClientEntityDef(Network::Channel* pChannel)
 			uint16 size3 = (uint16)methods2.size();
 
 			(*pBundleImportEntityDefDatas_) << iter->get()->getName() << iter->get()->getUType() << size << size1 << size2 << size3;
-
+			
 			int16 aliasID = ENTITY_BASE_PROPERTY_ALIASID_POSITION_XYZ;
 			if (!iter->get()->usePropertyDescrAlias())
 				aliasID = -1;
@@ -4914,7 +4971,7 @@ void Baseapp::importClientEntityDef(Network::Channel* pChannel)
 				uint32 flags = piter->second->getFlags();
 				(*pBundleImportEntityDefDatas_) << properUtype << flags << aliasID << name << defaultValStr << piter->second->getDataType()->id();
 			}
-
+			
 			ScriptDefModule::METHODDESCRIPTION_MAP::const_iterator miter = methods.begin();
 			for(; miter != methods.end(); ++miter)
 			{
@@ -4922,12 +4979,12 @@ void Baseapp::importClientEntityDef(Network::Channel* pChannel)
 				int16 aliasID = miter->second->aliasID();
 
 				std::string	name = miter->second->getName();
-
+				
 				const std::vector<DataType*>& args = miter->second->getArgTypes();
 				uint8 argssize = (uint8)args.size();
 
 				(*pBundleImportEntityDefDatas_) << methodUtype << aliasID << name << argssize;
-
+				
 				std::vector<DataType*>::const_iterator argiter = args.begin();
 				for(; argiter != args.end(); ++argiter)
 				{
@@ -4942,12 +4999,12 @@ void Baseapp::importClientEntityDef(Network::Channel* pChannel)
 				int16 aliasID = miter->second->aliasID();
 
 				std::string	name = miter->second->getName();
-
+				
 				const std::vector<DataType*>& args = miter->second->getArgTypes();
 				uint8 argssize = (uint8)args.size();
 
 				(*pBundleImportEntityDefDatas_) << methodUtype << aliasID << name << argssize;
-
+				
 				std::vector<DataType*>::const_iterator argiter = args.begin();
 				for(; argiter != args.end(); ++argiter)
 				{
@@ -4962,12 +5019,12 @@ void Baseapp::importClientEntityDef(Network::Channel* pChannel)
 				int16 aliasID = miter->second->aliasID();
 
 				std::string	name = miter->second->getName();
-
+				
 				const std::vector<DataType*>& args = miter->second->getArgTypes();
 				uint8 argssize = (uint8)args.size();
 
 				(*pBundleImportEntityDefDatas_) << methodUtype << aliasID << name << argssize;
-
+				
 				std::vector<DataType*>::const_iterator argiter = args.begin();
 				for(; argiter != args.end(); ++argiter)
 				{
@@ -4977,7 +5034,9 @@ void Baseapp::importClientEntityDef(Network::Channel* pChannel)
 		}
 	}
 
-	pChannel->send(new Network::Bundle((*pBundleImportEntityDefDatas_)));
+	Network::Bundle* pNewBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+	pNewBundle->copy((*pBundleImportEntityDefDatas_));
+	pChannel->send(pNewBundle);
 }
 
 //-------------------------------------------------------------------------------------
@@ -5050,7 +5109,7 @@ PyObject* Baseapp::__py_deleteEntityByDBID(PyObject* self, PyObject* args)
 		PyErr_PrintEx(0);
 		return NULL;
 	}
-
+	
 	char* entityType = NULL;
 	PyObject* pycallback = NULL;
 	PyObject* pyDBInterfaceName = NULL;
@@ -5075,11 +5134,7 @@ PyObject* Baseapp::__py_deleteEntityByDBID(PyObject* self, PyObject* args)
 			return NULL;
 		}
 
-		wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyDBInterfaceName, NULL);
-		char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-		dbInterfaceName = ccattr;
-		PyMem_Free(PyUnicode_AsWideCharStringRet0);
-		free(ccattr);
+		dbInterfaceName = PyUnicode_AsUTF8AndSize(pyDBInterfaceName, NULL);
 	}
 
 	ScriptDefModule* sm = EntityDef::findScriptModule(entityType);
@@ -5096,7 +5151,7 @@ PyObject* Baseapp::__py_deleteEntityByDBID(PyObject* self, PyObject* args)
 		PyErr_PrintEx(0);
 		return NULL;
 	}
-
+	
 	if(!PyCallable_Check(pycallback))
 	{
 		PyErr_Format(PyExc_TypeError, "Ouroboros::deleteEntityByDBID: invalid pycallback!");
@@ -5131,7 +5186,7 @@ PyObject* Baseapp::__py_deleteEntityByDBID(PyObject* self, PyObject* args)
 
 	CALLBACK_ID callbackID = Baseapp::getSingleton().callbackMgr().save(pycallback);
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(DbmgrInterface::deleteEntityByDBID);
 	(*pBundle) << (uint16)dbInterfaceIndex;
 	(*pBundle) << g_componentID;
@@ -5148,7 +5203,7 @@ void Baseapp::deleteEntityByDBIDCB(Network::Channel* pChannel, Ouroboros::Memory
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	ENTITY_ID entityID = 0;
 	COMPONENT_ID entityInAppID = 0;
 	bool success = false;
@@ -5197,8 +5252,8 @@ void Baseapp::deleteEntityByDBIDCB(Network::Channel* pChannel, Ouroboros::Memory
 			}
 
 			SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-			PyObject* pyResult = PyObject_CallFunction(pyfunc.get(),
-												const_cast<char*>("O"),
+			PyObject* pyResult = PyObject_CallFunction(pyfunc.get(), 
+												const_cast<char*>("O"), 
 												pyval);
 
 			if(pyResult != NULL)
@@ -5210,7 +5265,7 @@ void Baseapp::deleteEntityByDBIDCB(Network::Channel* pChannel, Ouroboros::Memory
 		}
 		else
 		{
-			ERROR_MSG(fmt::format("Baseapp::deleteEntityByDBIDCB: can't found callback:{}.\n",
+			ERROR_MSG(fmt::format("Baseapp::deleteEntityByDBIDCB: not found callback:{}.\n",
 				callbackID));
 		}
 	}
@@ -5226,7 +5281,7 @@ PyObject* Baseapp::__py_lookUpEntityByDBID(PyObject* self, PyObject* args)
 		PyErr_PrintEx(0);
 		return NULL;
 	}
-
+	
 	char* entityType = NULL;
 	PyObject* pycallback = NULL;
 	DBID dbid = 0;
@@ -5252,11 +5307,7 @@ PyObject* Baseapp::__py_lookUpEntityByDBID(PyObject* self, PyObject* args)
 			return NULL;
 		}
 
-		wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyDBInterfaceName, NULL);
-		char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-		dbInterfaceName = ccattr;
-		PyMem_Free(PyUnicode_AsWideCharStringRet0);
-		free(ccattr);
+		dbInterfaceName = PyUnicode_AsUTF8AndSize(pyDBInterfaceName, NULL);
 	}
 	else
 	{
@@ -5277,14 +5328,14 @@ PyObject* Baseapp::__py_lookUpEntityByDBID(PyObject* self, PyObject* args)
 		PyErr_PrintEx(0);
 		return NULL;
 	}
-
+	
 	if(!PyCallable_Check(pycallback))
 	{
 		PyErr_Format(PyExc_TypeError, "Ouroboros::lookUpEntityByDBID: invalid pycallback!");
 		PyErr_PrintEx(0);
 		return NULL;
 	}
-
+	
 	DBInterfaceInfo* pDBInterfaceInfo = g_ouroSrvConfig.dbInterface(dbInterfaceName);
 	if (pDBInterfaceInfo->isPure)
 	{
@@ -5312,7 +5363,7 @@ PyObject* Baseapp::__py_lookUpEntityByDBID(PyObject* self, PyObject* args)
 
 	CALLBACK_ID callbackID = Baseapp::getSingleton().callbackMgr().save(pycallback);
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(DbmgrInterface::lookUpEntityByDBID);
 	(*pBundle) << (uint16)dbInterfaceIndex;
 	(*pBundle) << g_componentID;
@@ -5329,7 +5380,7 @@ void Baseapp::lookUpEntityByDBIDCB(Network::Channel* pChannel, Ouroboros::Memory
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	ENTITY_ID entityID = 0;
 	COMPONENT_ID entityInAppID = 0;
 	bool success = false;
@@ -5379,8 +5430,8 @@ void Baseapp::lookUpEntityByDBIDCB(Network::Channel* pChannel, Ouroboros::Memory
 			}
 
 			SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-			PyObject* pyResult = PyObject_CallFunction(pyfunc.get(),
-												const_cast<char*>("O"),
+			PyObject* pyResult = PyObject_CallFunction(pyfunc.get(), 
+												const_cast<char*>("O"), 
 												pyval);
 
 			if(pyResult != NULL)
@@ -5392,7 +5443,7 @@ void Baseapp::lookUpEntityByDBIDCB(Network::Channel* pChannel, Ouroboros::Memory
 		}
 		else
 		{
-			ERROR_MSG(fmt::format("Baseapp::lookUpEntityByDBIDCB: can't found callback:{}.\n",
+			ERROR_MSG(fmt::format("Baseapp::lookUpEntityByDBIDCB: not found callback:{}.\n",
 				callbackID));
 		}
 	}
@@ -5407,7 +5458,7 @@ void Baseapp::reqAccountBindEmail(Network::Channel* pChannel, ENTITY_ID entityID
 		ERROR_MSG(fmt::format("Baseapp::reqAccountBindEmail: can't found entity:{}.\n", entityID));
 		return;
 	}
-
+	
 	PyObject* py__ACCOUNT_NAME__ = PyObject_GetAttrString(pEntity, "__ACCOUNT_NAME__");
 	if(py__ACCOUNT_NAME__ == NULL)
 	{
@@ -5415,13 +5466,8 @@ void Baseapp::reqAccountBindEmail(Network::Channel* pChannel, ENTITY_ID entityID
 		PyErr_Clear();
 		return;
 	}
-
-	wchar_t* wname = PyUnicode_AsWideCharString(py__ACCOUNT_NAME__, NULL);
-	char* name = strutil::wchar2char(wname);
-	PyMem_Free(wname);
-
-	std::string accountName = name;
-	free(name);
+			
+	std::string accountName = PyUnicode_AsUTF8AndSize(py__ACCOUNT_NAME__, NULL);
 
 	Py_DECREF(py__ACCOUNT_NAME__);
 
@@ -5436,26 +5482,26 @@ void Baseapp::reqAccountBindEmail(Network::Channel* pChannel, ENTITY_ID entityID
 
 	if (!email_isvalid(email.c_str()))
 	{
-		ERROR_MSG(fmt::format("Baseapp::reqAccountBindEmail(): invalid email({})! accountName={}\n",
+		ERROR_MSG(fmt::format("Baseapp::reqAccountBindEmail(): invalid email({})! accountName={}\n", 
 			email, accountName));
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(ClientInterface::onReqAccountBindEmailCB);
 		SERVER_ERROR_CODE retcode = SERVER_ERR_NAME_MAIL;
 		(*pBundle) << retcode;
 		pChannel->send(pBundle);
 		return;
 	}
-
+			
 	INFO_MSG(fmt::format("Baseapp::reqAccountBindEmail: accountName={}, entityID={}, email={}!\n", accountName, entityID, email));
 
 	Components::ComponentInfos* dbmgrinfos = Components::getSingleton().getDbmgr();
 	if(dbmgrinfos == NULL || dbmgrinfos->pChannel == NULL || dbmgrinfos->cid == 0)
 	{
-		ERROR_MSG(fmt::format("Baseapp::reqAccountBindEmail: accountName({}), not found dbmgr!\n",
+		ERROR_MSG(fmt::format("Baseapp::reqAccountBindEmail: accountName({}), not found dbmgr!\n", 
 			accountName));
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(ClientInterface::onReqAccountBindEmailCB);
 		SERVER_ERROR_CODE retcode = SERVER_ERR_SRV_NO_READY;
 		(*pBundle) << retcode;
@@ -5463,7 +5509,7 @@ void Baseapp::reqAccountBindEmail(Network::Channel* pChannel, ENTITY_ID entityID
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(DbmgrInterface::accountReqBindMail);
 	(*pBundle) << entityID << accountName << password << email;
 	dbmgrinfos->pChannel->send(pBundle);
@@ -5475,8 +5521,8 @@ void Baseapp::onReqAccountBindEmailCBFromDBMgr(Network::Channel* pChannel, ENTIT
 {
 	if(pChannel->isExternal())
 		return;
-
-	INFO_MSG(fmt::format("Baseapp::onReqAccountBindEmailCBFromDBMgr: {}({}) failedcode={}!\n",
+	
+	INFO_MSG(fmt::format("Baseapp::onReqAccountBindEmailCBFromDBMgr: {}({}) failedcode={}!\n", 
 		accountName, entityID, failedcode));
 
 	if (failedcode != SERVER_SUCCESS)
@@ -5488,7 +5534,7 @@ void Baseapp::onReqAccountBindEmailCBFromDBMgr(Network::Channel* pChannel, ENTIT
 			return;
 		}
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(ClientInterface::onReqAccountBindEmailCB);
 		(*pBundle) << failedcode;
 		pEntity->clientEntityCall()->getChannel()->send(pBundle);
@@ -5498,7 +5544,7 @@ void Baseapp::onReqAccountBindEmailCBFromDBMgr(Network::Channel* pChannel, ENTIT
 		Network::Channel* pBaseappmgrChannel = Components::getSingleton().getBaseappmgrChannel();
 		if (pBaseappmgrChannel != NULL)
 		{
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 			(*pBundle).newMessage(BaseappmgrInterface::reqAccountBindEmailAllocCallbackLoginapp);
 			BaseappmgrInterface::reqAccountBindEmailAllocCallbackLoginappArgs6::staticAddToBundle((*pBundle), g_componentID,
 				entityID, accountName, email, failedcode, code);
@@ -5537,14 +5583,14 @@ void Baseapp::onReqAccountBindEmailCBFromBaseappmgr(Network::Channel* pChannel, 
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(ClientInterface::onReqAccountBindEmailCB);
 	(*pBundle) << failedcode;
 	pEntity->clientEntityCall()->getChannel()->send(pBundle);
 }
 
 //-------------------------------------------------------------------------------------
-void Baseapp::reqAccountNewPassword(Network::Channel* pChannel, ENTITY_ID entityID,
+void Baseapp::reqAccountNewPassword(Network::Channel* pChannel, ENTITY_ID entityID, 
 									std::string& oldpassworld, std::string& newpassword)
 {
 	Entity* pEntity = pEntities_->find(entityID);
@@ -5553,7 +5599,7 @@ void Baseapp::reqAccountNewPassword(Network::Channel* pChannel, ENTITY_ID entity
 		ERROR_MSG(fmt::format("Baseapp::reqAccountNewPassword: can't found entity:{}.\n", entityID));
 		return;
 	}
-
+	
 	PyObject* py__ACCOUNT_NAME__ = PyObject_GetAttrString(pEntity, "__ACCOUNT_NAME__");
 	if(py__ACCOUNT_NAME__ == NULL)
 	{
@@ -5562,12 +5608,7 @@ void Baseapp::reqAccountNewPassword(Network::Channel* pChannel, ENTITY_ID entity
 		return;
 	}
 
-	wchar_t* wname = PyUnicode_AsWideCharString(py__ACCOUNT_NAME__, NULL);
-	char* name = strutil::wchar2char(wname);
-	PyMem_Free(wname);
-
-	std::string accountName = name;
-	free(name);
+	std::string accountName = PyUnicode_AsUTF8AndSize(py__ACCOUNT_NAME__, NULL);
 
 	Py_DECREF(py__ACCOUNT_NAME__);
 
@@ -5580,16 +5621,16 @@ void Baseapp::reqAccountNewPassword(Network::Channel* pChannel, ENTITY_ID entity
 	oldpassworld = Ouroboros::strutil::ouro_trim(oldpassworld);
 	newpassword = Ouroboros::strutil::ouro_trim(newpassword);
 
-	INFO_MSG(fmt::format("Baseapp::reqAccountNewPassword: {}({})!\n",
+	INFO_MSG(fmt::format("Baseapp::reqAccountNewPassword: {}({})!\n", 
 		accountName, entityID));
 
 	Components::ComponentInfos* dbmgrinfos = Components::getSingleton().getDbmgr();
 	if(dbmgrinfos == NULL || dbmgrinfos->pChannel == NULL || dbmgrinfos->cid == 0)
 	{
-		ERROR_MSG(fmt::format("Baseapp::reqAccountNewPassword: accountName({}), not found dbmgr!\n",
+		ERROR_MSG(fmt::format("Baseapp::reqAccountNewPassword: accountName({}), not found dbmgr!\n", 
 			accountName));
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(ClientInterface::onReqAccountNewPasswordCB);
 		SERVER_ERROR_CODE retcode = SERVER_ERR_SRV_NO_READY;
 		(*pBundle) << retcode;
@@ -5597,7 +5638,7 @@ void Baseapp::reqAccountNewPassword(Network::Channel* pChannel, ENTITY_ID entity
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(DbmgrInterface::accountNewPassword);
 	(*pBundle) << entityID << accountName << oldpassworld << newpassword;
 	dbmgrinfos->pChannel->send(pBundle);
@@ -5609,8 +5650,8 @@ void Baseapp::onReqAccountNewPasswordCB(Network::Channel* pChannel, ENTITY_ID en
 {
 	if(pChannel->isExternal())
 		return;
-
-	INFO_MSG(fmt::format("Baseapp::onReqAccountNewPasswordCB: {}({}) failedcode={}!\n",
+	
+	INFO_MSG(fmt::format("Baseapp::onReqAccountNewPasswordCB: {}({}) failedcode={}!\n", 
 		accountName, entityID, failedcode));
 
 	Entity* pEntity = pEntities_->find(entityID);
@@ -5620,7 +5661,7 @@ void Baseapp::onReqAccountNewPasswordCB(Network::Channel* pChannel, ENTITY_ID en
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(ClientInterface::onReqAccountNewPasswordCB);
 	(*pBundle) << failedcode;
 	pEntity->clientEntityCall()->getChannel()->send(pBundle);
@@ -5631,9 +5672,9 @@ void Baseapp::onVersionNotMatch(Network::Channel* pChannel)
 {
 	INFO_MSG(fmt::format("Baseapp::onVersionNotMatch: {}.\n", pChannel->c_str()));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	pBundle->newMessage(ClientInterface::onVersionNotMatch);
-	(*pBundle) << OUROVersion::versionString();
+	(*pBundle) << KBEVersion::versionString();
 	pChannel->send(pBundle);
 }
 
@@ -5642,9 +5683,9 @@ void Baseapp::onScriptVersionNotMatch(Network::Channel* pChannel)
 {
 	INFO_MSG(fmt::format("Baseapp::onScriptVersionNotMatch: {}.\n", pChannel->c_str()));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	pBundle->newMessage(ClientInterface::onScriptVersionNotMatch);
-	(*pBundle) << OUROVersion::scriptVersionString();
+	(*pBundle) << KBEVersion::scriptVersionString();
 	pChannel->send(pBundle);
 }
 

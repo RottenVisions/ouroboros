@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_CLIENT_OBJECT_H
 #define OURO_CLIENT_OBJECT_H
@@ -12,17 +12,17 @@
 #include "network/encryption_filter.h"
 #include "pyscript/pyobject_pointer.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 /*
 */
 
 class ClientObject : public ClientObjectBase
 {
-	/**
-		Subclassing fills some py operations into derived classes
+	/** 
+		Subclassing populates some py operations into a derived class
 	*/
-	INSTANCE_SCRIPT_HREADER(ClientObject, ClientObjectBase)
+	INSTANCE_SCRIPT_HREADER(ClientObject, ClientObjectBase)	
 
 public:
 	enum C_ERROR
@@ -47,9 +47,11 @@ public:
 
 	ClientObject(std::string name, Network::NetworkInterface& ninterface);
 	virtual ~ClientObject();
-
+	
 	virtual void finalise();
 	virtual void reset(void);
+
+	void clearStates(void);
 
 	bool initCreate();
 	bool initLoginBaseapp();
@@ -62,32 +64,32 @@ public:
 	void destroy() { state_ = C_STATE_DESTROYED; }
 
 	virtual void onHelloCB_(Network::Channel* pChannel, const std::string& verInfo,
-		const std::string& scriptVerInfo, const std::string& protocolMD5,
+		const std::string& scriptVerInfo, const std::string& protocolMD5, 
 		const std::string& entityDefMD5, COMPONENT_TYPE componentType);
 
-	/** Network Interface
+		/** Network Interface
 		Create account success and failure callbacks
-	   @failedcode: Failed return code NETWORK_ERR_SRV_NO_READY: The server is not ready
-									NETWORK_ERR_ACCOUNT_CREATE:Failed to create (already exists),
-									NETWORK_SUCCESS:Account created successfully
+	   @failedcode: Failure return code NETWORK_ERR_SRV_NO_READY: The server is not ready,
+									NETWORK_ERR_ACCOUNT_CREATE: Creation failed (already exists),
+									NETWORK_SUCCESS: The account was created successfully.
 
 									SERVER_ERROR_CODE failedcode;
-		@Binary accompanying data: Binary extra data: uint32 length bytearray
+		@binary accompanying data: binary extra data: uint32 length + bytearray
 	*/
 	virtual void onCreateAccountResult(Network::Channel * pChannel, MemoryStream& s);
 
-	/** Network Interface
+		/** Network Interface
 	   Login failure callback
-	   @failedcode: Failed return code NETWORK_ERR_SRV_NO_READY:The server is not ready,
-									NETWORK_ERR_SRV_OVERLOAD:Server is overloaded,
-									NETWORK_ERR_NAME_PASSWORD:incorrect username or password
+	   @failedcode: Failure return code NETWORK_ERR_SRV_NO_READY: The server is not ready,
+									NETWORK_ERR_SRV_OVERLOAD: The server is overloaded,
+									NETWORK_ERR_NAME_PASSWORD: Username or password is incorrect
 	*/
 	virtual void onLoginFailed(Network::Channel * pChannel, MemoryStream& s);
 
-	/** Network Interface
-	   login successful
-	   @ip: Server IP address
-	   @port: Server port
+		/** Network Interface
+	   	   login successful
+	   @ip: Server ip address
+	   @port: server port
 	*/
 	virtual void onLoginSuccessfully(Network::Channel * pChannel, MemoryStream& s);
 

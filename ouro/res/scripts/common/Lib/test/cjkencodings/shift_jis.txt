@@ -1,7 +1,7 @@
-Python ‚ÌŠJ”­‚ÍA1990 ”N‚²‚ë‚©‚çŠJŽn‚³‚ê‚Ä‚¢‚Ü‚·B
-ŠJ”­ŽÒ‚Ì Guido van Rossum ‚Í‹³ˆç—p‚ÌƒvƒƒOƒ‰ƒ~ƒ“ƒOŒ¾ŒêuABCv‚ÌŠJ”­‚ÉŽQ‰Á‚µ‚Ä‚¢‚Ü‚µ‚½‚ªAABC ‚ÍŽÀ—pã‚Ì–Ú“I‚É‚Í‚ ‚Ü‚è“K‚µ‚Ä‚¢‚Ü‚¹‚ñ‚Å‚µ‚½B
-‚±‚Ì‚½‚ßAGuido ‚Í‚æ‚èŽÀ—p“I‚ÈƒvƒƒOƒ‰ƒ~ƒ“ƒOŒ¾Œê‚ÌŠJ”­‚ðŠJŽn‚µA‰p‘ BBS •ú‘—‚ÌƒRƒƒfƒB”Ô‘guƒ‚ƒ“ƒeƒB ƒpƒCƒ\ƒ“v‚Ìƒtƒ@ƒ“‚Å‚ ‚é Guido ‚Í‚±‚ÌŒ¾Œê‚ðuPythonv‚Æ–¼‚Ã‚¯‚Ü‚µ‚½B
-‚±‚Ì‚æ‚¤‚È”wŒi‚©‚ç¶‚Ü‚ê‚½ Python ‚ÌŒ¾ŒêÝŒv‚ÍAuƒVƒ“ƒvƒ‹v‚ÅuK“¾‚ª—eˆÕv‚Æ‚¢‚¤–Ú•W‚Éd“_‚ª’u‚©‚ê‚Ä‚¢‚Ü‚·B
-‘½‚­‚ÌƒXƒNƒŠƒvƒgŒnŒ¾Œê‚Å‚Íƒ†[ƒU‚Ì–Úæ‚Ì—˜•Ö«‚ð—Dæ‚µ‚ÄFX‚È‹@”\‚ðŒ¾Œê—v‘f‚Æ‚µ‚ÄŽæ‚è“ü‚ê‚éê‡‚ª‘½‚¢‚Ì‚Å‚·‚ªAPython ‚Å‚Í‚»‚¤‚¢‚Á‚½¬×H‚ª’Ç‰Á‚³‚ê‚é‚±‚Æ‚Í‚ ‚Ü‚è‚ ‚è‚Ü‚¹‚ñB
-Œ¾ŒêŽ©‘Ì‚Ì‹@”\‚ÍÅ¬ŒÀ‚É‰Ÿ‚³‚¦A•K—v‚È‹@”\‚ÍŠg’£ƒ‚ƒWƒ…[ƒ‹‚Æ‚µ‚Ä’Ç‰Á‚·‚éA‚Æ‚¢‚¤‚Ì‚ª Python ‚Ìƒ|ƒŠƒV[‚Å‚·B
+Python ‚ÌŠJ”­‚Í?A1990 ”N‚²‚ë‚©‚çŠJŽn‚³‚ê‚Ä‚¢‚Ü‚·?B
+ŠJ”­ŽÒ‚Ì Guido van Rossum ‚Í‹³ˆç—p‚Ìƒvƒ?ƒOƒ‰ƒ~ƒ“ƒOŒ¾Œê?uABC?v‚ÌŠJ”­‚ÉŽQ‰Á‚µ‚Ä‚¢‚Ü‚µ‚½‚ª?AABC ‚ÍŽÀ—p?ã‚Ì–Ú“I‚É‚Í‚ ‚Ü‚è“K‚µ‚Ä‚¢‚Ü‚¹‚ñ‚Å‚µ‚½?B
+‚±‚Ì‚½‚ß?AGuido ‚Í‚æ‚èŽÀ—p“I‚Èƒvƒ?ƒOƒ‰ƒ~ƒ“ƒOŒ¾Œê‚ÌŠJ”­‚ðŠJŽn‚µ?A‰p?‘ BBS •ú‘—‚ÌƒRƒ?ƒfƒB”Ô‘g?uƒ‚ƒ“ƒeƒB ƒpƒCƒ\ƒ“?v‚Ìƒtƒ@ƒ“‚Å‚ ‚é Guido ‚Í‚±‚ÌŒ¾Œê‚ð?uPython?v‚Æ–¼‚Ã‚¯‚Ü‚µ‚½?B
+‚±‚Ì‚æ‚¤‚È”wŒi‚©‚ç?¶‚Ü‚ê‚½ Python ‚ÌŒ¾Œê?ÝŒv‚Í?A?uƒVƒ“ƒvƒ‹?v‚Å?u?K“¾‚ª—eˆÕ?v‚Æ‚¢‚¤–Ú•W‚É?d“_‚ª’u‚©‚ê‚Ä‚¢‚Ü‚·?B
+‘½‚­‚ÌƒXƒNƒŠƒvƒgŒnŒ¾Œê‚Å‚Íƒ†?[ƒU‚Ì–Ú?æ‚Ì—˜•Ö?«‚ð—D?æ‚µ‚Ä?F?X‚È‹@”\‚ðŒ¾Œê—v‘f‚Æ‚µ‚ÄŽæ‚è“ü‚ê‚é?ê?‡‚ª‘½‚¢‚Ì‚Å‚·‚ª?APython ‚Å‚Í‚»‚¤‚¢‚Á‚½?¬?×?H‚ª’Ç‰Á‚³‚ê‚é‚±‚Æ‚Í‚ ‚Ü‚è‚ ‚è‚Ü‚¹‚ñ?B
+Œ¾ŒêŽ©‘Ì‚Ì‹@”\‚Í?Å?¬ŒÀ‚É‰Ÿ‚³‚¦?A•K—v‚È‹@”\‚ÍŠg’£ƒ‚ƒWƒ…?[ƒ‹‚Æ‚µ‚Ä’Ç‰Á‚·‚é?A‚Æ‚¢‚¤‚Ì‚ª Python ‚Ìƒ|ƒŠƒV?[‚Å‚·?B
 

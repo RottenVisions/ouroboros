@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_DB_THREAD_POOL_H
 #define OURO_DB_THREAD_POOL_H
 
-// common include
+// common include	
 // #define NDEBUG
 #include "db_tasks.h"
 #include "common/common.h"
@@ -12,7 +12,7 @@
 #include "helper/debug_helper.h"
 #include "thread/threadpool.h"
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 
 /*
 	Database thread task buffer

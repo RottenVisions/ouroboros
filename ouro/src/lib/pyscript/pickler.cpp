@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "pickler.h"
@@ -17,7 +17,7 @@ bool Pickler::initialize(void)
 {
 	if(isInit)
 		return true;
-
+	
 	PyObject* cPickleModule = PyImport_ImportModule("pickle");
 
 	if(cPickleModule)
@@ -25,14 +25,14 @@ bool Pickler::initialize(void)
 		picklerMethod_ = PyObject_GetAttrString(cPickleModule, "dumps");
 		if (!picklerMethod_)
 		{
-			ERROR_MSG("Pickler::initialize: get dumps is error!\n");
+			ERROR_MSG("Pickler::initialize: get dumps error!\n");
 			PyErr_PrintEx(0);
 		}
 
 		unPicklerMethod_ = PyObject_GetAttrString(cPickleModule, "loads");
 		if(!unPicklerMethod_)
 		{
-			ERROR_MSG("Pickler::init: get loads is error!\n");
+			ERROR_MSG("Pickler::init: get loads error!\n");
 			PyErr_PrintEx(0);
 		}
 
@@ -43,24 +43,24 @@ bool Pickler::initialize(void)
 		ERROR_MSG("PyGC::initialize: can't import pickle!\n");
 		PyErr_PrintEx(0);
 	}
-
+	
 	isInit = picklerMethod_ && unPicklerMethod_;
-
+	
 	if(isInit)
 	{
-		// Initialize an unpickled function table module, where all custom class unpickle functions need to be registered
+		// Initialize an unpickle function table module, all unpick functions of the custom class need to be registered here
 		pyPickleFuncTableModule_ = PyImport_AddModule("_upf");
 
-		static struct PyModuleDef moduleDesc =
-		{
-			 PyModuleDef_HEAD_INIT,
-			 "_upf",
-			 "This module is created by Ouroboros!",
-			 -1,
-			 NULL
-		};
+		static struct PyModuleDef moduleDesc =   
+		{  
+			 PyModuleDef_HEAD_INIT,  
+			 "_upf",  
+			 "This module is created by Ouroboros!",  
+			 -1,  
+			 NULL  
+		};  
 
-		PyObject* m = PyModule_Create(&moduleDesc);
+		PyObject* m = PyModule_Create(&moduleDesc);	
 		if(m == NULL)
 		{
 			isInit = false;
@@ -75,16 +75,16 @@ void Pickler::finalise(void)
 {
 	Py_XDECREF(picklerMethod_);
 	Py_XDECREF(unPicklerMethod_);
-
+	
 	picklerMethod_ = NULL;
-	unPicklerMethod_ = NULL;
+	unPicklerMethod_ = NULL;	
 	pyPickleFuncTableModule_ = NULL;
 }
 
 //-------------------------------------------------------------------------------------
 PyObject* Pickler::getUnpickleFunc(const char* funcName)
-{
-	PyObject* pyfunc = PyObject_GetAttrString(pyPickleFuncTableModule_, funcName);
+{ 
+	PyObject* pyfunc = PyObject_GetAttrString(pyPickleFuncTableModule_, funcName); 
 	if(pyfunc == NULL)
 	{
 		SCRIPT_ERROR_CHECK();
@@ -98,11 +98,11 @@ std::string Pickler::pickle(PyObject* pyobj)
 {
 	AUTO_SCOPED_PROFILE("pickle");
 
-	PyObject* pyRet = PyObject_CallFunction(picklerMethod_,
+	PyObject* pyRet = PyObject_CallFunction(picklerMethod_, 
 		const_cast<char*>("(O)"), pyobj);
-
+	
 	SCRIPT_ERROR_CHECK();
-
+	
 	if(pyRet)
 	{
 		std::string str;
@@ -110,7 +110,7 @@ std::string Pickler::pickle(PyObject* pyobj)
 		S_RELEASE(pyRet);
 		return str;
 	}
-
+	
 	return "";
 }
 
@@ -119,11 +119,11 @@ std::string Pickler::pickle(PyObject* pyobj, int8 protocol)
 {
 	AUTO_SCOPED_PROFILE("pickleEx");
 
-	PyObject* pyRet = PyObject_CallFunction(picklerMethod_,
+	PyObject* pyRet = PyObject_CallFunction(picklerMethod_, 
 		const_cast<char*>("(Oi)"), pyobj, protocol);
-
+	
 	SCRIPT_ERROR_CHECK();
-
+	
 	if(pyRet)
 	{
 		std::string str;
@@ -131,7 +131,7 @@ std::string Pickler::pickle(PyObject* pyobj, int8 protocol)
 		S_RELEASE(pyRet);
 		return str;
 	}
-
+	
 	return "";
 }
 
@@ -140,9 +140,9 @@ PyObject* Pickler::unpickle(const std::string& str)
 {
 	AUTO_SCOPED_PROFILE("unpickle");
 
-	PyObject* pyRet = PyObject_CallFunction(unPicklerMethod_,
+	PyObject* pyRet = PyObject_CallFunction(unPicklerMethod_, 
 			const_cast<char*>("(y#)"), str.data(), str.length());
-
+	
 	if (!pyRet)
 	{
 		std::string buff;
@@ -157,9 +157,9 @@ PyObject* Pickler::unpickle(const std::string& str)
 		ERROR_MSG(fmt::format("Pickler::unpickle: failed to unpickle[{}] len={}.\n",
 			buff, str.length()));
 	}
-
+	
 	SCRIPT_ERROR_CHECK();
-	return pyRet;
+	return pyRet;	
 }
 
 //-------------------------------------------------------------------------------------

@@ -46,25 +46,25 @@ BOOL CStartServerWindow::OnInitDialog()
 	CDialog::OnInitDialog();
 
 	DWORD dwStyle = m_list.GetExtendedStyle();
-	dwStyle |= LVS_EX_FULLROWSELECT;					//Select an exercise line highlighting (listctrl with report style only)
-	dwStyle |= LVS_EX_GRIDLINES;						//Gridlines (only applicable with report style listctrl)
+	dwStyle |= LVS_EX_FULLROWSELECT; //Select one to exercise the entire line highlighting (only applicable to the list style of report style)
+	dwStyle |= LVS_EX_GRIDLINES; //Gridlines (only for list styles with report style)
 	//dwStyle |= LVS_EX_ONECLICKACTIVATE;
-	m_list.SetExtendedStyle(dwStyle);					//Set the extension style
+	m_list.SetExtendedStyle(dwStyle); //Set the extended style
 
 	dwStyle = m_list1.GetExtendedStyle();
-	dwStyle |= LVS_EX_FULLROWSELECT;					//Select an exercise line highlighting (listctrl with report style only)
-	dwStyle |= LVS_EX_GRIDLINES;						//Gridlines (only applicable with report style listctrl)
+	dwStyle |= LVS_EX_FULLROWSELECT; //Select one to exercise the entire line highlighting (only applicable to the list style of report style)
+	dwStyle |= LVS_EX_GRIDLINES; //Gridlines (only for list styles with report style)
 	//dwStyle |= LVS_EX_ONECLICKACTIVATE;
-	m_list1.SetExtendedStyle(dwStyle);					//Set the extension style
+	m_list1.SetExtendedStyle(dwStyle); //Set the extended style
 
 	int idx = 0;
-	m_list.InsertColumn(idx++, _T("ComponentType"),				LVCFMT_CENTER,	150);
-	m_list.InsertColumn(idx++, _T("Addr"),						LVCFMT_CENTER,	200);
-	m_list.InsertColumn(idx++, _T("Running"),					LVCFMT_CENTER,	200);
+	m_list.InsertColumn(idx++, _T("componentType"),				LVCFMT_CENTER,	150);
+	m_list.InsertColumn(idx++, _T("addr"),						LVCFMT_CENTER,	200);
+	m_list.InsertColumn(idx++, _T("running"),					LVCFMT_CENTER,	200);
 
 	idx = 0;
-	m_list1.InsertColumn(idx++, _T("ComponentType"),			LVCFMT_CENTER,	200);
-	m_list1.InsertColumn(idx++, _T("Addr"),						LVCFMT_CENTER,	250);
+	m_list1.InsertColumn(idx++, _T("componentType"),			LVCFMT_CENTER,	200);
+	m_list1.InsertColumn(idx++, _T("addr"),						LVCFMT_CENTER,	250);
 
 	loadLayouts();
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -83,21 +83,21 @@ void CStartServerWindow::OnBnClickedButton2()
 
 	if(m_layoutlist.GetCurSel() < 0 || m_layoutlist.GetCurSel() > m_layoutlist.GetCount())
 	{
-		::AfxMessageBox(L"Please Select a Layout!");
+		::AfxMessageBox(L"please select a layout!");
 		return;
 	}
 
 	m_layoutlist.GetLBText(m_layoutlist.GetCurSel(), s);
 
 	char* cs = Ouroboros::strutil::wchar2char(s.GetBuffer(0));
-	OUROUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
+	KBEUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
 		layouts_.find(cs);
 
 	free(cs);
 
 	if(iter == layouts_.end())
 	{
-		::AfxMessageBox(L"Please Select a Layout!");
+		::AfxMessageBox(L"please select a layout!");
 		return;
 	}
 
@@ -115,7 +115,7 @@ void CStartServerWindow::OnBnClickedButton2()
 			continue;
 		}
 
-		Ouroboros::Network::EndPoint* endpoint = Ouroboros::Network::EndPoint::createPoolObject();
+		Ouroboros::Network::EndPoint* endpoint = Ouroboros::Network::EndPoint::createPoolObject(OBJECTPOOL_POINT);
 
 		Ouroboros::u_int32_t address;
 		Ouroboros::Network::Address::string2ip(vec[0].c_str(), address);
@@ -123,7 +123,7 @@ void CStartServerWindow::OnBnClickedButton2()
 
 		if(addr.ip == 0)
 		{
-			::AfxMessageBox(L"Error with the Address!");
+			::AfxMessageBox(L"address error!");
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 			continue;
 		}
@@ -131,7 +131,7 @@ void CStartServerWindow::OnBnClickedButton2()
 		endpoint->socket(SOCK_STREAM);
 		if (!endpoint->good())
 		{
-			AfxMessageBox(L"Couldn't Create a Socket\n");
+			AfxMessageBox(L"couldn't create a socket\n");
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 			continue;
 		}
@@ -140,7 +140,7 @@ void CStartServerWindow::OnBnClickedButton2()
 		if(endpoint->connect(addr.port, addr.ip) == -1)
 		{
 			CString err;
-			err.Format(L"Connect Server Error! %d", ::WSAGetLastError());
+			err.Format(L"connect server error! %d", ::WSAGetLastError());
 			AfxMessageBox(err);
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 			continue;
@@ -169,7 +169,7 @@ void CStartServerWindow::OnBnClickedButton2()
 		if(selgot == 0)
 		{
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
-			continue;	// Overtime may be busy
+			continue; // timeout may be busy
 		}
 		else if(selgot == -1)
 		{
@@ -218,21 +218,21 @@ void CStartServerWindow::OnBnClickedButton3()
 
 	if(m_layoutlist.GetCurSel() < 0 || m_layoutlist.GetCurSel() > m_layoutlist.GetCount())
 	{
-		::AfxMessageBox(L"Please Select a Layout!");
+		::AfxMessageBox(L"please select a layout!");
 		return;
 	}
 
 	m_layoutlist.GetLBText(m_layoutlist.GetCurSel(), s);
 
 	char* cs = Ouroboros::strutil::wchar2char(s.GetBuffer(0));
-	OUROUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
+	KBEUnordered_map< std::string, std::vector<CStartServerWindow::LAYOUT_ITEM> >::iterator iter =
 		layouts_.find(cs);
 
 	free(cs);
 
 	if(iter == layouts_.end())
 	{
-		::AfxMessageBox(L"Please Select a Layout!");
+		::AfxMessageBox(L"please select a layout!");
 		return;
 	}
 
@@ -250,7 +250,7 @@ void CStartServerWindow::OnBnClickedButton3()
 			continue;
 		}
 
-		Ouroboros::Network::EndPoint* endpoint = Ouroboros::Network::EndPoint::createPoolObject();
+		Ouroboros::Network::EndPoint* endpoint = Ouroboros::Network::EndPoint::createPoolObject(OBJECTPOOL_POINT);
 
 		Ouroboros::u_int32_t address;
 		Ouroboros::Network::Address::string2ip(vec[0].c_str(), address);
@@ -258,7 +258,7 @@ void CStartServerWindow::OnBnClickedButton3()
 
 		if(addr.ip == 0)
 		{
-			::AfxMessageBox(L"Error with the Address!");
+			::AfxMessageBox(L"address error!");
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 			continue;
 		}
@@ -266,7 +266,7 @@ void CStartServerWindow::OnBnClickedButton3()
 		endpoint->socket(SOCK_STREAM);
 		if (!endpoint->good())
 		{
-			AfxMessageBox(L"Couldn't Create a Socket\n");
+			AfxMessageBox(L"couldn't create a socket\n");
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 			continue;
 		}
@@ -275,7 +275,7 @@ void CStartServerWindow::OnBnClickedButton3()
 		if(endpoint->connect(addr.port, addr.ip) == -1)
 		{
 			CString err;
-			err.Format(L"Connect Server Error! %d", ::WSAGetLastError());
+			err.Format(L"connect server error! %d", ::WSAGetLastError());
 			AfxMessageBox(err);
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
 			continue;
@@ -303,7 +303,7 @@ void CStartServerWindow::OnBnClickedButton3()
 		if(selgot == 0)
 		{
 			Ouroboros::Network::EndPoint::reclaimPoolObject(endpoint);
-			continue;	// Overtime may be busy
+			continue; // timeout may be busy
 		}
 		else if(selgot == -1)
 		{
@@ -399,7 +399,7 @@ void CStartServerWindow::saveLayouts()
     TiXmlDocument *pDocument = new TiXmlDocument();
 
 	int i = 0;
-	OUROUnordered_map< std::string, std::vector<LAYOUT_ITEM> >::iterator iter = layouts_.begin();
+	KBEUnordered_map< std::string, std::vector<LAYOUT_ITEM> >::iterator iter = layouts_.begin();
 	TiXmlElement *rootElement = new TiXmlElement("root");
 	pDocument->LinkEndChild(rootElement);
 
@@ -453,7 +453,7 @@ void CStartServerWindow::OnCbnSelchangeCombo3()
 	m_list.DeleteAllItems();
 
 	char* cs = Ouroboros::strutil::wchar2char(s.GetBuffer(0));
-	OUROUnordered_map< std::string, std::vector<LAYOUT_ITEM> >::iterator iter = layouts_.find(cs);
+	KBEUnordered_map< std::string, std::vector<LAYOUT_ITEM> >::iterator iter = layouts_.find(cs);
 	free(cs);
 
 	if(iter == layouts_.end())

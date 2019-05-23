@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 
@@ -12,11 +12,11 @@ namespace Ouroboros{
 extern void (*pMainThreadIdleStartCallback)();
 extern void (*pMainThreadIdleEndCallback)();
 
-namespace OUROConcurrency
+namespace KBEConcurrency
 {
 
 /**
-	Fires when the main thread is idle
+	Triggered when the main thread is idle
 */
 inline void onStartMainThreadIdling()
 {
@@ -25,7 +25,7 @@ inline void onStartMainThreadIdling()
 }
 
 /**
-	Triggered when the main thread ends idle and starts to be busy
+	Triggered when the main thread ends idle and starts busy
 */
 inline void onEndMainThreadIdling()
 {
@@ -35,7 +35,7 @@ inline void onEndMainThreadIdling()
 
 /**
 	Set callback function
-	Notify them when callbacks are triggered
+	Notify them when the callback is triggered
 */
 inline void setMainThreadIdleCallbacks(void (*pStartCallback)(), void (*pEndCallback)())
 {

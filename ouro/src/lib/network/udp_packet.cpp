@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "udp_packet.h"
@@ -10,7 +10,7 @@
 #include "network/network_interface.h"
 #include "network/message_handler.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 //-------------------------------------------------------------------------------------
@@ -21,9 +21,9 @@ ObjectPool<UDPPacket>& UDPPacket::ObjPool()
 }
 
 //-------------------------------------------------------------------------------------
-UDPPacket* UDPPacket::createPoolObject()
+UDPPacket* UDPPacket::createPoolObject(const std::string& logPoint)
 {
-	return _g_objPool.createObject();
+	return _g_objPool.createObject(logPoint);
 }
 
 //-------------------------------------------------------------------------------------
@@ -35,16 +35,16 @@ void UDPPacket::reclaimPoolObject(UDPPacket* obj)
 //-------------------------------------------------------------------------------------
 void UDPPacket::destroyObjPool()
 {
-	DEBUG_MSG(fmt::format("UDPPacket::destroyObjPool(): size {}.\n",
+	DEBUG_MSG(fmt::format("UDPPacket::destroyObjPool(): size {}.\n", 
 		_g_objPool.size()));
 
 	_g_objPool.destroy();
 }
 
 //-------------------------------------------------------------------------------------
-UDPPacket::SmartPoolObjectPtr UDPPacket::createSmartPoolObj()
+UDPPacket::SmartPoolObjectPtr UDPPacket::createSmartPoolObj(const std::string& logPoint)
 {
-	return SmartPoolObjectPtr(new SmartPoolObject<UDPPacket>(ObjPool().createObject(), _g_objPool));
+	return SmartPoolObjectPtr(new SmartPoolObject<UDPPacket>(ObjPool().createObject(logPoint), _g_objPool));
 }
 
 //-------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ int UDPPacket::recvFromEndPoint(EndPoint & ep, Address* pAddr)
 {
 	OURO_ASSERT(maxBufferSize() > wpos());
 
-	// Recvfrom returns when the received size is greater than the receive buffer-1
+	// when the received size is larger than the receive buffer, recvfrom returns -1
 	int len = ep.recvfrom(data() + wpos(), size() - wpos(),
 		(u_int16_t*)&pAddr->port, (u_int32_t*)&pAddr->ip);
 

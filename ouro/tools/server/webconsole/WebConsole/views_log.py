@@ -18,27 +18,27 @@ def connect(request):
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	ouroComps = []
+	kbeComps = []
 	for mID, comps in interfaces_groups.items():
 		for comp in comps:
 			if comp.componentType in VALID_CT:
-				ouroComps.append( comp)
+				kbeComps.append( comp)
 	POST = request.POST
 	try:
-		intaddr = ouroComps[0].intaddr
-		intport = ouroComps[0].intport
-		extaddr = ouroComps[0].extaddr
-		extport = ouroComps[0].extport
-		# host = ouroComps[0].extaddr
-		# port = ouroComps[0].consolePort
+		intaddr = kbeComps[0].intaddr
+		intport = kbeComps[0].intport
+		extaddr = kbeComps[0].extaddr
+		extport = kbeComps[0].extport
+		# host = kbeComps[0].extaddr
+		# port = kbeComps[0].consolePort
 		uid = request.session["sys_uid"]
 	except:
 		context = {
-			"unlogger" : "the logger process is not running"
+			"unlogger" : "The logger process is not running"
 		}
 		return render(request, html_template, context)
 
-	#The process of obtaining the selected state
+	#Get process selected state
 	components_checks = [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 	components_checks2 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 	baseapp_check = POST.get("baseapp_check")
@@ -160,27 +160,27 @@ def connect(request):
 
 	context = {
 		"ws_url" : ws_url,
-		"baseapp_check"   : components_checks[6],
-		"baseappmgr_check":components_checks[3],
-		"cellapp_check"   :components_checks[5],
-		"dbmgr_check"     :components_checks[1],
-		"loginapp_check"  :components_checks[2],
+		"baseapp_check"		: components_checks[6],
+		"baseappmgr_check"	:components_checks[3],
+		"cellapp_check"		:components_checks[5],
+		"dbmgr_check"		:components_checks[1],
+		"loginapp_check"	:components_checks[2],
 
-		"CRITICAL_check"  :CRITICAL_check,
-		"DEBUG_check"     :DEBUG_check,
-		"ERROR_check"     :ERROR_check,
-		"INFO_check"      :INFO_check,
-		"PRINT_check"     :PRINT_check,
-		"S_DBG_check"     :S_DBG_check,
-		"S_ERR_check"     :S_ERR_check,
-		"S_INFO_check"    :S_ERR_check,
-		"S_NORM_check"    :S_NORM_check,
-		"S_WARN_check"    :S_WARN_check,
-		"WARNING_check"   :WARNING_check,
-		"globalOrder"     :globalOrder,
-		"groupOrder"      :groupOrder,
-		"searchDate"      :searchDate,
-		"keystr"          :keystr,
+		"CRITICAL_check"	:CRITICAL_check,
+		"DEBUG_check"		:DEBUG_check,
+		"ERROR_check"		:ERROR_check,
+		"INFO_check"		:INFO_check,
+		"PRINT_check"		:PRINT_check,
+		"S_DBG_check"		:S_DBG_check,
+		"S_ERR_check"		:S_ERR_check,
+		"S_INFO_check"		:S_ERR_check,
+		"S_NORM_check"		:S_NORM_check,
+		"S_WARN_check"		:S_WARN_check,
+		"WARNING_check"		:WARNING_check,
+		"globalOrder"		:globalOrder,
+		"groupOrder"		:groupOrder,
+		"searchDate"		:searchDate,
+		"keystr"			:keystr,
 
 		"components_checks":components_checks,
 
@@ -194,28 +194,28 @@ def pull_log(request):
 	interfaces_groups = machinesmgr.queryAllInterfaces(request.session["sys_uid"], request.session["sys_user"])
 
 	# [(machine, [components, ...]), ...]
-	ouroComps = []
+	kbeComps = []
 	for mID, comps in interfaces_groups.items():
 		for comp in comps:
 			if comp.componentType in VALID_CT:
-				ouroComps.append( comp)
+				kbeComps.append( comp)
 	POST = request.POST
 	try:
-		intaddr = ouroComps[0].intaddr
-		intport = ouroComps[0].intport
-		extaddr = ouroComps[0].extaddr
-		extport = ouroComps[0].extport
-		# host = ouroComps[0].extaddr
-		# port = ouroComps[0].consolePort
+		intaddr = kbeComps[0].intaddr
+		intport = kbeComps[0].intport
+		extaddr = kbeComps[0].extaddr
+		extport = kbeComps[0].extport
+		# host = kbeComps[0].extaddr
+		# port = kbeComps[0].consolePort
 		uid = request.session["sys_uid"]
 	except:
 		message = {
-			"unlogger" : "the logger process is not running"
+			"unlogger" : "The logger process is not running"
 		}
 		return HttpResponse(json.dumps(message))
 		# return render(request, html_template, context)
 
-	#The process of obtaining the selected state
+	#Get process selected state
 	components_checks = [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 	components_checks2 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 	baseapp_check = POST.get("baseapp_check")
@@ -323,7 +323,7 @@ def pull_log(request):
 		S_WARN_check = 1
 		WARNING_check = 1
 
-	#自定义搜索
+	#Custom search
 	globalOrder = POST.get("globalOrder")
 	groupOrder = POST.get("groupOrder")
 	searchDate = POST.get("searchDate")
@@ -334,27 +334,27 @@ def pull_log(request):
 	if keystr == None: keystr = ""
 	message = {
 		"ws_url" : ws_url,
-		"baseapp_check"   : components_checks[6],
-		"baseappmgr_check":components_checks[3],
-		"cellapp_check"   :components_checks[5],
-		"dbmgr_check"     :components_checks[1],
-		"loginapp_check"  :components_checks[2],
+		"baseapp_check"		: components_checks[6],
+		"baseappmgr_check"	:components_checks[3],
+		"cellapp_check"		:components_checks[5],
+		"dbmgr_check"		:components_checks[1],
+		"loginapp_check"	:components_checks[2],
 
-		"CRITICAL_check"  :CRITICAL_check,
-		"DEBUG_check"     :DEBUG_check,
-		"ERROR_check"     :ERROR_check,
-		"INFO_check"      :INFO_check,
-		"PRINT_check"     :PRINT_check,
-		"S_DBG_check"     :S_DBG_check,
-		"S_ERR_check"     :S_ERR_check,
-		"S_INFO_check"    :S_ERR_check,
-		"S_NORM_check"    :S_NORM_check,
-		"S_WARN_check"    :S_WARN_check,
-		"WARNING_check"   :WARNING_check,
-		"globalOrder"     :globalOrder,
-		"groupOrder"      :groupOrder,
-		"searchDate"      :searchDate,
-		"keystr"          :keystr,
+		"CRITICAL_check"	:CRITICAL_check,
+		"DEBUG_check"		:DEBUG_check,
+		"ERROR_check"		:ERROR_check,
+		"INFO_check"		:INFO_check,
+		"PRINT_check"		:PRINT_check,
+		"S_DBG_check"		:S_DBG_check,
+		"S_ERR_check"		:S_ERR_check,
+		"S_INFO_check"		:S_ERR_check,
+		"S_NORM_check"		:S_NORM_check,
+		"S_WARN_check"		:S_WARN_check,
+		"WARNING_check"		:WARNING_check,
+		"globalOrder"		:globalOrder,
+		"groupOrder"		:groupOrder,
+		"searchDate"		:searchDate,
+		"keystr"			:keystr,
 
 		"components_checks":components_checks,
 	}
@@ -366,7 +366,7 @@ from dwebsocket.decorators import accept_websocket
 
 class LogWatch(object):
 	"""
-	The log output
+	Log output
 	"""
 	def __init__(self,wsInst, extaddr, extport, uid, components_check, logtype, globalOrder, groupOrder, searchDate, keystr):
 		self.wsInst = wsInst
@@ -419,7 +419,7 @@ def process_cmd( request ):
 	extport = int(GET["extport"])
 	uid = int(GET["uid"])
 
-	#The process of obtaining the selected state
+	#Get process selected state
 	components_check = [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 	components_check2 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 	baseapp_check = GET["baseapp_check"]

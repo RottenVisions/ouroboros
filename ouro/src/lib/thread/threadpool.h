@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_THREADPOOL_H
@@ -8,10 +8,10 @@
 #include "common/tasks.h"
 #include "helper/debug_helper.h"
 #include "thread/threadtask.h"
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #include <windows.h>          // for HANDLE
-#include <process.h>          // for _beginthread()
+#include <process.h>          // for _beginthread()	
 #include "helper/crashhandler.h"
 #else
 // linux include
@@ -28,16 +28,16 @@
 #include <sys/epoll.h>
 #include <sys/time.h>
 #include <sys/resource.h>
-#include <pthread.h>
+#include <pthread.h>	
 #endif
-
+	
 namespace Ouroboros{ namespace thread{
 
-// Thread pool active thread is greater than this number is busy
+// The thread pool active thread is larger than this number and is busy
 #define THREAD_BUSY_SIZE 32
 
 /*
-	Thread pool thread base class
+	Thread base thread class
 */
 class ThreadPool;
 class TPThread
@@ -45,7 +45,7 @@ class TPThread
 public:
 	friend class ThreadPool;
 
-	// Thread state-1 has not been started, 0 sleeps, 1 is busy
+	// Thread status -1 has not started yet, 0 sleep, 1 busy
 	enum THREAD_STATE
 	{
 		THREAD_STATE_STOP = -1,
@@ -57,15 +57,15 @@ public:
 
 public:
 	TPThread(ThreadPool* threadPool, int threadWaitSecond = 0):
-	threadWaitSecond_(threadWaitSecond),
-	currTask_(NULL),
+	threadWaitSecond_(threadWaitSecond), 
+	currTask_(NULL), 
 	threadPool_(threadPool)
 	{
 		state_ = THREAD_STATE_SLEEP;
 		initCond();
 		initMutex();
 	}
-
+		
 	virtual ~TPThread()
 	{
 		deleteCond();
@@ -73,7 +73,7 @@ public:
 
 		DEBUG_MSG(fmt::format("TPThread::~TPThread(): {}\n", (void*)this));
 	}
-
+	
 	virtual void onStart(){}
 	virtual void onEnd(){}
 
@@ -82,14 +82,14 @@ public:
 	virtual void onProcessTaskEnd(TPTask* pTask) {}
 
 	INLINE THREAD_ID id(void) const;
-
+	
 	INLINE void id(THREAD_ID tidp);
-
+	
 	/**
-		Create a thread and bind itself to this thread
+		Create a thread and bind itself to the thread
 	*/
 	THREAD_ID createThread(void);
-
+	
 	virtual void initCond(void)
 	{
 		THREAD_SINGNAL_INIT(cond_);
@@ -97,14 +97,14 @@ public:
 
 	virtual void initMutex(void)
 	{
-		THREAD_MUTEX_INIT(mutex_);
+		THREAD_MUTEX_INIT(mutex_);	
 	}
 
 	virtual void deleteCond(void)
 	{
 		THREAD_SINGNAL_DELETE(cond_);
 	}
-
+	
 	virtual void deleteMutex(void)
 	{
 		THREAD_MUTEX_DELETE(mutex_);
@@ -112,16 +112,16 @@ public:
 
 	virtual void lock(void)
 	{
-		THREAD_MUTEX_LOCK(mutex_);
+		THREAD_MUTEX_LOCK(mutex_); 
 	}
-
+	
 	virtual void unlock(void)
 	{
-		THREAD_MUTEX_UNLOCK(mutex_);
-	}
+		THREAD_MUTEX_UNLOCK(mutex_); 
+	}	
 
 	virtual TPTask* tryGetTask(void);
-
+	
 	/**
 		Send condition signal
 	*/
@@ -135,7 +135,7 @@ REATTEMPT:
 		lock();
 
 		if (state_ == THREAD_STATE_PENDING)
-		{
+		{       
 			unlock();
 			goto REATTEMPT;
 		}
@@ -145,12 +145,12 @@ REATTEMPT:
 		return ret;
 #endif
 	}
-
+	
 	/**
-		Thread Notification Wait Condition Signal
+		Thread notification wait condition signal
 	*/
 	bool onWaitCondSignal(void);
-
+	
 	bool join(void);
 
 	/**
@@ -164,15 +164,15 @@ REATTEMPT:
 	INLINE void task(TPTask* tpt);
 
 	INLINE int state(void) const;
-
+	
 	/**
-		The task to be processed by this thread has been processed. We decided to delete this discarded task.
+		The task to be processed by this thread has been processed. We decided to delete this obsolete task.
 	*/
 	void onTaskCompleted(void);
 
 #if OURO_PLATFORM == PLATFORM_WIN32
 	static unsigned __stdcall threadFunc(void *arg);
-#else
+#else	
 	static void* threadFunc(void* arg);
 #endif
 
@@ -182,8 +182,8 @@ REATTEMPT:
 	INLINE ThreadPool* threadPool();
 
 	/**
-		Output thread working state
-		Mainly for watcher
+		Output thread working status
+		Mainly used for watcher
 	*/
 	virtual std::string printWorkState()
 	{
@@ -195,63 +195,63 @@ REATTEMPT:
 	}
 
 	/**
-		The thread starts a count of tasks that are continuously executed without changing to an idle state
+		The thread starts a task count that is continuously executed without changing to the idle state.
 	*/
 	void reset_done_tasks(){ done_tasks_ = 0; }
 	void inc_done_tasks(){ ++done_tasks_; }
 
 protected:
-	THREAD_SINGNAL cond_;			// Thread semaphore
-	THREAD_MUTEX mutex_;			// Thread mutual complaint
-	int threadWaitSecond_;			// Thread exits if this thread is idle for more than this number of seconds, less than 0 is a permanent thread (seconds)
-	TPTask * currTask_;				// The currently executing task of this thread
-	THREAD_ID tidp_;				// The ID of this thread
-	ThreadPool* threadPool_;		// Thread pool pointer
-	THREAD_STATE state_;			// Thread status: -1 has not been started, 0 sleeps, 1 is busy
-	uint32 done_tasks_;				// The thread starts a count of tasks that are continuously executed without changing to an idle state
+	THREAD_SINGNAL cond_; // thread semaphore
+	THREAD_MUTEX mutex_; // thread mutual complaint body
+	int threadWaitSecond_; // thread idle state exceeds this number of seconds, the thread exits, less than 0 is a permanent thread (seconds)
+	TPTask * currTask_; // The currently executing task of the thread
+	THREAD_ID tidp_; // ID of this thread
+	ThreadPool* threadPool_; // thread pool pointer
+	THREAD_STATE state_; // Thread status: -1 has not been started, 0 sleep, 1 busy
+	uint32 done_tasks_; // Thread starts a task count that is continuously executed without changing to idle state
 };
 
 
 class ThreadPool
 {
-public:
-
+public:		
+	
 	ThreadPool();
 	virtual ~ThreadPool();
-
+	
 	void finalise();
 
 	virtual void onMainThreadTick();
-
+	
 	bool hasThread(TPThread* pTPThread);
 
 	/**
-		Get the current thread pool all thread state (for watch)
+		Get all thread status of the current thread pool (for watch)
 	*/
 	std::string printThreadWorks();
 
 	/**
-		Get the total number of threads
-	*/
+		Get the current total number of threads
+	*/	
 	INLINE uint32 currentThreadCount(void) const;
-
+	
 	/**
-		Get the total number of current idle threads
-	*/
+		Get the current total number of idle threads
+	*/		
 	INLINE uint32 currentFreeThreadCount(void) const;
-
+	
 	/**
 		Create a thread pool
-		@param inewThreadCount			: When the system is busy, the thread pool will add so many threads (temporarily)
-		@param inormalMaxThreadCount	: The thread pool will keep this number of threads
-		@param imaxThreadCount			: Thread pool can only have so many threads
+		@param inewThreadCount : When the system is busy, the thread pool will add so many threads (temporary)
+		@param inormalMaxThreadCount : The thread pool will keep this number of threads all the time
+		@param imaxThreadCount : The thread pool can only have so many threads at most
 	*/
-	bool createThreadPool(uint32 inewThreadCount,
+	bool createThreadPool(uint32 inewThreadCount, 
 			uint32 inormalMaxThreadCount, uint32 imaxThreadCount);
-
+	
 	/**
 		Add a task to the thread pool
-	*/
+	*/		
 	bool addTask(TPTask* tptask);
 	bool _addTask(TPTask* tptask);
 	INLINE bool addBackgroundTask(TPTask* tptask){ return addTask(tptask); }
@@ -261,46 +261,46 @@ public:
 		Whether the number of threads reaches the maximum number
 	*/
 	INLINE bool isThreadCountMax(void) const;
-
+	
 	/**
-		Thread pool is busy
-		Unprocessed task is very much   Description thread is busy
+		Whether the thread pool is busy
+		Is there a lot of unprocessed tasks? The thread is very busy.
 	*/
 	INLINE bool isBusy(void) const;
-
-	/**
+	
+	/** 
 		Whether the thread pool has been initialized
 	*/
 	INLINE bool isInitialize(void) const;
 
 	/**
-		Return whether it has been destroyed
+		return whether it has been destroyed
 	*/
 	INLINE bool isDestroyed() const;
 
 	/**
-		Return whether it has been destroyed
+		return whether it has been destroyed
 	*/
 	INLINE void destroy();
 
-	/**
-		Get the number of tasks that are cached
+	/** 
+		Number of tasks that get cached
 	*/
 	INLINE uint32 bufferTaskSize() const;
 
-	/**
+	/** 
 		Get cached tasks
 	*/
 	INLINE std::queue<thread::TPTask*>& bufferedTaskList();
 
-	/**
-		Operational cache task lock
+	/** 
+		Operation cached task lock
 	*/
 	INLINE void lockBufferedTaskList();
 	INLINE void unlockBufferedTaskList();
 
-	/**
-		Get the number of completed tasks
+	/** 
+		Get the number of tasks that have been completed
 	*/
 	INLINE uint32 finiTaskSize() const;
 
@@ -315,12 +315,12 @@ public:
 	virtual TPThread* createThread(int threadWaitSecond = ThreadPool::timeout, bool threadStartsImmediately = true);
 
 	/**
-		Save a task to the unprocessed list
+		Save a task to an unprocessed list
 	*/
 	void bufferTask(TPTask* tptask);
 
 	/**
-		Remove a task from the list and remove it from the list
+		Take a task from the unprocessed list and remove it from the list
 	*/
 	TPTask* popbufferTask(void);
 
@@ -328,44 +328,44 @@ public:
 		Move a thread to the free list
 	*/
 	bool addFreeThread(TPThread* tptd);
-
+	
 	/**
-		Move a thread to a busy list
-	*/
+		Move a thread to the busy list
+	*/	
 	bool addBusyThread(TPThread* tptd);
-
+	
 	/**
-		Add an already completed task to the list
-	*/
+		Add a completed task to the list
+	*/	
 	void addFiniTask(TPTask* tptask);
-
+	
 	/**
-		Remove a pending (timeout) thread
-	*/
+		Delete a pending (timeout) thread
+	*/	
 	bool removeHangThread(TPThread* tptd);
 
 	bool initializeWatcher();
 
 protected:
-	bool isInitialize_;												// Whether the thread pool was initialized
-
-	std::queue<TPTask*> bufferedTaskList_;							// List of tasks not yet processed when the system is busy
-	std::list<TPTask*> finiTaskList_;								// Completed task list
+	bool isInitialize_; // Whether the thread pool has been initialized
+	
+	std::queue<TPTask*> bufferedTaskList_; // List of tasks that have not been processed while the system is busy
+	std::list<TPTask*> finiTaskList_; // list of completed tasks
 	size_t finiTaskList_count_;
 
-	THREAD_MUTEX bufferedTaskList_mutex_;							// Handling bufferTaskList mutexes
-	THREAD_MUTEX threadStateList_mutex_;							// Handle bufferTaskList and freeThreadList_ mutexes
-	THREAD_MUTEX finiTaskList_mutex_;								// Handling finiTaskList mutexes
+	THREAD_MUTEX bufferedTaskList_mutex_; // Handling bufferTaskList mutex
+	THREAD_MUTEX threadStateList_mutex_; // Handling bufferTaskList and freeThreadList_ mutex
+	THREAD_MUTEX finiTaskList_mutex_; // Handle finiTaskList mutex
+	
+	std::list<TPThread*> busyThreadList_; // busy thread list
+	std::list<TPThread*> freeThreadList_; // list of idle threads
+	std::list<TPThread*> allThreadList_; // list of all threads
 
-	std::list<TPThread*> busyThreadList_;							// Busy thread list
-	std::list<TPThread*> freeThreadList_;							// Idle thread list
-	std::list<TPThread*> allThreadList_;							// All thread list
-
-	uint32 maxThreadCount_;											// The maximum number of threads
-	uint32 extraNewAddThreadCount_;									// If the normalThreadCount_ not enough to use will create so many threads
-	uint32 currentThreadCount_;										// Current number of threads
-	uint32 currentFreeThreadCount_;									// Current idle threads
-	uint32 normalThreadCount_;										// The total number of threads in the standard state is: By default, the server is started on so many threads.
+	uint32 maxThreadCount_; // maximum number of threads
+	uint32 extraNewAddThreadCount_; // If normalThreadCount_ is not enough, then create so many threads
+	uint32 currentThreadCount_; // current thread count
+	uint32 currentFreeThreadCount_; // The number of currently idle threads
+	uint32 normalThreadCount_; // The total number of threads in the standard state ie: By default, the server starts to open so many threads
 																	// If the thread is not enough, some new threads will be created, up to maxThreadNum.
 
 	bool isDestroyed_;

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "entitydef/entity_component.h"
@@ -29,9 +29,7 @@ BASE_SCRIPT_INIT(EntityComponent, 0, 0, 0, 0, 0)
 //-------------------------------------------------------------------------------------
 PyObject* EntityComponent::onScriptGetAttribute(PyObject* attr)
 {
-	wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(attr, NULL);
-	char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-	PyMem_Free(PyUnicode_AsWideCharStringRet0);
+	const char* ccattr = PyUnicode_AsUTF8AndSize(attr, NULL);
 
 	if (ownerID_ > 0)
 	{
@@ -39,31 +37,22 @@ PyObject* EntityComponent::onScriptGetAttribute(PyObject* attr)
 
 		if (pOwner)
 		{
-			// If it is ghost call def method requires rpc call.
+			// If the ghost call def method then rpc call.
 			if (!pOwner->isReal())
 			{
 				MethodDescription* pMethodDescription = const_cast<ScriptDefModule*>(pComponentDescrs_)->findCellMethodDescription(ccattr);
 
 				if (pMethodDescription)
 				{
-					free(ccattr);
 					return new RealEntityMethod(pPropertyDescription_, pMethodDescription, pOwner);
 				}
 			}
 			else
 			{
-				// If you access def persistent class container properties
-				// Because there is no good monitoring of the internal changes in the properties of the container class, a compromise is used here to perform the dirty process.
-				PropertyDescription* pPropertyDescription = const_cast<ScriptDefModule*>(pComponentDescrs_)->findPersistentPropertyDescription(ccattr);
-				if (pPropertyDescription && (pPropertyDescription->getFlags() & ENTITY_CELL_DATA_FLAGS) > 0)
-				{
-					pOwner->setDirty();
-				}
 			}
 		}
 	}
 
-	free(ccattr);
 	return ScriptObject::onScriptGetAttribute(attr);
 }
 

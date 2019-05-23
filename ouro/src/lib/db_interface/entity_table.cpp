@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "db_tasks.h"
 #include "db_threadpool.h"
@@ -8,7 +8,7 @@
 #include "entitydef/scriptdef_module.h"
 #include "thread/threadguard.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 //-------------------------------------------------------------------------------------
 void EntityTable::addItem(EntityTableItem* pItem)
@@ -36,7 +36,7 @@ DBID EntityTable::writeTable(DBInterface* pdbi, DBID dbid, int8 shouldAutoLoad, 
 	{
 		ENTITY_PROPERTY_UID pid;
 		(*s) >> pid;
-
+		
 		EntityTableItem* pTableItem = this->findItem(pid);
 		if(pTableItem == NULL)
 		{
@@ -125,7 +125,7 @@ bool EntityTables::load(DBInterface* pdbi)
 
 		if (!pEtable)
 		{
-			WARNING_MSG(fmt::format("EntityTables::load: {} has no archived properties and does not create an entity({}) table\n",
+			WARNING_MSG(fmt::format("EntityTables::load: {} has no archived properties and does not create an entity({}) table\n", 
 				pSM->getName(), pSM->getName()));
 
 			continue;
@@ -144,7 +144,7 @@ bool EntityTables::load(DBInterface* pdbi)
 }
 
 //-------------------------------------------------------------------------------------
-void EntityTables::onTableSyncSuccessfully(OUROShared_ptr<EntityTable> pEntityTable, bool error)
+void EntityTables::onTableSyncSuccessfully(KBEShared_ptr<EntityTable> pEntityTable, bool error)
 {
 	if(error)
 	{
@@ -156,7 +156,7 @@ void EntityTables::onTableSyncSuccessfully(OUROShared_ptr<EntityTable> pEntityTa
 }
 
 //-------------------------------------------------------------------------------------
-void EntityTables::queryAutoLoadEntities(DBInterface* pdbi, ScriptDefModule* pModule,
+void EntityTables::queryAutoLoadEntities(DBInterface* pdbi, ScriptDefModule* pModule, 
 	ENTITY_ID start, ENTITY_ID end, std::vector<DBID>& outs)
 {
 	EntityTable* pTable = this->findTable(pModule->getName());
@@ -170,11 +170,11 @@ bool EntityTables::syncToDB(DBInterface* pdbi)
 {
 	DBThreadPool* pDBThreadPool = static_cast<DBThreadPool*>(DBUtil::pThreadPool(pdbi->name()));
 	OURO_ASSERT(pDBThreadPool != NULL);
-
+	
 	int num = 0;
 	try
 	{
-		// Start synchronizing all tables
+		// Start syncing all tables
 		EntityTables::TABLES_MAP::iterator kiter = ouro_tables_.begin();
 		for(; kiter != ouro_tables_.end(); ++kiter)
 		{
@@ -208,7 +208,7 @@ bool EntityTables::syncToDB(DBInterface* pdbi)
 		std::vector<std::string> dbTableNames;
 		pdbi->getTableNames(dbTableNames, "");
 
-		// Check if there are any tables that need to be deleted
+		// Check if there is a table that needs to be deleted
 		std::vector<std::string>::iterator iter0 = dbTableNames.begin();
 		for(; iter0 != dbTableNames.end(); ++iter0)
 		{
@@ -264,7 +264,7 @@ EntityTable* EntityTables::findTable(std::string name)
 };
 
 //-------------------------------------------------------------------------------------
-void EntityTables::addOUROTable(EntityTable* pTable)
+void EntityTables::addKBETable(EntityTable* pTable)
 {
 	TABLES_MAP::iterator iter = ouro_tables_.begin();
 
@@ -281,7 +281,7 @@ void EntityTables::addOUROTable(EntityTable* pTable)
 }
 
 //-------------------------------------------------------------------------------------
-EntityTable* EntityTables::findOUROTable(std::string name)
+EntityTable* EntityTables::findKBETable(std::string name)
 {
 	TABLES_MAP::iterator iter = ouro_tables_.find(name);
 	if(iter != ouro_tables_.end())

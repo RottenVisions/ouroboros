@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OUROBOROS_BLOWFISH_H
@@ -7,27 +7,27 @@
 #include "openssl/blowfish.h"
 #include <string>
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 
-class OUROBlowfish
+class KBEBlowfish
 {
 public:
-	// Each block size
+	// per block size
 	static const int BLOCK_SIZE = 64 / 8;
 
-	// The minimum and maximum size of the key
+	// key minimum and maximum size
 	static const int MIN_KEY_SIZE = 32 / 8;
 	static const int MAX_KEY_SIZE = 448 / 8;
 
-	// The minimum and maximum size of the key
+	// the size of the default key
 	static const int DEFAULT_KEY_SIZE = 128 / 8;
 
 	typedef std::string Key;
 
-	virtual ~OUROBlowfish();
-	OUROBlowfish(const Key & key);
-	OUROBlowfish(int keySize = DEFAULT_KEY_SIZE);
+	virtual ~KBEBlowfish();
+	KBEBlowfish(const Key & key);
+	KBEBlowfish(int keySize = DEFAULT_KEY_SIZE);
 
 	const Key & key() const { return key_; }
 	const char * strBlowFishKey() const;

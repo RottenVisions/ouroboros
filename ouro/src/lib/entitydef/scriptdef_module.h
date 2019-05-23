@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_SCRIPT_DEF_MODULE_H
@@ -40,7 +40,7 @@ public:
 	typedef std::map<ENTITY_DEF_ALIASID, PropertyDescription*> PROPERTYDESCRIPTION_ALIASMAP;
 	typedef std::map<ENTITY_DEF_ALIASID, MethodDescription*> METHODDESCRIPTION_ALIASMAP;
 	typedef std::map<ENTITY_COMPONENT_ALIASID, ScriptDefModule*> COMPONENTDESCRIPTION_ALIASMAP;
-
+	
 	typedef std::map<ENTITY_COMPONENT_UID, ENTITY_COMPONENT_ALIASID> COMPONENTDESCRIPTION_TYPE2ALIASMAP;
 
 	typedef std::vector<ScriptDefModule*> COMPONENTDESCRIPTIONS;
@@ -108,21 +108,21 @@ public:
 
 	ScriptDefModule::PROPERTYDESCRIPTION_MAP& getPropertyDescrs();
 
-	bool addPropertyDescription(const char* attrName,
-									PropertyDescription* propertyDescription,
+	bool addPropertyDescription(const char* attrName, 
+									PropertyDescription* propertyDescription, 
 									COMPONENT_TYPE componentType, bool ignoreConflict = false);
 
-
+	
 	MethodDescription* findCellMethodDescription(const char* attrName);
 	MethodDescription* findCellMethodDescription(ENTITY_METHOD_UID utype);
 	bool addCellMethodDescription(const char* attrName, MethodDescription* methodDescription);
 	INLINE METHODDESCRIPTION_MAP& getCellMethodDescriptions(void);
-
+	
 	MethodDescription* findBaseMethodDescription(const char* attrName);
 	MethodDescription* findBaseMethodDescription(ENTITY_METHOD_UID utype);
 	bool addBaseMethodDescription(const char* attrName, MethodDescription* methodDescription);
 	INLINE METHODDESCRIPTION_MAP& getBaseMethodDescriptions(void);
-
+	
 	MethodDescription* findClientMethodDescription(const char* attrName);
 	MethodDescription* findClientMethodDescription(ENTITY_METHOD_UID utype);
 	bool addClientMethodDescription(const char* attrName, MethodDescription* methodDescription);
@@ -150,7 +150,7 @@ public:
 
 	INLINE bool usePropertyDescrAlias() const;
 	INLINE bool useMethodDescrAlias() const;
-
+	
 	bool addComponentDescription(const char* compName,
 		ScriptDefModule* compDescription);
 
@@ -171,61 +171,61 @@ public:
 	}
 
 protected:
-	// Script category
+	// script category
 	PyTypeObject*						scriptType_;
 
-	// The digital category is mainly used to facilitate the search and transfer identification between the network this script module
+	// Number category is mainly used to facilitate the search and inter-network transmission to identify this script module.
 	ENTITY_SCRIPT_UID					uType_;
-
-	// This script has all the attributes stored to db
+	
+	// This script stores all the properties stored in db
 	PROPERTYDESCRIPTION_MAP				persistentPropertyDescr_;
 
-	// All attribute descriptions owned by this script cell part
+	// All attribute descriptions owned by the cell part of the script
 	PROPERTYDESCRIPTION_MAP				cellPropertyDescr_;
 
-	// Cell near middle-distance level attribute description
+	// cell near-middle level attribute description
 	PROPERTYDESCRIPTION_MAP				cellDetailLevelPropertyDescrs_[3];
 
-	// The property description of the base part of this script
+	// attribute description of the base part of the script
 	PROPERTYDESCRIPTION_MAP				basePropertyDescr_;
 
-	// The property description of the client part of this script
+	// attribute description owned by the client part of the script
 	PROPERTYDESCRIPTION_MAP				clientPropertyDescr_;
-
-	// The attribute owned by this script describes the uid mapping
+	
+	// The property description of this script describes the uid map
 	PROPERTYDESCRIPTION_UIDMAP			persistentPropertyDescr_uidmap_;
 	PROPERTYDESCRIPTION_UIDMAP			cellPropertyDescr_uidmap_;
 	PROPERTYDESCRIPTION_UIDMAP			basePropertyDescr_uidmap_;
 	PROPERTYDESCRIPTION_UIDMAP			clientPropertyDescr_uidmap_;
-
-	// The attribute description aliasID map owned by this script
+	
+	// The attribute description of this script has an aliasID mapping
 	PROPERTYDESCRIPTION_ALIASMAP		propertyDescr_aliasmap_;
 
-	// This script has a description of the method
+	// Description of the method owned by this script
 	METHODDESCRIPTION_MAP				methodCellDescr_;
 	METHODDESCRIPTION_MAP				methodBaseDescr_;
 	METHODDESCRIPTION_MAP				methodClientDescr_;
-
+	
 	METHODDESCRIPTION_MAP				methodBaseExposedDescr_;
 	METHODDESCRIPTION_MAP				methodCellExposedDescr_;
 
-	// The method owned by this script describes the uid mapping
+	// The method owned by this script describes the uid map
 	METHODDESCRIPTION_UIDMAP			methodCellDescr_uidmap_;
 	METHODDESCRIPTION_UIDMAP			methodBaseDescr_uidmap_;
 	METHODDESCRIPTION_UIDMAP			methodClientDescr_uidmap_;
-
+			
 	METHODDESCRIPTION_ALIASMAP			methodDescr_aliasmap_;
 
-	// Is there a cell section, etc.
+	// Is there a cell part, etc?
 	bool								hasCell_;
 	bool								hasBase_;
 	bool								hasClient_;
-
-	// Entity details level data
+	
+	// entity level data
 	DetailLevel							detailLevel_;
 	VolatileInfo*						pVolatileinfo_;
 
-	// The name of this module
+	// the name of this module
 	std::string							name_;
 
 	bool								usePropertyDescrAlias_;
@@ -249,3 +249,4 @@ protected:
 #include "scriptdef_module.inl"
 #endif
 #endif // OURO_SCRIPT_DEF_MODULE_H
+

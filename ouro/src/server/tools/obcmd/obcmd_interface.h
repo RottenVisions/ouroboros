@@ -1,43 +1,43 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #if defined(DEFINE_IN_INTERFACE)
-	#undef OURO_KBCMD_TOOL_INTERFACE_H
+	#undef OURO_OBCMD_TOOL_INTERFACE_H
 #endif
 
 
-#ifndef OURO_KBCMD_TOOL_INTERFACE_H
-#define OURO_KBCMD_TOOL_INTERFACE_H
+#ifndef OURO_OBCMD_TOOL_INTERFACE_H
+#define OURO_OBCMD_TOOL_INTERFACE_H
 
-// common include
+// common include	
 #if defined(INTERFACES)
 #include "obcmd.h"
 #endif
 #include "obcmd_interface_macros.h"
 #include "network/interface_defs.h"
 //#define NDEBUG
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
 #endif
-
+	
 namespace Ouroboros{
 
 /**
-	KBCMD message macro, parameter is stream, need to unlock
+	OBCMD message macro, the parameter is stream, you need to unlock it yourself.
 */
 
 /**
-	KBCMD all message interfaces are defined here
+	OBCMD all message interfaces are defined here
 */
-NETWORK_INTERFACE_DECLARE_BEGIN(KBCMDInterface)
+NETWORK_INTERFACE_DECLARE_BEGIN(OBCMDInterface)
 
 	// An app actively requests a look.
-	KBCMD_MESSAGE_DECLARE_ARGS0(lookApp, NETWORK_FIXED_MESSAGE)
+	OBCMD_MESSAGE_DECLARE_ARGS0(lookApp, NETWORK_FIXED_MESSAGE)
 
-	// An app informs the app that it is active.
-	KBCMD_MESSAGE_DECLARE_ARGS2(onAppActiveTick, NETWORK_FIXED_MESSAGE,
+	// An app tells the app that it is active.
+	OBCMD_MESSAGE_DECLARE_ARGS2(onAppActiveTick, NETWORK_FIXED_MESSAGE,
 		COMPONENT_TYPE, componentType,
 		COMPONENT_ID, componentID)
 
@@ -49,4 +49,4 @@ NETWORK_INTERFACE_DECLARE_END()
 
 }
 
-#endif // OURO_KBCMD_TOOL_INTERFACE_H
+#endif // OURO_OBCMD_TOOL_INTERFACE_H

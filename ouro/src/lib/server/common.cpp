@@ -1,8 +1,11 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "common.h"
+#include "common/md5.h"
 #include "server/serverconfig.h"
+#include "server/machine_infos.h"
+#include "helper/sys_info.h"
 
 namespace Ouroboros { 
 
@@ -37,7 +40,7 @@ uint16 datatype2id(std::string datatype)
 		return 8;
 	else if (datatype == "INT64")
 		return 9;
-	else if (datatype == "PYTHON" || datatype == "PY_DICT" || datatype == "PY_TUPLE" || datatype == "PY_LIST" || datatype == "ENTITYCALL")
+	else if (datatype == "PYTHON" || datatype == "PY_DICT" || datatype == "PY_TUPLE" || datatype == "PY_LIST")
 		return 10;
 	else if (datatype == "BLOB")
 		return 11;
@@ -57,6 +60,8 @@ uint16 datatype2id(std::string datatype)
 		return 18;
 	else if (datatype == "ARRAY")
 		return 19;
+	else if (datatype == "ENTITYCALL")
+		return 20;
 	else if (datatype == "OURO_DATATYPE2ID_MAX")
 		return OURO_DATATYPE2ID_MAX;
 
@@ -132,11 +137,79 @@ std::string datatype2nativetype(uint16 datatype)
 	case 19:
 		return "ARRAY";
 		break;
+	case 20:
+		return "ENTITYCALL";
+		break;
 	default:
 		break;
 	};
 
 	return "";
+}
+
+//-------------------------------------------------------------------------------------
+int getMacMD5()
+{
+	std::string machineInfo;
+	std::vector< std::string > macAddresses = SystemInfo::getSingleton().getMacAddresses();
+	std::vector< std::string >::iterator iter = macAddresses.begin();
+	for (; iter != macAddresses.end(); ++iter)
+	{
+		machineInfo += (*iter);
+	}
+
+	machineInfo += getUsername();
+
+	return getMD5(machineInfo);
+}
+
+//-------------------------------------------------------------------------------------
+int getMD5(std::string data)
+{
+	std::string md5_digest = OURO_MD5::getDigest(data.data(), (int)data.length());
+
+	int mod = 0;
+	int divider = 65535;
+
+	for (int i = 0; i < 32; i++)
+	{
+		int digit = md5_digest[i];
+		mod = (mod * 16 + digit) % divider;
+	}
+
+	return mod;
+}
+
+//-------------------------------------------------------------------------------------
+void autoFixUserDigestUID()
+{
+	MachineInfos machineInfo;
+
+	std::string datas = fmt::format("{}{}{}{}",
+		getUsername(),
+		machineInfo.machineName(),
+		machineInfo.cpuInfo(),
+		machineInfo.memInfo());
+	
+	std::vector< std::string > macinfos = SystemInfo::getSingleton().getMacAddresses();
+	std::vector< std::string >::iterator iter = macinfos.begin();
+	for (; iter != macinfos.end(); ++iter)
+	{
+		datas += (*iter);
+	}
+
+	std::string md5_digest = OURO_MD5::getDigest(datas.data(), (int)datas.length());
+
+	int mod = 0;
+	int divider = 65535;
+
+	for (int i = 0; i<32; i++)
+	{
+		int digit = md5_digest[i];
+		mod = (mod * 16 + digit) % divider;
+	}
+
+	setenv("UID", fmt::format("{}", (uint16)mod).c_str(), 1);
 }
 
 //-------------------------------------------------------------------------------------

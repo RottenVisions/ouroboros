@@ -1,8 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "scriptdef_module.h"
 #include "entitydef.h"
+#include "py_entitydef.h"
 #include "datatypes.h"
 #include "common.h"
 #include "common/smartpointer.h"
@@ -74,7 +75,7 @@ void ScriptDefModule::finalise(void)
 	PROPERTYDESCRIPTION_MAP::iterator iter1 = cellPropertyDescr_.begin();
 	for(; iter1 != cellPropertyDescr_.end(); ++iter1)
 		iter1->second->decRef();
-
+	
 	cellPropertyDescr_.clear();
 
 	iter1 = basePropertyDescr_.begin();
@@ -92,13 +93,13 @@ void ScriptDefModule::finalise(void)
 	METHODDESCRIPTION_MAP::iterator iter2 = methodCellDescr_.begin();
 	for(; iter2 != methodCellDescr_.end(); ++iter2)
 		SAFE_RELEASE(iter2->second);
-
+		
 	methodCellDescr_.clear();
 
 	METHODDESCRIPTION_MAP::iterator iter3 = methodBaseDescr_.begin();
 	for(; iter3 != methodBaseDescr_.end(); ++iter3)
 		SAFE_RELEASE(iter3->second);
-
+	
 	methodBaseDescr_.clear();
 
 	METHODDESCRIPTION_MAP::iterator iter4 = methodClientDescr_.begin();
@@ -124,7 +125,7 @@ void ScriptDefModule::onLoaded(void)
 				iter1->second->aliasID(aliasID++);
 			}
 		}
-
+		
 		if(aliasID > 255)
 		{
 			iter1 = clientPropertyDescr_.begin();
@@ -143,7 +144,7 @@ void ScriptDefModule::onLoaded(void)
 			usePropertyDescrAlias_ = true;
 		}
 
-		// Cannot be 0,0 means unavailable, at least 1
+		// Cannot be 0, 0 means not available, at least 1
 		aliasID = 1;
 
 		METHODDESCRIPTION_MAP::iterator iter2 = methodClientDescr_.begin();
@@ -182,7 +183,7 @@ void ScriptDefModule::onLoaded(void)
 		COMPONENTDESCRIPTION_MAP::iterator comp_iter =	componentDescr_.begin();
 		for (; comp_iter != componentDescr_.end(); ++comp_iter)
 		{
-			// The properties and methods within the component calculate the aliasID
+			// Properties and methods within the component calculate the aliasID
 			comp_iter->second->onLoaded();
 		}
 	}
@@ -242,21 +243,21 @@ void ScriptDefModule::c_str()
 
 	DEBUG_MSG(fmt::format("ScriptDefModule::c_str: [{}], cellPropertys={}, basePropertys={}, "
 		"clientPropertys={}, cellMethods={}({}), baseMethods={}({}), clientMethods={}\n",
-		getName(),
-		getCellPropertyDescriptions().size(),
-		getBasePropertyDescriptions().size(),
-		getClientPropertyDescriptions().size(),
-		getCellMethodDescriptions().size(),
-		getCellExposedMethodDescriptions().size(),
-		getBaseMethodDescriptions().size(),
-		getBaseExposedMethodDescriptions().size(),
+		getName(), 
+		getCellPropertyDescriptions().size(), 
+		getBasePropertyDescriptions().size(), 
+		getClientPropertyDescriptions().size(), 
+		getCellMethodDescriptions().size(), 
+		getCellExposedMethodDescriptions().size(), 
+		getBaseMethodDescriptions().size(), 
+		getBaseExposedMethodDescriptions().size(), 
 		getClientMethodDescriptions().size()));
 }
 
 //-------------------------------------------------------------------------------------
 void ScriptDefModule::setUType(ENTITY_SCRIPT_UID utype)
-{
-	uType_ = utype;
+{ 
+	uType_ = utype; 
 	EntityDef::md5().append((void*)&uType_, sizeof(ENTITY_SCRIPT_UID));
 }
 
@@ -318,75 +319,99 @@ void ScriptDefModule::autoMatchCompOwn()
 			setCell(true);
 		}
 
+		if (!hasClient())
+		{
+			// If it is a component, and there is no script or exposed method on the server, no code is required.
+			if ((hasBase() && getBaseExposedMethodDescriptions().size() > 0) ||
+				(hasCell() && getCellExposedMethodDescriptions().size() > 0))
+				setClient(true);
+		}
+
 		return;
 	}
 
 	/*
-		The existence of a certain part (cell, base, client) of the entity
+		The existence rule of a certain part (cell, base, client)
 
-		1: There are methods or properties of the entity part of the entitydef file, but also must also exist py script
-		2: The user explicitly states in the entities.xml that there is an entity part (in order to consider the environment in which unity3d or html5 class front end cannot load py)
-			entities.xml, <Spaces hasCell="true" hasClient="false", hasBase="true"></Spaces>
+		1: There is a method or property of a part of the entity in the entitydef file, and the py script must also exist.
+		2: The user explicitly declares that there is an entity part in the entities.xml (for the environment where the front 3d or html5 class front end cannot load py)
+			entities.xml£¬ <Spaces hasCell="true" hasClient="false", hasBase="true"></Spaces>
 	*/
-
-	std::string entitiesFile = Resmgr::getSingleton().getPyUserScriptsPath() + "entities.xml";
-
-	// Open this entities.Xml file
-	SmartPointer<XML> xml(new XML());
-	if(!xml->openSection(entitiesFile.c_str()) || !xml->isGood())
-		return;
-
-	// Get the entities.xml root node, If you do not define an entity then return true
-	TiXmlNode* node = xml->getRootNode();
-	if(node == NULL)
-		return;
 
 	int assertionHasClient = -1;
 	int assertionHasBase = -1;
 	int assertionHasCell = -1;
 
-	// Start traversing all entity nodes
-	XML_FOR_BEGIN(node)
+	std::string entitiesFile = Resmgr::getSingleton().getPyUserScriptsPath() + "entities.xml";
+
+	// Open this entities.xml file
+	// Allow pure script definition, there may be no such file
+	if (access(entitiesFile.c_str(), 0) == 0)
 	{
-		std::string moduleName = xml.get()->getKey(node);
-		if(name_ == moduleName)
+		SmartPointer<XML> xml(new XML());
+		if (!xml->openSection(entitiesFile.c_str()) || !xml->isGood())
+			return;
+
+		// Get the entities.xml root node, if you do not define an entity then directly return true
+		TiXmlNode* node = xml->getRootNode();
+		if (node == NULL)
+			return;
+
+		// Start traversing all the entity nodes
+		XML_FOR_BEGIN(node)
 		{
-			const char* val = node->ToElement()->Attribute("hasClient");
-			if(val)
+			std::string moduleName = xml.get()->getKey(node);
+			if (name_ == moduleName)
 			{
-				if(ouro_strnicmp(val, "true", strlen(val)) == 0)
-					assertionHasClient = 1;
-				else
-					assertionHasClient = 0;
+				const char* val = node->ToElement()->Attribute("hasClient");
+				if (val)
+				{
+					if (ouro_strnicmp(val, "true", strlen(val)) == 0)
+						assertionHasClient = 1;
+					else
+						assertionHasClient = 0;
+				}
+
+				EntityDef::md5().append((void*)&assertionHasClient, sizeof(int));
+
+				val = node->ToElement()->Attribute("hasCell");
+				if (val)
+				{
+					if (ouro_strnicmp(val, "true", strlen(val)) == 0)
+						assertionHasCell = 1;
+					else
+						assertionHasCell = 0;
+				}
+
+				EntityDef::md5().append((void*)&assertionHasCell, sizeof(int));
+
+				val = node->ToElement()->Attribute("hasBase");
+				if (val)
+				{
+					if (ouro_strnicmp(val, "true", strlen(val)) == 0)
+						assertionHasBase = 1;
+					else
+						assertionHasBase = 0;
+				}
+
+				EntityDef::md5().append((void*)&assertionHasBase, sizeof(int));
+				break;
 			}
-
-			EntityDef::md5().append((void*)&assertionHasClient, sizeof(int));
-
-			val = node->ToElement()->Attribute("hasCell");
-			if(val)
-			{
-				if(ouro_strnicmp(val, "true", strlen(val)) == 0)
-					assertionHasCell = 1;
-				else
-					assertionHasCell = 0;
-			}
-
-			EntityDef::md5().append((void*)&assertionHasCell, sizeof(int));
-
-			val = node->ToElement()->Attribute("hasBase");
-			if(val)
-			{
-				if(ouro_strnicmp(val, "true", strlen(val)) == 0)
-					assertionHasBase = 1;
-				else
-					assertionHasBase = 0;
-			}
-
-			EntityDef::md5().append((void*)&assertionHasBase, sizeof(int));
-			break;
 		}
+		XML_FOR_END(node);
 	}
-	XML_FOR_END(node);
+
+	// check PyEntityDef
+	script::entitydef::DefContext* pDefContext = script::entitydef::DefContext::findDefContext(name_);
+	if (pDefContext)
+	{
+		if (pDefContext->hasClient)
+			assertionHasClient = 1;
+		else
+			assertionHasClient = 0;
+
+		EntityDef::md5().append((void*)&assertionHasClient, sizeof(int));
+	}
 
 	std::string fmodule = "scripts/client/" + name_ + ".py";
 	std::string fmodule_pyc = fmodule + "c";
@@ -395,15 +420,15 @@ void ScriptDefModule::autoMatchCompOwn()
 	{
 		if (assertionHasClient < 0)
 		{
-			// If the user does not have an explicit statement and is set to have no corresponding entity part
-			// The reason for this is to allow the user to define this part of the def file (because of the interface, there may be client-side properties or methods in the interface).
-			// But if the script does not exist still think that the user does not currently need this part
-			// http://www.ouroboros.org/cn/docs/configuration/entities.html
+			// If the user does not have an explicit declaration and is set to have no corresponding entity part
+			// The reason for this is to allow the user to define this part of the def file (because of the existence of the interface, there may be client properties or methods in the interface)
+			// But if the script doesn't exist, I still think the user doesn't need it right now.
+			// http://www.ouroboros.org/cn/docs/configuration/entities.html 
 			setClient(true);
 		}
 		else
 		{
-			// The user explicitly stated and set
+			// The user explicitly stated and made the settings
 			setClient(assertionHasClient == 1);
 		}
 	}
@@ -411,15 +436,15 @@ void ScriptDefModule::autoMatchCompOwn()
 	{
 		if(assertionHasClient < 0)
 		{
-			// If the user does not have an explicit statement and is set to have no corresponding entity part
-			// The reason for this is to allow the user to define this part of the def file (because of the interface, there may be client-side properties or methods in the interface).
-			// But if the script does not exist still think that the user does not currently need this part
-			// http://www.ouroboros.org/cn/docs/configuration/entities.html
+			// If the user does not have an explicit declaration and is set to have no corresponding entity part
+			// The reason for this is to allow the user to define this part of the def file (because of the existence of the interface, there may be client properties or methods in the interface)
+			// But if the script doesn't exist, I still think the user doesn't need it right now.
+			// http://www.ouroboros.org/cn/docs/configuration/entities.html 
 			setClient(false);
 		}
 		else
 		{
-			// The user explicitly stated and set
+			// The user explicitly stated and made the settings
 			setClient(assertionHasClient == 1);
 		}
 	}
@@ -438,15 +463,15 @@ void ScriptDefModule::autoMatchCompOwn()
 	{
 		if (assertionHasBase < 0)
 		{
-			// If the user does not have an explicit statement and is set to have no corresponding entity part
-			// The reason for this is to allow the user to define this part of the def file (because of the existence of the interface, there may be a base attribute or method in the interface).
-			// But if the script does not exist still think that the user does not currently need this part
-			// http://www.ouroboros.org/cn/docs/configuration/entities.html
+			// If the user does not have an explicit declaration and is set to have no corresponding entity part
+			// The reason for this is to allow the user to define the content of this part in the def file (because of the existence of the interface, the base attribute or method may exist in the interface)
+			// But if the script doesn't exist, I still think the user doesn't need it right now.
+			// http://www.ouroboros.org/cn/docs/configuration/entities.html 
 			setBase(true);
 		}
 		else
 		{
-			// The user explicitly stated and set
+			// The user explicitly stated and made the settings
 			setBase(assertionHasBase == 1);
 		}
 	}
@@ -454,15 +479,15 @@ void ScriptDefModule::autoMatchCompOwn()
 	{
 		if(assertionHasBase < 0)
 		{
-			// If the user does not have an explicit statement and is set to have no corresponding entity part
-			// The reason for this is to allow the user to define this part of the def file (because of the existence of the interface, there may be a base attribute or method in the interface).
-			// But if the script does not exist still think that the user does not currently need this part
-			// http://www.ouroboros.org/cn/docs/configuration/entities.html
+			// If the user does not have an explicit declaration and is set to have no corresponding entity part
+			// The reason for this is to allow the user to define the content of this part in the def file (because of the existence of the interface, the base attribute or method may exist in the interface)
+			// But if the script doesn't exist, I still think the user doesn't need it right now.
+			// http://www.ouroboros.org/cn/docs/configuration/entities.html 
 			setBase(false);
 		}
 		else
 		{
-			// The user explicitly stated and set
+			// The user explicitly stated and made the settings
 			setBase(assertionHasBase == 1);
 		}
 	}
@@ -474,15 +499,15 @@ void ScriptDefModule::autoMatchCompOwn()
 	{
 		if (assertionHasCell < 0)
 		{
-			// If the user does not have an explicit statement and is set to have no corresponding entity part
-			// The reason for this is to allow the user to define this part of the def file (because of the existence of the interface, there may be cell attributes or methods in the interface).
-			// But if the script does not exist still think that the user does not currently need this part
-			// http://www.ouroboros.org/cn/docs/configuration/entities.html
+			// If the user does not have an explicit declaration and is set to have no corresponding entity part
+			// The reason for this is to allow the user to define this part of the def file (because the interface exists, there may be a cell attribute or method in the interface)
+			// But if the script doesn't exist, I still think the user doesn't need it right now.
+			// http://www.ouroboros.org/cn/docs/configuration/entities.html 
 			setCell(true);
 		}
 		else
 		{
-			// The user explicitly stated and set
+			// The user explicitly stated and made the settings
 			setCell(assertionHasCell == 1);
 		}
 	}
@@ -490,33 +515,33 @@ void ScriptDefModule::autoMatchCompOwn()
 	{
 		if(assertionHasCell < 0)
 		{
-			// If the user does not have an explicit statement and is set to have no corresponding entity part
-			// The reason for this is to allow the user to define this part of the def file (because of the existence of the interface, there may be cell attributes or methods in the interface).
-			// But if the script does not exist still think that the user does not currently need this part
-			// http://www.ouroboros.org/cn/docs/configuration/entities.html
+			// If the user does not have an explicit declaration and is set to have no corresponding entity part
+			// The reason for this is to allow the user to define this part of the def file (because the interface exists, there may be a cell attribute or method in the interface)
+			// But if the script doesn't exist, I still think the user doesn't need it right now.
+			// http://www.ouroboros.org/cn/docs/configuration/entities.html 
 			setCell(false);
 		}
 		else
 		{
-			// The user explicitly stated and set
+			// The user explicitly stated and made the settings
 			setCell(assertionHasCell == 1);
 		}
 	}
 }
 
 //-------------------------------------------------------------------------------------
-bool ScriptDefModule::addPropertyDescription(const char* attrName,
-										  PropertyDescription* propertyDescription,
+bool ScriptDefModule::addPropertyDescription(const char* attrName, 
+										  PropertyDescription* propertyDescription, 
 										  COMPONENT_TYPE componentType, bool ignoreConflict)
 {
 	if(!ignoreConflict && hasMethodName(attrName))
 	{
 		ERROR_MSG(fmt::format("ScriptDefModule::addPropertyDescription: There is a method[{}] name conflict! componentType={}.\n",
 			attrName, componentType));
-
+		
 		return false;
 	}
-
+	
 	if (!ignoreConflict && hasComponentName(attrName))
 	{
 		ERROR_MSG(fmt::format("ScriptDefModule::addPropertyDescription: There is a component[{}] name conflict!\n",
@@ -525,7 +550,7 @@ bool ScriptDefModule::addPropertyDescription(const char* attrName,
 		return false;
 	}
 
-	bool isEntityComponent = propertyDescription->getDataType() &&
+	bool isEntityComponent = propertyDescription->getDataType() && 
 		std::string("ENTITY_COMPONENT") == propertyDescription->getDataType()->getName();
 
 	PropertyDescription* f_propertyDescription = NULL;
@@ -538,8 +563,8 @@ bool ScriptDefModule::addPropertyDescription(const char* attrName,
 			f_propertyDescription = findCellPropertyDescription(attrName);
 			propertyDescr = &getCellPropertyDescriptions();
 			propertyDescr_uidmap = &getCellPropertyDescriptions_uidmap();
-
-			// Determine what level of attribute they are, save it to the corresponding detailLevel
+			
+			// Determine what level of attributes they are, save them to the location corresponding to detailLevel
 			if((propertyDescription->getFlags() & ENTITY_CLIENT_DATA_FLAGS) > 0){
 				cellDetailLevelPropertyDescrs_[propertyDescription->getDetailLevel()][attrName] = propertyDescription;
 			}
@@ -575,10 +600,10 @@ bool ScriptDefModule::addPropertyDescription(const char* attrName,
 	if(isEntityComponent)
 		componentPropertyDescr_[attrName] = propertyDescription;
 
-	// To determine if it is a storage attribute, store it on persistentPropertyDescr_
+	// Determine whether it is a storage attribute, is stored to persistentPropertyDescr_
 	if(propertyDescription->isPersistent())
 	{
-		PROPERTYDESCRIPTION_MAP::const_iterator pciter =
+		PROPERTYDESCRIPTION_MAP::const_iterator pciter = 
 			persistentPropertyDescr_.find(attrName);
 
 		if(pciter == persistentPropertyDescr_.end())
@@ -696,7 +721,7 @@ PropertyDescription* ScriptDefModule::findPersistentPropertyDescription(ENTITY_P
 }
 
 //-------------------------------------------------------------------------------------
-PropertyDescription* ScriptDefModule::findPropertyDescription(const char* attrName,
+PropertyDescription* ScriptDefModule::findPropertyDescription(const char* attrName, 
 															  COMPONENT_TYPE componentType)
 {
 	switch(componentType)
@@ -716,7 +741,7 @@ PropertyDescription* ScriptDefModule::findPropertyDescription(const char* attrNa
 }
 
 //-------------------------------------------------------------------------------------
-PropertyDescription* ScriptDefModule::findPropertyDescription(ENTITY_PROPERTY_UID utype,
+PropertyDescription* ScriptDefModule::findPropertyDescription(ENTITY_PROPERTY_UID utype, 
 															  COMPONENT_TYPE componentType)
 {
 	switch(componentType)
@@ -736,7 +761,7 @@ PropertyDescription* ScriptDefModule::findPropertyDescription(ENTITY_PROPERTY_UI
 }
 
 //-------------------------------------------------------------------------------------
-MethodDescription* ScriptDefModule::findMethodDescription(const char* attrName,
+MethodDescription* ScriptDefModule::findMethodDescription(const char* attrName, 
 														  COMPONENT_TYPE componentType)
 {
 	switch(componentType)
@@ -756,7 +781,7 @@ MethodDescription* ScriptDefModule::findMethodDescription(const char* attrName,
 }
 
 //-------------------------------------------------------------------------------------
-MethodDescription* ScriptDefModule::findMethodDescription(ENTITY_METHOD_UID utype,
+MethodDescription* ScriptDefModule::findMethodDescription(ENTITY_METHOD_UID utype, 
 														  COMPONENT_TYPE componentType)
 {
 	switch(componentType)
@@ -829,17 +854,17 @@ MethodDescription* ScriptDefModule::findAliasMethodDescription(ENTITY_DEF_ALIASI
 }
 
 //-------------------------------------------------------------------------------------
-bool ScriptDefModule::addCellMethodDescription(const char* attrName,
+bool ScriptDefModule::addCellMethodDescription(const char* attrName, 
 											   MethodDescription* methodDescription)
 {
 	if(hasPropertyName(attrName))
 	{
 		ERROR_MSG(fmt::format("ScriptDefModule::addCellMethodDescription: There is a property[{}] name conflict!\n",
 			attrName));
-
+		
 		return false;
 	}
-
+	
 	if (hasComponentName(attrName))
 	{
 		ERROR_MSG(fmt::format("ScriptDefModule::addCellMethodDescription: There is a component[{}] name conflict!\n",
@@ -854,7 +879,7 @@ bool ScriptDefModule::addCellMethodDescription(const char* attrName,
 		ERROR_MSG(fmt::format("ScriptDefModule::addCellMethodDescription: [{}] is exist!\n", attrName));
 		return false;
 	}
-
+	
 	setCell(true);
 	methodCellDescr_[attrName] = methodDescription;
 	methodCellDescr_uidmap_[methodDescription->getUType()] = methodDescription;
@@ -892,17 +917,17 @@ MethodDescription* ScriptDefModule::findBaseMethodDescription(ENTITY_METHOD_UID 
 }
 
 //-------------------------------------------------------------------------------------
-bool ScriptDefModule::addBaseMethodDescription(const char* attrName,
+bool ScriptDefModule::addBaseMethodDescription(const char* attrName, 
 											   MethodDescription* methodDescription)
 {
 	if(hasPropertyName(attrName))
 	{
 		ERROR_MSG(fmt::format("ScriptDefModule::addBaseMethodDescription: There is a property[{}] name conflict!\n",
 			attrName));
-
+		
 		return false;
 	}
-
+	
 	if (hasComponentName(attrName))
 	{
 		ERROR_MSG(fmt::format("ScriptDefModule::addBaseMethodDescription: There is a component[{}] name conflict!\n",
@@ -914,12 +939,12 @@ bool ScriptDefModule::addBaseMethodDescription(const char* attrName,
 	MethodDescription* f_methodDescription = findBaseMethodDescription(attrName);
 	if(f_methodDescription)
 	{
-		ERROR_MSG(fmt::format("ScriptDefModule::addBaseMethodDescription: [{}] is exist!\n",
+		ERROR_MSG(fmt::format("ScriptDefModule::addBaseMethodDescription: [{}] is exist!\n", 
 			attrName));
 
 		return false;
 	}
-
+	
 	setBase(true);
 	methodBaseDescr_[attrName] = methodDescription;
 	methodBaseDescr_uidmap_[methodDescription->getUType()] = methodDescription;
@@ -957,17 +982,17 @@ MethodDescription* ScriptDefModule::findClientMethodDescription(ENTITY_METHOD_UI
 }
 
 //-------------------------------------------------------------------------------------
-bool ScriptDefModule::addClientMethodDescription(const char* attrName,
+bool ScriptDefModule::addClientMethodDescription(const char* attrName, 
 												 MethodDescription* methodDescription)
 {
 	if(hasPropertyName(attrName))
 	{
 		ERROR_MSG(fmt::format("ScriptDefModule::addClientMethodDescription: There is a property[{}] name conflict!\n",
 			attrName));
-
+		
 		return false;
 	}
-
+	
 	if (hasComponentName(attrName))
 	{
 		ERROR_MSG(fmt::format("ScriptDefModule::addClientMethodDescription: There is a component[{}] name conflict!\n",
@@ -994,22 +1019,22 @@ bool ScriptDefModule::addClientMethodDescription(const char* attrName,
 //-------------------------------------------------------------------------------------
 ScriptDefModule::PROPERTYDESCRIPTION_MAP& ScriptDefModule::getPropertyDescrs()
 {
-	ScriptDefModule::PROPERTYDESCRIPTION_MAP* lpPropertyDescrs = NULL;
+	ScriptDefModule::PROPERTYDESCRIPTION_MAP* lpPropertyDescrs = NULL;	
 
-	switch(g_componentType)
-	{
+	switch(g_componentType)	
+	{					
 		case CELLAPP_TYPE:
 			lpPropertyDescrs = &getCellPropertyDescriptions();
 			break;
 		case BASEAPP_TYPE:
 			lpPropertyDescrs = &getBasePropertyDescriptions();
-			break;
+			break;	
 		default:
 			lpPropertyDescrs = &getClientPropertyDescriptions();
-			break;
+			break;	
 	};
-
-	return *lpPropertyDescrs;
+	
+	return *lpPropertyDescrs;	
 }
 
 //-------------------------------------------------------------------------------------
@@ -1017,7 +1042,7 @@ bool ScriptDefModule::hasPropertyName(const std::string& name)
 {
 	return findPropertyDescription(name.c_str(), CELLAPP_TYPE) ||
 		findPropertyDescription(name.c_str(), BASEAPP_TYPE) ||
-		findPropertyDescription(name.c_str(), CLIENT_TYPE);
+		findPropertyDescription(name.c_str(), CLIENT_TYPE); 
 }
 
 //-------------------------------------------------------------------------------------

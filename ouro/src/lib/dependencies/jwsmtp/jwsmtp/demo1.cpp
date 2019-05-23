@@ -49,9 +49,9 @@ int main(int argc, char* argv[])
    // but calling this function will allow mime compatible clients to actually
    // display the html if the client is set to show html messages.
    //    m.setmessageHTMLfile("/home/myname/thefile.html");
-
-	  // After testing, 163 supported auth authentication is PLAIN mode
-   m.authtype(jwsmtp::mailer::PLAIN);
+   
+	//经过测试，163支持的auth认证是PLAIN模式  
+   m.authtype(jwsmtp::mailer::PLAIN);  
 
    // Build our html from a string. You can also send html as a vector.
    // i.e.

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 namespace Ouroboros {
@@ -17,6 +17,11 @@ INLINE PyObject* Script::getModule(void) const
 INLINE PyObject* Script::getExtraModule(void) const 
 { 
 	return extraModule_; 
+}
+
+INLINE PyObject* Script::getSysInitModules(void) const
+{
+	return sysInitModules_;
 }
 
 INLINE ScriptStdOutErr* Script::pyStdouterr() const

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OUROBOROS_SYSINFO_H
 #define OUROBOROS_SYSINFO_H
@@ -45,6 +45,9 @@ public:
 	void update();
 	
 	void clear();
+
+	std::vector< std::string > getMacAddresses();
+
 private:
 	bool _autocreate();
 	uint64 totalmem_;

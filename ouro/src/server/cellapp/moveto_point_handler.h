@@ -1,11 +1,11 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_MOVETOPOINTHANDLER_H
 #define OURO_MOVETOPOINTHANDLER_H
 
 #include "controller.h"
 #include "updatable.h"
-#include "pyscript/scriptobject.h"
+#include "pyscript/scriptobject.h"	
 #include "math/math.h"
 
 namespace Ouroboros{
@@ -15,20 +15,20 @@ class MoveToPointHandler : public Updatable
 public:
 	enum MoveType
 	{
-		MOVE_TYPE_POINT = 0,		// Conventional type
-		MOVE_TYPE_ENTITY = 1,		// Range trigger type
-		MOVE_TYPE_NAV = 2,			// Mobile controller type
+		MOVE_TYPE_POINT = 0, // regular type
+		MOVE_TYPE_ENTITY = 1, // range trigger type
+		MOVE_TYPE_NAV = 2, // mobile controller type
 	};
 
 	void addToStream(Ouroboros::MemoryStream& s);
 	void createFromStream(Ouroboros::MemoryStream& s);
 
-	MoveToPointHandler(OUROShared_ptr<Controller>& pController, int layer, const Position3D& destPos, float velocity, float distance, bool faceMovement,
+	MoveToPointHandler(KBEShared_ptr<Controller>& pController, int layer, const Position3D& destPos, float velocity, float distance, bool faceMovement, 
 		bool moveVertically, PyObject* userarg);
 
 	MoveToPointHandler();
 	virtual ~MoveToPointHandler();
-
+	
 	virtual bool update();
 
 	virtual const Position3D& destPos() { return destPos_; }
@@ -50,15 +50,16 @@ public:
 
 protected:
 	Position3D destPos_;
-	float velocity_;			// speed
-	bool faceMovement_;			// Does it not change for mobile?
-	bool moveVertically_;		// True can fly or move
+	float velocity_; // speed
+	bool faceMovement_; // Whether to change the move-oriented
+	bool moveVertically_; // true can fly to move or paste
 	PyObject* pyuserarg_;
 	float distance_;
-	OUROShared_ptr<Controller> pController_;
+	KBEShared_ptr<Controller> pController_;
 	int layer_;
 	bool isDestroyed_;
 };
-
+ 
 }
 #endif // OURO_MOVETOPOINTHANDLER_H
+

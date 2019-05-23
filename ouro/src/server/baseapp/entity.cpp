@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "baseapp.h"
 #include "entity.h"
@@ -8,9 +8,10 @@
 #include "entitydef/entity_call.h"
 #include "entitydef/entity_component.h"
 #include "entitydef/entitydef.h"
-#include "network/channel.h"
+#include "network/channel.h"	
 #include "network/fixed_messages.h"
 #include "client_lib/client_interface.h"
+#include "common/sha1.h"
 
 #ifndef CODE_INLINE
 #include "entity.inl"
@@ -26,16 +27,15 @@ ENTITY_METHOD_DECLARE_BEGIN(Baseapp, Entity)
 SCRIPT_METHOD_DECLARE("createCellEntity",				createCellEntity,				METH_VARARGS,			0)
 SCRIPT_METHOD_DECLARE("createCellEntityInNewSpace",		createCellEntityInNewSpace,		METH_VARARGS,			0)
 SCRIPT_METHOD_DECLARE("destroyCellEntity",				pyDestroyCellEntity,			METH_VARARGS,			0)
-SCRIPT_METHOD_DECLARE("teleport",						pyTeleport,						METH_VARARGS,			0)
 ENTITY_METHOD_DECLARE_END()
 
 SCRIPT_MEMBER_DECLARE_BEGIN(Entity)
 SCRIPT_MEMBER_DECLARE_END()
 
 ENTITY_GETSET_DECLARE_BEGIN(Entity)
-SCRIPT_GET_DECLARE("cell",								pyGetCellEntityCall,			0,								0)
-SCRIPT_GET_DECLARE("client",							pyGetClientEntityCall,			0,								0)
-SCRIPT_GET_DECLARE("databaseID",						pyGetDBID,						0,								0)
+SCRIPT_GET_DECLARE("cell",								pyGetCellEntityCall,			0,								0)	
+SCRIPT_GET_DECLARE("client",							pyGetClientEntityCall,			0,								0)	
+SCRIPT_GET_DECLARE("databaseID",						pyGetDBID,						0,								0)	
 SCRIPT_GET_DECLARE("databaseInterfaceName",				pyGetDBInterfaceName,			0,								0)
 SCRIPT_GETSET_DECLARE("shouldAutoBackup",				pyGetShouldAutoBackup,			pySetShouldAutoBackup,			0,		0)
 SCRIPT_GETSET_DECLARE("shouldAutoArchive",				pyGetShouldAutoArchive,			pySetShouldAutoArchive,			0,		0)
@@ -43,7 +43,7 @@ ENTITY_GETSET_DECLARE_END()
 BASE_SCRIPT_INIT(Entity, 0, 0, 0, 0, 0)
 
 //-------------------------------------------------------------------------------------
-Entity::Entity(ENTITY_ID id, const ScriptDefModule* pScriptModule,
+Entity::Entity(ENTITY_ID id, const ScriptDefModule* pScriptModule, 
 		   PyTypeObject* pyType, bool isInitialised):
 ScriptObject(pyType, isInitialised),
 ENTITY_CONSTRUCTION(Entity),
@@ -60,9 +60,10 @@ creatingCell_(false),
 createdSpace_(false),
 inRestore_(false),
 pBufferedSendToClientMessages_(NULL),
-isDirty_(true),
 dbInterfaceIndex_(0)
 {
+	setDirty();
+
 	script::PyGC::incTracing("Entity");
 	ENTITY_INIT_PROPERTYS(Entity);
 
@@ -83,7 +84,7 @@ Entity::~Entity()
 		Baseapp::getSingleton().pEntities()->pGetbages()->erase(id());
 
 	script::PyGC::decTracing("Entity");
-}
+}	
 
 //-------------------------------------------------------------------------------------
 void Entity::onInitializeScript()
@@ -100,7 +101,7 @@ void Entity::onDefDataChanged(EntityComponent* pEntityComponent, const PropertyD
 
 	if(propertyDescription->isPersistent())
 		setDirty();
-
+	
 	uint32 flags = propertyDescription->getFlags();
 	ENTITY_PROPERTY_UID componentPropertyUID = 0;
 	int8 componentPropertyAliasID = 0;
@@ -128,11 +129,11 @@ void Entity::onDefDataChanged(EntityComponent* pEntityComponent, const PropertyD
 		return;
 
 	// Create a template stream that needs to be broadcast
-	MemoryStream* mstream = MemoryStream::createPoolObject();
+	MemoryStream* mstream = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 
 	propertyDescription->getDataType()->addToStream(mstream, pyData);
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(ClientInterface::onUpdatePropertys);
 	(*pBundle) << id();
 
@@ -148,13 +149,13 @@ void Entity::onDefDataChanged(EntityComponent* pEntityComponent, const PropertyD
 	}
 
 	pBundle->append(*mstream);
-
-	g_privateClientEventHistoryStats.trackEvent(scriptName(),
-		propertyDescription->getName(),
+	
+	g_privateClientEventHistoryStats.trackEvent(scriptName(), 
+		propertyDescription->getName(), 
 		pBundle->currMsgLength());
 
-	// According to the current design, having clientEntityCall_ must be a proxy
-	// As for why running into baseEntity is related to Python itself being a C language implementation
+	// According to the current design, there is a clientEntityCall_ must be a proxy
+	// As for why it goes to baseEntity and Python itself is related to C language implementation
 	static_cast<Proxy*>(this)->sendToClient(ClientInterface::onUpdatePropertys, pBundle);
 	MemoryStream::reclaimPoolObject(mstream);
 }
@@ -162,8 +163,6 @@ void Entity::onDefDataChanged(EntityComponent* pEntityComponent, const PropertyD
 //-------------------------------------------------------------------------------------
 void Entity::onDestroy(bool callScript)
 {
-	setDirty();
-
 	if(callScript)
 	{
 		SCOPED_PROFILE(SCRIPTCALL_PROFILE);
@@ -174,11 +173,11 @@ void Entity::onDestroy(bool callScript)
 	{
 		onCellWriteToDBCompleted(0, -1, -1);
 	}
-
+	
 	eraseEntityLog();
 
-	// According to the current design, having clientEntityCall_ must be a proxy
-	// As for why running into baseEntity is related to Python itself being a C language implementation
+	// According to the current design, there is a clientEntityCall_ must be a proxy
+	// As for why it goes to baseEntity and Python itself is related to C language implementation
 	if(clientEntityCall_)
 		static_cast<Proxy*>(this)->kick();
 }
@@ -186,12 +185,12 @@ void Entity::onDestroy(bool callScript)
 //-------------------------------------------------------------------------------------
 void Entity::eraseEntityLog()
 {
-	// This does not use hasDB() to determine
-	// The user may destroy( writeToDB = False ), this operation will cause hasDB to be false, so here
-	// Need to determine whether dbid is greater than 0. If it is greater than 0 then it should be erased and other online records.
+	// There is no hasDB() to judge here.
+	// The user may destroy ( writeToDB = False ), this operation will cause hasDB to be false, so here
+	// Need to determine if dbid is greater than 0. If it is greater than 0, you should erase the online record.
 	if(this->dbid() > 0)
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(DbmgrInterface::onEntityOffline);
 		(*pBundle) << this->dbid();
 		(*pBundle) << this->pScriptModule()->getUType();
@@ -256,14 +255,14 @@ void Entity::createCellData(void)
 		{
 			if(!pScriptModule_->hasCell())
 			{
-				WARNING_MSG(fmt::format("{}::createCellData: do not create cellData, cannot find the cellapp script({})!\n",
+				WARNING_MSG(fmt::format("{}::createCellData: do not create cellData, cannot find the cellapp script({})!\n", 
 					pScriptModule_->getName(), pScriptModule_->getName()));
 			}
 		}
 
 		return;
 	}
-
+	
 	EntityDef::context().currComponentType = CELLAPP_TYPE;
 
 	ScriptDefModule::PROPERTYDESCRIPTION_MAP& propertyDescrs = pScriptModule_->getCellPropertyDescriptions();
@@ -272,11 +271,11 @@ void Entity::createCellData(void)
 	{
 		PropertyDescription* propertyDescription = iter->second;
 		DataType* dataType = propertyDescription->getDataType();
-
+		
 		if(dataType)
 		{
 			PyObject* pyObj = NULL;
-
+			
 			if (dataType->type() != DATA_TYPE_ENTITY_COMPONENT)
 				pyObj = propertyDescription->newDefaultVal();
 			else
@@ -288,23 +287,23 @@ void Entity::createCellData(void)
 		else
 		{
 			ERROR_MSG(fmt::format("{}::createCellData: {} PropertyDescription the dataType is NULL.\n",
-				this->scriptName(), propertyDescription->getName()));
+				this->scriptName(), propertyDescription->getName()));	
 		}
-
+		
 		SCRIPT_ERROR_CHECK();
 	}
 
-	// Initialize the position and orientation variables of the cellEntity
+	// Initialize the position and direction variables of cellEntity
 	PyObject* position = PyTuple_New(3);
 	PyTuple_SET_ITEM(position, 0, PyFloat_FromDouble(0.0));
 	PyTuple_SET_ITEM(position, 1, PyFloat_FromDouble(0.0));
 	PyTuple_SET_ITEM(position, 2, PyFloat_FromDouble(0.0));
-
+	
 	PyObject* direction = PyTuple_New(3);
 	PyTuple_SET_ITEM(direction, 0, PyFloat_FromDouble(0.0));
 	PyTuple_SET_ITEM(direction, 1, PyFloat_FromDouble(0.0));
 	PyTuple_SET_ITEM(direction, 2, PyFloat_FromDouble(0.0));
-
+	
 	PyDict_SetItemString(cellDataDict_, "position", position);
 	PyDict_SetItemString(cellDataDict_, "direction", direction);
 
@@ -337,24 +336,39 @@ void Entity::addCellDataToStream(COMPONENT_TYPE sendTo, uint32 flags, MemoryStre
 		{
 			PyObject* pyVal = PyDict_GetItemString(cellDataDict_, propertyDescription->getName());
 
-			if(useAliasID && pScriptModule_->usePropertyDescrAlias())
-			{
-				(*s) << (uint8)0;
-				(*s) << propertyDescription->aliasIDAsUint8();
-			}
-			else
-			{
-				(*s) << (ENTITY_PROPERTY_UID)0;
-				(*s) << propertyDescription->getUType();
-			}
-
 			if (propertyDescription->getDataType()->type() == DATA_TYPE_ENTITY_COMPONENT)
 			{
+				// Since there is a situation, there is no content in the component def, but there is a cell script. At this time, the baseapp cannot determine whether it has a cell attribute, so no data is written when writing celldata.
 				EntityComponentType* pEntityComponentType = (EntityComponentType*)propertyDescription->getDataType();
+				if (pEntityComponentType->pScriptDefModule()->getCellPropertyDescriptions().size() == 0)
+					continue;
+
+				if (useAliasID && pScriptModule_->usePropertyDescrAlias())
+				{
+					(*s) << (uint8)0;
+					(*s) << propertyDescription->aliasIDAsUint8();
+				}
+				else
+				{
+					(*s) << (ENTITY_PROPERTY_UID)0;
+					(*s) << propertyDescription->getUType();
+				}
+
 				pEntityComponentType->addCellDataToStream(s, flags, pyVal, this->id(), propertyDescription, sendTo, true);
 			}
 			else
 			{
+				if (useAliasID && pScriptModule_->usePropertyDescrAlias())
+				{
+					(*s) << (uint8)0;
+					(*s) << propertyDescription->aliasIDAsUint8();
+				}
+				else
+				{
+					(*s) << (ENTITY_PROPERTY_UID)0;
+					(*s) << propertyDescription->getUType();
+				}
+
 				if (!propertyDescription->isSameType(pyVal))
 				{
 					ERROR_MSG(fmt::format("{}::addCellDataToStream: {}({}) not is ({})!\n", this->scriptName(),
@@ -371,7 +385,7 @@ void Entity::addCellDataToStream(COMPONENT_TYPE sendTo, uint32 flags, MemoryStre
 			}
 
 			if (PyErr_Occurred())
- 			{
+ 			{	
 				PyErr_PrintEx(0);
 				DEBUG_MSG(fmt::format("{}::addCellDataToStream: {} error!\n", this->scriptName(),
 					propertyDescription->getName()));
@@ -385,10 +399,10 @@ void Entity::addPersistentsDataToStream(uint32 flags, MemoryStream* s)
 {
 	std::vector<ENTITY_PROPERTY_UID> log;
 
-	// Then remove the storage properties in the base
+	// Then take the storage attribute in the base
 	PyObject* pydict = PyObject_GetAttrString(this, "__dict__");
 
-	// First remove the storage attributes from celldata
+	// First take the storage properties in celldata
 	ScriptDefModule::PROPERTYDESCRIPTION_MAP& propertyDescrs = pScriptModule_->getPersistentPropertyDescriptions();
 	ScriptDefModule::PROPERTYDESCRIPTION_MAP::const_iterator iter = propertyDescrs.begin();
 
@@ -400,7 +414,7 @@ void Entity::addPersistentsDataToStream(uint32 flags, MemoryStream* s)
 	for(; iter != propertyDescrs.end(); ++iter)
 	{
 		PropertyDescription* propertyDescription = iter->second;
-		std::vector<ENTITY_PROPERTY_UID>::const_iterator finditer =
+		std::vector<ENTITY_PROPERTY_UID>::const_iterator finditer = 
 			std::find(log.begin(), log.end(), propertyDescription->getUType());
 
 		if(finditer != log.end())
@@ -413,7 +427,7 @@ void Entity::addPersistentsDataToStream(uint32 flags, MemoryStream* s)
 
 			PyObject *key = PyUnicode_FromString(attrname);
 
-			if(!isComponent /* If it is a component type, you should first find this component attribute from the entity itself */
+						if(!isComponent /*if it is a component type, you should first find this component property from the entity itself.*/
 				&& cellDataDict_ != NULL && PyDict_Contains(cellDataDict_, key) > 0)
 			{
 				PyObject* pyVal = PyDict_GetItemString(cellDataDict_, attrname);
@@ -459,9 +473,14 @@ void Entity::addPersistentsDataToStream(uint32 flags, MemoryStream* s)
 				}
 				else
 				{
-					// Some entities do not have a cell part, so the cell attribute is ignored
+					// Some entities have no cell part, so the cell attribute is ignored
 					if (cellDataDict_)
 					{
+						// some components may not have a cell attribute
+						EntityComponentType* pEntityComponentType = (EntityComponentType*)propertyDescription->getDataType();
+						if (pEntityComponentType->pScriptDefModule()->getCellPropertyDescriptions().size() == 0)
+							continue;
+
 						PyObject* pyVal = PyDict_GetItemString(cellDataDict_, attrname);
 						if (!propertyDescription->isSamePersistentType(pyVal))
 						{
@@ -540,7 +559,7 @@ void Entity::sendToCellapp(Network::Channel* pChannel, Network::Bundle* pBundle)
 //-------------------------------------------------------------------------------------
 void Entity::destroyCellData(void)
 {
-	// cellDataDict_ Keep it for use when backing up, here only the footsteps can't be accessed
+	// cellDataDict_ continues to be reserved for backup purposes, just to make the step layer inaccessible
 	// S_RELEASE(cellDataDict_);
 	if(PyObject_DelAttrString(this, "cellData") == -1)
 	{
@@ -552,9 +571,9 @@ void Entity::destroyCellData(void)
 //-------------------------------------------------------------------------------------
 bool Entity::destroyCellEntity(void)
 {
-	if(isDestroyed())
+	if(isDestroyed())	
 	{
-		return false;
+		return false;																					
 	}
 
 	if(cellEntityCall_  == NULL || cellEntityCall_->getChannel() == NULL)
@@ -563,7 +582,7 @@ bool Entity::destroyCellEntity(void)
 		return false;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(CellappInterface::onDestroyCellEntityFromBaseapp);
 	(*pBundle) << id_;
 	sendToCellapp(pBundle);
@@ -573,9 +592,9 @@ bool Entity::destroyCellEntity(void)
 //-------------------------------------------------------------------------------------
 PyObject* Entity::pyDestroyCellEntity()
 {
-	if(cellEntityCall_ == NULL)
+	if(cellEntityCall_ == NULL) 
 	{
-		PyErr_Format(PyExc_AssertionError, "%s::destroyCellEntity: id:%i no cell! creatingCell=%s\n",
+		PyErr_Format(PyExc_AssertionError, "%s::destroyCellEntity: id:%i no cell! creatingCell=%s\n", 
 			this->scriptName(), this->id(),
 			creatingCell_ ? "true" : "false");
 		PyErr_PrintEx(0);
@@ -595,7 +614,7 @@ PyObject* Entity::__py_pyDestroyEntity(PyObject* self, PyObject* args, PyObject 
 	if(pobj->initing())
 	{
 		PyErr_Format(PyExc_AssertionError,
-			"%s::destroy(): %d initing, reject the request!\n",
+			"%s::destroy(): %d initing, reject the request!\n",	
 			pobj->scriptName(), pobj->id());
 		PyErr_PrintEx(0);
 		return NULL;
@@ -608,7 +627,7 @@ PyObject* Entity::__py_pyDestroyEntity(PyObject* self, PyObject* args, PyObject 
 		NULL
 	};
 
-	if(pobj->isDestroyed())
+	if(pobj->isDestroyed())	
 	{
 		PyErr_Format(PyExc_AssertionError, "%s::destroy: %d is destroyed!\n",
 			pobj->scriptName(), pobj->id());
@@ -617,11 +636,19 @@ PyObject* Entity::__py_pyDestroyEntity(PyObject* self, PyObject* args, PyObject 
 		return NULL;
 	}
 
-	if(pobj->creatingCell() || pobj->cellEntityCall() != NULL)
+	if (pobj->creatingCell())
 	{
-		PyErr_Format(PyExc_Exception, "%s::destroy: id:%i has cell! creatingCell=%s\n",
-			pobj->scriptName(), pobj->id(),
-			pobj->creatingCell() ? "true" : "false");
+		WARNING_MSG(fmt::format("{}::destroy(): id={} creating cell! automatic 'destroy' process will begin after 'onGetCell'.\n", 
+			pobj->scriptName(), pobj->id()));
+
+		pobj->addFlags(ENTITY_FLAGS_DESTROY_AFTER_GETCELL);
+		S_Return;
+	}
+
+	if (pobj->cellEntityCall() != NULL)
+	{
+		PyErr_Format(PyExc_Exception, "%s::destroy: id:%i has cell, please destroyCellEntity() first!\n",
+			pobj->scriptName(), pobj->id());
 
 		PyErr_PrintEx(0);
 		return NULL;
@@ -630,7 +657,7 @@ PyObject* Entity::__py_pyDestroyEntity(PyObject* self, PyObject* args, PyObject 
 	PyObject* pyDeleteFromDB = NULL;
 	PyObject* pyWriteToDB = NULL;
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OO",
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OO", 
 		keywords, &pyDeleteFromDB, &pyWriteToDB))
 	{
 		PyErr_Format(PyExc_AssertionError, "%s::destroy: %d ParseTupleAndKeywords(deleteFromDB, &writeToDB) error!\n",
@@ -640,20 +667,20 @@ PyObject* Entity::__py_pyDestroyEntity(PyObject* self, PyObject* args, PyObject 
 		return NULL;
 	}
 
-	bool deleteFromDB = (pyDeleteFromDB != NULL) ?
-		(PyObject_IsTrue(pyDeleteFromDB) ? true : false) : false;
+	bool deleteFromDB = (pyDeleteFromDB != NULL) ? 
+		(PyObject_IsTrue(pyDeleteFromDB) ? true : false) : false; 
 
-	bool writeToDB = (pyWriteToDB != NULL) ?
+	bool writeToDB = (pyWriteToDB != NULL) ? 
 		(PyObject_IsTrue(pyWriteToDB) ? true : false) : pobj->hasDB();
 
 	if(deleteFromDB || writeToDB)
 	{
-		// It is possible that writeToDB has been requested but dbid has not been returned yet
-		// This situation needs to return an error to the user and the user can continue to try this operation
+		// may have requested writeToDB but have not yet returned the written dbid
+		// This situation needs to return an error to the user, the user can continue to try this operation
 		if(pobj->hasDB() && pobj->dbid() == 0)
 		{
 			PyErr_Format(PyExc_AssertionError, "%s::destroy: id:%i has db, current dbid is 0. "
-				"please wait for dbmgr to processing!\n",
+				"please wait for dbmgr to processing!\n", 
 				pobj->scriptName(), pobj->id());
 
 			PyErr_PrintEx(0);
@@ -684,9 +711,9 @@ void Entity::onDestroyEntity(bool deleteFromDB, bool writeToDB)
 			return;
 		}
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(DbmgrInterface::removeEntity);
-
+		
 		(*pBundle) << this->dbInterfaceIndex();
 		(*pBundle) << g_componentID;
 		(*pBundle) << this->id();
@@ -700,7 +727,7 @@ void Entity::onDestroyEntity(bool deleteFromDB, bool writeToDB)
 
 	if(writeToDB)
 	{
-		// This behavior is handled by default
+		// This behavior will be handled by default
 		// this->writeToDB(NULL);
 	}
 	else
@@ -716,36 +743,18 @@ void Entity::onDestroyEntity(bool deleteFromDB, bool writeToDB)
 PyObject* Entity::onScriptGetAttribute(PyObject* attr)
 {
 	DEBUG_OP_ATTRIBUTE("get", attr)
-
-	wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(attr, NULL);
-	char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-	PyMem_Free(PyUnicode_AsWideCharStringRet0);
-
-	// If you access def persistent class container properties
-	// Because there is no good monitoring of the internal changes in the properties of the container class, a compromise is used here to perform the dirty process.
-	PropertyDescription* pPropertyDescription = const_cast<ScriptDefModule*>(pScriptModule())->findPersistentPropertyDescription(ccattr);
-	if(pPropertyDescription && (pPropertyDescription->getFlags() & ENTITY_BASE_DATA_FLAGS) > 0)
-	{
-		setDirty();
-	}
-	else if (strcmp(ccattr, "cellData") == 0)
-	{
-		setDirty();
-	}
-
-	free(ccattr);
 	return ScriptObject::onScriptGetAttribute(attr);
-}
+}	
 
 //-------------------------------------------------------------------------------------
 PyObject* Entity::pyGetCellEntityCall()
-{
+{ 
 	if (!hasFlags(ENTITY_FLAGS_DESTROYING) && isDestroyed())
 	{
-		PyErr_Format(PyExc_AssertionError, "%s: %d is destroyed!\n",
-			scriptName(), id());
+		PyErr_Format(PyExc_AssertionError, "%s: %d is destroyed!\n",		
+			scriptName(), id());		
 		PyErr_PrintEx(0);
-		return 0;
+		return 0;																					
 	}
 
 	EntityCall* entityCall = cellEntityCall();
@@ -753,7 +762,7 @@ PyObject* Entity::pyGetCellEntityCall()
 		S_Return;
 
 	Py_INCREF(entityCall);
-	return entityCall;
+	return entityCall; 
 }
 
 //-------------------------------------------------------------------------------------
@@ -761,13 +770,13 @@ PyObject* Entity::pyGetDBID()
 {
 	if (!hasFlags(ENTITY_FLAGS_DESTROYING) && isDestroyed())
 	{
-		PyErr_Format(PyExc_AssertionError, "%s: %d is destroyed!\n",
-			scriptName(), id());
+		PyErr_Format(PyExc_AssertionError, "%s: %d is destroyed!\n",		
+			scriptName(), id());		
 		PyErr_PrintEx(0);
-		return 0;
+		return 0;																					
 	}
 
-	return PyLong_FromUnsignedLongLong(this->dbid());
+	return PyLong_FromUnsignedLongLong(this->dbid()); 
 }
 
 //-------------------------------------------------------------------------------------
@@ -792,10 +801,10 @@ PyObject* Entity::pyGetClientEntityCall()
 {
 	if (!hasFlags(ENTITY_FLAGS_DESTROYING) && isDestroyed())
 	{
-		PyErr_Format(PyExc_AssertionError, "%s: %d is destroyed!\n",
-			scriptName(), id());
+		PyErr_Format(PyExc_AssertionError, "%s: %d is destroyed!\n",		
+			scriptName(), id());		
 		PyErr_PrintEx(0);
-		return 0;
+		return 0;																				
 	}
 
 	EntityCall* entityCall = clientEntityCall();
@@ -803,26 +812,26 @@ PyObject* Entity::pyGetClientEntityCall()
 		S_Return;
 
 	Py_INCREF(entityCall);
-	return entityCall;
+	return entityCall; 
 }
 
 //-------------------------------------------------------------------------------------
 int Entity::pySetShouldAutoArchive(PyObject *value)
 {
-	if(isDestroyed())
+	if(isDestroyed())	
 	{
-		PyErr_Format(PyExc_AssertionError, "%s: %d is destroyed!\n",
-			scriptName(), id());
+		PyErr_Format(PyExc_AssertionError, "%s: %d is destroyed!\n",		
+			scriptName(), id());		
 		PyErr_PrintEx(0);
-		return 0;
+		return 0;																				
 	}
 
 	if(!PyLong_Check(value))
 	{
-		PyErr_Format(PyExc_AssertionError, "%s: %d set shouldAutoArchive value is not int!\n",
-			scriptName(), id());
+		PyErr_Format(PyExc_AssertionError, "%s: %d set shouldAutoArchive value is not int!\n",		
+			scriptName(), id());		
 		PyErr_PrintEx(0);
-		return 0;
+		return 0;	
 	}
 
 	shouldAutoArchive_ = (int8)PyLong_AsLong(value);
@@ -838,20 +847,20 @@ PyObject* Entity::pyGetShouldAutoArchive()
 //-------------------------------------------------------------------------------------
 int Entity::pySetShouldAutoBackup(PyObject *value)
 {
-	if(isDestroyed())
+	if(isDestroyed())	
 	{
-		PyErr_Format(PyExc_AssertionError, "%s: %d is destroyed!\n",
-			scriptName(), id());
+		PyErr_Format(PyExc_AssertionError, "%s: %d is destroyed!\n",		
+			scriptName(), id());		
 		PyErr_PrintEx(0);
-		return 0;
+		return 0;																				
 	}
 
 	if(!PyLong_Check(value))
 	{
-		PyErr_Format(PyExc_AssertionError, "%s: %d set shouldAutoBackup value is not int!\n",
-			scriptName(), id());
+		PyErr_Format(PyExc_AssertionError, "%s: %d set shouldAutoBackup value is not int!\n",		
+			scriptName(), id());		
 		PyErr_PrintEx(0);
-		return 0;
+		return 0;	
 	}
 
 	shouldAutoBackup_ = (int8)PyLong_AsLong(value);
@@ -880,13 +889,13 @@ void Entity::onRemoteMethodCall(Network::Channel* pChannel, MemoryStream& s)
 {
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
-	if(isDestroyed())
-	{
-		ERROR_MSG(fmt::format("{}::onRemoteMethodCall: {} is destroyed!\n",
+	if(isDestroyed())																				
+	{																										
+		ERROR_MSG(fmt::format("{}::onRemoteMethodCall: {} is destroyed!\n",											
 			scriptName(), id()));
 
 		s.done();
-		return;
+		return;																							
 	}
 
 	ENTITY_PROPERTY_UID componentPropertyUID = 0;
@@ -894,7 +903,7 @@ void Entity::onRemoteMethodCall(Network::Channel* pChannel, MemoryStream& s)
 
 	ENTITY_METHOD_UID utype = 0;
 	s >> utype;
-
+	
 	ScriptDefModule* pScriptModule = pScriptModule_;
 	PyObject* pyCallObject = this;
 
@@ -920,10 +929,10 @@ void Entity::onRemoteMethodCall(Network::Channel* pChannel, MemoryStream& s)
 	MethodDescription* pMethodDescription = pScriptModule->findBaseMethodDescription(utype);
 	if(pMethodDescription == NULL)
 	{
-		ERROR_MSG(fmt::format("{2}::onRemoteMethodCall: can't found {3}method. utype={0}, methodName=unknown, callerID:{1}.\n",
-			utype, id_, this->scriptName(),
+		ERROR_MSG(fmt::format("{2}::onRemoteMethodCall: can't found {3}method. utype={0}, methodName=unknown, callerID:{1}.\n", 
+			utype, id_, this->scriptName(), 
 			(pComponentPropertyDescription ? (std::string("component[") + std::string(pScriptModule->getName()) + "] ") : "")));
-
+		
 		if (pyCallObject != static_cast<PyObject*>(this))
 			Py_DECREF(pyCallObject);
 
@@ -931,14 +940,14 @@ void Entity::onRemoteMethodCall(Network::Channel* pChannel, MemoryStream& s)
 		return;
 	}
 
-	// If the external channel is called to determine the source
+	// Determine the source if it is an external channel call
 	if (pChannel->isExternal())
 	{
 		ENTITY_ID srcEntityID = pChannel->proxyID();
 		if (srcEntityID <= 0 || srcEntityID != this->id())
 		{
 			WARNING_MSG(fmt::format("{2}::onRemoteMethodCall({3}): srcEntityID:{0} != thisEntityID:{1}! {4}\n",
-				srcEntityID, this->id(), this->scriptName(), pMethodDescription->getName(),
+				srcEntityID, this->id(), this->scriptName(), pMethodDescription->getName(), 
 				(pComponentPropertyDescription ? (std::string(pScriptModule->getName()) + "::") + pMethodDescription->getName() : "")));
 
 			if (pyCallObject != static_cast<PyObject*>(this))
@@ -951,7 +960,7 @@ void Entity::onRemoteMethodCall(Network::Channel* pChannel, MemoryStream& s)
 		if(!pMethodDescription->isExposed())
 		{
 			ERROR_MSG(fmt::format("{2}::onRemoteMethodCall: {0} not is exposed, call is illegal! srcEntityID:{1}! {3}\n",
-				pMethodDescription->getName(), srcEntityID, this->scriptName(),
+				pMethodDescription->getName(), srcEntityID, this->scriptName(), 
 				(pComponentPropertyDescription ? (std::string(pScriptModule->getName()) + "::") + pMethodDescription->getName() : "")));
 
 			if (pyCallObject != static_cast<PyObject*>(this))
@@ -964,7 +973,7 @@ void Entity::onRemoteMethodCall(Network::Channel* pChannel, MemoryStream& s)
 
 	if(g_debugEntity)
 	{
-		DEBUG_MSG(fmt::format("{3}::onRemoteMethodCall: {0}, {3}::{4}{1}(utype={2}).\n",
+		DEBUG_MSG(fmt::format("{3}::onRemoteMethodCall: {0}, {3}::{4}{1}(utype={2}).\n", 
 			id_, (pMethodDescription ? pMethodDescription->getName() : "unknown"), utype, this->scriptName(),
 			(pComponentPropertyDescription ? (std::string(pScriptModule->getName()) + "::") : "")));
 	}
@@ -994,7 +1003,7 @@ void Entity::onRemoteMethodCall(Network::Channel* pChannel, MemoryStream& s)
 			}
 		}
 	}
-
+	
 	Py_XDECREF(pyFunc);
 
 	if (pyCallObject != static_cast<PyObject*>(this))
@@ -1006,15 +1015,15 @@ void Entity::onGetCell(Network::Channel* pChannel, COMPONENT_ID componentID)
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
 	creatingCell_ = false;
 
-	// Delete cellData property
+	// delete the cellData property
 	destroyCellData();
-
-	// Call back to the script and get the cell
+	
+	// callback to the script and get the cell
 	if(cellEntityCall_ == NULL)
 		cellEntityCall_ = new EntityCall(pScriptModule_, NULL, componentID, id_, ENTITYCALL_TYPE_CELL);
 
@@ -1022,13 +1031,21 @@ void Entity::onGetCell(Network::Channel* pChannel, COMPONENT_ID componentID)
 	{
 		CALL_ENTITY_AND_COMPONENTS_METHOD(this, SCRIPT_OBJECT_CALL_ARGS0(pyTempObj, const_cast<char*>("onGetCell"), GETERR));
 	}
+
+	if (!isDestroyed() && hasFlags(ENTITY_FLAGS_DESTROY_AFTER_GETCELL))
+	{
+		WARNING_MSG(fmt::format("{}::onGetCell(): Automatically destroy cell! id={}.\n",
+			this->scriptName(), this->id()));
+
+		destroyCellEntity();
+	}
 }
 
 //-------------------------------------------------------------------------------------
 void Entity::onClientDeath()
 {
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
-	CALL_ENTITY_AND_COMPONENTS_METHOD(this, SCRIPT_OBJECT_CALL_ARGS0(pyTempObj, const_cast<char*>("onClientDeath"), GETERR));
+	CALL_COMPONENTS_AND_ENTITY_METHOD(this, SCRIPT_OBJECT_CALL_ARGS0(pyTempObj, const_cast<char*>("onClientDeath"), GETERR));
 }
 
 //-------------------------------------------------------------------------------------
@@ -1036,7 +1053,7 @@ void Entity::onLoseCell(Network::Channel* pChannel, MemoryStream& s)
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
 	S_RELEASE(cellEntityCall_);
@@ -1044,8 +1061,16 @@ void Entity::onLoseCell(Network::Channel* pChannel, MemoryStream& s)
 	isArchiveing_ = false;
 	isGetingCellData_ = false;
 	createdSpace_ = false;
+	
+	CALL_COMPONENTS_AND_ENTITY_METHOD(this, SCRIPT_OBJECT_CALL_ARGS0(pyTempObj, const_cast<char*>("onLoseCell"), GETERR));
 
-	CALL_ENTITY_AND_COMPONENTS_METHOD(this, SCRIPT_OBJECT_CALL_ARGS0(pyTempObj, const_cast<char*>("onLoseCell"), GETERR));
+	if (!isDestroyed() && hasFlags(ENTITY_FLAGS_DESTROY_AFTER_GETCELL))
+	{
+		WARNING_MSG(fmt::format("{}::onLoseCell(): Automatically destroy! id={}.\n",
+			this->scriptName(), this->id()));
+
+		destroy();
+	}
 }
 
 //-------------------------------------------------------------------------------------
@@ -1072,7 +1097,7 @@ void Entity::reqBackupCellData()
 	if(mb == NULL)
 		return;
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(CellappInterface::reqBackupEntityCellData);
 	(*pBundle) << this->id();
 	sendToCellapp(pBundle);
@@ -1085,14 +1110,14 @@ void Entity::onBackupCellData(Network::Channel* pChannel, MemoryStream& s)
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	isGetingCellData_ = false;
 
 	bool isDirty = false;
 	s >> isDirty;
-
+	
 	if(isDirty)
-	{
+	{		
 		PyObject* cellData = createCellDataFromStream(&s);
 		installCellDataAttr(cellData);
 		Py_DECREF(cellData);
@@ -1118,7 +1143,7 @@ void Entity::writeToDB(void* data, void* extra1, void* extra2)
 	PyObject* pyCallback = NULL;
 	int8 shouldAutoLoad = dbid() <= 0 ? 0 : -1;
 
-	// data Is likely to be NULL, such as timing archives do not need a callback function
+	// data is likely to be NULL, such as a timed archive that does not require a callback function.
 	if(data != NULL)
 		pyCallback = static_cast<PyObject*>(data);
 
@@ -1156,11 +1181,11 @@ void Entity::writeToDB(void* data, void* extra1, void* extra2)
 
 	if(isArchiveing_)
 	{
-		// __py_pyWriteToDB did not increase the reference
+		// __py_pyWriteToDB does not add a reference
 		//if(pyCallback != NULL)
 		//	Py_DECREF(pyCallback);
 
-		WARNING_MSG(fmt::format("{}::writeToDB(): is archiveing! entityid={}, dbid={}.\n",
+		WARNING_MSG(fmt::format("{}::writeToDB(): is archiveing! entityid={}, dbid={}.\n", 
 			this->scriptName(), this->id(), this->dbid()));
 
 		return;
@@ -1169,12 +1194,12 @@ void Entity::writeToDB(void* data, void* extra1, void* extra2)
 	isArchiveing_ = true;
 
 	if(isDestroyed())
-	{
-		// __py_pyWriteToDB did not increase the reference
+	{	
+		// __py_pyWriteToDB does not add a reference
 		//if(pyCallback != NULL)
 		//	Py_DECREF(pyCallback);
 
-		ERROR_MSG(fmt::format("{}::writeToDB(): is destroyed! entityid={}, dbid={}.\n",
+		ERROR_MSG(fmt::format("{}::writeToDB(): is destroyed! entityid={}, dbid={}.\n", 
 			this->scriptName(), this->id(), this->dbid()));
 
 		return;
@@ -1188,14 +1213,14 @@ void Entity::writeToDB(void* data, void* extra1, void* extra2)
 
 	// creatingCell_ may be creating a cell at this time
 	// However, we assume here that the base interface is called when the cell is not created.
-	// The initial value of this entity is written to the database and does not affect
-	if(this->cellEntityCall() == NULL)
+	// Write to the database is the initial value of the entity, does not affect
+	if(this->cellEntityCall() == NULL) 
 	{
 		onCellWriteToDBCompleted(callbackID, shouldAutoLoad, -1);
 	}
 	else
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(CellappInterface::reqWriteToDBFromBaseapp);
 		(*pBundle) << this->id();
 		(*pBundle) << callbackID;
@@ -1205,10 +1230,10 @@ void Entity::writeToDB(void* data, void* extra1, void* extra2)
 }
 
 //-------------------------------------------------------------------------------------
-void Entity::onWriteToDBCallback(ENTITY_ID eid,
-								DBID entityDBID,
+void Entity::onWriteToDBCallback(ENTITY_ID eid, 
+								DBID entityDBID, 
 								uint16 dbInterfaceIndex,
-								CALLBACK_ID callbackID,
+								CALLBACK_ID callbackID, 
 								int8 shouldAutoLoad,
 								bool success)
 {
@@ -1223,7 +1248,7 @@ void Entity::onWriteToDBCallback(ENTITY_ID eid,
 	{
 		dbid(dbInterfaceIndex, entityDBID);
 	}
-
+	
 	if (dbid() <= 0)
 	{
 		OURO_ASSERT(!success);
@@ -1237,7 +1262,7 @@ void Entity::onWriteToDBCallback(ENTITY_ID eid,
 		Py_INCREF(this);
 		PyTuple_SET_ITEM(pyargs, 0, PyBool_FromLong((long)success));
 		PyTuple_SET_ITEM(pyargs, 1, this);
-
+		
 		if(pyCallback != NULL)
 		{
 			PyObject* pyRet = PyObject_CallObject(pyCallback.get(), pyargs);
@@ -1252,7 +1277,7 @@ void Entity::onWriteToDBCallback(ENTITY_ID eid,
 		}
 		else
 		{
-			ERROR_MSG(fmt::format("{}::onWriteToDBCallback: can't found callback:{}.\n",
+			ERROR_MSG(fmt::format("{}::onWriteToDBCallback: not found callback:{}.\n",
 				this->scriptName(), callbackID));
 		}
 
@@ -1270,21 +1295,13 @@ void Entity::onCellWriteToDBCompleted(CALLBACK_ID callbackID, int8 shouldAutoLoa
 		dbInterfaceIndex_ = dbInterfaceIndex;
 
 	hasDB(true);
-
+	
 	onWriteToDB();
-
-	// If the entity already exists in the database, the application layer is allowed to call the database multiple times to perform data coverage in time.
+	
+	// If the entity already exists in the database, the application layer is allowed to call the write library multiple times to timely cover the data.
 	if(this->DBID_ > 0)
 		isArchiveing_ = false;
-	else
-		setDirty();
-
-	// If the data does not change then no persistence is required
-	if(!isDirty())
-		return;
-
-	setDirty(false);
-
+	
 	Components::COMPONENTS& cts = Components::getSingleton().getComponents(DBMGR_TYPE);
 	Components::ComponentInfos* dbmgrinfos = NULL;
 
@@ -1293,15 +1310,51 @@ void Entity::onCellWriteToDBCompleted(CALLBACK_ID callbackID, int8 shouldAutoLoa
 
 	if(dbmgrinfos == NULL || dbmgrinfos->pChannel == NULL || dbmgrinfos->cid == 0)
 	{
-		ERROR_MSG(fmt::format("{}::onCellWriteToDBCompleted({}): not found dbmgr!\n",
+		ERROR_MSG(fmt::format("{}::onCellWriteToDBCompleted({}): not found dbmgr!\n", 
 			this->scriptName(), this->id()));
+
+		return;
+	}
+	
+	MemoryStream* s = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
+
+	try
+	{
+		addPersistentsDataToStream(ED_FLAG_ALL, s);
+	}
+	catch (MemoryStreamWriteOverflow & err)
+	{
+		ERROR_MSG(fmt::format("{}::onCellWriteToDBCompleted({}): {}\n",
+			this->scriptName(), this->id(), err.what()));
+
+		MemoryStream::reclaimPoolObject(s);
 		return;
 	}
 
-	MemoryStream* s = MemoryStream::createPoolObject();
-	addPersistentsDataToStream(ED_FLAG_ALL, s);
+	if (s->length() == 0)
+	{
+		MemoryStream::reclaimPoolObject(s);
+		return;
+	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	OURO_SHA1 sha;
+	uint32 digest[5];
+
+	sha.Input(s->data(), s->length());
+	sha.Result(digest);
+
+	// Check if the data has changed. If there is a change, back up the data and record the data hash. No change, nothing.
+	if (memcmp((void*)&persistentDigest_[0], (void*)&digest[0], sizeof(persistentDigest_)) == 0)
+	{
+		MemoryStream::reclaimPoolObject(s);
+		return;
+	}
+	else
+	{
+		setDirty((uint32*)&digest[0]);
+	}
+
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(DbmgrInterface::writeEntity);
 
 	(*pBundle) << g_componentID;
@@ -1312,12 +1365,12 @@ void Entity::onCellWriteToDBCompleted(CALLBACK_ID callbackID, int8 shouldAutoLoa
 	(*pBundle) << callbackID;
 	(*pBundle) << shouldAutoLoad;
 
-	// Record login address
+	// Record the login address
 	if(this->dbid() == 0)
 	{
 		uint32 ip = 0;
 		uint16 port = 0;
-
+		
 		if(this->clientEntityCall())
 		{
 			ip = this->clientEntityCall()->addr().ip;
@@ -1366,7 +1419,7 @@ PyObject* Entity::createCellEntity(PyObject* pyobj)
 
 	if(Baseapp::getSingleton().findEntity(id()) == NULL)
 	{
-		PyErr_Format(PyExc_AssertionError, "%s::createCellEntity: %d not found!\n",
+		PyErr_Format(PyExc_AssertionError, "%s::createCellEntity: %d not found!\n", 
 			scriptName(), id());
 
 		PyErr_PrintEx(0);
@@ -1375,7 +1428,7 @@ PyObject* Entity::createCellEntity(PyObject* pyobj)
 
 	if(creatingCell_ || this->cellEntityCall())
 	{
-		PyErr_Format(PyExc_AssertionError, "%s::createCellEntity: %d has a cell!\n",
+		PyErr_Format(PyExc_AssertionError, "%s::createCellEntity: %d has a cell!\n", 
 			scriptName(), id());
 
 		PyErr_PrintEx(0);
@@ -1384,23 +1437,23 @@ PyObject* Entity::createCellEntity(PyObject* pyobj)
 
 	if(!PyObject_TypeCheck(pyobj, EntityCall::getScriptType()))
 	{
-		PyErr_Format(PyExc_TypeError, "create %s arg1 is not cellEntityCall!",
+		PyErr_Format(PyExc_TypeError, "create %s arg1 is not cellEntityCall!", 
 			this->scriptName());
 
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+	
 	EntityCallAbstract* cellEntityCall = static_cast<EntityCallAbstract*>(pyobj);
 	if(cellEntityCall->type() != ENTITYCALL_TYPE_CELL)
 	{
-		PyErr_Format(PyExc_TypeError, "create %s args1 not is a direct cellEntityCall!",
+		PyErr_Format(PyExc_TypeError, "create %s args1 not is a direct cellEntityCall!", 
 			this->scriptName());
 
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+	
 	creatingCell_ = true;
 	Baseapp::getSingleton().createCellEntity(cellEntityCall, this);
 	S_Return;
@@ -1433,11 +1486,11 @@ PyObject* Entity::createCellEntityInNewSpace(PyObject* args)
 			scriptName(), id());
 		PyErr_PrintEx(0);
 		return 0;
-	}
+	}	
 
 	if(createdSpace_ || this->cellEntityCall() != NULL)
 	{
-		PyErr_Format(PyExc_AssertionError, "%s::createCellEntityInNewSpace: %d in space!\n",
+		PyErr_Format(PyExc_AssertionError, "%s::createCellEntityInNewSpace: %d in space!\n", 
 			scriptName(), id());
 
 		PyErr_PrintEx(0);
@@ -1464,9 +1517,9 @@ void Entity::forwardEntityMessageToCellappFromClient(Network::Channel* pChannel,
 	if(mb == NULL)
 		return;
 
-	// This packet is forwarded to the cellapp and the cellapp evaluates each message in the packet.
-	// Check if it is an entity message, otherwise it is illegal.
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	// Repack the message to cellapp, cellapp will judge each message in the package
+	// Check if it is an entity message, otherwise it is not legal.
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(CellappInterface::forwardEntityMessageToCellappFromClient);
 	(*pBundle) << this->id();
 	(*pBundle).append(s);
@@ -1474,101 +1527,11 @@ void Entity::forwardEntityMessageToCellappFromClient(Network::Channel* pChannel,
 }
 
 //-------------------------------------------------------------------------------------
-PyObject* Entity::pyTeleport(PyObject* baseEntityMB)
-{
-	if(isDestroyed())
-	{
-		PyErr_Format(PyExc_AssertionError, "%s::teleport: %d is destroyed!\n",
-			scriptName(), id());
-		PyErr_PrintEx(0);
-		return 0;
-	}
-
-	if(this->cellEntityCall() == NULL)
-	{
-		PyErr_Format(PyExc_AssertionError, "%s::teleport: %d no has cell!\n",
-			scriptName(), id());
-
-		PyErr_PrintEx(0);
-		return 0;
-	}
-
-	if(baseEntityMB == NULL)
-	{
-		PyErr_Format(PyExc_Exception, "%s::teleport: %d baseEntityMB is NULL!\n",
-			scriptName(), id());
-
-		PyErr_PrintEx(0);
-		return 0;
-	}
-
-	bool isEntityCall = PyObject_TypeCheck(baseEntityMB, EntityCall::getScriptType());
-	bool isEntity = !isEntityCall && (PyObject_TypeCheck(baseEntityMB, Entity::getScriptType())
-		|| PyObject_TypeCheck(baseEntityMB, Proxy::getScriptType()));
-
-	if(!isEntityCall && !isEntity)
-	{
-		PyErr_Format(PyExc_AssertionError, "%s::teleport: %d invalid baseEntityMB!\n",
-			scriptName(), id());
-
-		PyErr_PrintEx(0);
-		return 0;
-	}
-
-	ENTITY_ID eid = 0;
-
-	// If it is not entityCall it is the local base
-	if(isEntityCall)
-	{
-		EntityCall* mb = static_cast<EntityCall*>(baseEntityMB);
-
-		if(mb->type() != ENTITYCALL_TYPE_BASE && mb->type() != ENTITYCALL_TYPE_CELL_VIA_BASE)
-		{
-			PyErr_Format(PyExc_AssertionError, "%s::teleport: %d baseEntityMB is not baseEntityCall!\n",
-				scriptName(), id());
-
-			PyErr_PrintEx(0);
-			return 0;
-		}
-
-		eid = mb->id();
-
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
-		(*pBundle).newMessage(BaseappInterface::reqTeleportOther);
-		(*pBundle) << eid;
-
-		BaseappInterface::reqTeleportOtherArgs3::staticAddToBundle((*pBundle), this->id(),
-			this->cellEntityCall()->componentID(), g_componentID);
-
-		mb->sendCall(pBundle);
-	}
-	else
-	{
-		Entity* pEntity = static_cast<Entity*>(baseEntityMB);
-		if(!pEntity->isDestroyed())
-		{
-			pEntity->reqTeleportOther(NULL, this->id(),
-				this->cellEntityCall()->componentID(), g_componentID);
-		}
-		else
-		{
-			PyErr_Format(PyExc_AssertionError, "%s::teleport: %d baseEntity is destroyed!\n",
-				scriptName(), id());
-
-			PyErr_PrintEx(0);
-			return 0;
-		}
-	}
-
-	S_Return;
-}
-
-//-------------------------------------------------------------------------------------
 void Entity::onTeleportCB(Network::Channel* pChannel, SPACE_ID spaceID, bool fromCellTeleport)
 {
 	if(pChannel->isExternal())
 		return;
-
+	
 	if(spaceID > 0)
 	{
 		if(!fromCellTeleport)
@@ -1599,59 +1562,11 @@ void Entity::onTeleportSuccess(SPACE_ID spaceID)
 }
 
 //-------------------------------------------------------------------------------------
-void Entity::reqTeleportOther(Network::Channel* pChannel, ENTITY_ID reqTeleportEntityID,
-							COMPONENT_ID reqTeleportEntityCellAppID, COMPONENT_ID reqTeleportEntityBaseAppID)
-{
-	if (pChannel && pChannel->isExternal())
-		return;
-
-	DEBUG_MSG(fmt::format("{2}::reqTeleportOther: reqTeleportEntityID={0}, reqTeleportEntityCellAppID={1}.\n",
-		reqTeleportEntityID, reqTeleportEntityCellAppID, this->scriptName()));
-
-	if(this->cellEntityCall() == NULL || this->cellEntityCall()->getChannel() == NULL)
-	{
-		ERROR_MSG(fmt::format("{}::reqTeleportOther: {}, teleport error, cellEntityCall is NULL, "
-			"reqTeleportEntityID={}, reqTeleportEntityCellAppID={}.\n",
-			this->scriptName(), this->id(), reqTeleportEntityID, reqTeleportEntityCellAppID));
-
-		return;
-	}
-
-	Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(reqTeleportEntityCellAppID);
-	if(cinfos == NULL || cinfos->pChannel == NULL)
-	{
-		ERROR_MSG(fmt::format("{}::reqTeleportOther: {}, teleport error, not found cellapp, "
-			"reqTeleportEntityID={}, reqTeleportEntityCellAppID={}.\n",
-			this->scriptName(), this->id(), reqTeleportEntityID, reqTeleportEntityCellAppID));
-
-		return;
-	}
-
-	if (pBufferedSendToClientMessages_ || hasFlags(ENTITY_FLAGS_TELEPORT_START) || hasFlags(ENTITY_FLAGS_TELEPORT_STOP))
-	{
-		ERROR_MSG(fmt::format("{}::reqTeleportOther: {}, teleport error, in transit, "
-			"reqTeleportEntityID={}, reqTeleportEntityCellAppID={}.\n",
-			this->scriptName(), this->id(), reqTeleportEntityID, reqTeleportEntityCellAppID));
-
-		return;
-	}
-
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
-	(*pBundle).newMessage(CellappInterface::teleportFromBaseapp);
-	(*pBundle) << reqTeleportEntityID;
-
-	CellappInterface::teleportFromBaseappArgs3::staticAddToBundle((*pBundle), this->cellEntityCall()->componentID(),
-		this->id(), reqTeleportEntityBaseAppID);
-
-	sendToCellapp(cinfos->pChannel, pBundle);
-}
-
-//-------------------------------------------------------------------------------------
 void Entity::onMigrationCellappStart(Network::Channel* pChannel, COMPONENT_ID sourceCellAppID, COMPONENT_ID targetCellAppID)
 {
 	if (pChannel && pChannel->isExternal())
 		return;
-
+	
 	DEBUG_MSG(fmt::format("{}::onMigrationCellappStart: {}, sourceCellAppID={}, targetCellappID={}\n",
 		scriptName(), id(), sourceCellAppID, targetCellAppID));
 
@@ -1673,14 +1588,14 @@ void Entity::onMigrationCellappEnd(Network::Channel* pChannel, COMPONENT_ID sour
 {
 	if (pChannel && pChannel->isExternal())
 		return;
-
+	
 	DEBUG_MSG(fmt::format("{}::onMigrationCellappEnd: {}, sourceCellAppID={}, targetCellappID={}\n",
 		scriptName(), id(), sourceCellAppID, targetCellAppID));
 
 	OURO_ASSERT(!pBufferedSendToClientMessages_);
-
-	// In some extreme cases, onMigrationCellappStart may be triggered slower than onMigrationCellappEnd, and the tag must be set
-	// Wait for onMigrationCellappEnd to trigger after cleanup
+	
+	// In some extreme cases, onMigrationCellappStart may be slower than onMigrationCellappEnd trigger, in which case the flag must be set
+	// Wait for the onMigrationCellappEnd to fire after the trigger
 	if (!hasFlags(ENTITY_FLAGS_TELEPORT_START))
 	{
 		addFlags(ENTITY_FLAGS_TELEPORT_STOP);
@@ -1703,13 +1618,13 @@ void Entity::onMigrationCellappOver(COMPONENT_ID targetCellAppID)
 	Components::ComponentInfos* pInfos = Components::getSingleton().findComponent(targetCellAppID);
 	if (pInfos && pInfos->pChannel)
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(CellappInterface::reqTeleportToCellAppOver);
 		(*pBundle) << id();
 		pInfos->pChannel->send(pBundle);
 	}
-
-	// Change the cell's pointing to the new cellapp
+	
+	// Change the direction of the cell to the new cellapp
 	if(this->cellEntityCall())
 		this->cellEntityCall()->componentID(targetCellAppID);
 }
@@ -1737,7 +1652,7 @@ void Entity::onGetDBID(Network::Channel* pChannel, DBID dbid)
 void Entity::onTimer(ScriptID timerID, int useraAgs)
 {
 	SCOPED_PROFILE(ONTIMER_PROFILE);
-
+	
 	CALL_ENTITY_AND_COMPONENTS_METHOD(this, SCRIPT_OBJECT_CALL_ARGS2(pyTempObj, const_cast<char*>("onTimer"),
 		const_cast<char*>("Ii"), timerID, useraAgs, GETERR));
 }

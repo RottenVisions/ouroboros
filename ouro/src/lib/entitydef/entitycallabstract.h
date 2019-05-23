@@ -1,11 +1,10 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_ENTITYCALL_BASE_H
 #define OURO_ENTITYCALL_BASE_H
-
+	
 #include "common/common.h"
-//#include "network/channel.h"
 #include "pyscript/scriptobject.h"
 #include "entitydef/common.h"
 #include "network/address.h"
@@ -28,16 +27,16 @@ class Bundle;
 
 class EntityCallAbstract : public script::ScriptObject
 {
-	/** Subclassing fills some py operations into derived classes */
+		/** Subclassing populates some py operations into derived classes*/
 	INSTANCE_SCRIPT_HREADER(EntityCallAbstract, ScriptObject)
 public:
-	EntityCallAbstract(PyTypeObject* scriptType,
-		const Network::Address* pAddr,
-		COMPONENT_ID componentID,
-		ENTITY_ID eid,
-		uint16 utype,
+	EntityCallAbstract(PyTypeObject* scriptType, 
+		const Network::Address* pAddr, 
+		COMPONENT_ID componentID, 
+		ENTITY_ID eid, 
+		uint16 utype, 
 		ENTITYCALL_TYPE type);
-
+	
 	virtual ~EntityCallAbstract();
 
 	typedef std::tr1::function<RemoteEntityMethod* (MethodDescription* pMethodDescription, EntityCallAbstract* pEntityCall)> EntityCallCallHookFunc;
@@ -50,14 +49,14 @@ public:
 	};
 
 	/**
-		Set entityCall's __findChannelFunc function address
+		Set the address of the __findChannelFunc function of entityCall
 	*/
 	static void setFindChannelFunc(FindChannelFunc func) {
 		__findChannelFunc = func;
 	};
 
 	/**
-		Set entityCall's __hookCallFunc function address
+		Set the address of the __hookCallFunc function of entityCall
 	*/
 	static void setEntityCallCallHookFunc(EntityCallCallHookFunc* pFunc) {
 		__hookCallFuncPtr = pFunc;
@@ -72,8 +71,8 @@ public:
 		return ENTITYCALL_CLASS_ENTITY;
 	}
 
-	/**
-		Obtain entityID
+	/** 
+		Get entityID
 	*/
 	INLINE ENTITY_ID id() const;
 
@@ -81,31 +80,31 @@ public:
 
 	DECLARE_PY_GET_MOTHOD(pyGetID);
 
-	/**
-		Get the component ID
+	/** 
+		Get component ID
 	*/
 	INLINE COMPONENT_ID componentID(void) const;
 
-	/**
+	/** 
 		Set the ID of the component
 	*/
 	INLINE void componentID(COMPONENT_ID cid);
 
-	/**
+	/** 
 		Get utype
 	*/
 	INLINE ENTITY_SCRIPT_UID utype(void) const;
 
-	/**
+	/** 
 		Get type
 	*/
 	INLINE ENTITYCALL_TYPE type(void) const;
 
-	/**
-		Supports pickler method
+	/** 
+		Support for the pickler method
 	*/
 	static PyObject* __py_reduce_ex__(PyObject* self, PyObject* protocol);
-
+	
 	virtual Network::Channel* getChannel(void);
 
 	virtual bool sendCall(Network::Bundle* pBundle);
@@ -123,13 +122,15 @@ public:
 	INLINE bool isBase() const;
 	INLINE bool isBaseReal() const;
 	INLINE bool isBaseViaCell() const;
+	
+	ScriptDefModule* pScriptDefModule();
 
 protected:
-	COMPONENT_ID							componentID_;			// Remote machine component ID
-	Network::Address						addr_;					// Channel address
-	ENTITYCALL_TYPE							type_;					// The type of entityCall
+	COMPONENT_ID componentID_; // ID of the remote machine component
+	Network::Address addr_; // channel address
+	ENTITYCALL_TYPE type_; // type of entityCall
 	ENTITY_ID								id_;					// entityID
-	ENTITY_SCRIPT_UID						utype_;					// The utype of the entity is in the order defined in the entities.xml
+	ENTITY_SCRIPT_UID utype_; // entity utype in the order defined in entities.xml
 
 	static EntityCallCallHookFunc*			__hookCallFuncPtr;
 	static FindChannelFunc					__findChannelFunc;
@@ -141,3 +142,4 @@ protected:
 #include "entitycallabstract.inl"
 #endif
 #endif // OURO_ENTITYCALL_BASE_H
+ 

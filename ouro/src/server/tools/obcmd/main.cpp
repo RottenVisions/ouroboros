@@ -1,9 +1,13 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "server/ouromain.h"
 #include "obcmd.h"
 #include "client_sdk.h"
+#include "server_assets.h"
 #include "entitydef/entitydef.h"
+#include "entitydef/py_entitydef.h"
+#include "pyscript/py_compression.h"
+#include "pyscript/py_platform.h"
 
 #undef DEFINE_IN_INTERFACE
 #include "machine/machine_interface.h"
@@ -89,6 +93,25 @@ using namespace Ouroboros;
 		continue; \
 	} \
 
+#define PARSE_COMMAND_ARG_DO_FUNC_RETURN(NAME, EXEC)	\
+	cmd = argv[argIdx];	\
+	findcmd = NAME;	\
+	fi1 = cmd.find(findcmd); \
+	if (fi1 != std::string::npos)	\
+	{	\
+		cmd.erase(fi1, findcmd.size());	\
+		try \
+		{ \
+			return EXEC; \
+		} \
+		catch (...) \
+		{ \
+			ERROR_MSG("parseCommandArgs: "#NAME"? invalid, no set! type is uint64\n"); \
+		} \
+		\
+		continue; \
+	} \
+
 #define PARSE_COMMAND_ARG_GET_VALUE(NAME, VAL)	\
 	cmd = argv[argIdx];	\
 	findcmd = NAME;	\
@@ -134,7 +157,7 @@ int process_make_client_sdk(int argc, char* argv[], const std::string clientType
 
 	DebugHelper::getSingleton().pNetworkInterface(&networkInterface);
 
-	KBCMD app(dispatcher, networkInterface, g_componentType, g_componentID);
+	OBCMD app(dispatcher, networkInterface, g_componentType, g_componentID);
 
 	START_MSG(COMPONENT_NAME_EX(g_componentType), g_componentID);
 
@@ -144,31 +167,75 @@ int process_make_client_sdk(int argc, char* argv[], const std::string clientType
 
 		app.finalise();
 
-		// If there is still the log is not synchronized, it will continue to complete before the end
+		// If there are still logs that are not synced, here will continue the synchronization to complete
 		DebugHelper::getSingleton().finalise();
 		return -1;
 	}
 
-	std::vector<PyTypeObject*>	scriptBaseTypes;
-	if (!EntityDef::initialize(scriptBaseTypes, g_componentType))
+	if (!script::entitydef::installModule("EntityDef"))
 	{
 		ERROR_MSG("app::initialize(): EntityDef initialization failed!\n");
 
 		app.finalise();
 
-		// If there is still the log is not synchronized, it will continue to complete before the end
+		// If there are still logs that are not synced, here will continue the synchronization to complete
+		DebugHelper::getSingleton().finalise();
+		return -1;
+	}
+
+	std::vector<PyTypeObject*> scriptBaseTypes;
+	if (!EntityDef::initialize(scriptBaseTypes, g_componentType))
+	{
+		ERROR_MSG("app::initialize(): EntityDef initialization failed!\n");
+
+		script::entitydef::uninstallModule();
+		app.finalise();
+
+		// If there are still logs that are not synced, here will continue the synchronization to complete
 		DebugHelper::getSingleton().finalise();
 		return -1;
 	}
 
 	std::string path = "";
+	std::string compressionfile = "";
+	int compressionType = 0;
 
 	PARSE_COMMAND_ARG_BEGIN();
 	PARSE_COMMAND_ARG_GET_VALUE("--outpath=", path);
 	PARSE_COMMAND_ARG_END();
 
-	ClientSDK* pClientSDK = ClientSDK::createClientSDK(clientType);
+	PARSE_COMMAND_ARG_BEGIN();
+	PARSE_COMMAND_ARG_GET_VALUE("--zip=", compressionfile);
+	PARSE_COMMAND_ARG_END();
 
+	if (compressionfile.size() == 0)
+	{
+		PARSE_COMMAND_ARG_BEGIN();
+		PARSE_COMMAND_ARG_GET_VALUE("--tar=", compressionfile);
+		PARSE_COMMAND_ARG_END();
+
+		compressionType = 2;
+	}
+	else
+	{
+		compressionType = 1;
+	}
+
+	// If it detects that the zip file is set, then get the path from the zip file.
+	if (compressionfile.size() > 0)
+	{
+		std::vector<std::string> tmpvec;
+		Ouroboros::strutil::ouro_splits(compressionfile, ".", tmpvec);
+		path = tmpvec[0];
+		compressionfile = tmpvec[1];
+	}
+
+	if (script::PyPlatform::pathExists(path) && !script::PyPlatform::rmdir(path)) {
+		ERROR_MSG(fmt::format("app::initialize(): delete directorys({}) error!\n", path));
+	}
+
+	ClientSDK* pClientSDK = ClientSDK::createClientSDK(clientType);
+	
 	int ret = 0;
 
 	if (pClientSDK)
@@ -191,10 +258,38 @@ int process_make_client_sdk(int argc, char* argv[], const std::string clientType
 		ret = -1;
 	}
 
+	// Start packing
+	if (compressionfile.size() > 0)
+	{
+		if (compressionType == 1)
+		{
+			if (!script::PyCompression::zipCompressDirectory(path, (path + "." + compressionfile)))
+			{
+				ERROR_MSG("app::initialize(): compress zip error!\n");
+			}
+		}
+		else if (compressionType == 2)
+		{
+			if (!script::PyCompression::tarCompressDirectory(path, (path + "." + compressionfile)))
+			{
+				ERROR_MSG("app::initialize(): compress tar error!\n");
+			}
+		}
+		else
+		{
+
+		}
+
+		if (!script::PyPlatform::rmdir(path)) {
+			ERROR_MSG(fmt::format("app::initialize(): delete directorys({}) error!\n", path));
+		}
+	}
+
+	script::entitydef::uninstallModule();
 	app.finalise();
 	INFO_MSG(fmt::format("{}({}) has shut down. ClientSDK={}\n", COMPONENT_NAME_EX(g_componentType), g_componentID, pClientSDK->good()));
 
-	// If there is still the log is not synchronized, it will continue to complete before the end
+	// If there are still logs that are not synced, here will continue the synchronization to complete
 	DebugHelper::getSingleton().finalise();
 
 	if(pClientSDK)
@@ -203,14 +298,160 @@ int process_make_client_sdk(int argc, char* argv[], const std::string clientType
 	return ret;
 }
 
+int process_newassets(int argc, char* argv[], const std::string assetsType)
+{
+	// Set the project environment variable of OURO_RES_PATH according to assetsType
+	std::string res_path = getenv("OURO_RES_PATH") == NULL ? "" : getenv("OURO_RES_PATH");
+	std::string root_path = getenv("OURO_ROOT") == NULL ? "" : getenv("OURO_ROOT");
+
+	if (root_path[root_path.size() - 1] != '\\' && root_path[root_path.size() - 1] != '/')
+		root_path += "/";
+
+	std::string assets_sys_path_root = root_path + "kbe/res/sdk_templates/server/";
+
+#if OURO_PLATFORM != PLATFORM_WIN32
+	char splitflag = ':';
+#else
+	char splitflag = ';';
+#endif
+
+	if (assetsType == "python")
+		assets_sys_path_root += "python_assets/";
+	else
+		assets_sys_path_root += "python_assets/";
+
+	res_path += fmt::format("{}{}{}{}res/{}{}scripts/", splitflag, assets_sys_path_root, splitflag, assets_sys_path_root, splitflag, assets_sys_path_root);
+	setenv("OURO_RES_PATH", res_path.c_str(), 1);
+
+	Resmgr::getSingleton().initialize();
+	setEvns();
+	loadConfig();
+
+	DebugHelper::initialize(g_componentType);
+
+	INFO_MSG("-----------------------------------------------------------------------------------------\n\n\n");
+
+	Resmgr::getSingleton().print();
+
+	Network::EventDispatcher dispatcher;
+	DebugHelper::getSingleton().pDispatcher(&dispatcher);
+
+	Network::g_SOMAXCONN = g_ouroSrvConfig.tcp_SOMAXCONN(g_componentType);
+
+	Network::NetworkInterface networkInterface(&dispatcher);
+
+	DebugHelper::getSingleton().pNetworkInterface(&networkInterface);
+
+	OBCMD app(dispatcher, networkInterface, g_componentType, g_componentID);
+
+	START_MSG(COMPONENT_NAME_EX(g_componentType), g_componentID);
+
+	if (!app.initialize())
+	{
+		ERROR_MSG("app::initialize(): initialization failed!\n");
+
+		app.finalise();
+
+		// If there are still logs that are not synced, here will continue the synchronization to complete
+		DebugHelper::getSingleton().finalise();
+		return -1;
+	}
+
+	if (!script::entitydef::installModule("EntityDef"))
+	{
+		ERROR_MSG("app::initialize(): EntityDef initialization failed!\n");
+
+		app.finalise();
+
+		// If there are still logs that are not synced, here will continue the synchronization to complete
+		DebugHelper::getSingleton().finalise();
+		return -1;
+	}
+
+	std::vector<PyTypeObject*> scriptBaseTypes;
+	if (!EntityDef::initialize(scriptBaseTypes, g_componentType))
+	{
+		ERROR_MSG("app::initialize(): EntityDef initialization failed!\n");
+
+		script::entitydef::uninstallModule();
+		app.finalise();
+
+		// If there are still logs that are not synced, here will continue the synchronization to complete
+		DebugHelper::getSingleton().finalise();
+		return -1;
+	}
+
+	std::string path = "";
+
+	PARSE_COMMAND_ARG_BEGIN();
+	PARSE_COMMAND_ARG_GET_VALUE("--outpath=", path);
+	PARSE_COMMAND_ARG_END();
+
+	ServerAssets* pServerAssets = ServerAssets::createServerAssets(assetsType);
+
+	int ret = 0;
+
+	if (pServerAssets)
+	{
+		try
+		{
+			if (!pServerAssets->create(path))
+			{
+				ret = -1;
+			}
+		}
+		catch (std::exception &err)
+		{
+			ERROR_MSG(fmt::format("app::initialize(): create serverassets error({})!\n", err.what()));
+		}
+	}
+	else
+	{
+		ERROR_MSG(fmt::format("app::initialize(): create serverassets error! nonsupport type={}\n", assetsType));
+		ret = -1;
+	}
+
+	script::entitydef::uninstallModule();
+	app.finalise();
+	INFO_MSG(fmt::format("{}({}) has shut down. ServerAssets={}\n", COMPONENT_NAME_EX(g_componentType), g_componentID, pServerAssets->good()));
+
+	// If there are still logs that are not synced, here will continue the synchronization to complete
+	DebugHelper::getSingleton().finalise();
+
+	if (pServerAssets)
+		delete pServerAssets;
+
+	return ret;
+}
+
+int process_getuid(int argc, char* argv[])
+{
+	if (getUserUID() == 0)
+	{
+		autoFixUserDigestUID();
+	}
+
+	setenv("UID", fmt::format("{}", getUserUID()).c_str(), 1);
+	printf("%s", fmt::format("{}", getUserUID()).c_str());
+	return getUserUID();
+}
+
 int process_help(int argc, char* argv[])
 {
 	printf("Usage:\n");
 	printf("--clientsdk:\n");
-	printf("\tAutomatically generate client code based on entity_defs file. Environment variables based on OURO.\n");
+	printf("\tAutomatically generate client code based on entity_defs file. Environment variables based on KBE.\n");
 	printf("\tobcmd.exe --clientsdk=unity --outpath=c:/unity_ourosdk\n");
-	printf("\tobcmd.exe --clientsdk=ue4 --outpath=c:/unity_ourosdk\n");
+	printf("\tobcmd.exe --clientsdk=ue4 --zip=c:/unity_ourosdk.zip\n");
+	printf("\tobcmd.exe --clientsdk=ue4 --tar=c:/unity_ourosdk.tgz\n");
 	printf("\tobcmd.exe --clientsdk=ue4 --outpath=c:/unity_ourosdk --OURO_ROOT=\"*\"  --OURO_RES_PATH=\"*\"  --OURO_BIN_PATH=\"*\"\n");
+
+	printf("\n--getuid\n");
+	printf("\tReturns the ID of the server group.\n");
+
+	printf("\n--newassets\n");
+	printf("\tCreate a new server game asset library, contains the necessary files.\n");
+	printf("\tobcmd.exe --newassets=python --outpath=c:/xserver_assets\n");
 
 	printf("\n--help:\n");
 	printf("\tDisplay help information.\n");
@@ -231,8 +472,11 @@ int main(int argc, char* argv[])
 
 	PARSE_COMMAND_ARG_BEGIN();
 	PARSE_COMMAND_ARG_DO_FUNC("--clientsdk=", process_make_client_sdk(argc, argv, cmd));
+	PARSE_COMMAND_ARG_DO_FUNC_RETURN("--getuid", process_getuid(argc, argv));
+	PARSE_COMMAND_ARG_DO_FUNC("--newassets=", process_newassets(argc, argv, cmd));
 	PARSE_COMMAND_ARG_DO_FUNC("--help", process_help(argc, argv));
 	PARSE_COMMAND_ARG_END();
 
 	return 0;
 }
+

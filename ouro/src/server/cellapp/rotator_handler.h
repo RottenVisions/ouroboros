@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_RotatorHandler_H
 #define OURO_RotatorHandler_H
@@ -14,7 +14,7 @@ namespace Ouroboros{
 class RotatorHandler : public Updatable
 {
 public:
-	RotatorHandler(OUROShared_ptr<Controller> pController, const Direction3D& destDir, float velocity, PyObject* userarg);
+	RotatorHandler(KBEShared_ptr<Controller> pController, const Direction3D& destDir, float velocity, PyObject* userarg);
 
 	RotatorHandler();
 	virtual ~RotatorHandler();
@@ -26,7 +26,7 @@ public:
 
 	virtual const Direction3D& destDir();
 	virtual bool requestTurnOver();
-	void pController(OUROShared_ptr<Controller> pController){ pController_ = pController; }
+	void pController(KBEShared_ptr<Controller> pController){ pController_ = pController; }
 
 	float velocity() const {
 		return velocity_;
@@ -40,7 +40,7 @@ protected:
 	Direction3D destDir_;
 	float velocity_;
 	PyObject* pyuserarg_;
-	OUROShared_ptr<Controller> pController_;
+	KBEShared_ptr<Controller> pController_;
 };
  
 }

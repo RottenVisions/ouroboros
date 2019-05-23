@@ -1,6 +1,6 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
-// Logger
+// logger needs to increase throughput
 #define PACKET_MAX_SIZE_TCP 65535
 
 #include "common/common.h"
@@ -61,9 +61,9 @@ int OUROBOROS_MAIN(int argc, char* argv[])
 	rlimit rlimitData = { RLIM_INFINITY, RLIM_INFINITY };
 	setrlimit(RLIMIT_CORE, &rlimitData);
 #endif
-
+	
 	ENGINE_COMPONENT_INFO& info = g_ouroSrvConfig.getLogger();
-	int ret = ouroMainT<Logger>(argc, argv, LOGGER_TYPE, info.externalTcpPorts_min,
+	int ret = ouroMainT<Logger>(argc, argv, LOGGER_TYPE, info.externalTcpPorts_min, 
 		info.externalTcpPorts_max, -1, -1, info.externalInterface, 0, info.internalInterface);
-	return ret;
+	return ret; 
 }

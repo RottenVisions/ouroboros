@@ -1,11 +1,11 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_RANGE_TRIGGER_H
 #define OURO_RANGE_TRIGGER_H
 
 #include "coordinate_node.h"
 #include "helper/debug_helper.h"
-#include "common/common.h"
+#include "common/common.h"	
 
 namespace Ouroboros{
 
@@ -40,7 +40,7 @@ public:
 	virtual void onLeave(CoordinateNode * pNode) = 0;
 
 	/**
-		A node changes through this node
+		A node has passed this node
 		@isfront: Move forward or backward
 	*/
 	virtual void onNodePassX(RangeTriggerNode* pRangeTriggerNode, CoordinateNode* pNode, bool isfront);

@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
-#include "updatables.h"
-#include "helper/profile.h"
+#include "updatables.h"	
+#include "helper/profile.h"	
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 
 //-------------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ void Updatables::clear()
 //-------------------------------------------------------------------------------------
 bool Updatables::add(Updatable* updatable)
 {
-	// Since there are not a lot of priority requirements, this fixed priority array
+	// Fixed priority array here because there are not a lot of priority requirements
 	if (objects_.size() == 0)
 	{
 		objects_.push_back(std::map<uint32, Updatable*>());
@@ -38,13 +38,13 @@ bool Updatables::add(Updatable* updatable)
 	static uint32 idx = 1;
 	std::map<uint32, Updatable*>& pools = objects_[updatable->updatePriority()];
 
-	// Prevent duplicates
+	// prevent duplication
 	while (pools.find(idx) != pools.end())
 		++idx;
 
 	pools[idx] = updatable;
 
-	// Record storage location
+	// record storage location
 	updatable->removeIdx = idx++;
 
 	return true;

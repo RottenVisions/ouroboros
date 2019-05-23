@@ -1,17 +1,17 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_PYBOTS_H
 #define OURO_PYBOTS_H
-
-// common include
+	
+// common include	
 #include "profile.h"
 #include "create_and_login_handler.h"
 #include "common/timer.h"
 #include "pyscript/script.h"
 #include "network/endpoint.h"
 #include "helper/debug_helper.h"
-#include "xml/xml.h"
+#include "xml/xml.h"	
 #include "common/singleton.h"
 #include "common/smartpointer.h"
 #include "common/timer.h"
@@ -27,27 +27,27 @@ namespace Ouroboros{
 
 class PyBots  : public script::ScriptObject
 {
-	/**
-		Subclassing fills some py operations into derived classes
+	/** 
+		Subclassing populates some py operations into a derived class
 	*/
-	INSTANCE_SCRIPT_HREADER(PyBots, ScriptObject)
+	INSTANCE_SCRIPT_HREADER(PyBots, ScriptObject)	
 public:
 	PyBots();
 	~PyBots();
 
-	/**
+	/** 
 		Expose some dictionary methods to python
 	*/
 	DECLARE_PY_MOTHOD_ARG1(pyHas_key, ENTITY_ID);
 	DECLARE_PY_MOTHOD_ARG0(pyKeys);
 	DECLARE_PY_MOTHOD_ARG0(pyValues);
 	DECLARE_PY_MOTHOD_ARG0(pyItems);
-
-	static PyObject* __py_pyGet(PyObject * self,
+	
+	static PyObject* __py_pyGet(PyObject * self, 
 		PyObject * args, PyObject* kwds);
 
-	/**
-		Map operation function related 
+	/** 
+		Map operation function related
 	*/
 	static PyObject* mp_subscript(PyObject * self, PyObject * key);
 

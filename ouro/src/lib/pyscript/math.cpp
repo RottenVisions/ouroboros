@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "math.h"
@@ -7,9 +7,11 @@ namespace Ouroboros{ namespace script{ namespace math {
 //-------------------------------------------------------------------------------------
 bool installModule(const char* moduleName)
 {
-	// Initialize a math-related module
+	// Initialize a math related module
 	PyObject *mathModule = PyImport_AddModule(moduleName);
-	PyObject_SetAttrString(mathModule, "__doc__", PyUnicode_FromString("This module is created by Ouroboros!"));
+	PyObject* pyDoc = PyUnicode_FromString("This module is created by Ouroboros!");
+	PyObject_SetAttrString(mathModule, "__doc__", pyDoc);
+	Py_DECREF(pyDoc);
 
 	// Initialize ScriptVector2
 	script::ScriptVector2::installScript(mathModule, "Vector2");

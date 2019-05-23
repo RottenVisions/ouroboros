@@ -1,10 +1,10 @@
 /**
   @file Quat.h
-
+ 
   Quaternion
-
+  
   @maintainer Morgan McGuire, matrix@graphics3d.com
-
+  
   @created 2002-01-23
   @edited  2006-05-10
  */
@@ -27,11 +27,11 @@ namespace G3D {
 
   A quaternion represents the sum of a real scalar and
   an imaginary vector: ix + jy + kz + w.  A unit quaternion
-  representing a rotation by A about axis v has the form
+  representing a rotation by A about axis v has the form 
   [sin(A/2)*v, cos(A/2)].  For a unit quaternion, q.conj() == q.inverse()
   is a rotation by -A about v.  -q is the same rotation as q
-  (negate both the axis and angle).
-
+  (negate both the axis and angle).  
+  
   A non-unit quaterion q represents the same rotation as
   q.unitize() (Dam98 pg 28).
 
@@ -56,9 +56,9 @@ public:
 
     /**
      q = [sin(angle / 2) * axis, cos(angle / 2)]
-
+    
      In Watt & Watt's notation, s = w, v = (x, y, z)
-     In the Real-Time Rendering notation, u = (x, y, z), w = w
+     In the Real-Time Rendering notation, u = (x, y, z), w = w 
      */
     float x, y, z, w;
 
@@ -93,7 +93,7 @@ public:
 		return G3D::fuzzyEq(x, q.x) && G3D::fuzzyEq(y, q.y) && G3D::fuzzyEq(z, q.z) && G3D::fuzzyEq(w, q.w);
 	}
 
-    /** True if these quaternions represent the same rotation (note that every rotation is
+    /** True if these quaternions represent the same rotation (note that every rotation is 
         represented by two values; q and -q).
       */
     bool sameRotation(const Quat& q) {
@@ -138,9 +138,9 @@ public:
 
     void toRotationMatrix(
         Matrix3&            rot) const;
-
+    
     /**
-     Spherical linear interpolation: linear interpolation along the
+     Spherical linear interpolation: linear interpolation along the 
      shortest (3D) great-circle route between two quaternions.
 
      Note: Correct rotations are expected between 0 and PI in the right order.
@@ -148,7 +148,7 @@ public:
      @cite Based on Game Physics -- David Eberly pg 538-540
      @param threshold Critical angle between between rotations at which
 	        the algorithm switches to normalized lerp, which is more
-			numerically stable in those situations. 0.0 will always slerp.
+			numerically stable in those situations. 0.0 will always slerp. 
      */
     Quat slerp(
         const Quat&         other,
@@ -188,7 +188,7 @@ public:
         return (x * other.x) + (y * other.y) + (z * other.z) + (w * other.w);
     }
 
-    /** Note that q<SUP>-1</SUP> = q.conj() for a unit quaternion.
+    /** Note that q<SUP>-1</SUP> = q.conj() for a unit quaternion. 
         @cite Dam99 page 13 */
     inline Quat inverse() const {
         return conj() / dot(*this);
@@ -214,7 +214,7 @@ public:
     inline bool isUnit(float tolerance = 1e-5) const {
         return abs(dot(*this) - 1.0f) < tolerance;
     }
-
+    
 
     inline float magnitude() const {
         return sqrtf(dot(*this));
@@ -242,18 +242,18 @@ public:
         }
     }
     /** log q = [Av, 0] where q = [sin(A) * v, cos(A)].
-        Only for unit quaternions
+        Only for unit quaternions 
         debugAssertM(isUnit(), "Log only defined for unit quaternions");
         // Solve for A in q = [sin(A)*v, cos(A)]
         Vector3 u(x, y, z);
         double len = u.magnitude();
 
         if (len == 0.0) {
-            return
+            return 
         }
         double A = atan2((double)w, len);
         Vector3 v = u / len;
-
+        
         return Quat(v * A, 0);
     }
     */
@@ -321,13 +321,13 @@ public:
     const float& operator[] (int i) const;
     float& operator[] (int i);
 
-    /** Generate uniform random unit quaternion (i.e. random "direction")
+    /** Generate uniform random unit quaternion (i.e. random "direction") 
 	@cite From "Uniform Random Rotations", Ken Shoemake, Graphics Gems III.
    */
     static Quat unitRandom();
 
 	/*
-	* Rotate q angle about u = (x, y, z) axis
+	* 绕u = (x, y, z)轴旋转q角度
 	*/
 	static Quat rotateQuaternion(float x, float y, float z, float q){
 		float w_ = cos(q / 2);
@@ -338,7 +338,7 @@ public:
 	}
 
 	/*
-	* The quaternion is converted into Euler angles. This formula must define the rotation sequence. The rotation sequence is Z, X, Y.
+	* 四元数转换成欧拉角，此公式必须定义旋转顺序，旋转顺序是Z、X、Y
 	*/
 	static Vector3 quatToEuler(Quat temp){
 		float z = float( aTan2(2 * (temp.w*temp.z + temp.x*temp.y), 1 - 2 * (temp.z*temp.z + temp.x*temp.x)) );
@@ -347,12 +347,12 @@ public:
 		return Vector3(x, y, z);
 	}
 
-  /*
-	* Euler angles are converted to quaternions. This formula must define the rotation order. The rotation order is Z, X, Y.
-	* Different rotation order direction, through q = qy * qx * 鈥嬧�媞z, you can deduce the following formula (w, x, y, z), of course
-	* qx = ['cos(X/2)','sin(X/2)','0','0']      Clockwise X degrees around coordinate (1,0,0)
-	* qz = ['cos(Z/2)','0','0','sin(Z/2)']	  Clockwise Z-degree around coordinate (0,0,1)
-	* qy = ['cos(Y/2)', '0','sin(Y/2)', '0']	  Clockwise Y degrees around coordinates (0,1,0)
+	/*
+	* 欧拉角转换成四元数，此公式必须定义旋转顺序，旋转顺序是Z、X、Y
+	* 不同的旋转顺序方向，通过q=qy*qx*qz，就可以推演出下面的公式(w,x,y,z)，当然
+	* qx = ['cos(X/2)','sin(X/2)','0','0']      绕坐标(1,0,0)顺时针X度
+	* qz = ['cos(Z/2)','0','0','sin(Z/2)']	  绕坐标(0,0,1)顺时针Z度
+	* qy = ['cos(Y/2)', '0','sin(Y/2)', '0']	  绕坐标(0,1,0)顺时针Y度
 	*/
 	static Quat eulerToQuat(Vector3 euler){
 		float w = cos(euler.y / 2)*cos(euler.x / 2)*cos(euler.z / 2) + sin(euler.y / 2)*sin(euler.x / 2)*sin(euler.z / 2);

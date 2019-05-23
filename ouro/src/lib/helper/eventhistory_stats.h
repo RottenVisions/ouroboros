@@ -1,14 +1,14 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_EVENT_HISTORY_STATS_H
 #define OURO_EVENT_HISTORY_STATS_H
 
 #include "common/common.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 /*
-	Event History
+	¼ÇÂ¼event_historyÁ÷Á¿
 */
 class EventHistoryStats
 {
@@ -28,7 +28,7 @@ public:
 		uint32 count;
 	};
 
-	typedef OUROUnordered_map<std::string, Stats> STATS;
+	typedef KBEUnordered_map<std::string, Stats> STATS;
 
 	EventHistoryStats(std::string name);
 	~EventHistoryStats();

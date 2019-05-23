@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OUROBOROS_DEF_METHOD_H
@@ -15,7 +15,7 @@
 #include "helper/debug_helper.h"
 #include "network/packet.h"
 #include "entitycallabstract.h"
-#include "pyscript/scriptobject.h"
+#include "pyscript/scriptobject.h"	
 
 
 namespace Ouroboros{
@@ -23,12 +23,26 @@ namespace Ouroboros{
 class MethodDescription
 {
 public:
+	// type of exposure method
+	enum EXPOSED_TYPE
+	{
+		// default, non-exposure method
+		NO_EXPOSED = 0,
+
+		// By default, script methods can be added without caller parameters
+		EXPOSED = 1,
+
+		// The first parameter of the script method is the caller ID, providing a script to check the caller's legitimacy
+		EXPOSED_AND_CALLER_CHECK = 2
+	};
+
+public:	
 	MethodDescription(ENTITY_METHOD_UID utype, COMPONENT_ID domain,
 		std::string name,
-		bool isExposed = false);
+		EXPOSED_TYPE exposedType = NO_EXPOSED);
 
 	virtual ~MethodDescription();
-
+	
 	INLINE const char* getName(void) const;
 
 	INLINE ENTITY_METHOD_UID getUType(void) const;
@@ -37,36 +51,36 @@ public:
 	static uint32 getDescriptionCount(void){ return methodDescriptionCount_; }
 	static void resetDescriptionCount(void){ methodDescriptionCount_ = 0; }
 
-	INLINE bool isExposed(void) const;
+	INLINE EXPOSED_TYPE isExposed(void) const;
 
-	void setExposed(void);
+	void setExposed(EXPOSED_TYPE type = EXPOSED);
 
 	bool pushArgType(DataType* dataType);
 
 	INLINE std::vector<DataType*>& getArgTypes(void);
 
 	size_t getArgSize(void);
-
-	/**
-		Check if a call is valid
+	
+	/** 
+		Check if a call is legal
 	*/
-	bool checkArgs(PyObject* args);
-
-	/**
-		Add each parameter package to the stream,
-		The information contained in this stream is the parameters passed in by this method when the script is invoked
+	bool checkArgs(PyObject* args);		
+	
+	/** 
+		Pack each parameter to the stream,
+		The information contained in this stream is the parameter passed by this method when the script is called.
 	*/
 	void addToStream(MemoryStream* mstream, PyObject* args);
 
-	/**
-		Unpacks a call and returns a args of type PyObject
+	/** 
+		Unpack a call stream and return a args of type PyObject
 	*/
 	PyObject* createFromStream(MemoryStream* mstream);
-
-	/**
+	
+	/** 
 		Call a method
 	*/
-	PyObject* call(PyObject* func, PyObject* args);
+	PyObject* call(PyObject* func, PyObject* args);	
 
 	INLINE COMPONENT_ID domain() const;
 
@@ -74,27 +88,27 @@ public:
 	INLINE bool isCell() const;
 	INLINE bool isBase() const;
 
-	/**
-		Alias id, when the total number of exposed methods or broadcasted attributes is less than 255
-		We do not use utype and use 1-byte aliasID to transmit
+	/** 
+		Alias id, when the total number of exposed methods or broadcast properties is less than 255
+		We do not use utype and use a 1-byte aliasID to transmit
 	*/
 	INLINE int16 aliasID() const;
 	INLINE uint8 aliasIDAsUint8() const;
 	INLINE void aliasID(int16 v);
-
+	
 protected:
-	static uint32							methodDescriptionCount_;					// The number of all attribute descriptions
+	static uint32 methodDescriptionCount_; // number of all attribute descriptions
 
 	COMPONENT_ID							methodDomain_;
 
-	std::string								name_;										// The name of this method
-	ENTITY_METHOD_UID						utype_;										// The digital category of this method for transmission identification on the network
+	std::string name_; // the name of this method
+	ENTITY_METHOD_UID utype_; // The numeric category of this method, used for transmission identification on the network
 
-	std::vector<DataType*>					argTypes_;									// List of parameter categories for this attribute
+	std::vector<DataType*> argTypes_; // List of parameter categories for this attribute
 
-	bool									isExposed_;									// Is it an exposure method
+	EXPOSED_TYPE exposedType_; // Is it an exposure method?
 
-	int16									aliasID_;									// Alias id, when the total number of exposed methods or broadcasted attributes is less than 255, we do not use utype and use 1 byte aliasID to transmit
+	int16 aliasID_; // alias id, when the total number of exposed methods or broadcast properties is less than 255, we do not use utype and use 1 byte aliasID to transmit
 };
 
 }

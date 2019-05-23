@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "component_active_report_handler.h"
@@ -65,7 +65,7 @@ void ComponentActiveReportHandler::handleTimeout(TimerHandle handle, void * arg)
 				Components::COMPONENTS::iterator iter = components.begin();
 				for(; iter != components.end(); ++iter)
 				{
-					Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+					Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 					COMMON_NETWORK_MESSAGE(componentType, (*pBundle), onAppActiveTick);
 					
 					(*pBundle) << g_componentType;

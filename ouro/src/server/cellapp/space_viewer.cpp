@@ -1,8 +1,8 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "cellapp.h"
-#include "spacememory.h"
+#include "spacememory.h"	
 #include "entity.h"
 #include "space_viewer.h"
 #include "network/network_interface.h"
@@ -16,7 +16,7 @@
 #include "helper/profile.h"
 #include "server/serverconfig.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 
 //-------------------------------------------------------------------------------------
 SpaceViewers::SpaceViewers():
@@ -79,7 +79,7 @@ void SpaceViewers::handleTimeout(TimerHandle handle, void * arg)
 	std::map< Network::Address, SpaceViewer>::iterator iter = spaceViews_.begin();
 	for (; iter != spaceViews_.end(); )
 	{
-		// Erase the viewer if it is not found
+		// If the viewer address is not found, then erase it
 		Network::Channel* pChannel = Cellapp::getSingleton().networkInterface().findChannel(iter->second.addr());
 		if (pChannel == NULL)
 		{
@@ -149,10 +149,10 @@ void SpaceViewer::timeout()
 {
 	switch (updateType_)
 	{
-	case 0: // initialization
+	case 0: // initialize
 		initClient();
 		break;
-	default: // Update entity
+	default: // update entity
 		updateClient();
 	};
 }
@@ -169,7 +169,7 @@ void SpaceViewer::sendStream(MemoryStream* s, int type)
 		return;
 	}
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	ConsoleInterface::ConsoleQuerySpacesHandler msgHandler;
 	(*pBundle).newMessage(msgHandler);
@@ -186,8 +186,7 @@ void SpaceViewer::initClient()
 {
 	MemoryStream s;
 
-	// Deliver the script ID corresponding to the name of the script module to facilitate reducing the amount of subsequent entity synchronization.
-	// The entity only synchronizes the id past.
+	// First issue the script ID corresponding to the name of the script module, which is convenient to reduce the amount of synchronization behind the entity. The entity only synchronizes the id.
 	const EntityDef::SCRIPT_MODULES& scriptModules = EntityDef::getScriptModules();
 	s << (uint32)scriptModules.size();
 
@@ -200,7 +199,7 @@ void SpaceViewer::initClient()
 
 	sendStream(&s, updateType_);
 
-	// Change to update entity
+	// change to update entity
 	updateType_ = 1;
 
 	lastUpdateVersion_ = 0;
@@ -222,14 +221,14 @@ void SpaceViewer::updateClient()
 	const int MAX_UPDATE_COUNT = 100;
 	int updateCount = 0;
 
-	// Get the difference between this time and the previous result, and put the difference into the stream to update to the client
-	// Differences include new entities, and changes in the positions of existing entities
+	// Get the difference between this time and the last result, put the difference into the stream and update to the client.
+	// The difference includes the new entity and the location change of the existing entity
 	MemoryStream s;
 
 	Entities<Entity>* pEntities = Cellapp::getSingleton().pEntities();
 	Entities<Entity>::ENTITYS_MAP& entitiesMap = pEntities->getEntities();
 
-	// Check the monitored entities first, with a lower priority version number
+	// Check the entities that have been monitored first, for priority updates with lower version numbers
 	if (updateCount < MAX_UPDATE_COUNT)
 	{
 		std::map< ENTITY_ID, ViewEntity >::iterator viewerIter = viewedEntities.begin();
@@ -247,14 +246,14 @@ void SpaceViewer::updateClient()
 
 			Entities<Entity>::ENTITYS_MAP::iterator iter = entitiesMap.find(viewerIter->first);
 
-			// No entity found, indicating that it has been destroyed or gone to another process
-			// If it is in another process, other processes will update it to the client
+			// The entity could not be found, indicating that it has been destroyed or ran to another process.
+			// If other processes, other processes will update them to the client
 			if (iter == entitiesMap.end())
 			{
 				s << viewerIter->first;
-				s << false; // True for update, false for destroy
+				s << false; // true is updated, false is destroyed
 
-				// Remove it from viewedEntities
+				// remove it from viewedEntities
 				viewedEntities.erase(viewerIter++);
 			}
 			else
@@ -262,7 +261,7 @@ void SpaceViewer::updateClient()
 				Entity* pEntity = static_cast<Entity*>(iter->second.get());
 				if (pEntity->spaceID() != spaceID_)
 				{
-					// Remove it from viewedEntities
+					// remove it from viewedEntities
 					viewedEntities.erase(viewerIter++);
 					continue;
 				}
@@ -270,14 +269,14 @@ void SpaceViewer::updateClient()
 				/*
 				if (pEntity->cellID() != cellID_)
 				{
-					// Remove it from viewedEntities
+					// remove it from viewedEntities
 					viewedEntities.erase(viewerIter++);
 					continue;
 				}
 				*/
 
-				// There are new entities or already observed entities to check for position changes
-				// If there is no change, pass
+				// There are new entities or entities that have been observed, check for location changes
+				// pass if there is no change
 				if ((viewEntity.position - pEntity->position()).length() <= 0.0004f &&
 					(viewEntity.direction.dir - pEntity->direction().dir).length() <= 0.0004f)
 				{
@@ -291,7 +290,7 @@ void SpaceViewer::updateClient()
 				++viewEntity.updateVersion;
 
 				s << viewEntity.entityID;
-				s << true; // True for update, false for destroy
+				s << true; // true is updated, false is destroyed
 				s << pEntity->pScriptModule()->getUType();
 				s << viewEntity.position.x << viewEntity.position.y << viewEntity.position.z;
 				s << viewEntity.direction.roll() << viewEntity.direction.pitch() << viewEntity.direction.yaw();
@@ -302,7 +301,7 @@ void SpaceViewer::updateClient()
 		}
 	}
 
-	// Check again if there are new entities
+	// check if there are any new entities
 	if (updateCount < MAX_UPDATE_COUNT)
 	{
 		Entities<Entity>::ENTITYS_MAP::iterator iter = entitiesMap.begin();
@@ -335,7 +334,7 @@ void SpaceViewer::updateClient()
 			++updateCount;
 
 			s << viewEntity.entityID;
-			s << true; // True for update, false for destroy
+			s << true; // true is updated, false is destroyed
 			s << pEntity->pScriptModule()->getUType();
 			s << viewEntity.position.x << viewEntity.position.y << viewEntity.position.z;
 			s << viewEntity.direction.roll() << viewEntity.direction.pitch() << viewEntity.direction.yaw();
@@ -344,7 +343,7 @@ void SpaceViewer::updateClient()
 
 	sendStream(&s, updateType_);
 
-	// If all updates are completed, change the version number
+	// If all updates are completed, replace the version number
 	if (updateCount < MAX_UPDATE_COUNT)
 		++lastUpdateVersion_;
 }

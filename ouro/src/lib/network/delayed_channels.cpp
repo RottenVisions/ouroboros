@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "delayed_channels.h"
@@ -50,7 +50,7 @@ bool DelayedChannels::process()
 		{
 			Channel * pChannel = pNetworkInterface_->findChannel((*iter));
 
-			if (pChannel && (!pChannel->isCondemn() && !pChannel->isDestroyed()))
+			if (pChannel && (pChannel->condemn() != Channel::FLAG_CONDEMN_AND_DESTROY && !pChannel->isDestroyed()))
 			{
 				pChannel->send();
 			}

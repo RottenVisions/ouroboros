@@ -1,10 +1,10 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "cellapp.h"
 #include "entity.h"
-#include "turn_controller.h"
+#include "turn_controller.h"		
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 
 //-------------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ TurnController::~TurnController()
 {
 	// DEBUG_MSG(fmt::format("TurnController::~TurnController(): {:p}\n", (void*)this);
 	if (pRotatorHandler_)
-		pRotatorHandler_->pController(OUROShared_ptr<Controller>());
+		pRotatorHandler_->pController(KBEShared_ptr<Controller>());
 
 	pRotatorHandler_ = NULL;
 }
@@ -36,7 +36,7 @@ void TurnController::createFromStream(Ouroboros::MemoryStream& s)
 {
 	Controller::createFromStream(s);
 	OURO_ASSERT(pRotatorHandler_ == NULL);
-
+	
 	pRotatorHandler_ = new RotatorHandler();
 	pRotatorHandler_->createFromStream(s);
 }
@@ -46,13 +46,14 @@ void TurnController::destroy()
 {
 	Controller::destroy();
 
-	// Since they are going to be destroyed, the updatable associated with them should also be stopped.
+	// Since you have to destroy it, the updatable associated with yourself should also stop.
 	if (pRotatorHandler_)
 	{
-		pRotatorHandler_->pController(OUROShared_ptr<Controller>());
+		pRotatorHandler_->pController(KBEShared_ptr<Controller>());
 		pRotatorHandler_ = NULL;
 	}
 }
 
 //-------------------------------------------------------------------------------------
 }
+

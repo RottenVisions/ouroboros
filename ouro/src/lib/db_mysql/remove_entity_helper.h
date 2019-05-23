@@ -1,9 +1,9 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_REMOVE_ENTITY_HELPER_H
 #define OURO_REMOVE_ENTITY_HELPER_H
 
-// common include
+// common include	
 // #define NDEBUG
 #include <sstream>
 #include "common.h"
@@ -15,7 +15,7 @@
 #include "db_interface/entity_table.h"
 #include "db_interface_mysql.h"
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 
 class RemoveEntityHelper
 {
@@ -42,7 +42,7 @@ public:
 		char sqlstr1[MAX_BUF];
 		ouro_snprintf(sqlstr1, MAX_BUF, "%" PRDBID, context.dbid);
 		sqlstr += sqlstr1;
-
+		
 		ret = dbi->query(sqlstr.c_str(), sqlstr.size(), false);
 		OURO_ASSERT(ret);
 
@@ -53,14 +53,14 @@ public:
 	{
 		bool ret = true;
 
-		OUROUnordered_map< std::string, std::vector<DBID> > childTableDBIDs;
+		KBEUnordered_map< std::string, std::vector<DBID> > childTableDBIDs;
 
 		mysql::DBContext::DB_RW_CONTEXTS::iterator iter1 = context.optable.begin();
 		for(; iter1 != context.optable.end(); ++iter1)
 		{
 			mysql::DBContext& wbox = *iter1->second.get();
 
-			OUROUnordered_map<std::string, std::vector<DBID> >::iterator iter =
+			KBEUnordered_map<std::string, std::vector<DBID> >::iterator iter = 
 				childTableDBIDs.find(context.tableName);
 
 			if(iter == childTableDBIDs.end())
@@ -69,21 +69,21 @@ public:
 				childTableDBIDs.insert(std::pair< std::string, std::vector<DBID> >(wbox.tableName, v));
 			}
 		}
-
+		
 		if(childTableDBIDs.size() > 1)
 		{
 			std::string sqlstr_getids;
-			OUROUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
+			KBEUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
 			for(; tabiter != childTableDBIDs.end();)
 			{
 				char sqlstr[MAX_BUF * 10];
-				ouro_snprintf(sqlstr, MAX_BUF * 10, "select count(id) from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID " union all ",
+				ouro_snprintf(sqlstr, MAX_BUF * 10, "select count(id) from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID " union all ", 
 					tabiter->first.c_str(),
 					context.dbid);
-
+				
 				sqlstr_getids += sqlstr;
 
-				ouro_snprintf(sqlstr, MAX_BUF * 10, "select id from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID,
+				ouro_snprintf(sqlstr, MAX_BUF * 10, "select id from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID, 
 					tabiter->first.c_str(),
 					context.dbid);
 
@@ -91,7 +91,7 @@ public:
 				if(++tabiter != childTableDBIDs.end())
 					sqlstr_getids += " union all ";
 			}
-
+			
 			if(dbi->query(sqlstr_getids.c_str(), sqlstr_getids.size(), false))
 			{
 				MYSQL_RES * pResult = mysql_store_result(static_cast<DBInterfaceMysql*>(dbi)->mysql());
@@ -125,9 +125,9 @@ public:
 		}
 		else if(childTableDBIDs.size() == 1)
 		{
-			OUROUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
+			KBEUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
 				char sqlstr[MAX_BUF * 10];
-				ouro_snprintf(sqlstr, MAX_BUF * 10, "select id from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID,
+				ouro_snprintf(sqlstr, MAX_BUF * 10, "select id from " ENTITY_TABLE_PERFIX "_%s where " TABLE_PARENTID_CONST_STR "=%" PRDBID, 
 					tabiter->first.c_str(),
 					context.dbid);
 
@@ -148,15 +148,15 @@ public:
 					}
 				}
 		}
-
-		// Delete obsolete items
-		OUROUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
+	
+		// delete obsolete data items
+		KBEUnordered_map< std::string, std::vector<DBID> >::iterator tabiter = childTableDBIDs.begin();
 		for(; tabiter != childTableDBIDs.end(); ++tabiter)
 		{
 			if(tabiter->second.size() == 0)
 				continue;
 
-			// Delete records in the database first
+			// First delete the records in the database
 			std::string sqlstr = "delete from " ENTITY_TABLE_PERFIX "_";
 			sqlstr += tabiter->first;
 			sqlstr += " where " TABLE_ID_CONST_STR " in (";
@@ -171,7 +171,7 @@ public:
 				sqlstr += sqlstr1;
 				sqlstr += ",";
 			}
-
+			
 			sqlstr.erase(sqlstr.size() - 1);
 			sqlstr += ")";
 			bool ret = dbi->query(sqlstr.c_str(), sqlstr.size(), false);
@@ -187,7 +187,7 @@ public:
 					for(; iter != tabiter->second.end(); ++iter)
 					{
 						DBID dbid = (*iter);
-
+						
 						wbox.parentTableDBID = context.dbid;
 						wbox.dbid = dbid;
 						wbox.isEmpty = true;

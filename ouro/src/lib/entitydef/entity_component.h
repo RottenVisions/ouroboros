@@ -1,17 +1,18 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_ENTITY_COMPONENT_H
 #define OURO_ENTITY_COMPONENT_H
-
+	
 #include "common/common.h"
+#include "common/timer.h"
 #include "pyscript/scriptobject.h"
 #include "entitydef/common.h"
 #include "entitydef/scriptdef_module.h"
 
 namespace Ouroboros {
 
-// Call all components
+// method of calling all components
 #define CALL_ENTITY_AND_COMPONENTS_METHOD(ENTITYOBJ, CALLCODE)													\
 {																												\
 	{																											\
@@ -24,6 +25,18 @@ namespace Ouroboros {
 	}																											\
 }																												\
 
+
+#define CALL_COMPONENTS_AND_ENTITY_METHOD(ENTITYOBJ, CALLCODE)													\
+{																												\
+	{																											\
+		Py_INCREF(ENTITYOBJ);																					\
+		PyObject* pyTempObj = ENTITYOBJ;																		\
+		CALL_ENTITY_COMPONENTS_METHOD(ENTITYOBJ, CALLCODE);														\
+		bool GETERR = false;																					\
+		CALLCODE;																								\
+		Py_DECREF(ENTITYOBJ);																					\
+	}																											\
+}																												\
 
 
 #define CALL_ENTITY_COMPONENTS_METHOD(ENTITYOBJ, CALLCODE)														\
@@ -65,15 +78,14 @@ namespace Ouroboros {
 
 class EntityComponent : public script::ScriptObject
 {
-	/** Subclassing fills some py operations into derived classes */
+		/** Subclassing populates some py operations into derived classes*/
 	BASE_SCRIPT_HREADER(EntityComponent, ScriptObject)
 public:
-	EntityComponent(ENTITY_ID ownerID, ScriptDefModule* pComponentDescrs, COMPONENT_TYPE assignmentToComponentType/*Which part of the entity the attribute belongs to, cell or base?*/);
-
+		EntityComponent(ENTITY_ID ownerID, ScriptDefModule* pComponentDescrs, COMPONENT_TYPE assignmentToComponentType/*Which part of the entity to which the attribute belongs, cell or base?*/);
 	~EntityComponent();
 
-	/**
-		Obtain entityID
+	/** 
+		Get entityID
 	*/
 	ENTITY_ID ownerID() const;
 
@@ -84,6 +96,10 @@ public:
 
 	DECLARE_PY_GET_MOTHOD(pyIsDestroyed);
 
+	void destroyed() {
+		ownerID_ = 0;
+	}
+
 	bool isDestroyed() const {
 		return ownerID() == 0;
 	}
@@ -91,37 +107,37 @@ public:
 	DECLARE_PY_GET_MOTHOD(pyGetOwner);
 
 	DECLARE_PY_MOTHOD_ARG3(pyAddTimer, float, float, int32);
-	DECLARE_PY_MOTHOD_ARG1(pyDelTimer, ScriptID);
+	DECLARE_PY_MOTHOD_ARG1(pyDelTimer, PyObject_ptr);
 
-	/**
+	/** 
 		Get a description
 	*/
 	INLINE ScriptDefModule* pComponentDescrs(void) const;
 
 	/**
-		Script is called when it is installed
+		Called when the script is installed
 	*/
 	static void onInstallScript(PyObject* mod);
 
-	/**
-		Supports pickler method
+	/** 
+		Support for the pickler method
 	*/
 	static PyObject* __py_reduce_ex__(PyObject* self, PyObject* protocol);
-
+	
 	/**
-		Unpickle method
+		Unpick method
 	*/
 	static PyObject* __unpickle__(PyObject* self, PyObject* args);
 
 	/**
-		Script request get property or method
+		Script request to get property or method
 	*/
 	PyObject* onScriptGetAttribute(PyObject* attr);
 	int onScriptSetAttribute(PyObject* attr, PyObject* value);
 	int onScriptDelAttribute(PyObject* attr);
 
 	/**
-		These initialization interfaces are initialized by the entity in the corresponding interface
+		These initialization interfaces are initialized by the entity in the corresponding interface.
 	*/
 	void initializeScript();
 
@@ -153,7 +169,7 @@ public:
 	PyObject* createFromPersistentStream(ScriptDefModule* pScriptModule, MemoryStream* mstream);
 
 	PropertyDescription* getProperty(ENTITY_PROPERTY_UID child_uid);
-
+	
 	void componentType(COMPONENT_TYPE ctype) {
 		componentType_ = ctype;
 	}
@@ -184,44 +200,44 @@ public:
 
 	PyObject* createCellData();
 
-	void createFromDict(PyObject* pyDict);
+	void createFromDict(PyObject* pyDict, bool persistentData);
 	void updateFromDict(PyObject* pOwner, PyObject* pyDict);
 
-	static void convertDictDataToEntityComponent(ENTITY_ID entityID, PyObject* pEntity, ScriptDefModule* pEntityScriptDescrs, PyObject* cellData);
+	static void convertDictDataToEntityComponent(ENTITY_ID entityID, PyObject* pEntity, ScriptDefModule* pEntityScriptDescrs, PyObject* cellData, bool persistentData);
 	static std::vector<EntityComponent*> getComponents(const std::string& name, PyObject* pEntity, ScriptDefModule* pEntityScriptDescrs);
 
 	/**
-		Script request for client address
+		Script request to get the client address
 	*/
 	DECLARE_PY_GET_MOTHOD(pyName);
 
 	/**
-		Script gets entityCall
+		Script to get entityCall
 	*/
 	DECLARE_PY_GET_MOTHOD(pyGetCellEntityCall);
 
 	/**
-		Script gets entityCall
+		Script to get entityCall
 	*/
 	DECLARE_PY_GET_MOTHOD(pyGetBaseEntityCall);
 
 	/**
-		Script gets entityCall
+		Script to get entityCall
 	*/
 	DECLARE_PY_GET_MOTHOD(pyGetClientEntityCall);
 
 	/**
-		Script gets entityCall
+		Script to get entityCall
 	*/
 	DECLARE_PY_GET_MOTHOD(pyGetAllClients);
 
 	/**
-		Script gets entityCall
+		Script to get entityCall
 	*/
 	DECLARE_PY_GET_MOTHOD(pyGetOtherClients);
 
 	/**
-		Calling the client entity method
+		Method of calling a client entity
 	*/
 	DECLARE_PY_MOTHOD_ARG1(pyClientEntity, ENTITY_ID);
 
@@ -233,7 +249,7 @@ protected:
 	COMPONENT_TYPE							componentType_;
 	ENTITY_ID								ownerID_;								// entityID
 	PyObject*								owner_;
-	ScriptDefModule*						pComponentDescrs_;						// Description of the component
+	ScriptDefModule* pComponentDescrs_; // Description of the component
 
 	void _setATIdx(ENTITY_COMPONENTS::size_type idx) {
 		atIdx_ = idx;
@@ -243,7 +259,7 @@ protected:
 
 	OnDataChangedEvent						onDataChangedEvent_;
 
-	PropertyDescription*					pPropertyDescription_;					// The attribute of the entity carrying the component itself
+	PropertyDescription* pPropertyDescription_; // Entity property description that carries the component itself
 
 private:
 	int32									clientappID_;

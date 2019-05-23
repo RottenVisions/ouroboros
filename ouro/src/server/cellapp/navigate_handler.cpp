@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "cellapp.h"
 #include "entity.h"
@@ -9,11 +9,11 @@ namespace Ouroboros{
 
 
 //-------------------------------------------------------------------------------------
-NavigateHandler::NavigateHandler(OUROShared_ptr<Controller>& pController, const Position3D& destPos, 
+NavigateHandler::NavigateHandler(KBEShared_ptr<Controller>& pController, const Position3D& destPos, 
 											 float velocity, float distance, bool faceMovement, 
 											 float maxMoveDistance, VECTOR_POS3D_PTR paths_ptr,
 											PyObject* userarg):
-MoveToPointHandler(pController, pController->pEntity()->layer(), pController->pEntity()->position(), velocity, distance, faceMovement, true, userarg),
+MoveToPointHandler(pController, pController->pEntity()->layer(), pController->pEntity()->position(), velocity, distance, faceMovement, false, userarg),
 destPosIdx_(0),
 paths_(paths_ptr),
 maxMoveDistance_(maxMoveDistance)

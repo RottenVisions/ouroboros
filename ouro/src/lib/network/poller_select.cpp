@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "poller_select.h"
@@ -85,7 +85,7 @@ int SelectPoller::processPendingEvents(double maxWait)
 	uint64 startTime = timestamp();
 #endif
 
-	OUROConcurrency::onStartMainThreadIdling();
+	KBEConcurrency::onStartMainThreadIdling();
 
 	int countReady = 0;
 
@@ -101,7 +101,7 @@ int SelectPoller::processPendingEvents(double maxWait)
 				fdWriteCount_ ? &writeFDs : NULL, NULL, &nextTimeout);
 	}
 
-	OUROConcurrency::onEndMainThreadIdling();
+	KBEConcurrency::onEndMainThreadIdling();
 
 #if ENABLE_WATCHERS
 	g_idleProfile.stop();

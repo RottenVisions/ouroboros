@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_GHOST_MANAGER_HANDLER_H
 #define OURO_GHOST_MANAGER_HANDLER_H
@@ -17,13 +17,13 @@ class Bundle;
 class Entity;
 
 /*
-	* cell1: entity(1) is real, In GhostManager stored in entityIDs_ check (update to other ghost)
+	* cell1: entity(1) is real, it is stored in the GhostManager in entityIDs_ for checking (updated to other ghosts)
 
-	* cell2: entity(1) is ghost, If cell2 is to be migrated as a whole, a route address needs to be temporarily set to ghost_route_, and the route is erased after the last packet received exceeds a certain time. If some packets are forwarded during the period, then the entity
-	cannot be found on the routing table and continues to forward to the ghostEntity (for example, real destroy destroys the ghost immediately).
+	* cell2: entity(1) is ghost, if cell2 is migrated as a whole, you need to temporarily set a routing address to ghost_route_, and the route is erased after the last time the packet is received for more than a certain period of time.
+	                    if some packets are forwarded during the period, then the entity can't find the entity and query the routing table and continue forwarding to the ghostEntity (for example, real destroys the request to destroy the ghost immediately).
 
-	* cell1: entity(1) is real, If it is re-migrated to cell3, a route address needs to be temporarily set to ghost_route_. The route is erased after the last time the ghost request packet is received. If some ghost request packets are forwarded during the period,
-	 then the entity is not found and the routing table is queried and forwarded to real entity.
+	* cell1: entity(1) is real, if it is re-migrated to cell3, it needs to temporarily set a routing address to ghost_route_, and the route is erased after the last time the ghost request packet is received for more than a certain time.
+	                    if some ghost request packets are forwarded during the period, then the entity can't find the entity and query the routing table and continue forwarding to realEntity.
 */
 class GhostManager : public TimerHandler
 {
@@ -38,8 +38,8 @@ public:
 	void addRoute(ENTITY_ID entityID, COMPONENT_ID componentID);
 
 	/**
-	Create a send bundle. The bundle may be obtained from send into the send queue if the queue is empty
-	Create a new one
+	Create a send bundle, which may be obtained from the send into the send queue, if the queue is empty
+	Then create a new one
 	*/
 	Network::Bundle* createSendBundle(COMPONENT_ID componentID);
 
@@ -71,15 +71,15 @@ private:
 	};
 
 private:
-	// All related entities with ghost
+	// all related entities with ghost
 	std::map<ENTITY_ID, Entity*> 	realEntities_;
-
-	// Ghost route, distributed programs can not guarantee synchronization at some time, then some entities on the machine have been migrated away
-	// You may receive some network messages at the same time. Because other apps may not be able to get the address immediately, we
+	
+	//ghost routing, distributed programs can't guarantee synchronization at some time, then some entities on this machine are migrated away.
+	// You may also receive some network messages at the time, because other apps may not be able to get the migration address immediately, at this time we
 	// You can point the migrated entity to the cache on the current app. If there is a network message, we can continue forwarding to the new address.
 	std::map<ENTITY_ID, ROUTE_INFO> ghost_route_;
 
-	// All event messages that need to be broadcast
+	// all event messages that need to be broadcast
 	std::map<COMPONENT_ID, std::vector< Network::Bundle* > > messages_;
 
 	TimerHandle* pTimerHandle_;

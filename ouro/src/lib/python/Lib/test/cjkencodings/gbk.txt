@@ -4,9 +4,9 @@ Python£¨ÅÉÉ­£©ÓïÑÔÊÇÒ»ÖÖ¹¦ÄÜÇ¿´ó¶øÍêÉÆµÄÍ¨ÓÃÐÍ¼ÆËã»ú³ÌÐòÉè¼ÆÓïÑÔ£¬
 ÔËÐÐ¡£ÕâÖÖÓïÑÔ¼òµ¥¶øÇ¿´ó£¬ÊÊºÏ¸÷ÖÖÈËÊ¿Ñ§Ï°Ê¹ÓÃ¡£Ä¿Ç°£¬»ùÓÚÕâ
 ÖÖÓïÑÔµÄÏà¹Ø¼¼ÊõÕýÔÚ·ÉËÙµÄ·¢Õ¹£¬ÓÃ»§ÊýÁ¿¼±¾çÀ©´ó£¬Ïà¹ØµÄ×ÊÔ´·Ç³£¶à¡£
 ÈçºÎÔÚ Python ÖÐÊ¹ÓÃ¼ÈÓÐµÄ C library?
-¡¡ÔÚÙYÓ¿Æ¼¼¿ìËÙ°lÕ¹µÄ½ñÌì, é_°l¼°œyÔ‡Ü›ówµÄËÙ¶ÈÊÇ²»ÈÝºöÒ•µÄ
+¡¡ÔÚÙYÓ?¿Æ¼¼¿ìËÙ°lÕ¹µÄ½ñÌì, é_°l¼°œyÔ‡Ü›ówµÄËÙ¶ÈÊÇ²»ÈÝºöÒ•µÄ
 Õnî}. žé¼Ó¿ìé_°l¼°œyÔ‡µÄËÙ¶È, ÎÒ‚ƒ±ã³£Ï£ÍûÄÜÀûÓÃÒ»Ð©ÒÑé_°lºÃµÄ
-library, KÓÐÒ»‚€ fast prototyping µÄ programming language ¿É
+library, ?KÓÐÒ»‚€ fast prototyping µÄ programming language ¿É
 ¹©Ê¹ÓÃ. Ä¿Ç°ÓÐÔSÔS¶à¶àµÄ library ÊÇÒÔ C Œ‘³É, ¶ø Python ÊÇÒ»‚€
 fast prototyping µÄ programming language. ¹ÊÎÒ‚ƒÏ£ÍûÄÜŒ¢¼ÈÓÐµÄ
 C library ÄÃµ½ Python µÄ­h¾³ÖÐœyÔ‡¼°ÕûºÏ. ÆäÖÐ×îÖ÷ÒªÒ²ÊÇÎÒ‚ƒËù

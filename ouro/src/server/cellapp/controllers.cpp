@@ -1,17 +1,17 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
-#include "controllers.h"
-#include "cellapp.h"
-#include "entity.h"
-#include "helper/profile.h"
-#include "common/memorystream.h"
+#include "controllers.h"	
+#include "cellapp.h"	
+#include "entity.h"	
+#include "helper/profile.h"	
+#include "common/memorystream.h"	
 
-#include "proximity_controller.h"
-#include "moveto_point_handler.h"
-#include "moveto_entity_handler.h"
-#include "navigate_handler.h"
+#include "proximity_controller.h"	
+#include "moveto_point_handler.h"	
+#include "moveto_entity_handler.h"	
+#include "navigate_handler.h"	
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 
 //-------------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ void Controllers::clear()
 }
 
 //-------------------------------------------------------------------------------------
-bool Controllers::add(OUROShared_ptr<Controller> pController)
+bool Controllers::add(KBEShared_ptr<Controller> pController)
 {
 	uint32 id = pController->id();
 	if(id == 0)
@@ -44,7 +44,7 @@ bool Controllers::add(OUROShared_ptr<Controller> pController)
 	}
 	else
 	{
-		// Refresh id counter
+		// Refresh the id counter
 		if(lastid_ < id)
 			lastid_ = id;
 	}
@@ -62,7 +62,7 @@ bool Controllers::add(OUROShared_ptr<Controller> pController)
 }
 
 //-------------------------------------------------------------------------------------
-bool Controllers::remove(OUROShared_ptr<Controller> pController)
+bool Controllers::remove(KBEShared_ptr<Controller> pController)
 {
 	return remove(pController->id());
 }
@@ -74,8 +74,8 @@ bool Controllers::remove(uint32 id)
 	if (iter == objects_.end())
 		return true;
 
-	// To be a reference to prevent the controller from destructing and causing some problems in the case where the erase is not completed and then enter here to perform erase.
-	OUROShared_ptr< Controller > pController = iter->second;
+	// Make a reference to prevent problems in the destructor of the Controller from causing problems in the case where the erase is not finished in some cases.
+	KBEShared_ptr< Controller > pController = iter->second;
 	objects_.erase(iter);
 	return pController != NULL;
 }
@@ -110,13 +110,13 @@ void Controllers::createFromStream(Ouroboros::MemoryStream& s)
 		s >> itype;
 
 		Controller::ControllerType type = (Controller::ControllerType)itype;
-
-		OUROShared_ptr<Controller> pController;
+		
+		KBEShared_ptr<Controller> pController;
 
 		switch(type)
 		{
 		case Controller::CONTROLLER_TYPE_PROXIMITY:
-			pController = OUROShared_ptr<Controller>(new ProximityController(pEntity));
+			pController = KBEShared_ptr<Controller>(new ProximityController(pEntity));
 			break;
 		case Controller::CONTROLLER_TYPE_ROTATE:
 		case Controller::CONTROLLER_TYPE_MOVE:
@@ -124,10 +124,10 @@ void Controllers::createFromStream(Ouroboros::MemoryStream& s)
 			OURO_ASSERT(false);
 			break;
 		};
-
+		
 		if(pController == NULL)
 			continue;
-
+		
 		pController->type(type);
 		pController->createFromStream(s);
 

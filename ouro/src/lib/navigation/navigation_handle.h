@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_NAVIGATEHANDLE_H
 #define OURO_NAVIGATEHANDLE_H
@@ -26,8 +26,8 @@ public:
 
 	enum NAV_OBJECT_STATE
 	{
-		NAV_OBJECT_STATE_MOVING = 1,	// Moving
-		NAV_OBJECT_STATE_MOVEOVER = 2,	// Finished Moving
+		NAV_OBJECT_STATE_MOVING = 1, // moving
+		NAV_OBJECT_STATE_MOVEOVER = 2, // the move is over
 	};
 
 	NavigationHandle():
@@ -55,3 +55,4 @@ typedef SmartPointer<NavigationHandle> NavigationHandlePtr;
 
 }
 #endif // OURO_NAVIGATEHANDLE_H
+

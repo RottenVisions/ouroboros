@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_View_TRIGGER_H
 #define OURO_View_TRIGGER_H
@@ -14,7 +14,7 @@ class ViewTrigger : public RangeTrigger
 public:
 	ViewTrigger(CoordinateNode* origin, float xz = 0.0f, float y = 0.0f);
 	virtual ~ViewTrigger();
-
+	
 	/**
 		A node enters or leaves the rangeTrigger
 	*/

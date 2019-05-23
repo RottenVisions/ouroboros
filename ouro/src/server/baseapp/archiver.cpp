@@ -1,10 +1,10 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "baseapp.h"
 #include "archiver.h"
 #include "entity.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 //-------------------------------------------------------------------------------------
 Archiver::Archiver():
@@ -31,9 +31,9 @@ void Archiver::tick()
 	}
 
 	// The algorithm is as follows:
-	// The number of baseEntity * idx / tick period = one section at a time in the vector
-	// This section is processed in each gametick, just finished the task in periodInTicks smoothly.
-	// If archiveIndex_ &gt;= periodInTicks then regenerate a random sequence
+	// number of baseEntity * idx / tick period = one section each time moving in the vector
+	// This section is processed in each gametick, just smoothing the task in periodInTicks
+	// Regenerate a random sequence if archiveIndex_ >= periodInTicks
 	int size = (int)arEntityIDs_.size();
 	int startIndex = size * archiveIndex_ / periodInTicks;
 
@@ -44,7 +44,7 @@ void Archiver::tick()
 	for (int i = startIndex; i < endIndex; ++i)
 	{
 		Entity* pEntity = Baseapp::getSingleton().findEntity(arEntityIDs_[i]);
-
+		
 		if(pEntity && pEntity->hasDB())
 		{
 			this->archive(*pEntity);

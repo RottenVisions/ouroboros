@@ -7,7 +7,7 @@ from pycommon import Machines, Define
 
 class MachinesMgr(object):
 	"""
-	machines management（buffer），
+	Machine management (buffer)
 	"""
 	instance = None
 
@@ -24,13 +24,13 @@ class MachinesMgr(object):
 		self.interfaces_groups = {} # { machineID : [ComponentInfo, ...], ...}
 		self.machines = []
 
-		# Whether it has been initialized through the buffer area
-		# For when settings.USE_MACHINES_BUFFER == True 时
+		# Whether the buffer has been initialized
+		# used when settings.USE_MACHINES_BUFFER == True
 		self.inited = False
 
-		# The last query time
-		# 在settings.USE_MACHINES_BUFFER == False, used to avoid external code in the same time multiple query all interfaces；
-		# 在settings.USE_MACHINES_BUFFER == True, for the sub-thread is determined to stop the query all interfaces的时机。
+		# Last query time
+		# When setting.USE_MACHINES_BUFFER == False, it is used to avoid external code multiple times at all times;
+		# When settings.USE_MACHINES_BUFFER == True, it is used by the child thread to determine when to stop the query all interfaces.
 		self.lastQueryTime = 0.0
 
 	def __delete__(self):
@@ -45,8 +45,8 @@ class MachinesMgr(object):
 
 		self.machineInst.queryAllInterfaces(hosts, 0, settings.MACHINES_QUERY_WAIT_TIME)
 
-		# Although in a multi-threaded, but because it is similar to the pointer is directly assigned the value
-		# So even if asynchronous, the main thread takes the value does not exist confusion problems
+		# Although in multithreading, but because it is directly pointer-like assignment
+		# So even if it is asynchronous, the value of the main thread will not be confused.
 		self.interfaces_groups = self.machineInst.interfaces_groups
 		self.machines = self.machineInst.machines
 		self.machineInst.reset()
@@ -63,11 +63,11 @@ class MachinesMgr(object):
 		Sub-thread timing data acquisition
 		"""
 		use_buffer = settings.USE_MACHINES_BUFFER
-		while use_buffer and settings.USE_MACHINES_BUFFER and time.time() - self.lastQueryTime < settings.STOP_BUFFER_TIME:  # 动态更新需要
+				while use_buffer and settings.USE_MACHINES_BUFFER and time.time() - self.lastQueryTime < settings.STOP_BUFFER_TIME:  # Update??
 			self.queryAllDatas()
 			self.inited = True
 
-			# Once every update after sleep a period of time
+			# Sleep for a period of time after each update
 			time.sleep(settings.MACHINES_BUFFER_FLUSH_TIME)
 
 		print("MachinesMgr::threadRun(), over! old %s, new %s, last query: %s" % (use_buffer, settings.USE_MACHINES_BUFFER, time.time() - self.lastQueryTime))
@@ -118,11 +118,11 @@ class MachinesMgr(object):
 
 	def hasMachine(self, machineHost):
 		"""
-		To determine whether there is a specific machine(machine)
+		Determine if a specific machine exists
 		"""
 		self.checkAndQueryInterfaces()
 
-		# The first reference to use, in order to avoid this process of the self. machines reference is modified
+		# First reference and reuse to avoid self.machines reference being modified during this process
 		ms = self.machines
 		for info in ms:
 			if info.intaddr == machineHost:
@@ -131,15 +131,15 @@ class MachinesMgr(object):
 
 	def makeGUS(self, componentType):
 		"""
-		Generates a relatively unique gus-global only
+		Generate a relatively unique gus (non-globally unique)
 		"""
 		return self.machineInst.makeGUS(componentType)
 
 	def makeCID(self, componentType):
 		"""
-		Generates a relatively unique cid non-global only
+		Generate a relatively unique cid (non-globally unique)
 		"""
 		return self.machineInst.makeCID(componentType)
 
-# Global variables
+# global variable
 machinesmgr = MachinesMgr()

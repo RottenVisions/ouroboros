@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_MESSAGE_HANDLER_H
 #define OURO_MESSAGE_HANDLER_H
@@ -18,14 +18,14 @@ namespace Network
 class Channel;
 class MessageHandlers;
 
-/** A message's parameter abstract class */
+/** Parameter abstract class for a message*/
 class MessageArgs
 {
 public:
 	enum MESSAGE_ARGS_TYPE
 	{
-		MESSAGE_ARGS_TYPE_VARIABLE = -1,		// Variable parameter length
-		MESSAGE_ARGS_TYPE_FIXED = 0				// Fixed parameter length
+		MESSAGE_ARGS_TYPE_VARIABLE = -1, // variable parameter length
+		MESSAGE_ARGS_TYPE_FIXED = 0 // fixed parameter length
 	};
 
 	MessageArgs():strArgsTypes(){};
@@ -42,7 +42,7 @@ struct ExposedMessageInfo
 {
 	std::string name;
 	Network::MessageID id;
-	int16 msgLen; // External news will not exceed 1500
+	int16 msgLen; // External message will not exceed 1500
 	int8 argsType;
 	std::vector<uint8> argsTypes;
 };
@@ -56,7 +56,7 @@ public:
 	std::string name;
 	MessageID msgID;
 	MessageArgs* pArgs;
-	int32 msgLen;					// If the length is -1, it is a non-fixed-length message
+	int32 msgLen; // if the length is -1, it is a non-fixed length message
 	bool exposed;
 	MessageHandlers* pMessageHandlers;
 
@@ -75,11 +75,11 @@ public:
 	uint32 recvavgsize() const  { return (recv_count <= 0) ? 0 : recv_size / recv_count; }
 
 	/**
-		The default return category is the component message
+		The default return category is component message
 	*/
 	virtual NETWORK_MESSAGE_TYPE type() const
-	{
-		return NETWORK_MESSAGE_TYPE_COMPONENT;
+	{ 
+		return NETWORK_MESSAGE_TYPE_COMPONENT; 
 	}
 
 	virtual int32 msglenMax(){ return NETWORK_MESSAGE_MAX_SIZE; }
@@ -87,15 +87,15 @@ public:
 	const char* c_str();
 
 	/**
-		This handler is called after it is installed into MessageHandlers
+		When this handler is called after it is installed into MessageHandlers
 	*/
 	virtual void onInstall(){}
 
 	virtual void handle(Channel* pChannel, MemoryStream& s)
 	{
 		pArgs->createFromStream(s);
-
-		// Pass parameters to the final interface
+		
+		// Pass the parameters to the final interface
 	};
 };
 
@@ -106,18 +106,18 @@ public:
 	typedef std::map<MessageID, MessageHandler*> MessageHandlerMap;
 	MessageHandlers(const std::string& name);
 	~MessageHandlers();
-
-	MessageHandler* add(std::string ihName, MessageArgs* args, int32 msgLen,
+	
+	MessageHandler* add(std::string ihName, MessageArgs* args, int32 msgLen, 
 						MessageHandler* msgHandler);
-
+	
 	bool pushExposedMessage(std::string msgname);
 
 	MessageHandler* find(MessageID msgID);
-
+	
 	MessageID lastMsgID() {return msgID_ - 1;}
 
 	bool initializeWatcher();
-
+	
 	static void finalise(void);
 	static std::vector<MessageHandlers*>& messageHandlers();
 
@@ -139,4 +139,4 @@ private:
 
 }
 }
-#endif
+#endif 

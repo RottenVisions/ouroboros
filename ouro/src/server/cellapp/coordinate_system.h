@@ -1,10 +1,10 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_COORDINATE_SYSTEM_H
 #define OURO_COORDINATE_SYSTEM_H
 
 #include "helper/debug_helper.h"
-#include "common/common.h"
+#include "common/common.h"	
 
 //#define DEBUG_COORDINATE_SYSTEM
 
@@ -19,12 +19,12 @@ public:
 	~CoordinateSystem();
 
 	/**
-		Insert node into list
+		Insert a node into the list
 	*/
 	bool insert(CoordinateNode* pNode);
 
 	/**
-		Remove node from list
+		Remove the node from the list
 	*/
 	bool remove(CoordinateNode* pNode);
 	bool removeReal(CoordinateNode* pNode);
@@ -32,8 +32,8 @@ public:
 	void releaseNodes();
 
 	/**
-		When a node changes, it needs to be updated in the list
-		Related locations and other information
+		When a node changes, it needs to be updated in the list.
+		Related location and other information
 	*/
 	void update(CoordinateNode* pNode);
 
@@ -60,7 +60,7 @@ public:
 private:
 	uint32 size_;
 
-	// The first and last pointers of the list
+	// The first and last pointers of the linked list
 	CoordinateNode* first_x_coordinateNode_;
 	CoordinateNode* first_y_coordinateNode_;
 	CoordinateNode* first_z_coordinateNode_;

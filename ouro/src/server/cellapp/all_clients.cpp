@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "all_clients.h"
@@ -75,20 +75,16 @@ PyObject* AllClientsComponent::onScriptGetAttribute(PyObject* attr)
 		return 0;
 	}
 
-	wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(attr, NULL);
-	char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-	PyMem_Free(PyUnicode_AsWideCharStringRet0);
+	const char* ccattr = PyUnicode_AsUTF8AndSize(attr, NULL);
 
 	ScriptDefModule* pScriptDefModule = pComponentScriptDefModule();
 	MethodDescription* pMethodDescription = pScriptDefModule->findClientMethodDescription(ccattr);
-
-	free(ccattr);
 
 	if (pMethodDescription != NULL)
 	{
 		return new ClientsRemoteEntityMethod(pComponentPropertyDescription_, pScriptDefModule, pMethodDescription, pAllClients_->isOtherClients(), entityID);
 	}
-
+	
 	return ScriptObject::onScriptGetAttribute(attr);
 }
 
@@ -125,8 +121,8 @@ SCRIPT_GETSET_DECLARE_END()
 SCRIPT_INIT(AllClients, 0, 0, 0, 0, 0)
 
 //-------------------------------------------------------------------------------------
-AllClients::AllClients(const ScriptDefModule* pScriptModule,
-						ENTITY_ID eid,
+AllClients::AllClients(const ScriptDefModule* pScriptModule, 
+						ENTITY_ID eid, 
 						bool otherClients):
 ScriptObject(getScriptType(), false),
 pScriptModule_(pScriptModule),
@@ -142,8 +138,8 @@ AllClients::~AllClients()
 
 //-------------------------------------------------------------------------------------
 PyObject* AllClients::pyGetID()
-{
-	return PyLong_FromLong(id());
+{ 
+	return PyLong_FromLong(id()); 
 }
 
 //-------------------------------------------------------------------------------------
@@ -152,7 +148,7 @@ PyObject* AllClients::onScriptGetAttribute(PyObject* attr)
 	Entity* pEntity = Cellapp::getSingleton().findEntity(id_);
 	if(pEntity == NULL)
 	{
-		PyErr_Format(PyExc_AssertionError, "AllClients::onScriptGetAttribute: not found entity(%d).",
+		PyErr_Format(PyExc_AssertionError, "AllClients::onScriptGetAttribute: not found entity(%d).", 
 			id());
 		PyErr_PrintEx(0);
 		return 0;
@@ -160,35 +156,30 @@ PyObject* AllClients::onScriptGetAttribute(PyObject* attr)
 
 	if(!pEntity->isReal())
 	{
-		PyErr_Format(PyExc_AssertionError, "AllClients::onScriptGetAttribute: %s not is real entity(%d).",
+		PyErr_Format(PyExc_AssertionError, "AllClients::onScriptGetAttribute: %s not is real entity(%d).", 
 			pEntity->scriptName(), pEntity->id());
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
-	wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(attr, NULL);
-	char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-	PyMem_Free(PyUnicode_AsWideCharStringRet0);
+	
+	const char* ccattr = PyUnicode_AsUTF8AndSize(attr, NULL);
 
 	MethodDescription* pMethodDescription = const_cast<ScriptDefModule*>(pScriptModule_)->findClientMethodDescription(ccattr);
-
+	
 	if(pMethodDescription != NULL)
 	{
-		free(ccattr);
 		return new ClientsRemoteEntityMethod(NULL, pScriptModule_, pMethodDescription, otherClients_, id_);
 	}
 	else
 	{
-		// Is it a component method call
+		// Is it a component method call?
 		PropertyDescription* pComponentPropertyDescription = const_cast<ScriptDefModule*>(pScriptModule_)->findComponentPropertyDescription(ccattr);
 		if (pComponentPropertyDescription)
 		{
-			free(ccattr);
 			return new AllClientsComponent(pComponentPropertyDescription, this);
 		}
 	}
 
-	free(ccattr);
 	return ScriptObject::onScriptGetAttribute(attr);
 }
 
@@ -215,3 +206,4 @@ PyObject* AllClients::tp_str()
 //-------------------------------------------------------------------------------------
 
 }
+

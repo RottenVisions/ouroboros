@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "bots.h"
@@ -39,7 +39,7 @@ SCRIPT_MEMBER_DECLARE_END()
 
 SCRIPT_GETSET_DECLARE_BEGIN(PyBots)
 SCRIPT_GETSET_DECLARE_END()
-SCRIPT_INIT(PyBots, 0, 0, &PyBots::mappingMethods, 0, 0)
+SCRIPT_INIT(PyBots, 0, 0, &PyBots::mappingMethods, 0, 0)	
 
 //-------------------------------------------------------------------------------------
 PyBots::PyBots():
@@ -57,7 +57,7 @@ int PyBots::mp_length(PyObject * self)
 {
 	return (int)Bots::getSingleton().clients().size();
 }
-
+	
 //-------------------------------------------------------------------------------------
 PyObject * PyBots::mp_subscript(PyObject* self, PyObject* key /*entityID*/)
 {
@@ -137,7 +137,7 @@ PyObject* PyBots::pyItems()
 	{
 		PyObject * pTuple = PyTuple_New(2);
 		PyObject* clientID = PyLong_FromLong(iter->second->appID());
-		Py_INCREF(iter->second);							// PyObject Entity* Add a reference
+		Py_INCREF(iter->second); // PyObject Entity* adds a reference
 
 		PyTuple_SET_ITEM(pTuple, 0, clientID);
 		PyTuple_SET_ITEM(pTuple, 1, iter->second);

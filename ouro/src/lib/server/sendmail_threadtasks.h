@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_SENDMAIL_THREADTASKS_H
 #define OURO_SENDMAIL_THREADTASKS_H
@@ -8,7 +8,7 @@
 #include "helper/debug_helper.h"
 #include "network/address.h"
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 
 class SendEMailTask : public thread::TPTask
 {
@@ -34,7 +34,7 @@ protected:
 };
 
 /*
-	Account activation email thread task
+	Account activation mail sending thread task
 */
 
 class SendActivateEMailTask : public SendEMailTask
@@ -56,7 +56,7 @@ protected:
 };
 
 /*
-	Forgot password email thread task
+	Forgot password mailing thread task
 */
 
 class SendResetPasswordEMailTask : public SendEMailTask
@@ -78,7 +78,7 @@ protected:
 };
 
 /*
-	Account binding email mail thread task
+	Account binding mailbox mail sending thread task
 */
 
 class SendBindEMailTask : public SendEMailTask

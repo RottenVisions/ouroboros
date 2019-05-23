@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "signal_handler.h"
@@ -11,7 +11,7 @@ OURO_SINGLETON_INIT(SignalHandlers);
 const int SIGMIN = 1;
 const int SIGMAX = SIGSYS;
 
-const char * SIGNAL_NAMES[] =
+const char * SIGNAL_NAMES[] = 
 {
 	NULL,
 	"SIGHUP",
@@ -81,16 +81,27 @@ SignalHandlers::~SignalHandlers()
 
 //-------------------------------------------------------------------------------------
 void SignalHandlers::attachApp(ServerApp* app)
-{
-	papp_ = app;
+{ 
+	papp_ = app; 
 	app->dispatcher().addTask(this);
 }
 
-//-------------------------------------------------------------------------------------
-SignalHandler* SignalHandlers::addSignal(int sigNum,
+//-------------------------------------------------------------------------------------	
+bool SignalHandlers::ignoreSignal(int sigNum)
+{
+#if OURO_PLATFORM != PLATFORM_WIN32
+	if (signal(sigNum, SIG_IGN) == SIG_ERR)
+		return false;
+#endif
+
+	return true;
+}
+
+//-------------------------------------------------------------------------------------	
+SignalHandler* SignalHandlers::addSignal(int sigNum, 
 	SignalHandler* pSignalHandler, int flags)
 {
-	// Allowed to be reset
+	// Allow to be reset
 	// SignalHandlerMap::iterator iter = singnalHandlerMap_.find(sigNum);
 	// OURO_ASSERT(iter == singnalHandlerMap_.end());
 
@@ -115,8 +126,8 @@ SignalHandler* SignalHandlers::addSignal(int sigNum,
 
 	return pSignalHandler;
 }
-
-//-------------------------------------------------------------------------------------
+	
+//-------------------------------------------------------------------------------------	
 SignalHandler* SignalHandlers::delSignal(int sigNum)
 {
 	SignalHandlerMap::iterator iter = singnalHandlerMap_.find(sigNum);
@@ -125,22 +136,22 @@ SignalHandler* SignalHandlers::delSignal(int sigNum)
 	singnalHandlerMap_.erase(iter);
 	return pSignalHandler;
 }
-
-//-------------------------------------------------------------------------------------
+	
+//-------------------------------------------------------------------------------------	
 void SignalHandlers::clear()
 {
 	singnalHandlerMap_.clear();
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void SignalHandlers::onSignalled(int sigNum)
 {
-	// Do not allocate memory
+	// don't allocate memory
 	OURO_ASSERT(wpos_ != 0XFF);
 	signalledArray_[wpos_++] = sigNum;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 bool SignalHandlers::process()
 {
 	if (wpos_ == 0)
@@ -149,7 +160,7 @@ bool SignalHandlers::process()
 	DEBUG_MSG(fmt::format("SignalHandlers::process: rpos={}, wpos={}.\n", rpos_, wpos_));
 
 #if OURO_PLATFORM != PLATFORM_WIN32
-	/* If the signal has instantaneously exceeded the 255 trigger requirement, the comment can be turned on, and the signal triggered during execution of all signals, etc., will be masked, changing the signalledArray_ to the signal set type.
+	/* If the signal has more than 255 trigger demand, you can open the comment, it will block all signals and other signals after the execution is completed, and then change the signallededArray_ to the signal set type.
 	if (wpos_ == 1 && signalledArray_[0] == SIGALRM)
 		return true;
 
@@ -159,7 +170,7 @@ bool SignalHandlers::process()
 
 	sigfillset(&mask);
 
-	// Mask signal
+	// Shield signal
 	sigprocmask(SIG_BLOCK, &mask, &old_mask);
 	*/
 #endif
@@ -190,7 +201,7 @@ bool SignalHandlers::process()
 	wpos_ = 0;
 
 #if OURO_PLATFORM != PLATFORM_WIN32
-	// Recovery mask
+	// restore the mask
 	/*
 	sigprocmask(SIG_SETMASK, &old_mask, NULL);
 
@@ -205,7 +216,7 @@ bool SignalHandlers::process()
 	// Wait with this mask
 	ualarm(1, 0);
 
-	// Re-trigger signals missed during
+	// Re-trigger the signal that was missed during the period
 	sigsuspend(&mask);
 
 	delSignal(SIGALRM);
@@ -215,5 +226,5 @@ bool SignalHandlers::process()
 	return true;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 }

@@ -1,7 +1,8 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
+#include "obcmd.h"
 #include "client_sdk.h"
-#include "client_sdk_unity.h"
+#include "client_sdk_unity.h"	
 #include "client_sdk_ue4.h"
 #include "entitydef/entitydef.h"
 #include "entitydef/scriptdef_module.h"
@@ -21,89 +22,7 @@
 #include "dbmgr/dbmgr_interface.h"
 #include "loginapp/loginapp_interface.h"
 
-#ifdef _WIN32
-#include <direct.h>
-#include <io.h>
-#elif _LINUX
-#include <stdarg.h>
-#include <sys/stat.h>
-#endif
-
-#if OURO_PLATFORM == PLATFORM_WIN32
-#define OURO_ACCESS _access
-#define OURO_MKDIR(a) _mkdir((a))
-#else
-#define OURO_ACCESS access
-#define OURO_MKDIR(a) OURO_UNIX_MKDIR((a))
-
-int OURO_UNIX_MKDIR(const char* a)
-{
-	umask(0);
-	return mkdir((a), 0755);
-}
-#endif
-
-namespace Ouroboros {
-
-int CreatDir(const char *pDir)
-{
-	int i = 0;
-	int iRet = -1;
-	int iLen = 0;
-	char* pszDir = NULL;
-
-	if (NULL == pDir)
-	{
-		return 0;
-	}
-
-	pszDir = strdup(pDir);
-	iLen = strlen(pszDir);
-
-	// Create an intermediate directory
-	for (i = 0; i < iLen; i++)
-	{
-		if (pszDir[i] == '\\' || pszDir[i] == '/')
-		{
-			if (i == 0)
-				continue;
-
-			pszDir[i] = '\0';
-
-			//If it does not exist, create
-			iRet = OURO_ACCESS(pszDir, 0);
-			if (iRet != 0)
-			{
-				iRet = OURO_MKDIR(pszDir);
-				if (iRet != 0)
-				{
-					ERROR_MSG(fmt::format("CreatDir(): OURO_MKDIR [{}] error! iRet={}\n",
-						pszDir, iRet));
-
-					free(pszDir);
-					return -1;
-				}
-			}
-
-			//Support linux, change all\
-			pszDir[i] = '/';
-		}
-	}
-
-	if (iLen > 0 && OURO_ACCESS(pszDir, 0) != 0)
-	{
-		iRet = OURO_MKDIR(pszDir);
-
-		if (iRet != 0)
-		{
-			ERROR_MSG(fmt::format("CreatDir(): OURO_MKDIR [{}] error! iRet={}\n",
-				pszDir, iRet));
-		}
-	}
-
-	free(pszDir);
-	return iRet;
-}
+namespace Ouroboros {	
 
 //-------------------------------------------------------------------------------------
 ClientSDK::ClientSDK():
@@ -162,7 +81,7 @@ bool ClientSDK::saveFile()
 
 	if (sourcefileName_.size() > 0)
 	{
-		if (CreatDir(currSourcePath_.c_str()) == -1)
+		if (OBCMD::creatDir(currSourcePath_.c_str()) == -1)
 		{
 			ERROR_MSG(fmt::format("creating directory error! path={}\n", currSourcePath_));
 			return false;
@@ -205,7 +124,7 @@ bool ClientSDK::saveFile()
 
 	if (headerfileName_.size() > 0)
 	{
-		if (CreatDir(currHeaderPath_.c_str()) == -1)
+		if (OBCMD::creatDir(currHeaderPath_.c_str()) == -1)
 		{
 			ERROR_MSG(fmt::format("creating directory error! path={}\n", currHeaderPath_));
 			return false;
@@ -259,7 +178,7 @@ bool ClientSDK::create(const std::string& path)
 
 	currHeaderPath_ = currSourcePath_ = basepath_;
 
-	std::string findpath = "client/sdk_templates/" + name();
+	std::string findpath = "sdk_templates/client/" + name();
 
 	std::string getpath = Resmgr::getSingleton().matchPath(findpath);
 
@@ -288,7 +207,7 @@ bool ClientSDK::create(const std::string& path)
 
 	if (!writeCustomDataTypes())
 		return false;
-
+	
 	const EntityDef::SCRIPT_MODULES& scriptModules = EntityDef::getScriptModules();
 	EntityDef::SCRIPT_MODULES::const_iterator moduleIter = scriptModules.begin();
 	for (; moduleIter != scriptModules.end(); ++moduleIter)
@@ -308,7 +227,7 @@ bool ClientSDK::create(const std::string& path)
 //-------------------------------------------------------------------------------------
 void ClientSDK::onCreateTypeFileName()
 {
-	sourcefileName_ = "OUROType.unknown";
+	sourcefileName_ = "KBEType.unknown";
 	headerfileName_ = "";
 }
 
@@ -329,13 +248,12 @@ bool ClientSDK::copyPluginsSourceToPath(const std::string& path)
 	wpath = strutil::char2wchar(basepath_.c_str());
 	std::wstring destPath = wpath;
 	free(wpath);
-
-
+	
 	std::vector<std::wstring> results;
 	if (!Resmgr::getSingleton().listPathRes(sourcePath, L"*", results))
 		return false;
 
-	wchar_t* wfindpath = strutil::char2wchar(std::string("client/sdk_templates/" + name()).c_str());
+	wchar_t* wfindpath = strutil::char2wchar(std::string("sdk_templates/client/" + name()).c_str());
 	std::wstring findpath = wfindpath;
 	free(wfindpath);
 
@@ -376,12 +294,12 @@ bool ClientSDK::copyPluginsSourceToPath(const std::string& path)
 		}
 
 		basepath.erase(fpos, basepath.size() - fpos);
-
+		
 		ccattr = strutil::wchar2char(basepath.c_str());
 		std::string currbasepath = ccattr;
 		free(ccattr);
 
-		if (CreatDir(currbasepath.c_str()) == -1)
+		if (OBCMD::creatDir(currbasepath.c_str()) == -1)
 		{
 			ERROR_MSG(fmt::format("ClientSDK::copyPluginsSourceToPath(): creating directory error! path={}\n", currbasepath));
 			return false;
@@ -396,13 +314,14 @@ bool ClientSDK::copyPluginsSourceToPath(const std::string& path)
 		ss << input.rdbuf();
 		filebody = ss.str();
 
-		strutil::ouro_replace(filebody, "@{OURO_VERSION}", OUROVersion::versionString());
-		strutil::ouro_replace(filebody, "@{OURO_SCRIPT_VERSION}", OUROVersion::scriptVersionString());
+		strutil::ouro_replace(filebody, "@{OURO_VERSION}", KBEVersion::versionString());
+		strutil::ouro_replace(filebody, "@{OURO_SCRIPT_VERSION}", KBEVersion::scriptVersionString());
 		strutil::ouro_replace(filebody, "@{OURO_SERVER_PROTO_MD5}", Network::MessageHandlers::getDigestStr());
 		strutil::ouro_replace(filebody, "@{OURO_SERVER_ENTITYDEF_MD5}", EntityDef::md5().getDigestStr());
 		strutil::ouro_replace(filebody, "@{OURO_USE_ALIAS_ENTITYID}", g_ouroSrvConfig.getCellApp().aliasEntityID ? "true" : "false");
 		strutil::ouro_replace(filebody, "@{OURO_UPDATEHZ}", fmt::format("{}", g_ouroSrvConfig.gameUpdateHertz()));
 		strutil::ouro_replace(filebody, "@{OURO_LOGIN_PORT}", fmt::format("{}", g_ouroSrvConfig.getLoginApp().externalTcpPorts_min));
+		strutil::ouro_replace(filebody, "@{OURO_SERVER_EXTERNAL_TIMEOUT}", fmt::format("{}", (int)g_ouroSrvConfig.channelExternalTimeout()));
 		output << filebody;
 
 		output.close();
@@ -799,9 +718,17 @@ bool ClientSDK::writeEntityDefsModuleInitScript(ScriptDefModule* pScriptDefModul
 	}
 
 	ScriptDefModule::METHODDESCRIPTION_MAP::const_iterator miter = methods.begin();
-	for (; miter != methods.end(); ++miter)
+	if (methods.size() > 0)
 	{
-		if (!writeEntityDefsModuleInitScript_MethodDescr(pScriptDefModule, miter->second, CLIENT_TYPE))
+		for (; miter != methods.end(); ++miter)
+		{
+			if (!writeEntityDefsModuleInitScript_MethodDescr(pScriptDefModule, miter->second, CLIENT_TYPE))
+				return false;
+		}
+	}
+	else
+	{
+		if (!writeEntityDefsModuleInitScript_MethodDescr(pScriptDefModule, NULL, CLIENT_TYPE))
 			return false;
 	}
 
@@ -906,7 +833,7 @@ bool ClientSDK::writeEntityCall(ScriptDefModule* pScriptDefModule)
 
 	std::string newModuleName;
 
-	// Write BaseEntityCall first
+	// ÏÈÐ´BaseEntityCall
 	if(!writeBaseEntityCallBegin(pScriptDefModule))
 		return false;
 
@@ -1005,7 +932,7 @@ bool ClientSDK::writeEntityCall(ScriptDefModule* pScriptDefModule)
 	headerfileBody_ += fmt::format("\n");
 	sourcefileBody_ += fmt::format("\n");
 
-	// Write CellEntityCall again
+	// ÔÙÐ´CellEntityCall
 	if (!writeCellEntityCallBegin(pScriptDefModule))
 		return false;
 
@@ -1441,7 +1368,7 @@ bool ClientSDK::writeTypes()
 	}
 
 	if (!writeTypesEnd())
-		return false;
+		return false; 
 
 	return saveFile();
 }
@@ -1482,7 +1409,7 @@ bool ClientSDK::writeEntityModule(ScriptDefModule* pEntityScriptDefModule)
 
 	if (!writeEntityProcessMessagesMethod(pEntityScriptDefModule))
 		return false;
-
+	
 	if (!writeEntityModuleEnd(pEntityScriptDefModule))
 		return false;
 
@@ -1679,7 +1606,7 @@ bool ClientSDK::writeEntityMethods(ScriptDefModule* pEntityScriptDefModule,
 			if (pDataType->type() == DATA_TYPE_FIXEDARRAY)
 			{
 				FixedArrayType* pFixedArrayType = static_cast<FixedArrayType*>(pDataType);
-
+				
 				std::string argsTypeBody;
 				if (!writeEntityMethodArgs_ARRAY(pFixedArrayType, argsTypeBody, pFixedArrayType->aliasName()))
 				{

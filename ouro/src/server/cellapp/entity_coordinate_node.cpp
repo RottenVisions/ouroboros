@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include <iterator>
 #include "entity_coordinate_node.h"
@@ -6,7 +6,7 @@
 #include "coordinate_system.h"
 #include "range_trigger_node.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 
 //-------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ public:
 	INLINE bool valid() const { return !pCurrentNode_->hasFlags(COORDINATE_NODE_FLAG_HIDE_OR_REMOVED); }
 	INLINE CoordinateNode* currentNode() const { return pCurrentNode_; }
 	INLINE Entity* currentNodeEntity() const { return static_cast<EntityCoordinateNode*>(pCurrentNode_)->pEntity(); }
-
+	
 	INLINE CoordinateNode* prev() {
 		pCurrentNode_ = pCurrentNode_->pPrevX();
 		return pCurrentNode_;
@@ -118,8 +118,8 @@ public:
 
 //-------------------------------------------------------------------------------------
 /**
- Finding the closest node to the center
- The template parameter NODEWRAP takes one of the following three values:
+ ?Find the node closest to the center point
+ ?The template parameter NODEWRAP takes one of the following three values:
    - CoordinateNodeWrapX
    - CoordinateNodeWrapZ
    - CoordinateNodeWrapY
@@ -132,7 +132,7 @@ CoordinateNode* findNearestNode(CoordinateNode* rootNode, const Position3D& orig
 
 	// First find an EntityNode as a fulcrum
 	{
-		// Find the current node first, and if not, go to the left to search for
+		// Find the current node first, if not found, go to the left to find
 		NODEWRAP wrap(rootNode, originPos);
 		do
 		{
@@ -143,7 +143,7 @@ CoordinateNode* findNearestNode(CoordinateNode* rootNode, const Position3D& orig
 			}
 		} while (wrap.prev());
 
-		// If you can't find it, go to the right to look for
+		// If not found, then look to the right to find
 		if (!pRN)
 		{
 			wrap.reset();
@@ -156,29 +156,29 @@ CoordinateNode* findNearestNode(CoordinateNode* rootNode, const Position3D& orig
 				}
 			}
 
-			// Theoretically impossible to find
+			// theoretically impossible to find
 			if (!pRN)
 				return NULL;
 		}
 	}
 
-	// Can come here and say that it must be found and start looking for the nearest Node from the target location
+	// I can come here, it means I must have found it, I started to find the Node closest to the target location.
 	NODEWRAP wrap(pRN, originPos);
 	int v = wrap.compare();
-
-	if (v == 0)  // equal
+	
+	if (v == 0) // equal
 	{
 		return wrap.currentNode();
 	}
-	else if (v > 0)  // Entity Node is on the right side of the center point
+	else if (v > 0) // Entity Node is on the right side of the center point
 	{
 		pCoordinateNode = wrap.currentNode();
 		while (wrap.prev())
 		{
 			if (wrap.isEntityNode() && wrap.valid())
 			{
-				// Since it is traversing from the right side of the center point to the left side,
-				// Therefore, the entity whose first position is less than the center point must be the closest to the center point.
+				// Since it is traversed from the right side of the center point to the left side,
+				// So the first position is less than the center point and the entity must be closest to the center point.
 				if (wrap.compare() <= 0)
 				{
 					return wrap.currentNode();
@@ -189,15 +189,15 @@ CoordinateNode* findNearestNode(CoordinateNode* rootNode, const Position3D& orig
 		}
 		return pCoordinateNode;
 	}
-	else   // Entity Node is on the left side of the center point
+	else // Entity Node is on the left side of the center point
 	{
 		pCoordinateNode = wrap.currentNode();
 		while (wrap.next())
 		{
 			if (wrap.isEntityNode() && wrap.valid())
 			{
-				// Since it is traversing from the left to the right of the center point,
-				// Therefore, the entity whose first position is greater than the center point must be the closest to the center point.
+				// Since it is traversed from the left side of the center point to the right side,
+				// So the first position whose position is greater than the center point must be closest to the center point.
 				if (wrap.compare() >= 0)
 				{
 					return wrap.currentNode();
@@ -213,8 +213,8 @@ CoordinateNode* findNearestNode(CoordinateNode* rootNode, const Position3D& orig
 
 //-------------------------------------------------------------------------------------
 /**
- Finding an Entity on an Axis That Meets a Range
- The template parameter NODEWRAP takes one of the following three values:
+ ?Find an entity that matches the range on the axis
+ ?The template parameter NODEWRAP takes one of the following three values:
    - CoordinateNodeWrapX
    - CoordinateNodeWrapZ
    - CoordinateNodeWrapY
@@ -229,7 +229,7 @@ void entitiesInAxisRange(std::set<Entity*>& foundEntities, CoordinateNode* rootN
 
 	NODEWRAP wrap(pCoordinateNode, originPos);
 
-	// If the node itself also meets the criteria, add yourself
+	// If the node itself is eligible, add it to yourself.
 	if (wrap.isEntityNode() && wrap.valid())
 	{
 		Entity* pEntity = wrap.currentNodeEntity();
@@ -344,9 +344,9 @@ float EntityCoordinateNode::zz() const
 //-------------------------------------------------------------------------------------
 void EntityCoordinateNode::update()
 {
-	// The reason for doing the update here is that it is very likely that the position of the entity was moved during CoordinateNode::update()
-	// The resulting number of updates was called and there was a problem in some cases
-	// E.g:// A->B, B-( at this point, old_* is B), A->B (in this case, old_* is B, and xx and other destinations are B). At this time, update will be misjudged as not moving.
+	// The reason for doing the update here is that it is likely that the entity location is moved during the CoordinateNode::update() process.
+	// and the number of updates is called, in some cases there will be problems
+	// For example: A->B, BA (old_* is B at this time), A->B (when old_* is B, and destination such as xx is B), the update will be misjudged as No movement.
 	// https://github.com/ouroboros/ouroboros/issues/407
 	old_xx(x());
 	old_yy(y());
@@ -357,7 +357,7 @@ void EntityCoordinateNode::update()
 	addFlags(COORDINATE_NODE_FLAG_ENTITY_NODE_UPDATING);
 	++entityNodeUpdating_;
 
-	// You must use watcherNodes_.size() here instead of iterator traversal to prevent an increase in the number of watcherNodes_ in the update and destroy the iterator
+	// Here you must use watcherNodes_.size() instead of iterator traversal to prevent the increase in the number of watcherNodes_ in the update and destroy the iterator
 	for (WATCHER_NODES::size_type i = 0; i < watcherNodes_.size(); ++i)
 	{
 		CoordinateNode* pCoordinateNode = watcherNodes_[i];
@@ -411,9 +411,9 @@ void EntityCoordinateNode::onRemove()
 		if (!pCoordinateNode)
 			continue;
 
-		// First set to NULL, delete when later update
-		// You cannot make any changes to the size of watcherNodes_, because it may be caused by calling EntityCoordinateNode::update().
-		// This may cause EntityCoordinateNode::update() to be modified in loop watcherNodes_.
+		// First set to NULL, delete after the update
+		// The size of watcherNodes_ cannot be modified here because it may be caused by EntityCoordinateNode::update()
+		// Then it may cause EntityCoordinateNode::update() to be modified in the loop watcherNodes_ with an error.
 		watcherNodes_[i] = NULL;
 		++delWatcherNodeNum_;
 
@@ -433,7 +433,7 @@ bool EntityCoordinateNode::addWatcherNode(CoordinateNode* pNode)
 		return false;
 
 	watcherNodes_.push_back(pNode);
-
+	
 	onAddWatcherNode(pNode);
 	return true;
 }

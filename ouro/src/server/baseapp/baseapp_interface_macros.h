@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #if defined(DEFINE_IN_INTERFACE)
@@ -9,18 +9,18 @@
 #ifndef OURO_BASEAPP_INTERFACE_MACRO_H
 #define OURO_BASEAPP_INTERFACE_MACRO_H
 
-// common include
+// common include	
 #include "network/interface_defs.h"
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
 #endif
-
+	
 namespace Ouroboros{
 
 /**
-	Baseapp message macro, parameter is stream, need to unlock
+	Baseapp message macro, the parameter is stream, you need to unlock it yourself.
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef BASEAPP_MESSAGE_HANDLER_STREAM
@@ -55,7 +55,7 @@ namespace Ouroboros{
 													Ouroboros::MemoryStream& s)	\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define BASEAPP_MESSAGE_HANDLER_STREAM(NAME)									\
@@ -75,7 +75,7 @@ namespace Ouroboros{
 																				\
 
 /**
-	Baseapp message macro with only zero parameter message
+	Baseapp message macro, message with zero parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef BASEAPP_MESSAGE_HANDLER_ARGS0
@@ -96,7 +96,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define BASEAPP_MESSAGE_HANDLER_ARGS0(NAME)										\
@@ -116,7 +116,7 @@ namespace Ouroboros{
 																				\
 
 /**
-	Baseapp message macro, only one parameter message
+	Baseapp message macro, message with only one parameter
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef BASEAPP_MESSAGE_HANDLER_ARGS1
@@ -139,7 +139,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define BASEAPP_MESSAGE_HANDLER_ARGS1(NAME, ARG_TYPE1, ARG_NAME1)				\
@@ -159,7 +159,7 @@ namespace Ouroboros{
 																				\
 
 /**
-	Baseapp message macro, only two parameters of the message
+	Baseapp message macro, message with only two parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef BASEAPP_MESSAGE_HANDLER_ARGS2
@@ -187,7 +187,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define BASEAPP_MESSAGE_HANDLER_ARGS2(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -244,7 +244,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define BASEAPP_MESSAGE_HANDLER_ARGS3(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -272,7 +272,7 @@ namespace Ouroboros{
 
 
 /**
-	Baseapp message macro, only four parameters message
+	Baseapp message macro, message with only four parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef BASEAPP_MESSAGE_HANDLER_ARGS4
@@ -309,7 +309,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define BASEAPP_MESSAGE_HANDLER_ARGS4(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -340,7 +340,7 @@ namespace Ouroboros{
 											ARG_TYPE4, ARG_NAME4)				\
 
 /**
-	Baseapp message macro, only five parameters message
+	Baseapp message macro, message with only five parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef BASEAPP_MESSAGE_HANDLER_ARGS5
@@ -381,7 +381,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define BASEAPP_MESSAGE_HANDLER_ARGS5(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -417,7 +417,7 @@ namespace Ouroboros{
 
 
 /**
-	Baseapp message macro, only six parameters of the message
+	Baseapp message macro, message with only six parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef BASEAPP_MESSAGE_HANDLER_ARGS6
@@ -462,7 +462,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define BASEAPP_MESSAGE_HANDLER_ARGS6(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -501,7 +501,7 @@ namespace Ouroboros{
 											ARG_TYPE6, ARG_NAME6)				\
 
 /**
-	Baseapp message macro, only seven parameters message
+	Baseapp message macro, message with only seven parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef BASEAPP_MESSAGE_HANDLER_ARGS7
@@ -551,7 +551,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define BASEAPP_MESSAGE_HANDLER_ARGS7(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -595,7 +595,7 @@ namespace Ouroboros{
 
 
 /**
-	Baseapp message macro, only eight parameters of the message
+	Baseapp message macro, message with only eight parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef BASEAPP_MESSAGE_HANDLER_ARGS8
@@ -649,7 +649,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define BASEAPP_MESSAGE_HANDLER_ARGS8(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -697,7 +697,7 @@ namespace Ouroboros{
 
 
 /**
-	Baseapp message macro, only nine parameters of the message
+	Baseapp message macro, message with only nine parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef BASEAPP_MESSAGE_HANDLER_ARGS9
@@ -755,7 +755,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define BASEAPP_MESSAGE_HANDLER_ARGS9(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -807,7 +807,7 @@ namespace Ouroboros{
 
 
 /**
-	Baseapp message macro, only ten parameters message
+	Baseapp message macro, message with only ten parameters
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef BASEAPP_MESSAGE_HANDLER_ARGS10
@@ -870,7 +870,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define BASEAPP_MESSAGE_HANDLER_ARGS10(NAME, ARG_TYPE1, ARG_NAME1,				\
@@ -926,7 +926,7 @@ namespace Ouroboros{
 
 
 /**
-	Baseapp message macro with only eleven parameter messages
+	Baseapp message macro, message with only one parameter
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef BASEAPP_MESSAGE_HANDLER_ARGS11
@@ -993,7 +993,7 @@ namespace Ouroboros{
 												Ouroboros::MemoryStream& s)		\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define BASEAPP_MESSAGE_HANDLER_ARGS11(NAME, ARG_TYPE1, ARG_NAME1,				\

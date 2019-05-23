@@ -1,12 +1,12 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
-#include "navigation_tile_handle.h"
+#include "navigation_tile_handle.h"	
 #include "navigation/navigation.h"
 #include "resmgr/resmgr.h"
 #include "thread/threadguard.h"
 #include "math/math.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 NavTileHandle* NavTileHandle::pCurrNavTileHandle = NULL;
 int NavTileHandle::currentLayer = 0;
 NavTileHandle::MapSearchNode NavTileHandle::nodeGoal;
@@ -44,9 +44,9 @@ direction8_(navTileHandle.direction8_)
 //-------------------------------------------------------------------------------------
 NavTileHandle::~NavTileHandle()
 {
-	DEBUG_MSG(fmt::format("NavTileHandle::~NavTileHandle({1:p}, pTilemap={2:p}): ({0}) is destroyed!\n",
+	DEBUG_MSG(fmt::format("NavTileHandle::~NavTileHandle({1:p}, pTilemap={2:p}): ({0}) is destroyed!\n", 
 		resPath, (void*)this, (void*)pTilemap));
-
+	
 	SAFE_RELEASE(pTilemap);
 }
 
@@ -64,13 +64,13 @@ int NavTileHandle::findStraightPath(int layer, const Position3D& start, const Po
 
 	// Create a start state
 	nodeStart.x = int(start.x / pTilemap->GetTileWidth());
-	nodeStart.y = int(start.z / pTilemap->GetTileHeight());
+	nodeStart.y = int(start.z / pTilemap->GetTileHeight()); 
 
 	// Define the goal state
-	nodeGoal.x = int(end.x / pTilemap->GetTileWidth());
-	nodeGoal.y = int(end.z / pTilemap->GetTileHeight());
+	nodeGoal.x = int(end.x / pTilemap->GetTileWidth());				
+	nodeGoal.y = int(end.z / pTilemap->GetTileHeight()); 
 
-	//DEBUG_MSG(fmt::format("NavTileHandle::findStraightPath: start({}, {}), end({}, {})\n",
+	//DEBUG_MSG(fmt::format("NavTileHandle::findStraightPath: start({}, {}), end({}, {})\n", 
 	//	nodeStart.x, nodeStart.y, nodeGoal.x, nodeGoal.y));
 
 	// Set Start and goal states
@@ -96,13 +96,13 @@ int NavTileHandle::findStraightPath(int layer, const Position3D& start, const Po
 		while( p )
 		{
 			len++;
-#if !DEBUG_LIST_LENGTHS_ONLY
+#if !DEBUG_LIST_LENGTHS_ONLY			
 			((MapSearchNode *)p)->printNodeInfo();
 #endif
 			p = astarsearch.GetOpenListNext();
-
+			
 		}
-
+		
 		DEBUG_MSG(fmt::format("NavTileHandle::findStraightPath: Open list has {} nodes\n", len));
 
 		len = 0;
@@ -112,9 +112,9 @@ int NavTileHandle::findStraightPath(int layer, const Position3D& start, const Po
 		while( p )
 		{
 			len++;
-#if !DEBUG_LIST_LENGTHS_ONLY
+#if !DEBUG_LIST_LENGTHS_ONLY			
 			p->printNodeInfo();
-#endif
+#endif			
 			p = astarsearch.GetClosedListNext();
 		}
 
@@ -150,7 +150,7 @@ int NavTileHandle::findStraightPath(int layer, const Position3D& start, const Po
 		// Once you're done with the solution you can free the nodes up
 		astarsearch.FreeSolutionNodes();
 	}
-	else if( SearchState == AStarSearch<MapSearchNode>::SEARCH_STATE_FAILED )
+	else if( SearchState == AStarSearch<MapSearchNode>::SEARCH_STATE_FAILED ) 
 	{
 		ERROR_MSG("NavTileHandle::findStraightPath: Search terminated. Did not find goal state\n");
 	}
@@ -163,7 +163,7 @@ int NavTileHandle::findStraightPath(int layer, const Position3D& start, const Po
 }
 
 //-------------------------------------------------------------------------------------
-void swap(int& a, int& b)
+void swap(int& a, int& b) 
 {
 	int c = a;
 	a = b;
@@ -199,14 +199,14 @@ void NavTileHandle::bresenhamLine(int x0, int y0, int x1, int y1, std::vector<Ma
 	int ystep;
 	int y = y0;
 
-	if (y0 < y1) ystep = 1;
+	if (y0 < y1) ystep = 1; 
 		else ystep = -1;
 
-	for (int x = x0; x <= x1; x++)
+	for (int x = x0; x <= x1; x++) 
 	{
-		if (steep)
+		if (steep) 
 			results.push_back(MapSearchNode(y, x));
-		else
+		else 
 			results.push_back(MapSearchNode(x, y));
 
 		error += deltay;
@@ -232,16 +232,16 @@ int NavTileHandle::raycast(int layer, const Position3D& start, const Position3D&
 	// Create a start state
 	MapSearchNode nodeStart;
 	nodeStart.x = int(start.x / pTilemap->GetTileWidth());
-	nodeStart.y = int(start.z / pTilemap->GetTileHeight());
+	nodeStart.y = int(start.z / pTilemap->GetTileHeight()); 
 
 	// Define the goal state
 	MapSearchNode nodeEnd;
-	nodeEnd.x = int(end.x / pTilemap->GetTileWidth());
-	nodeEnd.y = int(end.z / pTilemap->GetTileHeight());
+	nodeEnd.x = int(end.x / pTilemap->GetTileWidth());				
+	nodeEnd.y = int(end.z / pTilemap->GetTileHeight()); 
 
 	std::vector<MapSearchNode> vec;
 	bresenhamLine(nodeStart, nodeEnd, vec);
-
+	
 	if(vec.size() > 0)
 	{
 		vec.erase(vec.begin());
@@ -271,15 +271,15 @@ int NavTileHandle::findRandomPointAroundCircle(int layer, const Position3D& cent
 		ERROR_MSG(fmt::format("NavTileHandle::findRandomPointAroundCircle: not found layer({})\n", layer));
 		return NAV_ERROR;
 	}
-
+	
 	Position3D currpos;
-
+	
 	for (uint32 i = 0; i < max_points; i++)
 	{
 		float rnd = frand();
-		float a = maxRadius * rnd;						// Radius within maxRadius meters
-		float b = 360.0f * rnd;							// Random angle
-		currpos.x = centerPos.x + (a * cos(b)); 		// Radius*
+		float a = maxRadius * rnd; // radius within maxRadius
+		float b = 360.0f * rnd; // random angle
+		currpos.x = centerPos.x + (a * cos(b)); // radius * Zheng Yu Xuan
 		currpos.z = centerPos.z + (a * sin(b));
 		points.push_back(currpos);
 	}
@@ -292,9 +292,9 @@ NavigationHandle* NavTileHandle::create(std::string resPath, const std::map< int
 {
 	if(resPath == "")
 		return NULL;
-
+	
 	std::string path;
-
+	
 	if(params.size() == 0)
 	{
 		path = resPath;
@@ -302,18 +302,18 @@ NavigationHandle* NavTileHandle::create(std::string resPath, const std::map< int
 		wchar_t* wpath = strutil::char2wchar(path.c_str());
 		std::wstring wspath = wpath;
 		free(wpath);
-
+			
 		std::vector<std::wstring> results;
 		Resmgr::getSingleton().listPathRes(wspath, L"tmx", results);
 
 		if(results.size() == 0)
 		{
-			ERROR_MSG(fmt::format("NavTileHandle::create: path({}) not found tmx.!\n",
+			ERROR_MSG(fmt::format("NavTileHandle::create: path({}) not found tmx.!\n", 
 				Resmgr::getSingleton().matchRes(path)));
 
 			return NULL;
 		}
-
+					
 		char* cpath = strutil::wchar2char(results[0].c_str());
 		path = cpath;
 		free(cpath);
@@ -322,7 +322,7 @@ NavigationHandle* NavTileHandle::create(std::string resPath, const std::map< int
 	{
 		path = Resmgr::getSingleton().matchRes(params.begin()->second);
 	}
-
+	
 	return _create(path);
 }
 
@@ -332,13 +332,13 @@ NavTileHandle* NavTileHandle::_create(const std::string& res)
 	Tmx::Map *map = new Tmx::Map();
 	map->ParseFile(res.c_str());
 
-	if (map->HasError())
+	if (map->HasError()) 
 	{
-		ERROR_MSG(fmt::format("NavTileHandle::create: open({}) is error!\n", res));
+		ERROR_MSG(fmt::format("NavTileHandle::create: open({}) error!\n", res));
 		delete map;
 		return NULL;
 	}
-
+	
 	bool mapdir = map->GetProperties().HasProperty("direction8");
 
 	DEBUG_MSG(fmt::format("NavTileHandle::create: ({})\n", res));
@@ -365,8 +365,8 @@ NavTileHandle* NavTileHandle::_create(const std::string& res)
 		DEBUG_MSG(fmt::format("\t==> image Source : {}\n", tileset->GetImage()->GetSource().c_str()));
 		DEBUG_MSG(fmt::format("\t==> transparent Color (hex) : {}\n", tileset->GetImage()->GetTransparentColor()));
 		DEBUG_MSG(fmt::format("\t==> tiles Size : {}\n", tileset->GetTiles().size()));
-
-		if (tileset->GetTiles().size() > 0)
+		
+		if (tileset->GetTiles().size() > 0) 
 		{
 			// Get a tile from the tileset.
 			const Tmx::Tile *tile = *(tileset->GetTiles().begin());
@@ -379,7 +379,7 @@ NavTileHandle* NavTileHandle::_create(const std::string& res)
 			}
 		}
 	}
-
+	
 	NavTileHandle* pNavTileHandle = new NavTileHandle(mapdir);
 	pNavTileHandle->pTilemap = map;
 	return pNavTileHandle;
@@ -394,7 +394,7 @@ bool NavTileHandle::validTile(int x, int y) const
 		 y >= pTilemap->GetHeight()
 	  )
 	{
-		return false;
+		return false;	 
 	}
 
 	return true;
@@ -404,10 +404,10 @@ bool NavTileHandle::validTile(int x, int y) const
 int NavTileHandle::getMap(int x, int y)
 {
 	if(!validTile(x, y))
-		return TILE_STATE_CLOSED;
+		return TILE_STATE_CLOSED;	 
 
 	Tmx::MapTile& mapTile = pTilemap->GetLayer(currentLayer)->GetTile(x, y);
-
+	
 	return (int)mapTile.id;
 }
 
@@ -430,15 +430,15 @@ bool NavTileHandle::MapSearchNode::IsSameState(MapSearchNode &rhs)
 void NavTileHandle::MapSearchNode::PrintNodeInfo()
 {
 	char str[100];
-	sprintf( str, "NavTileHandle::MapSearchNode::printNodeInfo(): Node position : (%d,%d)\n",
+	sprintf( str, "NavTileHandle::MapSearchNode::printNodeInfo(): Node position : (%d,%d)\n", 
 		x, y);
-
+	
 	DEBUG_MSG(str);
 }
 
 //-------------------------------------------------------------------------------------
 // Here's the heuristic function that estimates the distance from a Node
-// to the Goal.
+// to the Goal. 
 
 float NavTileHandle::MapSearchNode::GoalDistanceEstimate(MapSearchNode &nodeGoal)
 {
@@ -468,85 +468,85 @@ bool NavTileHandle::MapSearchNode::IsGoal(MapSearchNode &nodeGoal)
 // is specific to the application
 bool NavTileHandle::MapSearchNode::GetSuccessors(AStarSearch<MapSearchNode> *astarsearch, MapSearchNode *parent_node)
 {
-	int parent_x = -1;
-	int parent_y = -1;
+	int parent_x = -1; 
+	int parent_y = -1; 
 
 	if( parent_node )
 	{
 		parent_x = parent_node->x;
 		parent_y = parent_node->y;
 	}
-
+	
 	MapSearchNode NewNode;
 
 	// push each possible move except allowing the search to go backwards
 
-	if( (NavTileHandle::pCurrNavTileHandle->getMap( x-1, y ) < TILE_STATE_CLOSED)
+	if( (NavTileHandle::pCurrNavTileHandle->getMap( x-1, y ) < TILE_STATE_CLOSED) 
 		&& !((parent_x == x-1) && (parent_y == y))
-	  )
+	  ) 
 	{
 		NewNode = MapSearchNode( x-1, y );
 		astarsearch->AddSuccessor( NewNode );
-	}
+	}	
 
-	if( (NavTileHandle::pCurrNavTileHandle->getMap( x, y-1 ) < TILE_STATE_CLOSED)
+	if( (NavTileHandle::pCurrNavTileHandle->getMap( x, y-1 ) < TILE_STATE_CLOSED) 
 		&& !((parent_x == x) && (parent_y == y-1))
-	  )
+	  ) 
 	{
 		NewNode = MapSearchNode( x, y-1 );
 		astarsearch->AddSuccessor( NewNode );
-	}
+	}	
 
 	if( (NavTileHandle::pCurrNavTileHandle->getMap( x+1, y ) < TILE_STATE_CLOSED)
 		&& !((parent_x == x+1) && (parent_y == y))
-	  )
+	  ) 
 	{
 		NewNode = MapSearchNode( x+1, y );
 		astarsearch->AddSuccessor( NewNode );
 	}
-
-	if( (NavTileHandle::pCurrNavTileHandle->getMap( x, y+1 ) < TILE_STATE_CLOSED)
+		
+	if( (NavTileHandle::pCurrNavTileHandle->getMap( x, y+1 ) < TILE_STATE_CLOSED) 
 		&& !((parent_x == x) && (parent_y == y+1))
 		)
 	{
 		NewNode = MapSearchNode( x, y+1 );
 		astarsearch->AddSuccessor( NewNode );
-	}
+	}	
 
-	// If it is 8 direction
+	// If it is moving in 8 directions
 	if(NavTileHandle::pCurrNavTileHandle->direction8())
 	{
-		if( (NavTileHandle::pCurrNavTileHandle->getMap( x + 1, y + 1 ) < TILE_STATE_CLOSED)
+		if( (NavTileHandle::pCurrNavTileHandle->getMap( x + 1, y + 1 ) < TILE_STATE_CLOSED) 
 			&& !((parent_x == x + 1) && (parent_y == y + 1))
-		  )
+		  ) 
 		{
 			NewNode = MapSearchNode( x + 1, y + 1 );
 			astarsearch->AddSuccessor( NewNode );
-		}
+		}	
 
-		if( (NavTileHandle::pCurrNavTileHandle->getMap( x + 1, y-1 ) < TILE_STATE_CLOSED)
+		if( (NavTileHandle::pCurrNavTileHandle->getMap( x + 1, y-1 ) < TILE_STATE_CLOSED) 
 			&& !((parent_x == x + 1) && (parent_y == y-1))
-		  )
+		  ) 
 		{
 			NewNode = MapSearchNode( x + 1, y-1 );
 			astarsearch->AddSuccessor( NewNode );
-		}
+		}	
 
 		if( (NavTileHandle::pCurrNavTileHandle->getMap( x - 1, y + 1) < TILE_STATE_CLOSED)
 			&& !((parent_x == x - 1) && (parent_y == y + 1))
-		  )
+		  ) 
 		{
 			NewNode = MapSearchNode( x - 1, y + 1);
 			astarsearch->AddSuccessor( NewNode );
-		}
+		}	
 
-		if( (NavTileHandle::pCurrNavTileHandle->getMap( x - 1, y - 1 ) < TILE_STATE_CLOSED)
+		if( (NavTileHandle::pCurrNavTileHandle->getMap( x - 1, y - 1 ) < TILE_STATE_CLOSED) 
 			&& !((parent_x == x - 1) && (parent_y == y - 1))
 			)
 		{
 			NewNode = MapSearchNode( x - 1, y - 1 );
 			astarsearch->AddSuccessor( NewNode );
-		}
+		}	
 	}
 
 	return true;
@@ -554,24 +554,25 @@ bool NavTileHandle::MapSearchNode::GetSuccessors(AStarSearch<MapSearchNode> *ast
 
 //-------------------------------------------------------------------------------------
 // given this node, what does it cost to move to successor. In the case
-// of our map the answer is the map terrain value at this node since that is
+// of our map the answer is the map terrain value at this node since that is 
 // conceptually where we're moving
 float NavTileHandle::MapSearchNode::GetCost( MapSearchNode &successor )
 {
 	/*
-		A tile path finding cost
-		Each tile can define a price/performance ratio from 0 to 5. The larger the value, the lower the price/performance ratio.
-		For example: Although the front can pass but the mud road is in front, walking is very laborious.
-		Or it is a highway in front of you and it is very fast.
+		A tile pathfinding price/performance ratio
+		Each tile can define a price/performance value from 0 to 5. The larger the value, the lower the price/performance ratio.
+		For example: Although the front can pass but the front is mud road, walking is very laborious.
+		Or the front is a highway, walking very fast.
 	*/
-
+	
 	/*
-		Calculate the cost:
-		Usually expressed as a formula: f = g + h.
-		g is the cost from the starting point to the current point.
+		Calculation cost:
+		Usually expressed as: f = g + h.
+		g is the price from the starting point to the current point.
 		h is the estimated cost of the current point to the end point, calculated by the valuation function.
-		For a node that is no longer on the edge, there will be 8 nodes around him, and it can be seen that the cost to him to the 8 points around is 1 at all.
-		Precise point, the price of the four points up and down, left and right is 1, to the left of the upper left, right, lower right, 1.414 is the &quot;root number 2&quot;, this value is the aforementioned g.
+
+		For a node that is no longer on the edge, there will be 8 nodes around him, which can be seen as the cost of his 8 points around it.
+		Accurate point, the cost of 4 points up and down, left and right, is 1. The 1.414 to the top left, bottom right, top right and bottom right is "root number 2". This value is g.
 		2.8  2.4  2  2.4  2.8
 		2.4  1.4  1  1.4  2.4
 		2    1    0    1    2
@@ -581,7 +582,7 @@ float NavTileHandle::MapSearchNode::GetCost( MapSearchNode &successor )
 	if(NavTileHandle::pCurrNavTileHandle->direction8())
 	{
 		if (x != successor.x && y != successor.y) {
-			return (float) (NavTileHandle::pCurrNavTileHandle->getMap( x, y ) + 0.41421356/* Itself has a value of at least 1 */); //sqrt(2)
+						return (float) (NavTileHandle::pCurrNavTileHandle->getMap( x, y ) + 0.41421356/*It has a value of at least 1*/); //sqrt(2)
 		}
 	}
 
@@ -591,3 +592,4 @@ float NavTileHandle::MapSearchNode::GetCost( MapSearchNode &successor )
 
 //-------------------------------------------------------------------------------------
 }
+

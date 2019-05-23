@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 namespace Ouroboros { 
@@ -45,7 +45,8 @@ INLINE void Proxy::setCreateDatas(const std::string& datas)
 
 INLINE void Proxy::addr(const Network::Address& address)
 { 
-	addr_ = address; 
+	addr_.ip = address.ip;
+	addr_.port = address.port;
 }
 
 INLINE const Network::Address& Proxy::addr() const

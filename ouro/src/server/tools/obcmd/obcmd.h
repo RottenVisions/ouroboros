@@ -1,7 +1,7 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
-#ifndef OURO_KBCMD_TOOL_H
-#define OURO_KBCMD_TOOL_H
+#ifndef OURO_OBCMD_TOOL_H
+#define OURO_OBCMD_TOOL_H
 
 #include "server/ouromain.h"
 #include "server/python_app.h"
@@ -13,8 +13,8 @@
 
 namespace Ouroboros{
 
-class KBCMD : public PythonApp,
-	public Singleton<KBCMD>
+class OBCMD : public PythonApp,
+	public Singleton<OBCMD>
 {
 public:
 	enum TimeOutType
@@ -22,19 +22,19 @@ public:
 		TIMEOUT_TICK = TIMEOUT_PYTHONAPP_MAX + 1
 	};
 
-	KBCMD(Network::EventDispatcher& dispatcher,
+	OBCMD(Network::EventDispatcher& dispatcher,
 		Network::NetworkInterface& ninterface,
 		COMPONENT_TYPE componentType,
 		COMPONENT_ID componentID);
 
-	~KBCMD();
+	~OBCMD();
 
 	bool run();
 
 	void handleTimeout(TimerHandle handle, void * arg);
 	void handleMainTick();
 
-	/* Initialize related interfaces */
+		/*Initialize related interfaces*/
 	bool initializeBegin();
 	bool inInitialize();
 	bool initializeEnd();
@@ -47,6 +47,8 @@ public:
 	virtual void onShutdownBegin();
 	virtual void onShutdownEnd();
 
+	static int creatDir(const char *pDir);
+
 protected:
 	TimerHandle																mainProcessTimer_;
 
@@ -54,4 +56,5 @@ protected:
 
 }
 
-#endif // OURO_KBCMD_TOOL_H
+#endif // OURO_OBCMD_TOOL_H
+

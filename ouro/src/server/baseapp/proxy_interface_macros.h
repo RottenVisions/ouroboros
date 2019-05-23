@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #if defined(DEFINE_IN_INTERFACE)
@@ -9,18 +9,18 @@
 #ifndef OURO_PROXY_INTERFACE_MACRO_H
 #define OURO_PROXY_INTERFACE_MACRO_H
 
-// common include
+// common include	
 #include "network/interface_defs.h"
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
 #endif
-
+	
 namespace Ouroboros{
 
 /**
-	PROXY message macro, parameter is stream, need to unlock
+	PROXY message macro, the parameter is stream, you need to unlock it yourself.
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef PROXY_MESSAGE_HANDLER_STREAM
@@ -55,7 +55,7 @@ namespace Ouroboros{
 													Ouroboros::MemoryStream& s)	\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define PROXY_MESSAGE_HANDLER_STREAM(NAME)										\
@@ -110,7 +110,7 @@ namespace Ouroboros{
 											Ouroboros::MemoryStream& s)			\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define PROXY_MESSAGE_HANDLER_ARGS0(NAME)										\
@@ -128,9 +128,9 @@ namespace Ouroboros{
 	NETWORK_MESSAGE_DECLARE_ARGS0(Proxy, NAME,									\
 				NAME##ProxyMessagehandler0, MSG_LENGTH)							\
 																				\
-
+	
 /**
-	Proxy message macro, only one parameter message
+	Proxy message macro, message with only one parameter
 */
 #if defined(NETWORK_INTERFACE_DECLARE_BEGIN)
 	#undef PROXY_MESSAGE_HANDLER_ARGS1
@@ -167,7 +167,7 @@ namespace Ouroboros{
 											Ouroboros::MemoryStream& s)			\
 	{																			\
 	}																			\
-
+		
 #endif
 #else
 #define PROXY_MESSAGE_HANDLER_ARGS1(NAME, ARG_TYPE1, ARG_NAME1)					\

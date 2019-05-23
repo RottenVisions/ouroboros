@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "cellapp.h"
@@ -22,6 +22,7 @@
 #include "dbmgr/dbmgr_interface.h"
 #include "navigation/navigation.h"
 #include "client_lib/client_interface.h"
+#include "common/sha1.h"
 
 #include "../../server/baseappmgr/baseappmgr_interface.h"
 #include "../../server/cellappmgr/cellappmgr_interface.h"
@@ -31,15 +32,15 @@
 #include "../../server/loginapp/loginapp_interface.h"
 
 namespace Ouroboros{
-
+	
 ServerConfig g_serverConfig;
 OURO_SINGLETON_INIT(Cellapp);
 
 Navigation g_navigation;
 
 //-------------------------------------------------------------------------------------
-Cellapp::Cellapp(Network::EventDispatcher& dispatcher,
-			 Network::NetworkInterface& ninterface,
+Cellapp::Cellapp(Network::EventDispatcher& dispatcher, 
+			 Network::NetworkInterface& ninterface, 
 			 COMPONENT_TYPE componentType,
 			 COMPONENT_ID componentID):
 	EntityApp<Entity>(dispatcher, ninterface, componentType, componentID),
@@ -67,26 +68,29 @@ Cellapp::~Cellapp()
 	EntityCallAbstract::resetCallHooks();
 }
 
-//-------------------------------------------------------------------------------------
-bool Cellapp::canShutdown()
+//-------------------------------------------------------------------------------------	
+ShutdownHandler::CAN_SHUTDOWN_STATE Cellapp::canShutdown()
 {
 	Entities<Entity>::ENTITYS_MAP& entities =  this->pEntities()->getEntities();
 	Entities<Entity>::ENTITYS_MAP::iterator iter = entities.begin();
 	for(; iter != entities.end(); ++iter)
 	{
 		//Entity* pEntity = static_cast<Entity*>(iter->second.get());
-		//if(pEntity->baseEntityCall() != NULL &&
+		//if(pEntity->baseEntityCall() != NULL && 
 		//		pEntity->pScriptModule()->isPersistent())
 		{
+			INFO_MSG(fmt::format("Cellapp::canShutdown(): Wait for the entity's into the database! The remaining {}.\n",
+				entities.size()));
+
 			lastShutdownFailReason_ = "destroyHasBaseEntitys";
-			return false;
+			return ShutdownHandler::CAN_SHUTDOWN_STATE_FALSE;
 		}
 	}
 
-	return true;
+	return ShutdownHandler::CAN_SHUTDOWN_STATE_TRUE;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void Cellapp::onShutdown(bool first)
 {
 	EntityApp<Entity>::onShutdown(first);
@@ -97,12 +101,12 @@ void Cellapp::onShutdown(bool first)
 	while(count > 0 && entities.size() > 0)
 	{
 		std::vector<ENTITY_ID> vecs;
-
+		
 		Entities<Entity>::ENTITYS_MAP::iterator iter = entities.begin();
 		for(; iter != entities.end(); ++iter)
 		{
 			//Entity* pEntity = static_cast<Entity*>(iter->second.get());
-			//if(pEntity->baseEntityCall() != NULL &&
+			//if(pEntity->baseEntityCall() != NULL && 
 			//	pEntity->pScriptModule()->isPersistent())
 			{
 				vecs.push_back(static_cast<Entity*>(iter->second.get())->id());
@@ -118,18 +122,18 @@ void Cellapp::onShutdown(bool first)
 			Entity* e = this->findEntity((*iter1));
 			if(!e)
 				continue;
-
+			
 			this->destroyEntity((*iter1), true);
 		}
 	}
 
-	// If count is equal to perSecsDestroyEntitySize there is no more workable
+	// If count is equal to perSecsDestroyEntitySize, there is nothing to handle.
 	// The rest should be space, you can start destroying
 	if(count == g_serverConfig.getCellApp().perSecsDestroyEntitySize)
 		SpaceMemorys::finalise();
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool Cellapp::initializeWatcher()
 {
 	ProfileVal::setWarningPeriod(stampsPerSecond() / g_ouroSrvConfig.gameUpdateHertz());
@@ -151,7 +155,7 @@ bool Cellapp::installPyModules()
 	registerScript(Entity::getScriptType());
 	registerScript(EntityComponent::getScriptType());
 
-	// Register app tags to scripts
+	// register the app tag to the script
 	std::map<uint32, std::string> flagsmaps = createAppFlagsMaps();
 	std::map<uint32, std::string>::iterator fiter = flagsmaps.begin();
 	for (; fiter != flagsmaps.end(); ++fiter)
@@ -162,7 +166,7 @@ bool Cellapp::installPyModules()
 		}
 	}
 
-	// Register the method to create the entity to py
+	// Register to create an entity method to py
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),		time,							__py_gametime,											METH_VARARGS,			0);
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),		createEntity,					__py_createEntity,										METH_VARARGS,			0);
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(), 		executeRawDatabaseCommand,		__py_executeRawDatabaseCommand,							METH_VARARGS,			0);
@@ -181,14 +185,14 @@ bool Cellapp::installPyModules()
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(),		raycast,						__py_raycast,											METH_VARARGS,			0);
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(), 		setAppFlags,					__py_setFlags,											METH_VARARGS,			0);
 	APPEND_SCRIPT_MODULE_METHOD(getScript().getModule(), 		getAppFlags,					__py_getFlags,											METH_VARARGS,			0);
-
+	
 	return EntityApp<Entity>::installPyModules();
 }
 
 //-------------------------------------------------------------------------------------
 void Cellapp::onInstallPyModules()
 {
-	// Add globalData, cellAppData support
+	// add globalData, cellAppData support
 	pCellAppData_ = new GlobalDataClient(DBMGR_TYPE, GlobalDataServer::CELLAPP_DATA);
 	registerPyObjectToScript("cellAppData", pCellAppData_);
 }
@@ -207,7 +211,7 @@ bool Cellapp::uninstallPyModules()
 	}
 
 	unregisterPyObjectToScript("cellAppData");
-	S_RELEASE(pCellAppData_);
+	S_RELEASE(pCellAppData_); 
 
 	Entity::uninstallScript();
 	EntityComponent::uninstallScript();
@@ -246,7 +250,7 @@ void Cellapp::handleGameTick()
 {
 	AUTO_SCOPED_PROFILE("gameTick");
 
-	// Must be at the front
+	// must be at the forefront
 	updateLoad();
 
 	EntityApp<Entity>::handleGameTick();
@@ -264,8 +268,8 @@ bool Cellapp::initializeBegin()
 //-------------------------------------------------------------------------------------
 bool Cellapp::initializeEnd()
 {
-	// If you need pyprofile then install it here
-	// Unload and output results at the end
+	// Install here if you need pyprofile
+	// Unload and output the result at the end
 	if(g_ouroSrvConfig.getCellApp().profiles.open_pyprofile)
 	{
 		script::PyProfile::start("ouroboros");
@@ -283,8 +287,8 @@ bool Cellapp::initializeEnd()
 	pTelnetServer_ = new TelnetServer(&this->dispatcher(), &this->networkInterface());
 	pTelnetServer_->pScript(&this->getScript());
 
-	bool ret = pTelnetServer_->start(g_ouroSrvConfig.getCellApp().telnet_passwd,
-		g_ouroSrvConfig.getCellApp().telnet_deflayer,
+	bool ret = pTelnetServer_->start(g_ouroSrvConfig.getCellApp().telnet_passwd, 
+		g_ouroSrvConfig.getCellApp().telnet_deflayer, 
 		g_ouroSrvConfig.getCellApp().telnet_port);
 
 	Components::getSingleton().extraData4(pTelnetServer_->port());
@@ -322,7 +326,7 @@ void Cellapp::destroyObjPool()
 }
 
 //-------------------------------------------------------------------------------------
-void Cellapp::onGetEntityAppFromDbmgr(Network::Channel* pChannel, int32 uid, std::string& username,
+void Cellapp::onGetEntityAppFromDbmgr(Network::Channel* pChannel, int32 uid, std::string& username, 
 						COMPONENT_TYPE componentType, COMPONENT_ID componentID, COMPONENT_ORDER globalorderID, COMPONENT_ORDER grouporderID,
 						uint32 intaddr, uint16 intport, uint32 extaddr, uint16 extport, std::string& extaddrEx)
 {
@@ -335,19 +339,19 @@ void Cellapp::onGetEntityAppFromDbmgr(Network::Channel* pChannel, int32 uid, std
 		{
 			ERROR_MSG(fmt::format("Cellapp::onGetEntityAppFromDbmgr: Illegal app(uid:{0}, username:{1}, componentType:{2}, "
 					"componentID:{3}, globalorderID={9}, grouporderID={10}, intaddr:{4}, intport:{5}, extaddr:{6}, extport:{7},  from {8})\n",
-					uid,
+					uid, 
 					username,
-					COMPONENT_NAME_EX((COMPONENT_TYPE)componentType),
+					COMPONENT_NAME_EX((COMPONENT_TYPE)componentType), 
 					componentID,
 					inet_ntoa((struct in_addr&)intaddr),
 					ntohs(intport),
 					(extaddr != 0 ? inet_ntoa((struct in_addr&)extaddr) : "nonsupport"),
 					ntohs(extport),
 					pChannel->c_str(),
-					((int32)globalorderID),
+					((int32)globalorderID), 
 					((int32)grouporderID)));
 
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 			(*pBundle).newMessage(DbmgrInterface::reqKillServer);
 			(*pBundle) << g_componentID << g_componentType << Ouroboros::getUsername() << Ouroboros::getUserUID() << "Duplicate app-id.";
 			pChannel->send(pBundle);
@@ -361,47 +365,47 @@ void Cellapp::onGetEntityAppFromDbmgr(Network::Channel* pChannel, int32 uid, std
 
 	Components::COMPONENTS& cts = Components::getSingleton().getComponents(DBMGR_TYPE);
 	OURO_ASSERT(cts.size() >= 1);
-
+	
 	cinfos = Components::getSingleton().findComponent(tcomponentType, uid, componentID);
-
+	
 	if (cinfos == NULL)
 	{
 		ERROR_MSG(fmt::format("Cellapp::onGetEntityAppFromDbmgr: Illegal app(uid:{0}, username:{1}, componentType:{2}, "
 				"componentID:{3}, globalorderID={9}, grouporderID={10}, intaddr:{4}, intport:{5}, extaddr:{6}, extport:{7},  from {8})\n",
-				uid,
+				uid, 
 				username,
-				COMPONENT_NAME_EX((COMPONENT_TYPE)componentType),
+				COMPONENT_NAME_EX((COMPONENT_TYPE)componentType), 
 				componentID,
 				inet_ntoa((struct in_addr&)intaddr),
 				ntohs(intport),
 				(extaddr != 0 ? inet_ntoa((struct in_addr&)extaddr) : "nonsupport"),
 				ntohs(extport),
 				pChannel->c_str(),
-				((int32)globalorderID),
+				((int32)globalorderID), 
 				((int32)grouporderID)));
 
 		return;
 	}
-
+	
 	cinfos->pChannel = NULL;
 
 	int ret = Components::getSingleton().connectComponent(tcomponentType, uid, componentID);
 	OURO_ASSERT(ret != -1);
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	switch(tcomponentType)
 	{
 	case BASEAPP_TYPE:
 		(*pBundle).newMessage(BaseappInterface::onRegisterNewApp);
-		BaseappInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(),
+		BaseappInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(), 
 			CELLAPP_TYPE, componentID_, startGlobalOrder_, startGroupOrder_,
 			this->networkInterface().intTcpAddr().ip, this->networkInterface().intTcpAddr().port,
 			this->networkInterface().extTcpAddr().ip, this->networkInterface().extTcpAddr().port, g_ouroSrvConfig.getConfig().externalAddress);
 		break;
 	case CELLAPP_TYPE:
 		(*pBundle).newMessage(CellappInterface::onRegisterNewApp);
-		CellappInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(),
+		CellappInterface::onRegisterNewAppArgs11::staticAddToBundle((*pBundle), getUserUID(), getUsername(), 
 			CELLAPP_TYPE, componentID_, startGlobalOrder_, startGroupOrder_,
 			this->networkInterface().intTcpAddr().ip, this->networkInterface().intTcpAddr().port,
 			this->networkInterface().extTcpAddr().ip, this->networkInterface().extTcpAddr().port, g_ouroSrvConfig.getConfig().externalAddress);
@@ -410,7 +414,7 @@ void Cellapp::onGetEntityAppFromDbmgr(Network::Channel* pChannel, int32 uid, std
 		OURO_ASSERT(false && "no support!\n");
 		break;
 	};
-
+	
 	cinfos->pChannel->send(pBundle);
 }
 
@@ -420,9 +424,9 @@ void Cellapp::onUpdateLoad()
 	Network::Channel* pChannel = Components::getSingleton().getCellappmgrChannel();
 	if(pChannel != NULL)
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(CellappmgrInterface::updateCellapp);
-		CellappmgrInterface::updateCellappArgs4::staticAddToBundle((*pBundle),
+		CellappmgrInterface::updateCellappArgs4::staticAddToBundle((*pBundle), 
 			componentID_, (ENTITY_ID)pEntities_->getEntities().size(), getLoad(), flags_);
 
 		pChannel->send(pBundle);
@@ -447,15 +451,15 @@ PyObject* Cellapp::__py_createEntity(PyObject* self, PyObject* args)
 	char* entityType = NULL;
 	SPACE_ID spaceID;
 	PyObject* position, *direction;
-
+	
 	if(!PyArg_ParseTuple(args, "s|I|O|O|O", &entityType, &spaceID, &position, &direction, &params))
 	{
-		PyErr_Format(PyExc_TypeError,
-			"Ouroboros::createEntity: args is error! args[scriptName, spaceID, position, direction, states].");
+		PyErr_Format(PyExc_TypeError, 
+			"Ouroboros::createEntity: args error! args[scriptName, spaceID, position, direction, states].");
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+	
 	if(entityType == NULL || strlen(entityType) == 0)
 	{
 		PyErr_Format(PyExc_TypeError, "Ouroboros::createEntity: entityType is NULL.");
@@ -470,15 +474,15 @@ PyObject* Cellapp::__py_createEntity(PyObject* self, PyObject* args)
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
+	
 	if(Cellapp::getSingleton().isShuttingdown())
 	{
 		PyErr_Format(PyExc_TypeError, "Ouroboros::createEntity: shutting down! entityType=%s", entityType);
 		PyErr_PrintEx(0);
 		return 0;
 	}
-
-	// Create entity
+	
+	// Create an entity
 	Entity* pEntity = Cellapp::getSingleton().createEntity(entityType, params, false, 0);
 
 	if(pEntity != NULL)
@@ -487,14 +491,14 @@ PyObject* Cellapp::__py_createEntity(PyObject* self, PyObject* args)
 		pEntity->spaceID(space->id());
 		pEntity->createNamespace(params);
 		pEntity->pySetPosition(position);
-		pEntity->pySetDirection(direction);
+		pEntity->pySetDirection(direction);	
 		pEntity->initializeScript();
 
-		// Add to space
+		// add to space
 		space->addEntityAndEnterWorld(pEntity);
 
-		// It may be destroyed in addEntityAndEnterWorld
-		// Here you need to return the entity to the script, but the entity isDestroyed = true
+		// may be destroyed in addEntityAndEnterWorld
+		// Here we need to return the entity to the script, except that the entity is isDestroyed = true
 		//if(pEntity->isDestroyed())
 		//{
 		//	Py_DECREF(pEntity);
@@ -517,7 +521,7 @@ PyObject* Cellapp::__py_executeRawDatabaseCommand(PyObject* self, PyObject* args
 
 	char* data = NULL;
 	Py_ssize_t size;
-
+	
 	if (argCount == 4)
 		ret = PyArg_ParseTuple(args, "s#|O|i|O", &data, &size, &pycallback, &eid, &pyDBInterfaceName);
 	else if (argCount == 3)
@@ -529,25 +533,21 @@ PyObject* Cellapp::__py_executeRawDatabaseCommand(PyObject* self, PyObject* args
 
 	if(ret == -1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::executeRawDatabaseCommand: args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::executeRawDatabaseCommand: args error!");
 		PyErr_PrintEx(0);
 		S_Return;
 	}
-
+	
 	std::string dbInterfaceName = "default";
 	if (pyDBInterfaceName)
 	{
-		wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyDBInterfaceName, NULL);
-		char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-		dbInterfaceName = ccattr;
-		PyMem_Free(PyUnicode_AsWideCharStringRet0);
-		free(ccattr);
-
+		dbInterfaceName = PyUnicode_AsUTF8AndSize(pyDBInterfaceName, NULL);
+		
 		if (!g_ouroSrvConfig.dbInterface(dbInterfaceName))
 		{
-			PyErr_Format(PyExc_TypeError, "Ouroboros::executeRawDatabaseCommand: args4, incorrect dbInterfaceName(%s)!",
+			PyErr_Format(PyExc_TypeError, "Ouroboros::executeRawDatabaseCommand: args4, incorrect dbInterfaceName(%s)!", 
 				dbInterfaceName.c_str());
-
+			
 			PyErr_PrintEx(0);
 			S_Return;
 		}
@@ -562,7 +562,7 @@ void Cellapp::executeRawDatabaseCommand(const char* datas, uint32 size, PyObject
 {
 	if(datas == NULL)
 	{
-		ERROR_MSG("Ouroboros::executeRawDatabaseCommand: execute is error!\n");
+		ERROR_MSG("Ouroboros::executeRawDatabaseCommand: execute error!\n");
 		return;
 	}
 
@@ -589,7 +589,7 @@ void Cellapp::executeRawDatabaseCommand(const char* datas, uint32 size, PyObject
 
 	//INFO_MSG(fmt::format("Ouroboros::executeRawDatabaseCommand{}:{}.\n", (eid > 0 ? fmt::format("(entityID={})", eid) : ""), datas));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(DbmgrInterface::executeRawDatabaseCommand);
 	(*pBundle) << eid;
 	(*pBundle) << (uint16)dbInterfaceIndex;
@@ -651,7 +651,7 @@ void Cellapp::onExecuteRawDatabaseCommandCB(Network::Channel* pChannel, Ouroboro
 					s.readBlob(cell);
 
 					PyObject* pCell = NULL;
-
+						
 					if(cell == "OURO_QUERY_DB_NULL")
 					{
 						Py_INCREF(Py_None);
@@ -700,7 +700,7 @@ void Cellapp::onExecuteRawDatabaseCommandCB(Network::Channel* pChannel, Ouroboro
 
 	s.done();
 
-	//DEBUG_MSG(fmt::format("Cellapp::onExecuteRawDatabaseCommandCB: nrows={}, nfields={}, err={}.\n",
+	//DEBUG_MSG(fmt::format("Cellapp::onExecuteRawDatabaseCommandCB: nrows={}, nfields={}, err={}.\n", 
 	//	nrows, nfields, err.c_str()));
 
 	if(callbackID > 0)
@@ -710,8 +710,8 @@ void Cellapp::onExecuteRawDatabaseCommandCB(Network::Channel* pChannel, Ouroboro
 		PyObjectPtr pyfunc = pyCallbackMgr_.take(callbackID);
 		if(pyfunc != NULL)
 		{
-			PyObject* pyResult = PyObject_CallFunction(pyfunc.get(),
-												const_cast<char*>("OOOO"),
+			PyObject* pyResult = PyObject_CallFunction(pyfunc.get(), 
+												const_cast<char*>("OOOO"), 
 												pResultSet, pAffectedRows, pLastInsertID, pErrorMsg);
 
 			if(pyResult != NULL)
@@ -721,7 +721,7 @@ void Cellapp::onExecuteRawDatabaseCommandCB(Network::Channel* pChannel, Ouroboro
 		}
 		else
 		{
-			ERROR_MSG(fmt::format("Cellapp::onExecuteRawDatabaseCommandCB: can't found callback:{}.\n",
+			ERROR_MSG(fmt::format("Cellapp::onExecuteRawDatabaseCommandCB: not found callback:{}.\n",
 				callbackID));
 		}
 	}
@@ -770,25 +770,25 @@ void Cellapp::reqWriteToDBFromBaseapp(Network::Channel* pChannel, Ouroboros::Mem
 }
 
 //-------------------------------------------------------------------------------------
-void Cellapp::onDbmgrInitCompleted(Network::Channel* pChannel,
-		GAME_TIME gametime, ENTITY_ID startID, ENTITY_ID endID, COMPONENT_ORDER
+void Cellapp::onDbmgrInitCompleted(Network::Channel* pChannel, 
+		GAME_TIME gametime, ENTITY_ID startID, ENTITY_ID endID, COMPONENT_ORDER 
 		startGlobalOrder, COMPONENT_ORDER startGroupOrder, const std::string& digest)
 {
 	EntityApp<Entity>::onDbmgrInitCompleted(pChannel, gametime, startID, endID, startGlobalOrder, startGroupOrder, digest);
-
-	// Synchronize your new information (startGlobalOrder, startGroupOrder, etc.) again to the machine
+	
+	// Synchronize your new information (startGlobalOrder, startGroupOrder, etc.) to machine again
 	Components::getSingleton().broadcastSelf();
 
-	// Here need to update python environment variables
+	// Here you need to update the python environment variables
 	this->getScript().setenv("OURO_BOOTIDX_GLOBAL", getenv("OURO_BOOTIDX_GLOBAL"));
 	this->getScript().setenv("OURO_BOOTIDX_GROUP", getenv("OURO_BOOTIDX_GROUP"));
 
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
 	// All scripts are loaded
-	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
-										const_cast<char*>("onInit"),
-										const_cast<char*>("i"),
+	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(), 
+										const_cast<char*>("onInit"), 
+										const_cast<char*>("i"), 
 										0);
 
 	if(pyResult != NULL)
@@ -805,7 +805,7 @@ void Cellapp::onBroadcastCellAppDataChanged(Network::Channel* pChannel, Ouroboro
 
 	std::string key, value;
 	bool isDelete;
-
+	
 	s >> isDelete;
 	s.readBlob(key);
 
@@ -827,8 +827,8 @@ void Cellapp::onBroadcastCellAppDataChanged(Network::Channel* pChannel, Ouroboro
 		{
 			SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
-			// Notification script
-			SCRIPT_OBJECT_CALL_ARGS1(getEntryScript().get(), const_cast<char*>("onCellAppDataDel"),
+			// notification script
+			SCRIPT_OBJECT_CALL_ARGS1(getEntryScript().get(), const_cast<char*>("onCellAppDataDel"), 
 				const_cast<char*>("O"), pyKey, false);
 		}
 	}
@@ -847,8 +847,8 @@ void Cellapp::onBroadcastCellAppDataChanged(Network::Channel* pChannel, Ouroboro
 		{
 			SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
-			// Notification script
-			SCRIPT_OBJECT_CALL_ARGS2(getEntryScript().get(), const_cast<char*>("onCellAppData"),
+			// notification script
+			SCRIPT_OBJECT_CALL_ARGS2(getEntryScript().get(), const_cast<char*>("onCellAppData"), 
 				const_cast<char*>("OO"), pyKey, pyValue, false);
 		}
 
@@ -873,15 +873,15 @@ void Cellapp::onCreateCellEntityInNewSpaceFromBaseapp(Network::Channel* pChannel
 	s >> componentID;
 	s >> hasClient;
 
-	// DEBUG_MSG("Cellapp::onCreateCellEntityInNewSpaceFromBaseapp: spaceID=%u, entityType=%s, entityID=%d, componentID=%"PRAppID".\n",
+	// DEBUG_MSG("Cellapp::onCreateCellEntityInNewSpaceFromBaseapp: spaceID=%u, entityType=%s, entityID=%d, componentID=%"PRAppID".\n", 
 	//	spaceID, entityType.c_str(), entitycallEntityID, componentID);
 
 	SpaceMemory* space = SpaceMemorys::createNewSpace(spaceID, entityType);
 	if(space != NULL)
 	{
-		// Create entity
+		// Create an entity
 		Entity* e = createEntity(entityType.c_str(), NULL, false, entitycallEntityID, false);
-
+		
 		if(e == NULL)
 		{
 			s.done();
@@ -889,7 +889,7 @@ void Cellapp::onCreateCellEntityInNewSpaceFromBaseapp(Network::Channel* pChannel
 			ERROR_MSG("Cellapp::onCreateCellEntityInNewSpaceFromBaseapp: createEntity error!\n");
 
 			/* Currently, this error does not occur unless there is a memory or system problem.
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 			pBundle->newMessage(BaseappInterface::onCreateCellFailure);
 			BaseappInterface::onCreateCellFailureArgs1::staticAddToBundle(*pBundle, entitycallEntityID);
 			cinfos->pChannel->send(pBundle);
@@ -899,10 +899,10 @@ void Cellapp::onCreateCellEntityInNewSpaceFromBaseapp(Network::Channel* pChannel
 
 		PyObject* cellData = e->createCellDataFromStream(&s);
 
-		// Set entity's baseEntityCall
+		// Set the baseEntityCall of the entity
 		EntityCall* entityCall = new EntityCall(e->pScriptModule(), NULL, componentID, entitycallEntityID, ENTITYCALL_TYPE_BASE);
 		e->baseEntityCall(entityCall);
-
+		
 		if (hasClient)
 		{
 			OURO_ASSERT(e->baseEntityCall() != NULL && !e->hasWitness());
@@ -910,18 +910,18 @@ void Cellapp::onCreateCellEntityInNewSpaceFromBaseapp(Network::Channel* pChannel
 			OURO_ASSERT(clientEntityCall != Py_None);
 
 			EntityCall* client = static_cast<EntityCall*>(clientEntityCall);
-			// Py_INCREF(clientEntityCall); There is no need to add a reference here because a new object will be created each time
+			// Py_INCREF(clientEntityCall); There is no need to add a reference here, because a new object will be generated each time.
 
-			// In order to enable the entity.__init__ to be able to modify attributes immediately broadcast to the client we need to set these in advance
+			// In order to be able to modify the properties in entity.__init__ can be broadcast to the client immediately we need to set these in advance
 			e->clientEntityCall(client);
-			e->setWitness(Witness::createPoolObject());
+			e->setWitness(Witness::createPoolObject(OBJECTPOOL_POINT));
 		}
 
-		// Baseapp may not be initialized here, so there is a certain probability that it is None
+		// The baseapp may not be initialized here, so there is a certain probability that it is None.
 		Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(BASEAPP_TYPE, componentID);
 		if(cinfos == NULL || cinfos->pChannel == NULL)
 		{
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 			ForwardItem* pFI = new ForwardItem();
 			pFI->pHandler = new FMH_Baseapp_onEntityGetCellFrom_onCreateCellEntityInNewSpaceFromBaseapp(e, spaceID, cellData);
 			//Py_XDECREF(cellData);
@@ -929,19 +929,25 @@ void Cellapp::onCreateCellEntityInNewSpaceFromBaseapp(Network::Channel* pChannel
 			(*pBundle).newMessage(BaseappInterface::onEntityGetCell);
 			BaseappInterface::onEntityGetCellArgs3::staticAddToBundle((*pBundle), entitycallEntityID, componentID_, spaceID);
 			forward_messagebuffer_.push(componentID, pFI);
-
+			
 			WARNING_MSG(fmt::format("Cellapp::onCreateCellEntityInNewSpaceFromBaseapp: not found baseapp({}), message is buffered.\n",
 				componentID));
-
+			
 			return;
 		}
 
+		OURO_SHA1 sha;
+		uint32 digest[5];
+		sha.Input(s.data(), s.length());
+		sha.Result(digest);
+		e->setDirty((uint32*)&digest[0]);
+
 		space->addEntity(e);
 		e->spaceID(space->id());
-		e->initializeEntity(cellData);
+		e->initializeEntity(cellData, true);
 		Py_XDECREF(cellData);
 
-		// Add to space
+		// add to space
 		space->addEntityToNode(e);
 
 		if (hasClient)
@@ -953,14 +959,14 @@ void Cellapp::onCreateCellEntityInNewSpaceFromBaseapp(Network::Channel* pChannel
 			space->onEnterWorld(e);
 		}
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(BaseappInterface::onEntityGetCell);
 		BaseappInterface::onEntityGetCellArgs3::staticAddToBundle((*pBundle), entitycallEntityID, componentID_, spaceID);
 		cinfos->pChannel->send(pBundle);
 
 		return;
 	}
-
+	
 	ERROR_MSG(fmt::format("Cellapp::onCreateCellEntityInNewSpaceFromBaseapp: not found baseapp[{}], entityID={}, spaceID={}.\n",
 		componentID, entitycallEntityID, spaceID));
 }
@@ -980,15 +986,15 @@ void Cellapp::onRestoreSpaceInCellFromBaseapp(Network::Channel* pChannel, Ourobo
 	s >> componentID;
 	s >> hasClient;
 
-	// DEBUG_MSG("Cellapp::onRestoreSpaceInCellFromBaseapp: spaceID=%u, entityType=%s, entityID=%d, componentID=%"PRAppID".\n",
+	// DEBUG_MSG("Cellapp::onRestoreSpaceInCellFromBaseapp: spaceID=%u, entityType=%s, entityID=%d, componentID=%"PRAppID".\n", 
 	//	spaceID, entityType.c_str(), entitycallEntityID, componentID);
 
 	SpaceMemory* space = SpaceMemorys::createNewSpace(spaceID, entityType);
 	if(space != NULL)
 	{
-		// Create entity
+		// Create an entity
 		Entity* e = createEntity(entityType.c_str(), NULL, false, entitycallEntityID, false);
-
+		
 		if(e == NULL)
 		{
 			s.done();
@@ -997,10 +1003,10 @@ void Cellapp::onRestoreSpaceInCellFromBaseapp(Network::Channel* pChannel, Ourobo
 
 		PyObject* cellData = e->createCellDataFromStream(&s);
 
-		// Set entity's baseEntityCall
+		// Set the baseEntityCall of the entity
 		EntityCall* entityCall = new EntityCall(e->pScriptModule(), NULL, componentID, entitycallEntityID, ENTITYCALL_TYPE_BASE);
 		e->baseEntityCall(entityCall);
-
+		
 		if (hasClient)
 		{
 			OURO_ASSERT(e->baseEntityCall() != NULL && !e->hasWitness());
@@ -1008,18 +1014,18 @@ void Cellapp::onRestoreSpaceInCellFromBaseapp(Network::Channel* pChannel, Ourobo
 			OURO_ASSERT(clientEntityCall != Py_None);
 
 			EntityCall* client = static_cast<EntityCall*>(clientEntityCall);
-			// Py_INCREF(clientEntityCall); There is no need to add a reference here because a new object will be created each time
+			// Py_INCREF(clientEntityCall); There is no need to add a reference here, because a new object will be generated each time.
 
-			// In order to enable the entity.__init__ to be able to modify attributes immediately broadcast to the client we need to set these in advance
+			// In order to be able to modify the properties in entity.__init__ can be broadcast to the client immediately we need to set these in advance
 			e->clientEntityCall(client);
-			e->setWitness(Witness::createPoolObject());
+			e->setWitness(Witness::createPoolObject(OBJECTPOOL_POINT));
 		}
 
-		// Baseapp may not be initialized here, so there is a certain probability that it is None
+		// The baseapp may not be initialized here, so there is a certain probability that it is None.
 		Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(BASEAPP_TYPE, componentID);
 		if(cinfos == NULL || cinfos->pChannel == NULL)
 		{
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 			ForwardItem* pFI = new ForwardItem();
 			pFI->pHandler = new FMH_Baseapp_onEntityGetCellFrom_onCreateCellEntityInNewSpaceFromBaseapp(e, spaceID, cellData);
 			//Py_XDECREF(cellData);
@@ -1027,29 +1033,35 @@ void Cellapp::onRestoreSpaceInCellFromBaseapp(Network::Channel* pChannel, Ourobo
 			(*pBundle).newMessage(BaseappInterface::onEntityGetCell);
 			BaseappInterface::onEntityGetCellArgs3::staticAddToBundle((*pBundle), entitycallEntityID, componentID_, spaceID);
 			forward_messagebuffer_.push(componentID, pFI);
-
+			
 			WARNING_MSG(fmt::format("Cellapp::onRestoreSpaceInCellFromBaseapp: not found baseapp({}), message has been buffered.\n",
 				componentID));
-
+			
 			return;
 		}
+		
+		OURO_SHA1 sha;
+		uint32 digest[5];
+		sha.Input(s.data(), s.length());
+		sha.Result(digest);
+		e->setDirty((uint32*)&digest[0]);
 
 		e->spaceID(space->id());
 		e->createNamespace(cellData);
 		Py_XDECREF(cellData);
 
-		// Add to space
+		// add to space
 		e->onRestore();
 
 		space->addEntityAndEnterWorld(e, true);
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(BaseappInterface::onEntityGetCell);
 		BaseappInterface::onEntityGetCellArgs3::staticAddToBundle((*pBundle), entitycallEntityID, componentID_, spaceID);
 		cinfos->pChannel->send(pBundle);
 		return;
 	}
-
+	
 	ERROR_MSG(fmt::format("Cellapp::onRestoreSpaceInCellFromBaseapp: not found baseapp[{}], entityID={}, spaceID={}.\n",
 		componentID, entitycallEntityID, spaceID));
 }
@@ -1062,10 +1074,10 @@ void Cellapp::requestRestore(Network::Channel* pChannel, Ouroboros::MemoryStream
 
 	bool canRestore = idClient_.size() > 0;
 
-	DEBUG_MSG(fmt::format("Cellapp::requestRestore: cid={}, canRestore={}, channel={}.\n",
+	DEBUG_MSG(fmt::format("Cellapp::requestRestore: cid={}, canRestore={}, channel={}.\n", 
 		cid, canRestore, pChannel->c_str()));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 	(*pBundle).newMessage(BaseappInterface::onRequestRestoreCB);
 	(*pBundle) << g_componentID << cid << canRestore;
 	pChannel->send(pBundle);
@@ -1076,7 +1088,7 @@ void Cellapp::onCreateCellEntityFromBaseapp(Network::Channel* pChannel, Ouroboro
 {
 	std::string entityType;
 	ENTITY_ID createToEntityID, entityID;
-
+	
 	COMPONENT_ID componentID;
 	SPACE_ID spaceID = 1;
 	bool hasClient;
@@ -1089,16 +1101,16 @@ void Cellapp::onCreateCellEntityFromBaseapp(Network::Channel* pChannel, Ouroboro
 	s >> hasClient;
 	s >> inRescore;
 
-	// Baseapp may not be initialized here, so there is a certain probability that it is None
+	// The baseapp may not be initialized here, so there is a certain probability that it is None.
 	Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(BASEAPP_TYPE, componentID);
 	if(cinfos == NULL || cinfos->pChannel == NULL)
 	{
-		MemoryStream* pCellData = MemoryStream::createPoolObject();
+		MemoryStream* pCellData = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 		pCellData->append(s);
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		ForwardItem* pFI = new ForwardItem();
-		pFI->pHandler = new FMH_Baseapp_onEntityGetCellFrom_onCreateCellEntityFromBaseapp(entityType, createToEntityID,
+		pFI->pHandler = new FMH_Baseapp_onEntityGetCellFrom_onCreateCellEntityFromBaseapp(entityType, createToEntityID, 
 			entityID, pCellData, hasClient, inRescore, componentID, spaceID);
 
 		pFI->pBundle = pBundle;
@@ -1108,33 +1120,33 @@ void Cellapp::onCreateCellEntityFromBaseapp(Network::Channel* pChannel, Ouroboro
 
 		WARNING_MSG(fmt::format("Cellapp::onCreateCellEntityFromBaseapp: not found baseapp({}), message is buffered.\n",
 			componentID));
-
+			
 		return;
 	}
 
-	_onCreateCellEntityFromBaseapp(entityType, createToEntityID, entityID,
+	_onCreateCellEntityFromBaseapp(entityType, createToEntityID, entityID, 
 					&s, hasClient, inRescore, componentID, spaceID);
 
 }
 
 //-------------------------------------------------------------------------------------
 void Cellapp::_onCreateCellEntityFromBaseapp(std::string& entityType, ENTITY_ID createToEntityID, ENTITY_ID entityID,
-											MemoryStream* pCellData, bool hasClient, bool inRescore, COMPONENT_ID componentID,
+											MemoryStream* pCellData, bool hasClient, bool inRescore, COMPONENT_ID componentID, 
 											SPACE_ID spaceID)
 {
-	// Note: The theory here will not find the component, because a message caching decision has been made in onCreateCellEntityFromBaseapp
+	// Note: The theory will not find the component here, because the message cache has been evaluated once in onCreateCellEntityFromBaseapp.
 	Components::ComponentInfos* cinfos = Components::getSingleton().findComponent(BASEAPP_TYPE, componentID);
 	OURO_ASSERT(cinfos != NULL && cinfos->pChannel != NULL);
 
 	Entity* pCreateToEntity = pEntities_->find(createToEntityID);
 
-	// It is possible that the spaceEntity has been destroyed, but it has not yet been notified to the baseapp
-	// Base part creates entity in this space
+	// Maybe spaceEntity has been destroyed, but it will be notified to baseapp in the future.
+	// base part is creating an entity to this space
 	if(pCreateToEntity == NULL)
 	{
 		ERROR_MSG("Cellapp::_onCreateCellEntityFromBaseapp: not fount spaceEntity. may have been destroyed!\n");
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		pBundle->newMessage(BaseappInterface::onCreateCellFailure);
 		BaseappInterface::onCreateCellFailureArgs1::staticAddToBundle(*pBundle, entityID);
 		cinfos->pChannel->send(pBundle);
@@ -1143,37 +1155,43 @@ void Cellapp::_onCreateCellEntityFromBaseapp(std::string& entityType, ENTITY_ID 
 
 	spaceID = pCreateToEntity->spaceID();
 
-	//DEBUG_MSG("Cellapp::onCreateCellEntityFromBaseapp: spaceID=%u, entityType=%s, entityID=%d, componentID=%"PRAppID".\n",
+	//DEBUG_MSG("Cellapp::onCreateCellEntityFromBaseapp: spaceID=%u, entityType=%s, entityID=%d, componentID=%"PRAppID".\n", 
 	//	spaceID, entityType.c_str(), entityID, componentID);
 
 	SpaceMemory* space = SpaceMemorys::findSpace(spaceID);
 	if(space != NULL && space->isGood())
 	{
-		// Tell baseapp that the cell of the entity was created
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		// Tell baseapp that the entity's cell was created
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		pBundle->newMessage(BaseappInterface::onEntityGetCell);
 		BaseappInterface::onEntityGetCellArgs3::staticAddToBundle(*pBundle, entityID, componentID_, spaceID);
 		cinfos->pChannel->send(pBundle);
 
-		// Unpacking cellData information.
+		// Unpack the cellData information.
 		PyObject* cellData = NULL;
-
-		// Create entity
+	
+		// Create an entity
 		Entity* e = createEntity(entityType.c_str(), cellData, false, entityID, false);
-
+		
 		if(e == NULL)
 		{
 			Py_XDECREF(cellData);
 			return;
 		}
 
-		// Set entity's baseEntityCall
+		// Set the baseEntityCall of the entity
 		EntityCall* entityCall = new EntityCall(e->pScriptModule(), NULL, componentID, entityID, ENTITYCALL_TYPE_BASE);
 		e->baseEntityCall(entityCall);
+		
+		OURO_SHA1 sha;
+		uint32 digest[5];
+		sha.Input(pCellData->data(), pCellData->length());
+		sha.Result(digest);
+		e->setDirty((uint32*)&digest[0]);
 
 		cellData = e->createCellDataFromStream(pCellData);
 
-		e->createNamespace(cellData);
+		e->createNamespace(cellData, true);
 
 		if(hasClient)
 		{
@@ -1181,12 +1199,12 @@ void Cellapp::_onCreateCellEntityFromBaseapp(std::string& entityType, ENTITY_ID 
 			PyObject* clientEntityCall = PyObject_GetAttrString(e->baseEntityCall(), "client");
 			OURO_ASSERT(clientEntityCall != Py_None);
 
-			EntityCall* client = static_cast<EntityCall*>(clientEntityCall);
-			// Py_INCREF(clientEntityCall); There is no need to add a reference here because a new object will be created each time
+			EntityCall* client = static_cast<EntityCall*>(clientEntityCall);	
+			// Py_INCREF(clientEntityCall); There is no need to add a reference here, because a new object will be generated each time.
 
-			// In order to enable the entity.__init__ to be able to modify attributes immediately broadcast to the client we need to set these in advance
+			// In order to be able to modify the properties in entity.__init__ can be broadcast to the client immediately we need to set these in advance
 			e->clientEntityCall(client);
-			e->setWitness(Witness::createPoolObject());
+			e->setWitness(Witness::createPoolObject(OBJECTPOOL_POINT));
 		}
 
 		space->addEntity(e);
@@ -1201,8 +1219,8 @@ void Cellapp::_onCreateCellEntityFromBaseapp(std::string& entityType, ENTITY_ID 
 		}
 
 		Py_XDECREF(cellData);
-
-		// Add a reference here because it may be destroyed on entry
+		
+		// Add a reference here, as it may be destroyed on entry
 		Py_INCREF(e);
 
 		space->addEntityToNode(e);
@@ -1212,7 +1230,7 @@ void Cellapp::_onCreateCellEntityFromBaseapp(std::string& entityType, ENTITY_ID 
 		if(isDestroyed == true)
 			return;
 
-		// If there is a client entity then set its cliententitycall, baseapp part onEntityGetCell will inform the client enterworld.
+		// If there is a client entity, set its cliententitycall, and the onEntityGetCell in the baseapp section will tell the client enterworld.
 		if(hasClient)
 		{
 			e->onGetWitness();
@@ -1225,13 +1243,39 @@ void Cellapp::_onCreateCellEntityFromBaseapp(std::string& entityType, ENTITY_ID 
 		return;
 	}
 
-	OURO_ASSERT(false && "Cellapp::onCreateCellEntityFromBaseapp: is error!\n");
+	OURO_ASSERT(false && "Cellapp::onCreateCellEntityFromBaseapp: error!\n");
 }
 
 //-------------------------------------------------------------------------------------
 void Cellapp::onDestroyCellEntityFromBaseapp(Network::Channel* pChannel, ENTITY_ID eid)
 {
 	// DEBUG_MSG("Cellapp::onDestroyCellEntityFromBaseapp:entityID=%d.\n", eid);
+
+	Ouroboros::Entity* e = Ouroboros::Cellapp::getSingleton().findEntity(eid);
+
+	if (e == NULL)
+	{
+		WARNING_MSG(fmt::format("Cellapp::onDestroyCellEntityFromBaseapp: not found entityID:{}.\n",
+			eid));
+
+		return;
+	}
+
+	if (!e->isReal())
+	{
+		// need to do transit
+		GhostManager* gm = Cellapp::getSingleton().pGhostManager();
+		if (gm)
+		{
+			Network::Bundle* pBundle = gm->createSendBundle(e->realCell());
+			pBundle->newMessage(CellappInterface::onDestroyCellEntityFromBaseapp);
+			(*pBundle) << eid;
+			gm->pushMessage(e->realCell(), pBundle);
+		}
+
+		return;
+	}
+
 	destroyEntity(eid, true);
 }
 
@@ -1250,7 +1294,7 @@ void Cellapp::onEntityCall(Network::Channel* pChannel, Ouroboros::MemoryStream& 
 	ENTITYCALL_TYPE calltype;
 	s >> calltype;
 
-	// Try to find the recipient information in this area to see if the recipient is in this area
+	// Try to find the recipient information in this area to see if the recipient belongs to this area
 	Entity* entity = pEntities_->find(eid);
 	if(entity == NULL)
 	{
@@ -1277,8 +1321,8 @@ void Cellapp::onEntityCall(Network::Channel* pChannel, Ouroboros::MemoryStream& 
 
 	switch(calltype)
 	{
-		// This component is cellapp, then confirm the mail destination is here, then perform the final operation
-		case ENTITYCALL_TYPE_CELL:
+		// This component is cellapp, then confirm that the destination of the mail is here, then perform the final operation
+		case ENTITYCALL_TYPE_CELL:	
 			{
 				if(!entity->isReal())
 				{
@@ -1301,17 +1345,17 @@ void Cellapp::onEntityCall(Network::Channel* pChannel, Ouroboros::MemoryStream& 
 			break;
 
 		// entity.base.cell.xxx
-		case ENTITYCALL_TYPE_BASE_VIA_CELL:
+		case ENTITYCALL_TYPE_BASE_VIA_CELL: 
 			{
 				EntityCallAbstract* entityCall = static_cast<EntityCallAbstract*>(entity->baseEntityCall());
 				if(entityCall == NULL)
 				{
-					WARNING_MSG(fmt::format("Cellapp::onEntityCall: not found baseEntityCall! entitycallType={}, entityID={}.\n",
-						calltype, eid));
+					//WARNING_MSG(fmt::format("Cellapp::onEntityCall: not found baseEntityCall! entitycallType={}, entityID={}.\n",
+					//	calltype, eid));
 
 					break;
 				}
-
+				
 				Network::Channel* pChannel = entityCall->getChannel();
 				if (pChannel)
 				{
@@ -1322,19 +1366,19 @@ void Cellapp::onEntityCall(Network::Channel* pChannel, Ouroboros::MemoryStream& 
 				}
 			}
 			break;
-
+		
 		// entity.cell.client
-		case ENTITYCALL_TYPE_CLIENT_VIA_CELL:
+		case ENTITYCALL_TYPE_CLIENT_VIA_CELL: 
 			{
 				EntityCallAbstract* entityCall = static_cast<EntityCallAbstract*>(entity->clientEntityCall());
 				if(entityCall == NULL)
 				{
-					WARNING_MSG(fmt::format("Cellapp::onEntityCall: not found clientEntityCall! entitycallType={}, entityID={}.\n",
-						calltype, eid));
+					//WARNING_MSG(fmt::format("Cellapp::onEntityCall: not found clientEntityCall! entitycallType={}, entityID={}.\n",
+					//	calltype, eid));
 
 					break;
 				}
-
+				
 				Network::Channel* pChannel = entityCall->getChannel();
 				if (pChannel)
 				{
@@ -1347,7 +1391,7 @@ void Cellapp::onEntityCall(Network::Channel* pChannel, Ouroboros::MemoryStream& 
 			break;
 		default:
 			{
-				ERROR_MSG(fmt::format("Cellapp::onEntityCall: entitycallType {} is error! must a cellType. entityID={}.\n",
+				ERROR_MSG(fmt::format("Cellapp::onEntityCall: entitycallType {} error! must a cellType. entityID={}.\n",
 					calltype, eid));
 			}
 	};
@@ -1362,24 +1406,41 @@ void Cellapp::onRemoteCallMethodFromClient(Network::Channel* pChannel, Ouroboros
 
 	s >> srcEntityID >> targetID;
 
-	Ouroboros::Entity* e = Ouroboros::Cellapp::getSingleton().findEntity(targetID);
+	Ouroboros::Entity* e = Ouroboros::Cellapp::getSingleton().findEntity(targetID);		
 
 	if(e == NULL)
-	{
-		WARNING_MSG(fmt::format("Cellapp::onRemoteCallMethodFromClient: not found entityID:{}, srcEntityID:{}.\n",
+	{	
+		WARNING_MSG(fmt::format("Cellapp::onRemoteCallMethodFromClient: not found entityID:{}, srcEntityID:{}.\n", 
 			targetID, srcEntityID));
-
+		
 		s.done();
 		return;
 	}
 
-	// This method calls if it is not the proxy's own method, then the entity and proxy's cellEntity must be called in a space.
+	// This method calls the entity and the proxy's cellEntity in a space if it is not the proxy's own method.
 	try
 	{
+		if (!e->isReal())
+		{
+			// need to do transit
+			GhostManager* gm = Cellapp::getSingleton().pGhostManager();
+			if (gm)
+			{
+				Network::Bundle* pBundle = gm->createSendBundle(e->realCell());
+				pBundle->newMessage(CellappInterface::onRemoteCallMethodFromClient);
+				(*pBundle) << srcEntityID;
+				(*pBundle) << targetID;
+				pBundle->append(s);
+				gm->pushMessage(e->realCell(), pBundle);
+			}
+
+			return;
+		}
+
 		e->onRemoteCallMethodFromClient(pChannel, srcEntityID, s);
 	}catch(MemoryStreamException &)
 	{
-		ERROR_MSG(fmt::format("Cellapp::onRemoteCallMethodFromClient: message error! entityID:{}.\n",
+		ERROR_MSG(fmt::format("Cellapp::onRemoteCallMethodFromClient: message error! entityID:{}.\n", 
 			targetID));
 
 		s.done();
@@ -1395,26 +1456,26 @@ void Cellapp::onUpdateDataFromClient(Network::Channel* pChannel, Ouroboros::Memo
 	s >> srcEntityID;
 	if(srcEntityID <= 0)
 		return;
-
+	
 	if(s.length() <= 0)
 		return;
 
-	Ouroboros::Entity* e = findEntity(srcEntityID);
+	Ouroboros::Entity* e = findEntity(srcEntityID);	
 
 	if(e == NULL)
 	{
 		WARNING_MSG(fmt::format("Cellapp::onUpdateDataFromClient: not found entity {}!\n", srcEntityID));
-
+		
 		s.done();
 		return;
 	}
 
-	// If it is controlled by the system, or is controlled by others, the update message from its own client is ignored
+	// Ignore update messages from my own client if it is under system control or is controlled by someone else
 	if (e->controlledBy() == NULL || e->controlledBy()->id() != srcEntityID)
 	{
-		// phw: Tests have found that there is a certain time difference between notification clients when controlledBy changes.
-		//      So the client still sends the displacement message before it receives the message, which makes the following error log a bit more,
-		//      So comment out this log to reduce unnecessary log output.
+		// phw: After testing, it is found that there is a certain time difference between notifying the client when controlledBy changes.
+		// So the client still sends a displacement message before receiving the message, which makes the following error log a bit more.
+		// So comment out this log to reduce unnecessary log output.
 		//ERROR_MSG(fmt::format("Cellapp::onUpdateDataFromClientForControlledEntity: entity {} has no permission to control entity {}!\n", proxiesEntityID, srcEntityID));
 
 		s.done();
@@ -1441,27 +1502,27 @@ void Cellapp::onUpdateDataFromClientForControlledEntity(Network::Channel* pChann
 	s >> srcEntityID;
 	if(srcEntityID <= 0)
 		return;
-
+	
 	if(s.length() <= 0)
 		return;
 
-	Ouroboros::Entity* e = findEntity(srcEntityID);
+	Ouroboros::Entity* e = findEntity(srcEntityID);	
 
 	if(e == NULL)
 	{
 		ERROR_MSG(fmt::format("Cellapp::onUpdateDataFromClientForControlledEntity: not found entity {}!\n", srcEntityID));
-
+		
 		s.done();
 		return;
 	}
 
 	if (e->controlledBy() == NULL || e->controlledBy()->id() != proxiesEntityID)
 	{
-		// phw: Tests have found that there is a certain time difference between notification clients when controlledBy changes.
-		//      So the client still sends the displacement message before it receives the message, which makes the following error log a bit more,
-		//      So comment out this log to reduce unnecessary log output.
+		// phw: After testing, it is found that there is a certain time difference between notifying the client when controlledBy changes.
+		// So the client still sends a displacement message before receiving the message, which makes the following error log a bit more.
+		// So comment out this log to reduce unnecessary log output.
 		//ERROR_MSG(fmt::format("Cellapp::onUpdateDataFromClientForControlledEntity: entity {} has no permission to control entity {}!\n", proxiesEntityID, srcEntityID));
-
+		
 		s.done();
 		return;
 	}
@@ -1474,7 +1535,7 @@ void Cellapp::onUpdateDataFromClientForControlledEntity(Network::Channel* pChann
 void Cellapp::onUpdateGhostPropertys(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 {
 	ENTITY_ID entityID;
-
+	
 	s >> entityID;
 
 	Entity* entity = findEntity(entityID);
@@ -1497,7 +1558,7 @@ void Cellapp::onUpdateGhostPropertys(Network::Channel* pChannel, Ouroboros::Memo
 			}
 		}
 
-		ERROR_MSG(fmt::format("Cellapp::onUpdateGhostPropertys: not found entity({})\n",
+		ERROR_MSG(fmt::format("Cellapp::onUpdateGhostPropertys: not found entity({})\n", 
 			entityID));
 
 		s.done();
@@ -1511,7 +1572,7 @@ void Cellapp::onUpdateGhostPropertys(Network::Channel* pChannel, Ouroboros::Memo
 void Cellapp::onRemoteRealMethodCall(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 {
 	ENTITY_ID entityID;
-
+	
 	s >> entityID;
 
 	Entity* entity = findEntity(entityID);
@@ -1534,7 +1595,7 @@ void Cellapp::onRemoteRealMethodCall(Network::Channel* pChannel, Ouroboros::Memo
 			}
 		}
 
-		ERROR_MSG(fmt::format("Cellapp::onRemoteRealMethodCall: not found entity({})\n",
+		ERROR_MSG(fmt::format("Cellapp::onRemoteRealMethodCall: not found entity({})\n", 
 			entityID));
 
 		s.done();
@@ -1548,7 +1609,7 @@ void Cellapp::onRemoteRealMethodCall(Network::Channel* pChannel, Ouroboros::Memo
 void Cellapp::onUpdateGhostVolatileData(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 {
 	ENTITY_ID entityID;
-
+	
 	s >> entityID;
 
 	Entity* entity = findEntity(entityID);
@@ -1571,7 +1632,7 @@ void Cellapp::onUpdateGhostVolatileData(Network::Channel* pChannel, Ouroboros::M
 			}
 		}
 
-		ERROR_MSG(fmt::format("Cellapp::onUpdateGhostVolatileData: not found entity({})\n",
+		ERROR_MSG(fmt::format("Cellapp::onUpdateGhostVolatileData: not found entity({})\n", 
 			entityID));
 
 		s.done();
@@ -1588,27 +1649,43 @@ void Cellapp::forwardEntityMessageToCellappFromClient(Network::Channel* pChannel
 
 	s >> srcEntityID;
 
-	Ouroboros::Entity* e = Ouroboros::Cellapp::getSingleton().findEntity(srcEntityID);
+	Ouroboros::Entity* e = Ouroboros::Cellapp::getSingleton().findEntity(srcEntityID);		
 
 	if(e == NULL)
-	{
+	{	
 		WARNING_MSG(fmt::format("Cellapp::forwardEntityMessageToCellappFromClient: not found entityID:{}.\n",
 			srcEntityID));
-
+		
 		s.done();
 		return;
 	}
 
 	if(e->isDestroyed())
 	{
-		ERROR_MSG(fmt::format("{}::forwardEntityMessageToCellappFromClient: {} is destroyed!\n",
+		ERROR_MSG(fmt::format("{}::forwardEntityMessageToCellappFromClient: {} is destroyed!\n",	
 			e->scriptName(), e->id()));
 
 		s.done();
 		return;
 	}
 
-	// Check if it is an entity message, otherwise it is illegal.
+	if (!e->isReal())
+	{
+		// need to do transit
+		GhostManager* gm = Cellapp::getSingleton().pGhostManager();
+		if (gm)
+		{
+			Network::Bundle* pBundle = gm->createSendBundle(e->realCell());
+			pBundle->newMessage(CellappInterface::forwardEntityMessageToCellappFromClient);
+			(*pBundle) << srcEntityID;
+			pBundle->append(s);
+			gm->pushMessage(e->realCell(), pBundle);
+		}
+
+		return;
+	}
+
+	// Check if it is an entity message, otherwise it is not legal.
 	while(s.length() > 0 && !e->isDestroyed())
 	{
 		Network::MessageID currMsgID;
@@ -1620,7 +1697,7 @@ void Cellapp::forwardEntityMessageToCellappFromClient(Network::Channel* pChannel
 
 		if(pMsgHandler == NULL)
 		{
-			ERROR_MSG(fmt::format("Cellapp::forwardEntityMessageToCellappFromClient: invalide msgID={}, msglen={}, from {}.\n",
+			ERROR_MSG(fmt::format("Cellapp::forwardEntityMessageToCellappFromClient: invalide msgID={}, msglen={}, from {}.\n", 
 				currMsgID, s.wpos(), pChannel->c_str()));
 
 			s.done();
@@ -1643,14 +1720,14 @@ void Cellapp::forwardEntityMessageToCellappFromClient(Network::Channel* pChannel
 
 		if(s.length() < currMsgLen || currMsgLen >  NETWORK_MESSAGE_MAX_SIZE / 2)
 		{
-			ERROR_MSG(fmt::format("Cellapp::forwardEntityMessageToCellappFromClient: msgID={}, invalide msglen={}, from {}.\n",
+			ERROR_MSG(fmt::format("Cellapp::forwardEntityMessageToCellappFromClient: msgID={}, invalide msglen={}, from {}.\n", 
 				currMsgID, s.wpos(), pChannel->c_str()));
 
 			s.done();
 			return;
 		}
 
-		// Set the valid read bit temporarily to prevent overflow in the interface
+		// Temporarily set a valid read bit to prevent overflow operations in the interface
 		size_t wpos = s.wpos();
 		// size_t rpos = s.rpos();
 		size_t frpos = s.rpos() + currMsgLen;
@@ -1661,14 +1738,14 @@ void Cellapp::forwardEntityMessageToCellappFromClient(Network::Channel* pChannel
 			pMsgHandler->handle(pChannel, s);
 		}catch(MemoryStreamException &)
 		{
-			ERROR_MSG(fmt::format("Cellapp::forwardEntityMessageToCellappFromClient: message({}) error! entityID:{}.\n",
+			ERROR_MSG(fmt::format("Cellapp::forwardEntityMessageToCellappFromClient: message({}) error! entityID:{}.\n", 
 				pMsgHandler->name.c_str(), srcEntityID));
 
 			s.done();
 			return;
 		}
 
-		// Prevent the handle from exporting data and obtaining illegal operations
+		// Prevent the data from being exported in the handle to get illegal operation
 		if(currMsgLen > 0)
 		{
 			if(frpos != s.rpos())
@@ -1702,10 +1779,10 @@ void Cellapp::lookApp(Network::Channel* pChannel)
 	if(pChannel->isExternal())
 		return;
 
-	DEBUG_MSG(fmt::format("Cellapp::lookApp: {}\n", pChannel->c_str()));
+	//DEBUG_MSG(fmt::format("Cellapp::lookApp: {}\n", pChannel->c_str()));
 
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
-
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+	
 	(*pBundle) << g_componentType;
 	(*pBundle) << componentID_;
 
@@ -1733,7 +1810,7 @@ PyObject* Cellapp::__py_reloadScript(PyObject* self, PyObject* args)
 	{
 		if(PyArg_ParseTuple(args, "b", &fullReload) == -1)
 		{
-			PyErr_Format(PyExc_TypeError, "Ouroboros::reloadScript(fullReload): args is error!");
+			PyErr_Format(PyExc_TypeError, "Ouroboros::reloadScript(fullReload): args error!");
 			PyErr_PrintEx(0);
 			return 0;
 		}
@@ -1805,7 +1882,7 @@ void Cellapp::reqTeleportToCellApp(Network::Channel* pChannel, MemoryStream& s)
 	{
 		s.rpos((int)rpos);
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(CellappInterface::reqTeleportToCellAppCB);
 		(*pBundle) << ghostCell << g_componentID << entityBaseappID;
 		(*pBundle) << teleportEntityID;
@@ -1825,7 +1902,7 @@ void Cellapp::reqTeleportToCellApp(Network::Channel* pChannel, MemoryStream& s)
 	{
 		s.rpos((int)rpos);
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(CellappInterface::reqTeleportToCellAppCB);
 		(*pBundle) << ghostCell << g_componentID << entityBaseappID;
 		(*pBundle) << teleportEntityID;
@@ -1838,13 +1915,13 @@ void Cellapp::reqTeleportToCellApp(Network::Channel* pChannel, MemoryStream& s)
 		return;
 	}
 
-	// Create entity
+	// Create an entity
 	Entity* e = createEntity(EntityDef::findScriptModule(entityType)->getName(), NULL, false, teleportEntityID, false);
 	if (e == NULL)
 	{
 		s.rpos((int)rpos);
 
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(CellappInterface::reqTeleportToCellAppCB);
 		(*pBundle) << ghostCell << g_componentID << entityBaseappID;
 		(*pBundle) << teleportEntityID;
@@ -1856,16 +1933,16 @@ void Cellapp::reqTeleportToCellApp(Network::Channel* pChannel, MemoryStream& s)
 		s.done();
 		return;
 	}
-
+	
 	Py_INCREF(e);
 	e->createFromStream(s);
 
-	// It is possible that serialized ghost content contains a mobile controller. The reason for serialization is to
-	// It can be used to restore the scene if the transmission fails. Then the transmission is successful. We should stop the previous movement.
+	// It is possible to serialize the ghost content containing the mobile controller, so the serialization is for
+	// can be used to restore the scene when the transfer fails, then the transfer is successful and we should stop the previous move behavior
 	e->stopMove();
 
-	// For the transfer operation, the entity will not have a ghost part.
-	// Any changes made by the current entity do not need to be synchronized to the original cell. This may result in an endless loop of network messages.
+	// For the transfer operation, there will be no ghost part when the entity is transferred.
+	// Any changes made by the current entity do not need to be synchronized to the original cell, which may result in an infinite loop of network messages.
 	//ghostCell = 0;
 	e->ghostCell(0);
 
@@ -1875,22 +1952,22 @@ void Cellapp::reqTeleportToCellApp(Network::Channel* pChannel, MemoryStream& s)
 	if (e->baseEntityCall())
 	{
 		e->addFlags(ENTITY_FLAGS_TELEPORT_START);
-
-		// If there is a base entity, you need to fill in the baseappID so that you can call back to the baseapp in the reqTeleportToCellAppCB.
+		
+		// If there is a base entity, you need to fill in the baseappID to call back to the baseapp transfer end state in reqTeleportToCellAppCB
 		entityBaseappID = e->baseEntityCall()->componentID();
 
 		// Send a delivery arrival notification to baseapp
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(BaseappInterface::onMigrationCellappEnd);
 		(*pBundle) << e->id();
 		(*pBundle) << ghostCell << g_componentID;
 		e->baseEntityCall()->sendCall(pBundle);
 	}
 
-	// You must notify client leaveSpace before entering new space
+	// You must notify the client leaveSpace before entering the new space.
 	if (e->clientEntityCall())
 	{
-		Network::Bundle* pSendBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pSendBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		NETWORK_ENTITY_MESSAGE_FORWARD_CLIENT_BEGIN(e->id(), (*pSendBundle));
 		ENTITY_MESSAGE_FORWARD_CLIENT_BEGIN(pSendBundle, ClientInterface::onEntityLeaveSpace, leaveSpace);
 		(*pSendBundle) << e->id();
@@ -1898,7 +1975,7 @@ void Cellapp::reqTeleportToCellApp(Network::Channel* pChannel, MemoryStream& s)
 		e->clientEntityCall()->sendCall(pSendBundle);
 	}
 
-	// Into the new space
+	// enter the new space
 	space->addEntityAndEnterWorld(e);
 
 	Entity* nearbyMBRef = Cellapp::getSingleton().findEntity(nearbyMBRefID);
@@ -1907,14 +1984,14 @@ void Cellapp::reqTeleportToCellApp(Network::Channel* pChannel, MemoryStream& s)
 	success = true;
 
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 		(*pBundle).newMessage(CellappInterface::reqTeleportToCellAppCB);
 		(*pBundle) << ghostCell << g_componentID << entityBaseappID;
 		(*pBundle) << teleportEntityID;
 		(*pBundle) << success;
 		pChannel->send(pBundle);
 	}
-
+	
 	Py_DECREF(e);
 }
 
@@ -1927,28 +2004,28 @@ void Cellapp::reqTeleportToCellAppCB(Network::Channel* pChannel, MemoryStream& s
 
 	s >> sourceCellappID >> targetCellappID >> entityBaseappID >> teleportEntityID >> success;
 
-	// Under normal circumstances, the entity that was sent before the result should be returned should be on the current cell. If it is on the other cellapp, it means that it was migrated during this period.
-	// It may be a problem to be migrated at this time
+	// Under normal circumstances, the entity that should be transmitted before the result is returned should be on the current cell. If it is on another cellapp, it is migrated during this period.
+	// There is probably a problem with being migrated at this time
 	if (sourceCellappID != g_componentID)
 	{
-		ERROR_MSG(fmt::format("Cellapp::reqTeleportToCellAppCB(): sourceCellappID={} != currCellappID={}, targetCellappID={}\n",
+		ERROR_MSG(fmt::format("Cellapp::reqTeleportToCellAppCB(): sourceCellappID={} != currCellappID={}, targetCellappID={}\n", 
 			sourceCellappID, g_componentID, targetCellappID));
 	}
 
-	// The transfer was successful and we destroyed the entity
+	// The transfer is successful, we destroy the entity
 	if(success)
 	{
 		destroyEntity(teleportEntityID, false);
 		return;
 	}
 
-	// The entity may not have the base part, then there is no need to notify the baseapp
+	// The entity may not have a base part, so there is no need to notify baseapp
 	if (entityBaseappID > 0)
 	{
 		Components::ComponentInfos* pInfos = Components::getSingleton().findComponent(entityBaseappID);
 		if (pInfos && pInfos->pChannel)
 		{
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 			(*pBundle).newMessage(BaseappInterface::onMigrationCellappEnd);
 			(*pBundle) << teleportEntityID;
 			(*pBundle) << sourceCellappID << sourceCellappID;
@@ -1961,18 +2038,18 @@ void Cellapp::reqTeleportToCellAppCB(Network::Channel* pChannel, MemoryStream& s
 		}
 	}
 
-	// In some cases, the entity may not be found at this time, for example: the copy is destroyed
+	// In some cases the entity may not be found at this time, for example: the copy is destroyed
 	Entity* entity = Cellapp::getSingleton().findEntity(teleportEntityID);
 	if(entity == NULL)
 	{
-		ERROR_MSG(fmt::format("Cellapp::reqTeleportToCellAppCB: not found reqTeleportEntity({}), lose entity!\n",
+		ERROR_MSG(fmt::format("Cellapp::reqTeleportToCellAppCB: not found reqTeleportEntity({}), lose entity!\n", 
 			teleportEntityID));
 
 		s.done();
 		return;
 	}
 
-	// Transmission failed, we need to restore the entity
+	// The transfer failed, we need to restore the entity
 	ENTITY_ID nearbyMBRefID = 0;
 	Position3D pos;
 	Direction3D dir;
@@ -1990,7 +2067,7 @@ void Cellapp::reqTeleportToCellAppCB(Network::Channel* pChannel, MemoryStream& s
 	entity->changeToReal(0, s);
 	entity->onTeleportFailure();
 	Py_DECREF(entity);
-
+	
 	s.done();
 }
 
@@ -2000,12 +2077,12 @@ void Cellapp::reqTeleportToCellAppOver(Network::Channel* pChannel, MemoryStream&
 	ENTITY_ID teleportEntityID = 0;
 
 	s >> teleportEntityID;
-
-	// In some cases, the entity may not be found at this time, for example: the copy is destroyed
+	
+	// In some cases the entity may not be found at this time, for example: the copy is destroyed
 	Entity* entity = Cellapp::getSingleton().findEntity(teleportEntityID);
 	if(entity == NULL)
 	{
-		ERROR_MSG(fmt::format("Cellapp::reqTeleportToCellAppOver: not found reqTeleportEntity({}), lose entity!\n",
+		ERROR_MSG(fmt::format("Cellapp::reqTeleportToCellAppOver: not found reqTeleportEntity({}), lose entity!\n", 
 			teleportEntityID));
 
 		s.done();
@@ -2021,15 +2098,15 @@ int Cellapp::raycast(SPACE_ID spaceID, int layer, const Position3D& start, const
 	SpaceMemory* pSpace = SpaceMemorys::findSpace(spaceID);
 	if(pSpace == NULL)
 	{
-		ERROR_MSG(fmt::format("Cellapp::raycast: not found space({})!\n",
+		ERROR_MSG(fmt::format("Cellapp::raycast: not found space({})!\n", 
 			spaceID));
 
 		return -1;
 	}
-
+	
 	if(pSpace->pNavHandle() == NULL)
 	{
-		ERROR_MSG(fmt::format("Cellapp::raycast: space({}) not addSpaceGeometryMapping! layer={}\n",
+		ERROR_MSG(fmt::format("Cellapp::raycast: space({}) not addSpaceGeometryMapping! layer={}\n", 
 			spaceID, layer));
 
 		return -1;
@@ -2053,7 +2130,7 @@ PyObject* Cellapp::__py_raycast(PyObject* self, PyObject* args)
 	{
 		if(PyArg_ParseTuple(args, "IOO", &spaceID, &pyStartPos, &pyEndPos) == -1)
 		{
-			PyErr_Format(PyExc_TypeError, "Cellapp::raycast: args is error!");
+			PyErr_Format(PyExc_TypeError, "Cellapp::raycast: args error!");
 			PyErr_PrintEx(0);
 			return 0;
 		}
@@ -2062,14 +2139,14 @@ PyObject* Cellapp::__py_raycast(PyObject* self, PyObject* args)
 	{
 		if(PyArg_ParseTuple(args, "IiOO", &spaceID, &layer, &pyStartPos, &pyEndPos) == -1)
 		{
-			PyErr_Format(PyExc_TypeError, "Cellapp::raycast: args is error!");
+			PyErr_Format(PyExc_TypeError, "Cellapp::raycast: args error!");
 			PyErr_PrintEx(0);
 			return 0;
 		}
 	}
 	else
 	{
-		PyErr_Format(PyExc_TypeError, "Cellapp::raycast: args is error!");
+		PyErr_Format(PyExc_TypeError, "Cellapp::raycast: args error!");
 		PyErr_PrintEx(0);
 		return 0;
 	}
@@ -2149,7 +2226,7 @@ PyObject* Cellapp::__py_setFlags(PyObject* self, PyObject* args)
 
 	if(PyArg_ParseTuple(args, "I", &flags) == -1)
 	{
-		PyErr_Format(PyExc_TypeError, "Ouroboros::setFlags: args is error!");
+		PyErr_Format(PyExc_TypeError, "Ouroboros::setFlags: args error!");
 		PyErr_PrintEx(0);
 		return NULL;
 	}
@@ -2167,7 +2244,7 @@ void Cellapp::setSpaceViewer(Network::Channel* pChannel, MemoryStream& s)
 	SPACE_ID spaceID;
 	s >> spaceID;
 
-	// If 0, see all cells
+	// If it is 0, then view all cells
 	CELL_ID cellID;
 	s >> cellID;
 

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_NETWORK_COMMON_H
 #define OURO_NETWORK_COMMON_H
@@ -7,28 +7,28 @@
 #include "common/common.h"
 #include "helper/debug_option.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 const uint32 BROADCAST = 0xFFFFFFFF;
 const uint32 LOCALHOST = 0x0100007F;
 
-// The ID of the message
+// the ID of the message
 typedef uint16	MessageID;
 
-// The length of the message, there are two kinds of the current length, the default message length MessageLength
-// When the number exceeds the need to extend the length, the underlying use MessageLength1
-typedef uint16	MessageLength;		// Maximum 65535
-typedef uint32	MessageLength1;		// Up to 4294967295
+// Message length, the current length has 2 kinds, the default message length is the largest MessageLength
+// When you exceed this number, you need to extend the length. The bottom layer uses MessageLength1.
+typedef uint16	MessageLength;		// 最大65535
+typedef uint32 MessageLength1; // max 4294967295
 
 typedef int32	ChannelID;
 const ChannelID CHANNEL_ID_NULL = 0;
 
-// Channel timeout
+// channel timeout
 extern float g_channelInternalTimeout;
 extern float g_channelExternalTimeout;
 
-// Retry of channel send timeout
+// channel send timeout retry
 extern uint32 g_intReSendInterval;
 extern uint32 g_intReSendRetries;
 extern uint32 g_extReSendInterval;
@@ -37,10 +37,10 @@ extern uint32 g_extReSendRetries;
 // External channel encryption category
 extern int8 g_channelExternalEncryptType;
 
-// Listen listener queue maximum
+// listen listener queue maximum
 extern uint32 g_SOMAXCONN;
 
-// Udp handshake package
+// udp handshake package
 extern const char* UDP_HELLO;
 extern const char* UDP_HELLO_ACK;
 
@@ -56,20 +56,24 @@ extern uint32 g_rudp_missAcksResend;
 extern bool g_rudp_congestionControl;
 extern bool g_rudp_nodelay;
 
+// Certificate file required for HTTPS/WSS/SSL communication
+extern std::string g_sslCertificate;
+extern std::string g_sslPrivateKey;
+
 // Do not do channel timeout check
 #define CLOSE_CHANNEL_INACTIVITIY_DETECTION()										\
 {																					\
 	Network::g_channelExternalTimeout = Network::g_channelInternalTimeout = -1.0f;	\
 }																					\
 
-
+	
 namespace udp{
 }
 
 namespace tcp{
 }
 
-// Encrypt extra storage of information in bytes (length padding)
+// Encrypt additional stored information to occupy bytes (length + padding)
 #define ENCRYPTTION_WASTAGE_SIZE			(1 + 7)
 
 #define PACKET_MAX_SIZE						1500
@@ -78,7 +82,7 @@ namespace tcp{
 #endif
 #define PACKET_MAX_SIZE_UDP					1472
 
-typedef uint16								PacketLength;				// Maximum 65535
+typedef uint16								PacketLength;				// 最大65535
 #define PACKET_LENGTH_SIZE					sizeof(PacketLength)
 
 #define NETWORK_MESSAGE_ID_SIZE				sizeof(Network::MessageID)
@@ -91,9 +95,9 @@ typedef uint16								PacketLength;				// Maximum 65535
 #define GAME_PACKET_MAX_SIZE_TCP			PACKET_MAX_SIZE_TCP - NETWORK_MESSAGE_ID_SIZE - \
 											NETWORK_MESSAGE_LENGTH_SIZE - ENCRYPTTION_WASTAGE_SIZE
 
-/** ouro Machine port */
+/** kbe machine port*/
 #define OURO_PORT_START						20000
-#define OURO_MACHINE_BROADCAST_SEND_PORT		OURO_PORT_START + 86			// Machine receives the broadcast port
+#define OURO_MACHINE_BROADCAST_SEND_PORT OURO_PORT_START + 86 // The port on which the machine receives the broadcast
 #define OURO_PORT_BROADCAST_DISCOVERY		OURO_PORT_START + 87
 #define OURO_MACHINE_TCP_PORT				OURO_PORT_START + 88
 
@@ -101,7 +105,7 @@ typedef uint16								PacketLength;				// Maximum 65535
 
 /*
 	Network message type, fixed length or variable length.
-	If you need to define the length, fill in the length when you declare it in NETWORK_INTERFACE_DECLARE_BEGIN.
+	if you need a custom length, fill in the length when you declare it in NETWORK_INTERFACE_DECLARE_BEGIN.
 */
 #ifndef NETWORK_FIXED_MESSAGE
 #define NETWORK_FIXED_MESSAGE 0
@@ -111,11 +115,11 @@ typedef uint16								PacketLength;				// Maximum 65535
 #define NETWORK_VARIABLE_MESSAGE -1
 #endif
 
-// Network message category
+// network message category
 enum NETWORK_MESSAGE_TYPE
 {
-	NETWORK_MESSAGE_TYPE_COMPONENT = 0,	// Component message
-	NETWORK_MESSAGE_TYPE_ENTITY = 1,	// Entity message
+	NETWORK_MESSAGE_TYPE_COMPONENT = 0, // component message
+		NETWORK_MESSAGE_TYPE_ENTITY = 1,	// entity消息
 };
 
 enum ProtocolType
@@ -196,13 +200,13 @@ const char * reasonToString(Reason reason)
 		if(slen != (int)pPacket->totalSize())																\
 		{																									\
 			reason = Network::PacketSender::checkSocketErrors(ep, slen, pPacket->totalSize());				\
-			/* If you send an error then we can continue to try once more than 3 times	*/										\
+						/*if the transmission has an error then we can continue to try once and exit more than 3 times.*/										\
 			if (reason == Network::REASON_NO_SUCH_PORT && retries <= 3)										\
 			{																								\
 				continue;																					\
 			}																								\
 																											\
-			/* If the system send buffer is full, we wait 10ms	*/													\
+						/*if the system send buffer is full, then we wait 10ms*/													\
 			if ((reason == REASON_RESOURCE_UNAVAILABLE || reason == REASON_GENERAL_NETWORK)					\
 															&& retries <= 3)								\
 			{																								\
@@ -252,13 +256,13 @@ const char * reasonToString(Reason reason)
 			if(pPacket->sentSize != pPacket->length())														\
 			{																								\
 				reason = PacketSender::checkSocketErrors(&ep);												\
-				/* If we send an error then we can continue to try once more than 60 times	*/									\
+								/*if the transmission has an error then we can continue to try once and exit more than 60 times.*/									\
 				if (reason == REASON_NO_SUCH_PORT && retries <= 3)											\
 				{																							\
 					continue;																				\
 				}																							\
 																											\
-				/* If the system send buffer is full, we wait 10ms	*/												\
+								/*if the system send buffer is full, then we wait 10ms*/												\
 				if ((reason == REASON_RESOURCE_UNAVAILABLE || reason == REASON_GENERAL_NETWORK)				\
 																					&& retries <= 60)		\
 				{																							\
@@ -307,9 +311,9 @@ const char * reasonToString(Reason reason)
 #define MALLOC_PACKET(outputPacket, isTCPPacket)															\
 {																											\
 	if(isTCPPacket)																							\
-		outputPacket = TCPPacket::createPoolObject();														\
+		outputPacket = TCPPacket::createPoolObject(OBJECTPOOL_POINT);										\
 	else																									\
-		outputPacket = UDPPacket::createPoolObject();														\
+		outputPacket = UDPPacket::createPoolObject(OBJECTPOOL_POINT);										\
 }																											\
 
 
@@ -322,7 +326,7 @@ const char * reasonToString(Reason reason)
 }																											\
 
 
-// Used with the server configuration option trace_packet to track an outgoing message packet
+// Used with the server configuration option trace_packet to track a message packet to be output
 #define TRACE_MESSAGE_PACKET(isrecv, pPacket, pCurrMsgHandler, length, addr, readPacketHead)				\
 	if(Network::g_trace_packet > 0)																			\
 	{																										\
@@ -391,6 +395,8 @@ const char * reasonToString(Reason reason)
 	}																										\
 
 
+bool ouro_poll(int fd);
+
 void destroyObjPool();
 
 // network stats
@@ -399,7 +405,7 @@ extern uint64						g_numPacketsReceived;
 extern uint64						g_numBytesSent;
 extern uint64						g_numBytesReceived;
 
-// Packet reception window overflow
+// packet receiving window overflow
 extern uint32						g_receiveWindowMessagesOverflowCritical;
 extern uint32						g_intReceiveWindowMessagesOverflow;
 extern uint32						g_extReceiveWindowMessagesOverflow;
@@ -415,6 +421,7 @@ extern uint32						g_intSentWindowBytesOverflow;
 extern uint32						g_extSentWindowBytesOverflow;
 
 bool initializeWatcher();
+bool initialize();
 void finalise(void);
 
 }

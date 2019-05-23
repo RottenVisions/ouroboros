@@ -1,24 +1,24 @@
-# Sample extension: zoom a window to maximum height
+"Zoom a window to maximum height."
 
 import re
 import sys
 
-from idlelib import macosxSupport
+from idlelib import macosx
+
 
 class ZoomHeight:
-
-    menudefs = [
-        ('windows', [
-            ('_Zoom Height', '<<zoom-height>>'),
-         ])
-    ]
 
     def __init__(self, editwin):
         self.editwin = editwin
 
-    def zoom_height_event(self, event):
+    def zoom_height_event(self, event=None):
         top = self.editwin.top
-        zoom_height(top)
+        zoomed = zoom_height(top)
+        menu_status = 'Restore' if zoomed else 'Zoom'
+        self.editwin.update_menu_label(menu='options', index='* Height',
+                                       label=f'{menu_status} Height')
+        return "break"
+
 
 def zoom_height(top):
     geom = top.wm_geometry()
@@ -32,7 +32,7 @@ def zoom_height(top):
         newy = 0
         newheight = newheight - 72
 
-    elif macosxSupport.isAquaTk():
+    elif macosx.isAquaTk():
         # The '88' below is a magic number that avoids placing the bottom
         # of the window below the panel on my machine. I don't know how
         # to calculate the correct value for this with tkinter.
@@ -49,3 +49,11 @@ def zoom_height(top):
     else:
         newgeom = "%dx%d+%d+%d" % (width, newheight, x, newy)
     top.wm_geometry(newgeom)
+    return newgeom != ""
+
+
+if __name__ == "__main__":
+    from unittest import main
+    main('idlelib.idle_test.test_zoomheight', verbosity=2, exit=False)
+
+    # Add htest?

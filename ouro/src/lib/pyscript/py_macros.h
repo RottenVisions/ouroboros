@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef _PY_MACROS_H
 #define _PY_MACROS_H
@@ -86,7 +86,7 @@ namespace Ouroboros{ namespace script{
 #define PY_METHOD_ARG_ENTITY_ID_PYARGTYPE				"i"
 
 //-----------------------------------------------------------------------------------------------------------
-/** Define method macros exposed to script
+/** Defines the method macro exposed to the script
 */
 #define SCRIPT_METHOD_DECLARE_BEGIN(CLASS)													bool CLASS::_##CLASS##_py_installed = false; PyMethodDef CLASS::_##CLASS##_scriptMethods[] = {
 #define TEMPLATE_SCRIPT_METHOD_DECLARE_BEGIN(TEMPLATE_HEADER, TEMPLATE_CLASS, CLASSNAME)	TEMPLATE_HEADER bool TEMPLATE_CLASS::_##CLASSNAME##_py_installed = false;  TEMPLATE_HEADER PyMethodDef TEMPLATE_CLASS::_##CLASSNAME##_scriptMethods[] = {
@@ -94,23 +94,23 @@ namespace Ouroboros{ namespace script{
 #define SCRIPT_DIRECT_METHOD_DECLARE(METHOD_NAME, METHOD_FUNC, FLAGS, DOC)					{METHOD_NAME, (PyCFunction)&METHOD_FUNC, FLAGS, DOC},
 #define SCRIPT_METHOD_DECLARE_END()															{0, 0, 0, 0}};
 
-// Add a method to the module
+// Append method to the module
 #define APPEND_SCRIPT_MODULE_METHOD(MODULE, NAME, FUNC, FLAGS, SELF)						\
 	static PyMethodDef __pymethod_##NAME = {#NAME, (PyCFunction) FUNC, FLAGS, NULL};		\
 	if(PyModule_AddObject(MODULE, #NAME, PyCFunction_New(&__pymethod_##NAME, SELF)) != 0)	\
 	{																						\
 		SCRIPT_ERROR_CHECK();																\
-		ERROR_MSG("append " #NAME " to pyscript is error!\n");								\
+		ERROR_MSG("append " #NAME " to pyscript error!\n");									\
 	}																						\
-
-/** Define property macros exposed to the script
+	
+/** Defines the property macro exposed to the script
 */
 #define SCRIPT_MEMBER_DECLARE_BEGIN(CLASS)													PyMemberDef CLASS::_##CLASS##_scriptMembers[] =	{
 #define TEMPLATE_SCRIPT_MEMBER_DECLARE_BEGIN(TEMPLATE_HEADER, TEMPLATE_CLASS, CLASSNAME)	TEMPLATE_HEADER PyMemberDef TEMPLATE_CLASS::_##CLASSNAME##_scriptMembers[] =	{
 #define SCRIPT_MEMBER_DECLARE(MEMBER_NAME, MEMBER_REF, MEMBER_TYPE, FLAGS, DOC)				{const_cast<char*>(MEMBER_NAME), MEMBER_TYPE, offsetof(ThisClass, MEMBER_REF), FLAGS, DOC},
 #define SCRIPT_MEMBER_DECLARE_END()															{0, 0, 0, 0, 0}};
 
-/** Define the getset property macro exposed to the script
+/** Defines the getset property macro exposed to the script
 */
 #define SCRIPT_GETSET_DECLARE_BEGIN(CLASS)													PyGetSetDef CLASS::_##CLASS##_scriptGetSeters[] =	{
 #define TEMPLATE_SCRIPT_GETSET_DECLARE_BEGIN(TEMPLATE_HEADER, TEMPLATE_CLASS, CLASSNAME)	TEMPLATE_HEADER PyGetSetDef TEMPLATE_CLASS::_##CLASSNAME##_scriptGetSeters[] =	{
@@ -120,7 +120,7 @@ namespace Ouroboros{ namespace script{
 #define SCRIPT_GETSET_DECLARE_END()															{0, 0, 0, 0, 0}};
 
 //-----------------------------------------------------------------------------------------------------------
-/* Declaring a script get method */
+/*Declare a script get method*/
 #define DECLARE_PY_GET_MOTHOD(MNAME)												\
 	PyObject* MNAME();																\
 	static PyObject* __pyget_##MNAME(PyObject *self, void *closure)					\
@@ -129,7 +129,7 @@ namespace Ouroboros{ namespace script{
 	}																				\
 
 
-/* Declare a script set method */
+/*Declare a script set method*/
 #define DECLARE_PY_SET_MOTHOD(MNAME)												\
 	int MNAME(PyObject *value);														\
 	static int __pyset_##MNAME(PyObject *self,										\
@@ -138,7 +138,7 @@ namespace Ouroboros{ namespace script{
 		return static_cast<ThisClass*>(self)->MNAME(value);							\
 	}																				\
 
-/* Declaring a script getset method */
+/*Declare a script getset method*/
 #define DECLARE_PY_GETSET_MOTHOD(GETNAME, SETNAME)									\
 	DECLARE_PY_GET_MOTHOD(GETNAME)													\
 	DECLARE_PY_SET_MOTHOD(SETNAME)													\
@@ -167,7 +167,7 @@ namespace Ouroboros{ namespace script{
 			if(!PyArg_ParseTuple(args, PY_METHOD_ARG_##ARG_TYPE1##_PYARGTYPE,														\
 										&arg1))																						\
 			{																														\
-				PyErr_Format(PyExc_TypeError, "%s: args(%s) is error!\n", __FUNCTION__, #ARG_TYPE1);								\
+				PyErr_Format(PyExc_TypeError, "%s: args(%s) error!\n", __FUNCTION__, #ARG_TYPE1);									\
 				PyErr_PrintEx(0);																									\
 				S_Return;																											\
 			}																														\
@@ -205,7 +205,7 @@ namespace Ouroboros{ namespace script{
 										PY_METHOD_ARG_##ARG_TYPE2##_PYARGTYPE,														\
 										&arg1, &arg2))																				\
 			{																														\
-				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s) is error!\n", __FUNCTION__, #ARG_TYPE1, #ARG_TYPE2);				\
+				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s) error!\n", __FUNCTION__, #ARG_TYPE1, #ARG_TYPE2);					\
 				PyErr_PrintEx(0);																									\
 				S_Return;																											\
 			}																														\
@@ -246,7 +246,7 @@ namespace Ouroboros{ namespace script{
 										PY_METHOD_ARG_##ARG_TYPE3##_PYARGTYPE,														\
 										&arg1, &arg2, &arg3))																		\
 			{																														\
-				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s) is error!\n", __FUNCTION__, #ARG_TYPE1, #ARG_TYPE2, #ARG_TYPE3);\
+				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s) error!\n", __FUNCTION__, #ARG_TYPE1, #ARG_TYPE2, #ARG_TYPE3);	\
 				PyErr_PrintEx(0);																									\
 				S_Return;																											\
 			}																														\
@@ -289,7 +289,7 @@ namespace Ouroboros{ namespace script{
 										PY_METHOD_ARG_##ARG_TYPE4##_PYARGTYPE,														\
 										&arg1, &arg2, &arg3, &arg4))																\
 			{																														\
-				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s) is error!\n", __FUNCTION__,									\
+				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s) error!\n", __FUNCTION__,									\
 										#ARG_TYPE1, #ARG_TYPE2, #ARG_TYPE3, #ARG_TYPE4);											\
 				PyErr_PrintEx(0);																									\
 				S_Return;																											\
@@ -337,7 +337,7 @@ namespace Ouroboros{ namespace script{
 										PY_METHOD_ARG_##ARG_TYPE5##_PYARGTYPE,														\
 										&arg1, &arg2, &arg3, &arg4, &arg5))															\
 			{																														\
-				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s, %s) is error!\n", __FUNCTION__,								\
+				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s, %s) error!\n", __FUNCTION__,								\
 						#ARG_TYPE1, #ARG_TYPE2, #ARG_TYPE3, #ARG_TYPE4, #ARG_TYPE5);												\
 				PyErr_PrintEx(0);																									\
 				S_Return;																											\
@@ -388,8 +388,8 @@ namespace Ouroboros{ namespace script{
 										PY_METHOD_ARG_##ARG_TYPE6##_PYARGTYPE,														\
 										&arg1, &arg2, &arg3, &arg4, &arg5, &arg6))													\
 			{																														\
-				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s, %s, %s) is error!\n", __FUNCTION__,							\
-							#ARG_TYPE2, #ARG_TYPE3, #ARG_TYPE4, #ARG_TYPE5, #ARG_TYPE6);											\
+				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s, %s, %s) error!\n", __FUNCTION__,							\
+							#ARG_TYPE1, #ARG_TYPE2, #ARG_TYPE3, #ARG_TYPE4, #ARG_TYPE5, #ARG_TYPE6);								\
 				PyErr_PrintEx(0);																									\
 				S_Return;																											\
 			}																														\
@@ -443,7 +443,7 @@ namespace Ouroboros{ namespace script{
 										PY_METHOD_ARG_##ARG_TYPE7##_PYARGTYPE,														\
 										&arg1, &arg2, &arg3, &arg4, &arg5, &arg6, &arg7))											\
 			{																														\
-				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s, %s, %s, %s) is error!\n", __FUNCTION__,						\
+				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s, %s, %s, %s) error!\n", __FUNCTION__,						\
 							#ARG_TYPE1, #ARG_TYPE2, #ARG_TYPE3, #ARG_TYPE4, #ARG_TYPE5, #ARG_TYPE6,	#ARG_TYPE7);					\
 				PyErr_PrintEx(0);																									\
 				S_Return;																											\
@@ -501,7 +501,7 @@ namespace Ouroboros{ namespace script{
 										PY_METHOD_ARG_##ARG_TYPE8##_PYARGTYPE,														\
 										&arg1, &arg2, &arg3, &arg4, &arg5, &arg6, &arg7, &arg8))									\
 			{																														\
-				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s, %s, %s, %s, %s) is error!\n", __FUNCTION__,					\
+				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s, %s, %s, %s, %s) error!\n", __FUNCTION__,					\
 							#ARG_TYPE1, #ARG_TYPE2, #ARG_TYPE3, #ARG_TYPE4, #ARG_TYPE5, #ARG_TYPE6,	#ARG_TYPE7,	#ARG_TYPE8);		\
 				PyErr_PrintEx(0);																									\
 				S_Return;																											\
@@ -563,7 +563,7 @@ namespace Ouroboros{ namespace script{
 										PY_METHOD_ARG_##ARG_TYPE9##_PYARGTYPE,														\
 										&arg1, &arg2, &arg3, &arg4, &arg5, &arg6, &arg7, &arg8, &arg9))								\
 			{																														\
-				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s, %s, %s, %s, %s, %s) is error!\n", __FUNCTION__,				\
+				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s, %s, %s, %s, %s, %s) error!\n", __FUNCTION__,				\
 						#ARG_TYPE1, #ARG_TYPE2, #ARG_TYPE3, #ARG_TYPE4, #ARG_TYPE5, #ARG_TYPE6,	#ARG_TYPE7,	#ARG_TYPE8, #ARG_TYPE9);\
 				PyErr_PrintEx(0);																									\
 				S_Return;																											\
@@ -628,7 +628,7 @@ namespace Ouroboros{ namespace script{
 										PY_METHOD_ARG_##ARG_TYPE10##_PYARGTYPE,														\
 										&arg1, &arg2, &arg3, &arg4, &arg5, &arg6, &arg7, &arg8, &arg9, &arg10))						\
 			{																														\
-				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) is error!\n", __FUNCTION__,			\
+				PyErr_Format(PyExc_TypeError, "%s: args(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) error!\n", __FUNCTION__,			\
 				#ARG_TYPE1, #ARG_TYPE2, #ARG_TYPE3, #ARG_TYPE4, #ARG_TYPE5, #ARG_TYPE6,	#ARG_TYPE7,	#ARG_TYPE8,						\
 				#ARG_TYPE9, #ARG_TYPE10);																							\
 				PyErr_PrintEx(0);																									\
@@ -652,7 +652,7 @@ namespace Ouroboros{ namespace script{
 
 
 //-----------------------------------------------------------------------------------------------------------
-/** Defining macros for safely calling an object
+/** Defining a macro for safely calling an object
 */
 #define SCRIPT_OBJECT_CALL_ARGS0(OBJ, METHOT_NAME, GETERROR)											\
 {																										\
@@ -686,8 +686,8 @@ namespace Ouroboros{ namespace script{
 		}																								\
 	}																									\
 }																										\
-
-
+			
+			
 #define SCRIPT_OBJECT_CALL_ARGS1(OBJ, METHOT_NAME, FORMAT, ARG1, GETERROR)								\
 {																										\
 	if(static_cast<PyObject*>(OBJ) == NULL)																\
@@ -723,8 +723,8 @@ namespace Ouroboros{ namespace script{
 		}																								\
 	}																									\
 }																										\
-
-
+			
+			
 #define SCRIPT_OBJECT_CALL_ARGS2(OBJ, METHOT_NAME, FORMAT, ARG1, ARG2, GETERROR)						\
 {																										\
 	if(static_cast<PyObject*>(OBJ) == NULL)																\
@@ -881,9 +881,9 @@ namespace Ouroboros{ namespace script{
 		}																								\
 	}																									\
 }																										\
-
-
-
+			
+			
+			
 }
 }
 #endif

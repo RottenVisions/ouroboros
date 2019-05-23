@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_DEADLINE_FORMAT_H
 #define OURO_DEADLINE_FORMAT_H
@@ -9,7 +9,7 @@ namespace Ouroboros
 {
 
 /**
- *	
+ *	ÆÚÏÞ
  */
 class Deadline
 {
@@ -31,7 +31,7 @@ public:
 	            seconds = m % 60;
 		}
 	}
-
+	
 	virtual ~Deadline() {
 	}
 
@@ -39,7 +39,7 @@ public:
 	{
 		return fmt::format("{}days/{}:{}:{}", days, hours, minutes, seconds);
 	}
-
+	
 	uint32 days, hours, minutes, seconds;
 	uint32 secs;
 };

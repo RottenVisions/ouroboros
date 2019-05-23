@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_BACKUPER_H
 #define OURO_BACKUPER_H
@@ -7,7 +7,7 @@
 #include "helper/debug_helper.h"
 #include "common/common.h"
 // #define NDEBUG
-// windows include
+// windows include	
 #if OURO_PLATFORM == PLATFORM_WIN32
 #else
 // linux include
@@ -20,7 +20,7 @@ class Backuper
 public:
 	Backuper();
 	~Backuper();
-
+	
 	void tick();
 
 	void createBackupTable();
@@ -28,7 +28,7 @@ public:
 	bool backup(Entity& entity, MemoryStream& s);
 
 private:
-	// The entities in this list will be backed up
+	// The entity in this list will be backed up
 	std::vector<ENTITY_ID>		backupEntityIDs_;
 
 	float						backupRemainder_;

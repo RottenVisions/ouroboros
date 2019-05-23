@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "dbmgr.h"
@@ -19,6 +19,7 @@
 #include "db_interface/db_interface.h"
 #include "db_mysql/db_interface_mysql.h"
 #include "entitydef/scriptdef_module.h"
+#include "entitydef/py_entitydef.h"
 
 #include "baseapp/baseapp_interface.h"
 #include "cellapp/cellapp_interface.h"
@@ -32,8 +33,8 @@ ServerConfig g_serverConfig;
 OURO_SINGLETON_INIT(Dbmgr);
 
 //-------------------------------------------------------------------------------------
-Dbmgr::Dbmgr(Network::EventDispatcher& dispatcher,
-			 Network::NetworkInterface& ninterface,
+Dbmgr::Dbmgr(Network::EventDispatcher& dispatcher, 
+			 Network::NetworkInterface& ninterface, 
 			 COMPONENT_TYPE componentType,
 			 COMPONENT_ID componentID):
 	PythonApp(dispatcher, ninterface, componentType, componentID),
@@ -49,12 +50,13 @@ Dbmgr::Dbmgr(Network::EventDispatcher& dispatcher,
 	numQueryEntity_(0),
 	numExecuteRawDatabaseCommand_(0),
 	numCreatedAccount_(0),
-	pInterfacesAccountHandler_(NULL),
-	pInterfacesChargeHandler_(NULL),
+	pInterfacesHandlers_(),
 	pSyncAppDatasHandler_(NULL),
 	pUpdateDBServerLogHandler_(NULL),
-	pTelnetServer_(NULL)
+	pTelnetServer_(NULL),
+	loseBaseappts_()
 {
+	Ouroboros::Network::MessageHandlers::pMainMessageHandlers = &DbmgrInterface::messageHandlers;
 }
 
 //-------------------------------------------------------------------------------------
@@ -64,12 +66,14 @@ Dbmgr::~Dbmgr()
 	mainProcessTimer_.cancel();
 	Ouroboros::sleep(300);
 
-	SAFE_RELEASE(pInterfacesAccountHandler_);
-	SAFE_RELEASE(pInterfacesChargeHandler_);
+	for (std::vector<InterfacesHandler*>::iterator iter = pInterfacesHandlers_.begin(); iter != pInterfacesHandlers_.end(); ++iter)
+	{
+		SAFE_RELEASE((*iter));
+	}
 }
 
 //-------------------------------------------------------------------------------------
-bool Dbmgr::canShutdown()
+ShutdownHandler::CAN_SHUTDOWN_STATE Dbmgr::canShutdown()
 {
 	if (getEntryScript().get() && PyObject_HasAttrString(getEntryScript().get(), "onReadyForShutDown") > 0)
 	{
@@ -83,19 +87,17 @@ bool Dbmgr::canShutdown()
 			bool isReady = (pyResult == Py_True);
 			Py_DECREF(pyResult);
 
-			if (isReady)
-				return true;
-			else
-				return false;
+			if (!isReady)
+				return ShutdownHandler::CAN_SHUTDOWN_STATE_USER_FALSE;
 		}
 		else
 		{
 			SCRIPT_ERROR_CHECK();
-			return false;
+			return ShutdownHandler::CAN_SHUTDOWN_STATE_USER_FALSE;
 		}
 	}
 
-	OUROUnordered_map<std::string, Buffered_DBTasks>::iterator bditer = bufferedDBTasksMaps_.begin();
+	KBEUnordered_map<std::string, Buffered_DBTasks>::iterator bditer = bufferedDBTasksMaps_.begin();
 	for (; bditer != bufferedDBTasksMaps_.end(); ++bditer)
 	{
 		if (bditer->second.size() > 0)
@@ -107,15 +109,15 @@ bool Dbmgr::canShutdown()
 				bditer->first, bditer->second.size(), bditer->second.getTasksinfos(), (pThreadPool->currentThreadCount() - pThreadPool->currentFreeThreadCount()),
 				pThreadPool->currentThreadCount(), pThreadPool->isDestroyed()));
 
-			return false;
+			return ShutdownHandler::CAN_SHUTDOWN_STATE_FALSE;
 		}
 	}
 
 	Components::COMPONENTS& cellapp_components = Components::getSingleton().getComponents(CELLAPP_TYPE);
-	if(cellapp_components.size() > 0)
+	if (cellapp_components.size() > 0)
 	{
 		std::string s;
-		for(size_t i=0; i<cellapp_components.size(); ++i)
+		for (size_t i = 0; i<cellapp_components.size(); ++i)
 		{
 			s += fmt::format("{}, ", cellapp_components[i].cid);
 		}
@@ -123,14 +125,14 @@ bool Dbmgr::canShutdown()
 		INFO_MSG(fmt::format("Dbmgr::canShutdown(): Waiting for cellapp[{}] destruction!\n",
 			s));
 
-		return false;
+		return ShutdownHandler::CAN_SHUTDOWN_STATE_FALSE;
 	}
 
 	Components::COMPONENTS& baseapp_components = Components::getSingleton().getComponents(BASEAPP_TYPE);
-	if(baseapp_components.size() > 0)
+	if (baseapp_components.size() > 0)
 	{
 		std::string s;
-		for(size_t i=0; i<baseapp_components.size(); ++i)
+		for (size_t i = 0; i<baseapp_components.size(); ++i)
 		{
 			s += fmt::format("{}, ", baseapp_components[i].cid);
 		}
@@ -138,23 +140,23 @@ bool Dbmgr::canShutdown()
 		INFO_MSG(fmt::format("Dbmgr::canShutdown(): Waiting for baseapp[{}] destruction!\n",
 			s));
 
-		return false;
+		return ShutdownHandler::CAN_SHUTDOWN_STATE_FALSE;
 	}
 
-	return true;
+	return ShutdownHandler::CAN_SHUTDOWN_STATE_TRUE;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void Dbmgr::onShutdownBegin()
 {
 	PythonApp::onShutdownBegin();
 
-	// Notification script
+	// notification script
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 	SCRIPT_OBJECT_CALL_ARGS0(getEntryScript().get(), const_cast<char*>("onDBMgrShutDown"), false);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------	
 void Dbmgr::onShutdownEnd()
 {
 	PythonApp::onShutdownEnd();
@@ -169,8 +171,7 @@ bool Dbmgr::initializeWatcher()
 	WATCH_OBJECT("numExecuteRawDatabaseCommand", numExecuteRawDatabaseCommand_);
 	WATCH_OBJECT("numCreatedAccount", numCreatedAccount_);
 
-
-	OUROUnordered_map<std::string, Buffered_DBTasks>::iterator bditer = bufferedDBTasksMaps_.begin();
+	KBEUnordered_map<std::string, Buffered_DBTasks>::iterator bditer = bufferedDBTasksMaps_.begin();
 	for (; bditer != bufferedDBTasksMaps_.end(); ++bditer)
 	{
 		WATCH_OBJECT(fmt::format("DBThreadPool/{}/dbid_tasksSize", bditer->first).c_str(), &bditer->second, &Buffered_DBTasks::dbid_tasksSize);
@@ -178,7 +179,6 @@ bool Dbmgr::initializeWatcher()
 		WATCH_OBJECT(fmt::format("DBThreadPool/{}/printBuffered_dbid", bditer->first).c_str(), &bditer->second, &Buffered_DBTasks::printBuffered_dbid);
 		WATCH_OBJECT(fmt::format("DBThreadPool/{}/printBuffered_entityID", bditer->first).c_str(), &bditer->second, &Buffered_DBTasks::printBuffered_entityID);
 	}
-
 
 	return ServerApp::initializeWatcher() && DBUtil::initializeWatcher();
 }
@@ -211,10 +211,11 @@ void Dbmgr::handleTimeout(TimerHandle handle, void * arg)
 void Dbmgr::handleMainTick()
 {
 	AUTO_SCOPED_PROFILE("mainTick");
-
-	 //time_t t = ::time(NULL);
-	 //DEBUG_MSG("Dbmgr::handleGameTick[%"PRTime"]:%u\n", t, time_);
-
+	
+	 // time_t t = ::time(NULL);
+	 // static int kbeTime = 0;
+	 // DEBUG_MSG(fmt::format("Dbmgr::handleGameTick[{}]:{}\n", t, ++kbeTime));
+	
 	threadPool_.onMainThreadTick();
 	DBUtil::handleMainTick();
 	networkInterface().processChannels(&DbmgrInterface::messageHandlers);
@@ -223,6 +224,36 @@ void Dbmgr::handleMainTick()
 //-------------------------------------------------------------------------------------
 void Dbmgr::handleCheckStatusTick()
 {
+	// Check the missing component process, if still can not be found within a period of time, you need to clean up the entitylog in the database
+	if (loseBaseappts_.size() > 0)
+	{
+		std::map<COMPONENT_ID, uint64>::iterator iter = loseBaseappts_.begin();
+		for (; iter != loseBaseappts_.end();)
+		{
+			if (timestamp() > iter->second)
+			{
+				Components::ComponentInfos* cinfo = Components::getSingleton().findComponent(iter->first);
+				if (!cinfo)
+				{
+					ENGINE_COMPONENT_INFO& dbcfg = g_ouroSrvConfig.getDBMgr();
+					std::vector<DBInterfaceInfo>::iterator dbinfo_iter = dbcfg.dbInterfaceInfos.begin();
+					for (; dbinfo_iter != dbcfg.dbInterfaceInfos.end(); ++dbinfo_iter)
+					{
+						std::string dbInterfaceName = dbinfo_iter->name;
+
+						DBUtil::pThreadPool(dbInterfaceName)->
+							addTask(new DBTaskEraseBaseappEntityLog(iter->first));
+					}
+				}
+
+				loseBaseappts_.erase(iter++);
+			}
+			else
+			{
+				++iter;
+			}
+		}
+	}
 }
 
 //-------------------------------------------------------------------------------------
@@ -235,7 +266,7 @@ bool Dbmgr::initializeBegin()
 //-------------------------------------------------------------------------------------
 bool Dbmgr::inInitialize()
 {
-	// Initialize all expansion modules
+	// Initialize all extension modules
 	// assets/scripts/
 	if (!PythonApp::inInitialize())
 		return false;
@@ -269,14 +300,14 @@ bool Dbmgr::initializeEnd()
 	pBaseAppData_->addConcernComponentType(BASEAPP_TYPE);
 	pCellAppData_->addConcernComponentType(CELLAPP_TYPE);
 
-	INFO_MSG(fmt::format("Dbmgr::initializeEnd: digest({})\n",
+	INFO_MSG(fmt::format("Dbmgr::initializeEnd: digest({})\n", 
 		EntityDef::md5().getDigestStr()));
-
+	
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 
 	// All scripts are loaded
-	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
-										const_cast<char*>("onDBMgrReady"),
+	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(), 
+										const_cast<char*>("onDBMgrReady"), 
 										const_cast<char*>(""));
 
 	if(pyResult != NULL)
@@ -292,11 +323,23 @@ bool Dbmgr::initializeEnd()
 		g_ouroSrvConfig.getDBMgr().telnet_port);
 
 	Components::getSingleton().extraData4(pTelnetServer_->port());
-
+	
 	return ret && initInterfacesHandler() && initDB();
 }
 
 //-------------------------------------------------------------------------------------
+bool Dbmgr::installPyModules()
+{
+	return PythonApp::installPyModules() && script::entitydef::installModule("EntityDef");
+}
+
+//-------------------------------------------------------------------------------------
+bool Dbmgr::uninstallPyModules()
+{
+	return script::entitydef::uninstallModule() && PythonApp::uninstallPyModules();
+}
+
+//-------------------------------------------------------------------------------------		
 void Dbmgr::onInstallPyModules()
 {
 	PyObject * module = getScript().getModule();
@@ -308,30 +351,63 @@ void Dbmgr::onInstallPyModules()
 			ERROR_MSG( fmt::format("Dbmgr::onInstallPyModules: Unable to set Ouroboros.{}.\n", SERVER_ERR_STR[i]));
 		}
 	}
+
+	APPEND_SCRIPT_MODULE_METHOD(module,		executeRawDatabaseCommand,		__py_executeRawDatabaseCommand,		METH_VARARGS,	0);
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool Dbmgr::initInterfacesHandler()
 {
-	std::string type = Network::Address::NONE == g_ouroSrvConfig.interfacesAddr() ? "dbmgr" : "interfaces";
-	pInterfacesAccountHandler_ = InterfacesHandlerFactory::create(type);
-	pInterfacesChargeHandler_ = InterfacesHandlerFactory::create(type);
+	std::vector< Network::Address > addresses = g_ouroSrvConfig.interfacesAddrs();
+	std::string type = addresses.size() == 0 ? "dbmgr" : "interfaces";
 
-	INFO_MSG(fmt::format("Dbmgr::initInterfacesHandler: interfaces addr({}), accountType:({}), chargeType:({}).\n",
-		g_ouroSrvConfig.interfacesAddr().c_str(),
-		type,
-		type));
+	if (type == "dbmgr")
+	{
+		InterfacesHandler* pInterfacesHandler = InterfacesHandlerFactory::create(type);
 
-	return pInterfacesAccountHandler_->initialize() && pInterfacesChargeHandler_->initialize();
+		INFO_MSG(fmt::format("Dbmgr::initInterfacesHandler: interfaces addr({}), accountType:({}), chargeType:({}).\n",
+			Network::Address::NONE.c_str(),
+			type,
+			type));
+
+		if (!pInterfacesHandler->initialize())
+			return false;
+
+		pInterfacesHandlers_.push_back(pInterfacesHandler);
+	}
+	else
+	{
+		std::vector< Network::Address >::iterator iter = addresses.begin();
+		for (; iter != addresses.end(); ++iter)
+		{
+			InterfacesHandler* pInterfacesHandler = InterfacesHandlerFactory::create(type);
+
+			const Network::Address& addr = (*iter);
+
+			INFO_MSG(fmt::format("Dbmgr::initInterfacesHandler: interfaces addr({}), accountType:({}), chargeType:({}).\n",
+				addr.c_str(),
+				type,
+				type));
+
+			((InterfacesHandler_Interfaces*)pInterfacesHandler)->setAddr(addr);
+
+			if (!pInterfacesHandler->initialize())
+				return false;
+
+			pInterfacesHandlers_.push_back(pInterfacesHandler);
+		}
+	}
+
+	return pInterfacesHandlers_.size() > 0;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 bool Dbmgr::initDB()
 {
 	ScriptDefModule* pModule = EntityDef::findScriptModule(DBUtil::accountScriptName());
 	if(pModule == NULL)
 	{
-		ERROR_MSG(fmt::format("Dbmgr::initDB(): not found account script[{}]!\n",
+		ERROR_MSG(fmt::format("Dbmgr::initDB(): not found account script[{}]!\n", 
 			DBUtil::accountScriptName()));
 
 		return false;
@@ -397,7 +473,7 @@ bool Dbmgr::initDB()
 void Dbmgr::finalise()
 {
 	SAFE_RELEASE(pUpdateDBServerLogHandler_);
-
+	
 	SAFE_RELEASE(pGlobalData_);
 	SAFE_RELEASE(pBaseAppData_);
 	SAFE_RELEASE(pCellAppData_);
@@ -413,17 +489,28 @@ void Dbmgr::finalise()
 }
 
 //-------------------------------------------------------------------------------------
+InterfacesHandler* Dbmgr::findBestInterfacesHandler()
+{
+	if (pInterfacesHandlers_.size() == 0)
+		return NULL;
+
+	static size_t i = 0;
+
+	return pInterfacesHandlers_[i++ % pInterfacesHandlers_.size()];
+}
+
+//-------------------------------------------------------------------------------------
 void Dbmgr::onReqAllocEntityID(Network::Channel* pChannel, COMPONENT_ORDER componentType, COMPONENT_ID componentID)
 {
 	Ouroboros::COMPONENT_TYPE ct = static_cast<Ouroboros::COMPONENT_TYPE>(componentType);
 
 	// Get an id segment and transfer it to IDClient
 	std::pair<ENTITY_ID, ENTITY_ID> idRange = idServer_.allocRange();
-	Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+	Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 	if(ct == BASEAPP_TYPE)
 		(*pBundle).newMessage(BaseappInterface::onReqAllocEntityID);
-	else
+	else	
 		(*pBundle).newMessage(CellappInterface::onReqAllocEntityID);
 
 	(*pBundle) << idRange.first;
@@ -432,7 +519,7 @@ void Dbmgr::onReqAllocEntityID(Network::Channel* pChannel, COMPONENT_ORDER compo
 }
 
 //-------------------------------------------------------------------------------------
-void Dbmgr::onRegisterNewApp(Network::Channel* pChannel, int32 uid, std::string& username,
+void Dbmgr::onRegisterNewApp(Network::Channel* pChannel, int32 uid, std::string& username, 
 						COMPONENT_TYPE componentType, COMPONENT_ID componentID, COMPONENT_ORDER globalorderID, COMPONENT_ORDER grouporderID,
 						uint32 intaddr, uint16 intport, uint32 extaddr, uint16 extport, std::string& extaddrEx)
 {
@@ -443,7 +530,7 @@ void Dbmgr::onRegisterNewApp(Network::Channel* pChannel, int32 uid, std::string&
 						intaddr, intport, extaddr, extport, extaddrEx);
 
 	Ouroboros::COMPONENT_TYPE tcomponentType = (Ouroboros::COMPONENT_TYPE)componentType;
-
+	
 	COMPONENT_ORDER startGroupOrder = 1;
 	COMPONENT_ORDER startGlobalOrder = Components::getSingleton().getGlobalOrderLog()[getUserUID()];
 
@@ -456,11 +543,11 @@ void Dbmgr::onRegisterNewApp(Network::Channel* pChannel, int32 uid, std::string&
 	if(pSyncAppDatasHandler_ == NULL)
 		pSyncAppDatasHandler_ = new SyncAppDatasHandler(this->networkInterface());
 
-	// The next step:
-	// If you are connecting to dbmgr you need to wait to receive app initial information
-	// For example: Initially assigned the entityID segment and the order information of this app startup (whether the first baseapp started)
-	if(tcomponentType == BASEAPP_TYPE ||
-		tcomponentType == CELLAPP_TYPE ||
+	// Next step:
+	// If you are connected to dbmgr, you need to wait to receive the app initial information.
+	// For example: the initial assignment of the entityID section and the order in which the app is launched (whether the first baseapp is started)
+	if(tcomponentType == BASEAPP_TYPE || 
+		tcomponentType == CELLAPP_TYPE || 
 		tcomponentType == LOGINAPP_TYPE)
 	{
 		switch(tcomponentType)
@@ -489,8 +576,8 @@ void Dbmgr::onRegisterNewApp(Network::Channel* pChannel, int32 uid, std::string&
 
 	pSyncAppDatasHandler_->pushApp(componentID, startGroupOrder, startGlobalOrder);
 
-	// If it is a baseapp or a cellapp register itself to all other baseapps and cellapps
-	if(tcomponentType == BASEAPP_TYPE ||
+	// Register yourself to all other baseapp and cellapp if it is baseapp or cellapp
+	if(tcomponentType == BASEAPP_TYPE || 
 		tcomponentType == CELLAPP_TYPE)
 	{
 		Ouroboros::COMPONENT_TYPE broadcastCpTypes[2] = {BASEAPP_TYPE, CELLAPP_TYPE};
@@ -503,22 +590,22 @@ void Dbmgr::onRegisterNewApp(Network::Channel* pChannel, int32 uid, std::string&
 				if((*fiter).cid == componentID)
 					continue;
 
-				Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+				Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 				ENTITTAPP_COMMON_NETWORK_MESSAGE(broadcastCpTypes[idx], (*pBundle), onGetEntityAppFromDbmgr);
-
+				
 				if(tcomponentType == BASEAPP_TYPE)
 				{
-					BaseappInterface::onGetEntityAppFromDbmgrArgs11::staticAddToBundle((*pBundle),
+					BaseappInterface::onGetEntityAppFromDbmgrArgs11::staticAddToBundle((*pBundle), 
 						uid, username, componentType, componentID, startGlobalOrder, startGroupOrder,
 							intaddr, intport, extaddr, extport, g_ouroSrvConfig.getConfig().externalAddress);
 				}
 				else
 				{
-					CellappInterface::onGetEntityAppFromDbmgrArgs11::staticAddToBundle((*pBundle),
+					CellappInterface::onGetEntityAppFromDbmgrArgs11::staticAddToBundle((*pBundle), 
 						uid, username, componentType, componentID, startGlobalOrder, startGroupOrder,
 							intaddr, intport, extaddr, extport, g_ouroSrvConfig.getConfig().externalAddress);
 				}
-
+				
 				OURO_ASSERT((*fiter).pChannel != NULL);
 				(*fiter).pChannel->send(pBundle);
 			}
@@ -553,7 +640,7 @@ void Dbmgr::onBroadcastGlobalDataChanged(Network::Channel* pChannel, Ouroboros::
 	std::string key, value;
 	bool isDelete;
 	COMPONENT_TYPE componentType;
-
+	
 	s >> dataType;
 	s >> isDelete;
 
@@ -587,7 +674,7 @@ void Dbmgr::onBroadcastGlobalDataChanged(Network::Channel* pChannel, Ouroboros::
 			pCellAppData_->write(pChannel, componentType, key, value);
 		break;
 	default:
-		OURO_ASSERT(false && "dataType is error!\n");
+		OURO_ASSERT(false && "dataType error!\n");
 		break;
 	};
 }
@@ -607,18 +694,18 @@ void Dbmgr::reqCreateAccount(Network::Channel* pChannel, Ouroboros::MemoryStream
 		return;
 	}
 
-	pInterfacesAccountHandler_->createAccount(pChannel, registerName, password, datas, ACCOUNT_TYPE(uatype));
+	findBestInterfacesHandler()->createAccount(pChannel, registerName, password, datas, ACCOUNT_TYPE(uatype));
 	numCreatedAccount_++;
 }
 
 //-------------------------------------------------------------------------------------
 void Dbmgr::onCreateAccountCBFromInterfaces(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 {
-	pInterfacesAccountHandler_->onCreateAccountCB(s);
+	findBestInterfacesHandler()->onCreateAccountCB(s);
 }
 
 //-------------------------------------------------------------------------------------
-void Dbmgr::onAccountLogin(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
+void Dbmgr::onAccountLogin(Network::Channel* pChannel, Ouroboros::MemoryStream& s) 
 {
 	std::string loginName, password, datas;
 	s >> loginName >> password;
@@ -630,24 +717,24 @@ void Dbmgr::onAccountLogin(Network::Channel* pChannel, Ouroboros::MemoryStream& 
 		return;
 	}
 
-	pInterfacesAccountHandler_->loginAccount(pChannel, loginName, password, datas);
+	findBestInterfacesHandler()->loginAccount(pChannel, loginName, password, datas);
 }
 
 //-------------------------------------------------------------------------------------
-void Dbmgr::onLoginAccountCBBFromInterfaces(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
+void Dbmgr::onLoginAccountCBBFromInterfaces(Network::Channel* pChannel, Ouroboros::MemoryStream& s) 
 {
-	pInterfacesAccountHandler_->onLoginAccountCB(s);
+	findBestInterfacesHandler()->onLoginAccountCB(s);
 }
 
 //-------------------------------------------------------------------------------------
-void Dbmgr::queryAccount(Network::Channel* pChannel,
-						 std::string& accountName,
+void Dbmgr::queryAccount(Network::Channel* pChannel, 
+						 std::string& accountName, 
 						 std::string& password,
 						 bool needCheckPassword,
 						 COMPONENT_ID componentID,
 						 ENTITY_ID entityID,
-						 DBID entityDBID,
-						 uint32 ip,
+						 DBID entityDBID, 
+						 uint32 ip, 
 						 uint16 port)
 {
 	if(accountName.size() == 0)
@@ -656,12 +743,12 @@ void Dbmgr::queryAccount(Network::Channel* pChannel,
 		return;
 	}
 
-	Buffered_DBTasks* pBuffered_DBTasks =
+	Buffered_DBTasks* pBuffered_DBTasks = 
 		findBufferedDBTask(Dbmgr::getSingleton().selectAccountDBInterfaceName(accountName));
 
 	if (!pBuffered_DBTasks)
 	{
-		ERROR_MSG(fmt::format("Dbmgr::queryAccount: not found dbInterface({})!\n",
+		ERROR_MSG(fmt::format("Dbmgr::queryAccount: not found dbInterface({})!\n", 
 			Dbmgr::getSingleton().selectAccountDBInterfaceName(accountName)));
 		return;
 	}
@@ -673,12 +760,12 @@ void Dbmgr::queryAccount(Network::Channel* pChannel,
 }
 
 //-------------------------------------------------------------------------------------
-void Dbmgr::onAccountOnline(Network::Channel* pChannel,
-							std::string& accountName,
-							COMPONENT_ID componentID,
+void Dbmgr::onAccountOnline(Network::Channel* pChannel, 
+							std::string& accountName, 
+							COMPONENT_ID componentID, 
 							ENTITY_ID entityID)
 {
-	// bufferedDBTasks_.addTask(new DBTaskAccountOnline(pChannel->addr(),
+	// bufferedDBTasks_.addTask(new DBTaskAccountOnline(pChannel->addr(), 
 	//	accountName, componentID, entityID));
 }
 
@@ -696,7 +783,7 @@ void Dbmgr::onEntityOffline(Network::Channel* pChannel, DBID dbid, ENTITY_SCRIPT
 }
 
 //-------------------------------------------------------------------------------------
-void Dbmgr::executeRawDatabaseCommand(Network::Channel* pChannel,
+void Dbmgr::executeRawDatabaseCommand(Network::Channel* pChannel, 
 									  Ouroboros::MemoryStream& s)
 {
 	ENTITY_ID entityID = -1;
@@ -723,7 +810,7 @@ void Dbmgr::executeRawDatabaseCommand(Network::Channel* pChannel,
 			return;
 		}
 
-		pThreadPool->addTask(new DBTaskExecuteRawDatabaseCommand(pChannel->addr(), s));
+		pThreadPool->addTask(new DBTaskExecuteRawDatabaseCommand(pChannel ? pChannel->addr() : Network::Address::NONE, s));
 	}
 	else
 	{
@@ -735,7 +822,7 @@ void Dbmgr::executeRawDatabaseCommand(Network::Channel* pChannel,
 			return;
 		}
 
-		pBuffered_DBTasks->addTask(new DBTaskExecuteRawDatabaseCommandByEntity(pChannel->addr(), s, entityID));
+		pBuffered_DBTasks->addTask(new DBTaskExecuteRawDatabaseCommandByEntity(pChannel ? pChannel->addr() : Network::Address::NONE, s, entityID));
 	}
 
 	s.done();
@@ -744,7 +831,217 @@ void Dbmgr::executeRawDatabaseCommand(Network::Channel* pChannel,
 }
 
 //-------------------------------------------------------------------------------------
-void Dbmgr::writeEntity(Network::Channel* pChannel,
+PyObject* Dbmgr::__py_executeRawDatabaseCommand(PyObject* self, PyObject* args)
+{
+	int argCount = (int)PyTuple_Size(args);
+	PyObject* pycallback = NULL;
+	PyObject* pyDBInterfaceName = NULL;
+	int ret = -1;
+	ENTITY_ID eid = -1;
+
+	char* data = NULL;
+	Py_ssize_t size;
+
+	if (argCount == 4)
+		ret = PyArg_ParseTuple(args, "s#|O|i|O", &data, &size, &pycallback, &eid, &pyDBInterfaceName);
+	else if (argCount == 3)
+		ret = PyArg_ParseTuple(args, "s#|O|i", &data, &size, &pycallback, &eid);
+	else if (argCount == 2)
+		ret = PyArg_ParseTuple(args, "s#|O", &data, &size, &pycallback);
+	else if (argCount == 1)
+		ret = PyArg_ParseTuple(args, "s#", &data, &size);
+
+	if (ret == -1)
+	{
+		PyErr_Format(PyExc_TypeError, "Ouroboros::executeRawDatabaseCommand: args error!");
+		PyErr_PrintEx(0);
+		S_Return;
+	}
+
+	std::string dbInterfaceName = "default";
+	if (pyDBInterfaceName)
+	{
+		dbInterfaceName = PyUnicode_AsUTF8AndSize(pyDBInterfaceName, NULL);
+
+		if (!g_ouroSrvConfig.dbInterface(dbInterfaceName))
+		{
+			PyErr_Format(PyExc_TypeError, "Ouroboros::executeRawDatabaseCommand: args4, incorrect dbInterfaceName(%s)!",
+				dbInterfaceName.c_str());
+
+			PyErr_PrintEx(0);
+			S_Return;
+		}
+	}
+
+	Dbmgr::getSingleton().executeRawDatabaseCommand(data, (uint32)size, pycallback, eid, dbInterfaceName);
+	S_Return;
+}
+
+//-------------------------------------------------------------------------------------
+void Dbmgr::executeRawDatabaseCommand(const char* datas, uint32 size, PyObject* pycallback, ENTITY_ID eid, const std::string& dbInterfaceName)
+{
+	if (datas == NULL)
+	{
+		ERROR_MSG("Ouroboros::executeRawDatabaseCommand: execute error!\n");
+		return;
+	}
+
+	int dbInterfaceIndex = g_ouroSrvConfig.dbInterfaceName2dbInterfaceIndex(dbInterfaceName);
+	if (dbInterfaceIndex < 0)
+	{
+		ERROR_MSG(fmt::format("Ouroboros::executeRawDatabaseCommand: not found dbInterface({})!\n",
+			dbInterfaceName));
+
+		return;
+	}
+
+	//INFO_MSG(fmt::format("Ouroboros::executeRawDatabaseCommand{}:{}.\n", (eid > 0 ? fmt::format("(entityID={})", eid) : ""), datas));
+
+	MemoryStream* pMemoryStream = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
+	(*pMemoryStream) << eid;
+	(*pMemoryStream) << (uint16)dbInterfaceIndex;
+	(*pMemoryStream) << componentID_ << componentType_;
+
+	CALLBACK_ID callbackID = 0;
+
+	if (pycallback && PyCallable_Check(pycallback))
+		callbackID = callbackMgr().save(pycallback);
+
+	(*pMemoryStream) << callbackID;
+	(*pMemoryStream) << size;
+	(*pMemoryStream).append(datas, size);
+	executeRawDatabaseCommand(NULL, *pMemoryStream);
+	MemoryStream::reclaimPoolObject(pMemoryStream);
+}
+
+//-------------------------------------------------------------------------------------
+void Dbmgr::onExecuteRawDatabaseCommandCB(Ouroboros::MemoryStream& s)
+{
+	std::string err;
+	CALLBACK_ID callbackID = 0;
+	uint32 nrows = 0;
+	uint32 nfields = 0;
+	uint64 affectedRows = 0;
+	uint64 lastInsertID = 0;
+
+	PyObject* pResultSet = NULL;
+	PyObject* pAffectedRows = NULL;
+	PyObject* pLastInsertID = NULL;
+	PyObject* pErrorMsg = NULL;
+
+	s >> callbackID;
+	s >> err;
+
+	if (err.size() <= 0)
+	{
+		s >> nfields;
+
+		pErrorMsg = Py_None;
+		Py_INCREF(pErrorMsg);
+
+		if (nfields > 0)
+		{
+			pAffectedRows = Py_None;
+			Py_INCREF(pAffectedRows);
+
+			pLastInsertID = Py_None;
+			Py_INCREF(pLastInsertID);
+
+			s >> nrows;
+
+			pResultSet = PyList_New(nrows);
+			for (uint32 i = 0; i < nrows; ++i)
+			{
+				PyObject* pRow = PyList_New(nfields);
+				for (uint32 j = 0; j < nfields; ++j)
+				{
+					std::string cell;
+					s.readBlob(cell);
+
+					PyObject* pCell = NULL;
+
+					if (cell == "OURO_QUERY_DB_NULL")
+					{
+						Py_INCREF(Py_None);
+						pCell = Py_None;
+					}
+					else
+					{
+						pCell = PyBytes_FromStringAndSize(cell.data(), cell.length());
+					}
+
+					PyList_SET_ITEM(pRow, j, pCell);
+				}
+
+				PyList_SET_ITEM(pResultSet, i, pRow);
+			}
+		}
+		else
+		{
+			pResultSet = Py_None;
+			Py_INCREF(pResultSet);
+
+			pErrorMsg = Py_None;
+			Py_INCREF(pErrorMsg);
+
+			s >> affectedRows;
+
+			pAffectedRows = PyLong_FromUnsignedLongLong(affectedRows);
+
+			s >> lastInsertID;
+			pLastInsertID = PyLong_FromUnsignedLongLong(lastInsertID);
+		}
+	}
+	else
+	{
+		pResultSet = Py_None;
+		Py_INCREF(pResultSet);
+
+		pErrorMsg = PyUnicode_FromString(err.c_str());
+
+		pAffectedRows = Py_None;
+		Py_INCREF(pAffectedRows);
+
+		pLastInsertID = Py_None;
+		Py_INCREF(pLastInsertID);
+	}
+
+	s.done();
+
+	//DEBUG_MSG(fmt::format("Cellapp::onExecuteRawDatabaseCommandCB: nrows={}, nfields={}, err={}.\n", 
+	//	nrows, nfields, err.c_str()));
+
+	if (callbackID > 0)
+	{
+		SCOPED_PROFILE(SCRIPTCALL_PROFILE);
+
+		PyObjectPtr pyfunc = pyCallbackMgr_.take(callbackID);
+		if (pyfunc != NULL)
+		{
+			PyObject* pyResult = PyObject_CallFunction(pyfunc.get(),
+				const_cast<char*>("OOOO"),
+				pResultSet, pAffectedRows, pLastInsertID, pErrorMsg);
+
+			if (pyResult != NULL)
+				Py_DECREF(pyResult);
+			else
+				SCRIPT_ERROR_CHECK();
+		}
+		else
+		{
+			ERROR_MSG(fmt::format("Cellapp::onExecuteRawDatabaseCommandCB: not found callback:{}.\n",
+				callbackID));
+		}
+	}
+
+	Py_XDECREF(pResultSet);
+	Py_XDECREF(pAffectedRows);
+	Py_XDECREF(pLastInsertID);
+	Py_XDECREF(pErrorMsg);
+}
+
+//-------------------------------------------------------------------------------------
+void Dbmgr::writeEntity(Network::Channel* pChannel, 
 						Ouroboros::MemoryStream& s)
 {
 	ENTITY_ID eid;
@@ -859,8 +1156,8 @@ void Dbmgr::syncEntityStreamTemplate(Network::Channel* pChannel, Ouroboros::Memo
 	EntityTables::ENTITY_TABLES_MAP::iterator iter = EntityTables::sEntityTables.begin();
 	for (; iter != EntityTables::sEntityTables.end(); ++iter)
 	{
-		OUROAccountTable* pTable =
-			static_cast<OUROAccountTable*>(iter->second.findOUROTable(OURO_TABLE_PERFIX "_accountinfos"));
+		KBEAccountTable* pTable =
+			static_cast<KBEAccountTable*>(iter->second.findKBETable(OURO_TABLE_PERFIX "_accountinfos"));
 
 		OURO_ASSERT(pTable);
 
@@ -874,63 +1171,65 @@ void Dbmgr::syncEntityStreamTemplate(Network::Channel* pChannel, Ouroboros::Memo
 //-------------------------------------------------------------------------------------
 void Dbmgr::charge(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 {
-	pInterfacesChargeHandler_->charge(pChannel, s);
+	findBestInterfacesHandler()->charge(pChannel, s);
 }
 
 //-------------------------------------------------------------------------------------
 void Dbmgr::onChargeCB(Network::Channel* pChannel, Ouroboros::MemoryStream& s)
 {
-	pInterfacesChargeHandler_->onChargeCB(s);
+	findBestInterfacesHandler()->onChargeCB(s);
 }
 
 //-------------------------------------------------------------------------------------
 void Dbmgr::eraseClientReq(Network::Channel* pChannel, std::string& logkey)
 {
-	pInterfacesAccountHandler_->eraseClientReq(pChannel, logkey);
+	std::vector<InterfacesHandler*>::iterator iter = pInterfacesHandlers_.begin();
+	for(; iter != pInterfacesHandlers_.end(); ++iter)
+		(*iter)->eraseClientReq(pChannel, logkey);
 }
 
 //-------------------------------------------------------------------------------------
 void Dbmgr::accountActivate(Network::Channel* pChannel, std::string& scode)
 {
 	INFO_MSG(fmt::format("Dbmgr::accountActivate: code={}.\n", scode));
-	pInterfacesAccountHandler_->accountActivate(pChannel, scode);
+	findBestInterfacesHandler()->accountActivate(pChannel, scode);
 }
 
 //-------------------------------------------------------------------------------------
 void Dbmgr::accountReqResetPassword(Network::Channel* pChannel, std::string& accountName)
 {
 	INFO_MSG(fmt::format("Dbmgr::accountReqResetPassword: accountName={}.\n", accountName));
-	pInterfacesAccountHandler_->accountReqResetPassword(pChannel, accountName);
+	findBestInterfacesHandler()->accountReqResetPassword(pChannel, accountName);
 }
 
 //-------------------------------------------------------------------------------------
 void Dbmgr::accountResetPassword(Network::Channel* pChannel, std::string& accountName, std::string& newpassword, std::string& code)
 {
 	INFO_MSG(fmt::format("Dbmgr::accountResetPassword: accountName={}.\n", accountName));
-	pInterfacesAccountHandler_->accountResetPassword(pChannel, accountName, newpassword, code);
+	findBestInterfacesHandler()->accountResetPassword(pChannel, accountName, newpassword, code);
 }
 
 //-------------------------------------------------------------------------------------
-void Dbmgr::accountReqBindMail(Network::Channel* pChannel, ENTITY_ID entityID, std::string& accountName,
+void Dbmgr::accountReqBindMail(Network::Channel* pChannel, ENTITY_ID entityID, std::string& accountName, 
 							   std::string& password, std::string& email)
 {
 	INFO_MSG(fmt::format("Dbmgr::accountReqBindMail: accountName={}, email={}.\n", accountName, email));
-	pInterfacesAccountHandler_->accountReqBindMail(pChannel, entityID, accountName, password, email);
+	findBestInterfacesHandler()->accountReqBindMail(pChannel, entityID, accountName, password, email);
 }
 
 //-------------------------------------------------------------------------------------
 void Dbmgr::accountBindMail(Network::Channel* pChannel, std::string& username, std::string& scode)
 {
 	INFO_MSG(fmt::format("Dbmgr::accountBindMail: username={}, scode={}.\n", username, scode));
-	pInterfacesAccountHandler_->accountBindMail(pChannel, username, scode);
+	findBestInterfacesHandler()->accountBindMail(pChannel, username, scode);
 }
 
 //-------------------------------------------------------------------------------------
-void Dbmgr::accountNewPassword(Network::Channel* pChannel, ENTITY_ID entityID, std::string& accountName,
+void Dbmgr::accountNewPassword(Network::Channel* pChannel, ENTITY_ID entityID, std::string& accountName, 
 							   std::string& password, std::string& newpassword)
 {
 	INFO_MSG(fmt::format("Dbmgr::accountNewPassword: accountName={}.\n", accountName));
-	pInterfacesAccountHandler_->accountNewPassword(pChannel, entityID, accountName, password, newpassword);
+	findBestInterfacesHandler()->accountNewPassword(pChannel, entityID, accountName, password, newpassword);
 }
 
 //-------------------------------------------------------------------------------------
@@ -938,7 +1237,7 @@ std::string Dbmgr::selectAccountDBInterfaceName(const std::string& name)
 {
 	std::string dbInterfaceName = "default";
 
-	// Handing the request to the script
+	// hand the request to the script
 	SCOPED_PROFILE(SCRIPTCALL_PROFILE);
 	PyObject* pyResult = PyObject_CallMethod(getEntryScript().get(),
 		const_cast<char*>("onSelectAccountDBInterface"),
@@ -947,12 +1246,8 @@ std::string Dbmgr::selectAccountDBInterfaceName(const std::string& name)
 
 	if (pyResult != NULL)
 	{
-		wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pyResult, NULL);
-		char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-		dbInterfaceName = ccattr;
-		PyMem_Free(PyUnicode_AsWideCharStringRet0);
+		dbInterfaceName = PyUnicode_AsUTF8AndSize(pyResult, NULL);
 		Py_DECREF(pyResult);
-		free(ccattr);
 	}
 	else
 	{
@@ -966,6 +1261,26 @@ std::string Dbmgr::selectAccountDBInterfaceName(const std::string& name)
 	}
 
 	return dbInterfaceName;
+}
+
+//-------------------------------------------------------------------------------------
+void Dbmgr::onChannelDeregister(Network::Channel * pChannel)
+{
+	// If the app is dead
+	if (pChannel->isInternal())
+	{
+		Components::ComponentInfos* cinfo = Components::getSingleton().findComponent(pChannel);
+		if (cinfo)
+		{
+			if (cinfo->componentType == BASEAPP_TYPE)
+			{
+				loseBaseappts_[cinfo->cid] = timestamp() + uint64(60 * stampsPerSecond());
+				WARNING_MSG(fmt::format("Dbmgr::onChannelDeregister(): If the process cannot be resumed, the entitylog(baseapp={}) will be cleaned up after 60 seconds!\n", cinfo->cid));
+			}
+		}
+	}
+	
+	ServerApp::onChannelDeregister(pChannel);
 }
 
 //-------------------------------------------------------------------------------------

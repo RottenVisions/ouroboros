@@ -1,11 +1,11 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "packet_reader.h"
 #include "network/channel.h"
 #include "network/message_handler.h"
 #include "network/network_stats.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 
@@ -38,7 +38,7 @@ void PacketReader::reset()
 	pFragmentDatasRemain_ = 0;
 	currMsgID_ = 0;
 	currMsgLen_ = 0;
-
+	
 	SAFE_RELEASE_ARRAY(pFragmentDatas_);
 	MemoryStream::reclaimPoolObject(pFragmentStream_);
 	pFragmentStream_ = NULL;
@@ -51,7 +51,7 @@ void PacketReader::processMessages(Ouroboros::Network::MessageHandlers* pMsgHand
 	{
 		if(fragmentDatasFlag_ == FRAGMENT_DATA_UNKNOW)
 		{
-			// If there is no ID information, get the ID first
+			// If there is no ID information, get the ID first.
 			if(currMsgID_ == 0)
 			{
 				if(NETWORK_MESSAGE_ID_SIZE > 1 && pPacket->length() < NETWORK_MESSAGE_ID_SIZE)
@@ -70,8 +70,8 @@ void PacketReader::processMessages(Ouroboros::Network::MessageHandlers* pMsgHand
 			{
 				MemoryStream* pPacket1 = pFragmentStream_ != NULL ? pFragmentStream_ : pPacket;
 				TRACE_MESSAGE_PACKET(true, pPacket1, pMsgHandler, pPacket1->length(), pChannel_->c_str(), false);
-
-				// When used as a debugger
+				
+				// Used as a debugging comparison
 				uint32 rpos = pPacket1->rpos();
 				pPacket1->rpos(0);
 				TRACE_MESSAGE_PACKET(true, pPacket1, pMsgHandler, pPacket1->length(), pChannel_->c_str(), false);
@@ -82,19 +82,19 @@ void PacketReader::processMessages(Ouroboros::Network::MessageHandlers* pMsgHand
 
 				currMsgID_ = 0;
 				currMsgLen_ = 0;
-				pChannel_->condemn();
+				pChannel_->condemn("PacketReader::processMessages: not found msgID");
 				break;
 			}
 
-			// If there is no data available then exit to wait for the next packet.
-			// May be a parameterless packet
-			//if(pPacket->opsize() == 0)
+			// If there is no operational data, exit and wait for the next packet processing.
+			// may be a parameterless packet
+			//if(pPacket->opsize() == 0)	
 			//	break;
-
-			// If length information is not obtained, wait for length information
+			
+			// If the length information is not obtained, wait for the length information
 			if(currMsgLen_ == 0)
 			{
-				// Length data is analyzed from the stream if the length information is variable or if the Always include length information option is configured
+				// Analyze length data from the stream if the length information is mutable or if the option to always include length information is configured
 				if(pMsgHandler->msgLen == NETWORK_VARIABLE_MESSAGE)
 				{
 					// If the length information is incomplete, wait for the next packet processing
@@ -105,15 +105,15 @@ void PacketReader::processMessages(Ouroboros::Network::MessageHandlers* pMsgHand
 					}
 					else
 					{
-						// Here is the length information
+						// length information is obtained here
 						Network::MessageLength currlen;
 						(*pPacket) >> currlen;
 						currMsgLen_ = currlen;
 
-						NetworkStats::getSingleton().trackMessage(NetworkStats::RECV, *pMsgHandler,
+						NetworkStats::getSingleton().trackMessage(NetworkStats::RECV, *pMsgHandler, 
 							currMsgLen_ + NETWORK_MESSAGE_ID_SIZE + NETWORK_MESSAGE_LENGTH_SIZE);
 
-						// If the length is full and the extension length is used, we also need to wait for the extension length information
+						// If the length is full, the extended length is used, we also need to wait for the extended length information.
 						if(currMsgLen_ == NETWORK_MESSAGE_MAX_SIZE)
 						{
 							if(pPacket->length() < NETWORK_MESSAGE_LENGTH1_SIZE)
@@ -124,10 +124,10 @@ void PacketReader::processMessages(Ouroboros::Network::MessageHandlers* pMsgHand
 							}
 							else
 							{
-								// Here is the extended length information
+								// Get extended length information here
 								(*pPacket) >> currMsgLen_;
 
-								NetworkStats::getSingleton().trackMessage(NetworkStats::RECV, *pMsgHandler,
+								NetworkStats::getSingleton().trackMessage(NetworkStats::RECV, *pMsgHandler, 
 									currMsgLen_ + NETWORK_MESSAGE_ID_SIZE + NETWORK_MESSAGE_LENGTH1_SIZE);
 							}
 						}
@@ -137,30 +137,30 @@ void PacketReader::processMessages(Ouroboros::Network::MessageHandlers* pMsgHand
 				{
 					currMsgLen_ = pMsgHandler->msgLen;
 
-					NetworkStats::getSingleton().trackMessage(NetworkStats::RECV, *pMsgHandler,
+					NetworkStats::getSingleton().trackMessage(NetworkStats::RECV, *pMsgHandler, 
 						currMsgLen_ + NETWORK_MESSAGE_LENGTH_SIZE);
 				}
 			}
 
-			if(this->pChannel_->isExternal() &&
-				g_componentType != BOTS_TYPE &&
-				g_componentType != CLIENT_TYPE &&
+			if(this->pChannel_->isExternal() && 
+				g_componentType != BOTS_TYPE && 
+				g_componentType != CLIENT_TYPE && 
 				currMsgLen_ > NETWORK_MESSAGE_MAX_SIZE)
 			{
 				MemoryStream* pPacket1 = pFragmentStream_ != NULL ? pFragmentStream_ : pPacket;
 				TRACE_MESSAGE_PACKET(true, pPacket1, pMsgHandler, pPacket1->length(), pChannel_->c_str(), false);
 
-				// When used as a debugger
+				// Used as a debugging comparison
 				uint32 rpos = pPacket1->rpos();
 				pPacket1->rpos(0);
 				TRACE_MESSAGE_PACKET(true, pPacket1, pMsgHandler, pPacket1->length(), pChannel_->c_str(), false);
 				pPacket1->rpos(rpos);
 
-				WARNING_MSG(fmt::format("PacketReader::processMessages({0}): msglen exceeds the limit! msgID={1}, msglen=({2}:{3}), maxlen={5}, from {4}.\n",
+				WARNING_MSG(fmt::format("PacketReader::processMessages({0}): msglen exceeds the limit! msgID={1}, msglen=({2}:{3}), maxlen={5}, from {4}.\n", 
 					pMsgHandler->name.c_str(), currMsgID_, currMsgLen_, pPacket1->length(), pChannel_->c_str(), NETWORK_MESSAGE_MAX_SIZE));
 
 				currMsgLen_ = 0;
-				pChannel_->condemn();
+				pChannel_->condemn("PacketReader::processMessages: msglen exceeds the limit!");
 				break;
 			}
 
@@ -179,7 +179,7 @@ void PacketReader::processMessages(Ouroboros::Network::MessageHandlers* pMsgHand
 					break;
 				}
 
-				// Set the valid read bit temporarily to prevent overflow in the interface
+				// Temporarily set a valid read bit to prevent overflow operations in the interface
 				size_t wpos = pPacket->wpos();
 				// size_t rpos = pPacket->rpos();
 				size_t frpos = pPacket->rpos() + currMsgLen_;
@@ -188,7 +188,7 @@ void PacketReader::processMessages(Ouroboros::Network::MessageHandlers* pMsgHand
 				TRACE_MESSAGE_PACKET(true, pPacket, pMsgHandler, currMsgLen_, pChannel_->c_str(), true);
 				pMsgHandler->handle(pChannel_, *pPacket);
 
-				// If the handler does not process the data output a warning
+				// Output a warning if the handler has not processed the data
 				if(currMsgLen_ > 0)
 				{
 					if(frpos != pPacket->rpos())
@@ -231,7 +231,7 @@ void PacketReader::writeFragmentMessage(FragmentDataTypes fragmentDatasFlag, Pac
 		pPacket->done();
 	}
 
-	//DEBUG_MSG(fmt::format("PacketReader::writeFragmentMessage({}): channel[{:p}], fragmentDatasFlag={}, remainsize={}, currMsgID={}, currMsgLen={}.\n",
+	//DEBUG_MSG(fmt::format("PacketReader::writeFragmentMessage({}): channel[{:p}], fragmentDatasFlag={}, remainsize={}, currMsgID={}, currMsgLen={}.\n", 
 	//	pChannel_->c_str(), (void*)pChannel_, fragmentDatasFlag, pFragmentDatasRemain_, currMsgID_, currMsgLen_));
 }
 
@@ -251,20 +251,20 @@ void PacketReader::mergeFragmentMessage(Packet* pPacket)
 
 		switch(fragmentDatasFlag_)
 		{
-		case FRAGMENT_DATA_MESSAGE_ID:			// Incomplete message ID information
+		case FRAGMENT_DATA_MESSAGE_ID: // Message ID information is incomplete
 			memcpy(&currMsgID_, pFragmentDatas_, NETWORK_MESSAGE_ID_SIZE);
 			break;
 
-		case FRAGMENT_DATA_MESSAGE_LENGTH:		// Incomplete message length information
+		case FRAGMENT_DATA_MESSAGE_LENGTH: // message length information is incomplete
 			memcpy(&currMsgLen_, pFragmentDatas_, NETWORK_MESSAGE_LENGTH_SIZE);
 			break;
 
-		case FRAGMENT_DATA_MESSAGE_LENGTH1:		// Incomplete message length information
+		case FRAGMENT_DATA_MESSAGE_LENGTH1: // message length information is incomplete
 			memcpy(&currMsgLen_, pFragmentDatas_, NETWORK_MESSAGE_LENGTH1_SIZE);
 			break;
 
-		case FRAGMENT_DATA_MESSAGE_BODY:		// Incomplete message content
-			pFragmentStream_ = MemoryStream::createPoolObject();
+		case FRAGMENT_DATA_MESSAGE_BODY: // The message content is incomplete
+			pFragmentStream_ = MemoryStream::createPoolObject(OBJECTPOOL_POINT);
 			pFragmentStream_->append(pFragmentDatas_, currMsgLen_);
 			break;
 
@@ -272,7 +272,7 @@ void PacketReader::mergeFragmentMessage(Packet* pPacket)
 			break;
 		};
 
-		//DEBUG_MSG(fmt::format("PacketReader::mergeFragmentMessage({}): channel[{:p}], fragmentDatasFlag={}, currMsgID={}, currMsgLen={}, completed!\n",
+		//DEBUG_MSG(fmt::format("PacketReader::mergeFragmentMessage({}): channel[{:p}], fragmentDatasFlag={}, currMsgID={}, currMsgLen={}, completed!\n", 
 		//	pChannel_->c_str(), (void*)pChannel_, fragmentDatasFlag_, currMsgID_, currMsgLen_));
 
 		fragmentDatasFlag_ = FRAGMENT_DATA_UNKNOW;
@@ -288,9 +288,9 @@ void PacketReader::mergeFragmentMessage(Packet* pPacket)
 
 		//DEBUG_MSG(fmt::format("PacketReader::mergeFragmentMessage({}): channel[{:p}], fragmentDatasFlag={}, remainsize={}, currMsgID={}, currMsgLen={}.\n",
 		//	pChannel_->c_str(), (void*)pChannel_, fragmentDatasFlag_, pFragmentDatasRemain_, currMsgID_, currMsgLen_));
-	}
+	}	
 }
 
 //-------------------------------------------------------------------------------------
-}
+} 
 }

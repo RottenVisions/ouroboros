@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "db_exception.h"
 #include "db_interface_mysql.h"
@@ -10,8 +10,8 @@ namespace Ouroboros {
 
 //-------------------------------------------------------------------------------------
 DBException::DBException(DBInterface* pdbi) :
-			errStr_(mysql_error(static_cast<DBInterfaceMysql*>(pdbi)->mysql())),
-			errNum_(mysql_errno(static_cast<DBInterfaceMysql*>(pdbi)->mysql()))
+	errStr_(pdbi ? mysql_error(static_cast<DBInterfaceMysql*>(pdbi)->mysql()) : ""),
+	errNum_(pdbi ? mysql_errno(static_cast<DBInterfaceMysql*>(pdbi)->mysql()) : 0)
 {
 }
 

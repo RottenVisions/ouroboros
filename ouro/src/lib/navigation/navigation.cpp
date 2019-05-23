@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "navigation.h"
 #include "resmgr/resmgr.h"
@@ -34,8 +34,8 @@ void Navigation::finalise()
 //-------------------------------------------------------------------------------------
 bool Navigation::removeNavigation(std::string resPath)
 {
-	Ouroboros::thread::ThreadGuard tg(&mutex_);
-	OUROUnordered_map<std::string, NavigationHandlePtr>::iterator iter = navhandles_.find(resPath);
+	Ouroboros::thread::ThreadGuard tg(&mutex_); 
+	KBEUnordered_map<std::string, NavigationHandlePtr>::iterator iter = navhandles_.find(resPath);
 	if(navhandles_.find(resPath) != navhandles_.end())
 	{
 		iter->second->decRef();
@@ -51,8 +51,8 @@ bool Navigation::removeNavigation(std::string resPath)
 //-------------------------------------------------------------------------------------
 NavigationHandlePtr Navigation::findNavigation(std::string resPath)
 {
-	Ouroboros::thread::ThreadGuard tg(&mutex_);
-	OUROUnordered_map<std::string, NavigationHandlePtr>::iterator iter = navhandles_.find(resPath);
+	Ouroboros::thread::ThreadGuard tg(&mutex_); 
+	KBEUnordered_map<std::string, NavigationHandlePtr>::iterator iter = navhandles_.find(resPath);
 	if(navhandles_.find(resPath) != navhandles_.end())
 	{
 		if(iter->second == NULL)
@@ -64,7 +64,7 @@ NavigationHandlePtr Navigation::findNavigation(std::string resPath)
 		}
 		else if (iter->second->type() == NavigationHandle::NAV_TILE)
 		{
-			// Because tiles need to do collisions, each space needs a new piece of data. Here we use the copy method to increase the construction speed.
+			// Since tiles need to collide, each space needs a new piece of data. We use copying to increase the construction speed.
 			NavTileHandle* pNavTileHandle = new NavTileHandle(*(Ouroboros::NavTileHandle*)iter->second.get());
 			DEBUG_MSG(fmt::format("Navigation::findNavigation: copy NavTileHandle({:p})!\n", (void*)pNavTileHandle));
 			return NavigationHandlePtr(pNavTileHandle);
@@ -79,18 +79,18 @@ NavigationHandlePtr Navigation::findNavigation(std::string resPath)
 //-------------------------------------------------------------------------------------
 bool Navigation::hasNavigation(std::string resPath)
 {
-	Ouroboros::thread::ThreadGuard tg(&mutex_);
+	Ouroboros::thread::ThreadGuard tg(&mutex_); 
 	return navhandles_.find(resPath) != navhandles_.end();
 }
 
 //-------------------------------------------------------------------------------------
 NavigationHandlePtr Navigation::loadNavigation(std::string resPath, const std::map< int, std::string >& params)
 {
-	Ouroboros::thread::ThreadGuard tg(&mutex_);
+	Ouroboros::thread::ThreadGuard tg(&mutex_); 
 	if(resPath == "")
 		return NULL;
-
-	OUROUnordered_map<std::string, NavigationHandlePtr>::iterator iter = navhandles_.find(resPath);
+	
+	KBEUnordered_map<std::string, NavigationHandlePtr>::iterator iter = navhandles_.find(resPath);
 	if(iter != navhandles_.end())
 	{
 		return iter->second;
@@ -102,19 +102,19 @@ NavigationHandlePtr Navigation::loadNavigation(std::string resPath, const std::m
 	path = Resmgr::getSingleton().matchPath(path);
 	if(path.size() == 0)
 		return NULL;
-
+		
 	wchar_t* wpath = strutil::char2wchar(path.c_str());
 	std::wstring wspath = wpath;
 	free(wpath);
 
 	std::vector<std::wstring> results;
 	Resmgr::getSingleton().listPathRes(wspath, L"tmx", results);
-
+	
 	if(results.size() > 0)
 	{
 		pNavigationHandle_ = NavTileHandle::create(resPath, params);
 	}
-	else
+	else 	
 	{
 		results.clear();
 		Resmgr::getSingleton().listPathRes(wspath, L"navmesh", results);
@@ -132,5 +132,5 @@ NavigationHandlePtr Navigation::loadNavigation(std::string resPath, const std::m
 	return pNavigationHandle_;
 }
 
-//-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------		
 }

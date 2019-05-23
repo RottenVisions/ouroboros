@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OUROBOROS_KEY_H
 #define OUROBOROS_KEY_H
@@ -11,12 +11,12 @@ namespace Ouroboros
 
 
 /**
- *	Key management of the engine
+ ?* Engine key management
  */
 class OUROKey : public OURO_RSA, public Singleton<OUROKey>
 {
 public:
-	OUROKey(const std::string& pubkeyname,
+	OUROKey(const std::string& pubkeyname, 
 		const std::string& prikeyname);
 
 	OUROKey();

@@ -1,11 +1,11 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "trap_trigger.h"
 #include "entity.h"
-#include "proximity_controller.h"
+#include "proximity_controller.h"	
 #include "entity_coordinate_node.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 
 //-------------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ pTrapTrigger_(NULL),
 xz_(xz),
 y_(y)
 {
-	pTrapTrigger_ = new TrapTrigger(static_cast<EntityCoordinateNode*>(pEntity->pEntityCoordinateNode()),
+	pTrapTrigger_ = new TrapTrigger(static_cast<EntityCoordinateNode*>(pEntity->pEntityCoordinateNode()), 
 								this, xz, y);
 
 	pTrapTrigger_->install();
@@ -55,10 +55,10 @@ void ProximityController::createFromStream(Ouroboros::MemoryStream& s)
 bool ProximityController::reinstall(CoordinateNode* pCoordinateNode)
 {
 	// This may happen when jumping across cellapp scenes
-	// Because of using ProximityController::ProximityController(Entity* pEntity) structure
+	// Because it is constructed using ProximityController::ProximityController(Entity* pEntity)
 	if(pTrapTrigger_ == NULL)
 	{
-		pTrapTrigger_ = new TrapTrigger(static_cast<EntityCoordinateNode*>(pCoordinateNode),
+		pTrapTrigger_ = new TrapTrigger(static_cast<EntityCoordinateNode*>(pCoordinateNode), 
 								this, xz_, y_);
 	}
 

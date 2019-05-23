@@ -1,10 +1,13 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "endpoint.h"
 #ifndef CODE_INLINE
 #include "endpoint.inl"
 #endif
+
+#include "resmgr/resmgr.h"
+#include <openssl/err.h>
 
 #include "network/bundle.h"
 #include "network/tcp_packet_receiver.h"
@@ -13,17 +16,17 @@
 
 #if OURO_PLATFORM == PLATFORM_WIN32
 #include <Iphlpapi.h>
-#pragma comment (lib,"iphlpapi.lib")
+#pragma comment (lib,"iphlpapi.lib") 
 #else
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <arpa/inet.h>
 #endif
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 #else	// not unix
 	// Need to implement if_nameindex functions on Windows
 	/** @internal */
@@ -60,9 +63,9 @@ ObjectPool<EndPoint>& EndPoint::ObjPool()
 }
 
 //-------------------------------------------------------------------------------------
-EndPoint* EndPoint::createPoolObject()
+EndPoint* EndPoint::createPoolObject(const std::string& logPoint)
 {
-	return _g_objPool.createObject();
+	return _g_objPool.createObject(logPoint);
 }
 
 //-------------------------------------------------------------------------------------
@@ -74,30 +77,22 @@ void EndPoint::reclaimPoolObject(EndPoint* obj)
 //-------------------------------------------------------------------------------------
 void EndPoint::destroyObjPool()
 {
-	DEBUG_MSG(fmt::format("EndPoint::destroyObjPool(): size {}.\n",
+	DEBUG_MSG(fmt::format("EndPoint::destroyObjPool(): size {}.\n", 
 		_g_objPool.size()));
 
 	_g_objPool.destroy();
 }
 
 //-------------------------------------------------------------------------------------
-EndPoint::SmartPoolObjectPtr EndPoint::createSmartPoolObj()
+EndPoint::SmartPoolObjectPtr EndPoint::createSmartPoolObj(const std::string& logPoint)
 {
-	return SmartPoolObjectPtr(new SmartPoolObject<EndPoint>(ObjPool().createObject(), _g_objPool));
+	return SmartPoolObjectPtr(new SmartPoolObject<EndPoint>(ObjPool().createObject(logPoint), _g_objPool));
 }
 
 //-------------------------------------------------------------------------------------
 void EndPoint::onReclaimObject()
 {
-#if OURO_PLATFORM == PLATFORM_WIN32
-	socket_ = INVALID_SOCKET;
-#else
-	socket_ = -1;
-#endif
-
-	address_ = Address::NONE;
-
-	isRefSocket_ = false;
+	close();
 }
 
 //-------------------------------------------------------------------------------------
@@ -105,7 +100,7 @@ bool EndPoint::getClosedPort(Network::Address & closedPort)
 {
 	bool isResultSet = false;
 
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 //	OURO_ASSERT(errno == ECONNREFUSED);
 
 	struct sockaddr_in	offender;
@@ -262,7 +257,7 @@ int EndPoint::findIndicatedInterface(const char * spec, u_int32_t & address)
 		return -1;
 	}
 
-	// Convert string to address
+	// Whether to specify the address
 	if (0 == Address::string2ip(spec, address))
 	{
 		return 0;
@@ -295,7 +290,7 @@ int EndPoint::getInterfaceAddressByName(const char * name, u_int32_t & address)
     {
         delete pIpAdapterInfo;
         pIpAdapterInfo = (PIP_ADAPTER_INFO)new unsigned char[size];
-        ret_info = ::GetAdaptersInfo(pIpAdapterInfo, &size);
+        ret_info = ::GetAdaptersInfo(pIpAdapterInfo, &size);    
     }
 
     if (ERROR_SUCCESS == ret_info)
@@ -320,7 +315,7 @@ int EndPoint::getInterfaceAddressByName(const char * name, u_int32_t & address)
     }
 
 #else
-
+	
 	int fd;
 	int interfaceNum = 0;
 	struct ifreq buf[16];
@@ -369,7 +364,7 @@ int EndPoint::getInterfaceAddressByMAC(const char * mac, u_int32_t & address)
 		return ret;
 	}
 
-	// Mac address translation
+	// mac address translation
 	unsigned char macAddress[16] = {0};
 	unsigned char macAddressIdx = 0;
 	char szTemp[2] = {0};
@@ -401,7 +396,7 @@ int EndPoint::getInterfaceAddressByMAC(const char * mac, u_int32_t & address)
 	{
 		delete pIpAdapterInfo;
 		pIpAdapterInfo = (PIP_ADAPTER_INFO)new unsigned char[size];
-		ret_info = ::GetAdaptersInfo(pIpAdapterInfo, &size);
+		ret_info = ::GetAdaptersInfo(pIpAdapterInfo, &size);    
 	}
 
 	if (ERROR_SUCCESS == ret_info)
@@ -475,7 +470,7 @@ int EndPoint::getInterfaceAddressByMAC(const char * mac, u_int32_t & address)
 //-------------------------------------------------------------------------------------
 int EndPoint::findDefaultInterface(char * name, int buffsize)
 {
-#ifndef unix
+#if OURO_PLATFORM != PLATFORM_UNIX
 	strcpy(name, "eth0");
 	return 0;
 #else
@@ -616,9 +611,9 @@ Network::Address EndPoint::getRemoteAddress() const
 //-------------------------------------------------------------------------------------
 void EndPoint::initNetwork()
 {
-	if (g_networkInitted)
+	if (g_networkInitted) 
 		return;
-
+	
 	g_networkInitted = true;
 
 #if OURO_PLATFORM == PLATFORM_WIN32
@@ -650,6 +645,179 @@ void EndPoint::sendto(Bundle * pBundle, u_int16_t networkPort, u_int32_t network
 {
 	//AUTO_SCOPED_PROFILE("sendBundle");
 	SENDTO_BUNDLE((*this), networkAddr, networkPort, (*pBundle));
+}
+
+//-------------------------------------------------------------------------------------
+static long ssl_bio_callback(BIO *bio, int cmd, const char *argp, int argi, long argl, long ret)
+{
+	if ((cmd & ~BIO_CB_RETURN) != BIO_CB_READ)
+		return ret;
+
+	Packet* pPacket = (Packet*)BIO_get_callback_arg(bio);
+
+	// Similar to recv, argi is buffer, argl is buffer length, here judge pPacket is greater than the length returns the specified length, less than the length returns the read length
+	if ((int)pPacket->length() < argi)
+		argi = (int)pPacket->length();
+
+	// fill our buffer into it
+	if ((cmd & BIO_CB_RETURN) > 0)
+	{
+		memcpy((void*)argp, pPacket->data() + pPacket->rpos(), argi);
+		pPacket->read_skip(argi);
+		bio->num_read += argi;
+	}
+	else
+	{
+		return ret;
+	}
+
+	if (pPacket->length() == 0)
+	{
+		BIO_set_callback(bio, NULL);
+		BIO_set_callback_arg(bio, (char*)NULL);
+	}
+
+	return argi;
+}
+
+bool EndPoint::setupSSL(int sslVersion, Packet* pPacket)
+{
+	switch (sslVersion)
+	{
+	case SSL2_VERSION:
+		sslContext_ = SSL_CTX_new(SSLv2_server_method());
+		break;
+	case SSL3_VERSION:
+		sslContext_ = SSL_CTX_new(SSLv3_server_method());
+		break;
+	case TLS1_VERSION:
+		sslContext_ = SSL_CTX_new(TLSv1_server_method());
+		break;
+	case TLS1_1_VERSION:
+		sslContext_ = SSL_CTX_new(TLSv1_1_server_method());
+		break;
+	case TLS1_2_VERSION:
+		sslContext_ = SSL_CTX_new(TLSv1_2_server_method());
+		break;
+	default:
+		sslContext_ = SSL_CTX_new(SSLv23_server_method());
+		break;
+	};
+
+	if (!sslContext_)
+	{
+		ERROR_MSG(fmt::format("EndPoint::setupSSL: SSL_CTX_new(SSLv23_client_method()): {}!\n", ERR_error_string(ERR_get_error(), NULL)));
+		return false;
+	}
+
+	SSL_CTX_set_options(sslContext_, SSL_OP_SINGLE_DH_USE | SSL_OP_SINGLE_ECDH_USE);
+
+	std::string pem = Resmgr::getSingleton().matchRes(g_sslCertificate.c_str());
+	int use_cert = SSL_CTX_use_certificate_file(sslContext_, pem.c_str(), SSL_FILETYPE_PEM);
+	if (0 >= use_cert)
+	{
+		ERROR_MSG(fmt::format("EndPoint::setupSSL: load SSL_CTX_use_certificate_file({}): {}! check ouroboros[_defs].xml->channelCommon->sslCertificate\n",
+			pem, ERR_error_string(ERR_get_error(), NULL)));
+
+		destroySSL();
+		return false;
+	}
+
+	pem = Resmgr::getSingleton().matchRes(g_sslPrivateKey.c_str());
+	int use_prv = SSL_CTX_use_PrivateKey_file(sslContext_, pem.c_str(), SSL_FILETYPE_PEM);
+	if (0 >= use_prv)
+	{
+		ERROR_MSG(fmt::format("EndPoint::setupSSL: load SSL_CTX_use_PrivateKey_file({}): {}! check ouroboros[_defs].xml->channelCommon->sslPrivateKey\n",
+			pem, ERR_error_string(ERR_get_error(), NULL)));
+
+		destroySSL();
+		return false;
+	}
+
+	if (!SSL_CTX_check_private_key(sslContext_)) {
+		ERROR_MSG(fmt::format("EndPoint::setupSSL: SSL_CTX_check_private_key(): {}!\n", pem, ERR_error_string(ERR_get_error(), NULL)));
+		destroySSL();
+		return false;
+	}
+
+	sslHandle_ = SSL_new(sslContext_);
+
+	if (!sslHandle_)
+	{
+		ERROR_MSG(fmt::format("EndPoint::setupSSL: SSL_new: {}!\n", ERR_error_string(ERR_get_error(), NULL)));
+		destroySSL();
+		return false;
+	}
+
+	SSL_set_fd(sslHandle_, *this);
+
+	BIO_set_callback(sslHandle_->rbio, ssl_bio_callback);
+	BIO_set_callback_arg(sslHandle_->rbio, (char*)pPacket);
+
+	while (SSL_accept(sslHandle_) == -1)
+	{
+		fd_set fds;
+		FD_ZERO(&fds);
+		FD_SET(*this, &fds);
+
+		struct timeval tv = { 0, 100000 }; // 100ms
+
+		switch (SSL_get_error(sslHandle_, -1))
+		{
+		case SSL_ERROR_WANT_READ:
+		{
+			int selgot = select((*this) + 1, &fds, NULL, NULL, &tv);
+			if (selgot <= 0)
+			{
+				ERROR_MSG(fmt::format("EndPoint::setupSSL: SSL_accept(SSL_ERROR_WANT_READ): {}!\n", ERR_error_string(SSL_get_error(sslHandle_, -1), NULL)));
+				destroySSL();
+				return true;
+			}
+
+			break;
+		}
+		case SSL_ERROR_WANT_WRITE:
+		{
+			int selgot = select((*this) + 1, NULL, &fds, NULL, &tv);
+			if (selgot <= 0)
+			{
+				ERROR_MSG(fmt::format("EndPoint::setupSSL: SSL_accept(SSL_ERROR_WANT_WRITE): {}!\n", ERR_error_string(SSL_get_error(sslHandle_, -1), NULL)));
+				destroySSL();
+				return true;
+			}
+
+			break;
+		}
+		default:
+		{
+			ERROR_MSG(fmt::format("EndPoint::setupSSL: SSL_accept: {}!\n", ERR_error_string(SSL_get_error(sslHandle_, -1), NULL)));
+			destroySSL();
+			return false;
+		}
+		}
+	}
+
+	BIO_set_callback(sslHandle_->rbio, NULL);
+	BIO_set_callback_arg(sslHandle_->rbio, (char*)NULL);
+	return true;
+}
+
+//-------------------------------------------------------------------------------------
+bool EndPoint::destroySSL()
+{
+	if (sslHandle_)
+	{
+		SSL_free(sslHandle_);
+		sslHandle_ = NULL;
+	}
+
+	if (sslContext_)
+	{
+		SSL_CTX_free(sslContext_);
+		sslContext_ = NULL;
+	}
+
+	return true;
 }
 
 //-------------------------------------------------------------------------------------

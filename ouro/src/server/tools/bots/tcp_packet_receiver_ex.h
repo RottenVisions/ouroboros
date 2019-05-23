@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #ifndef OURO_NETWORKTCPPACKET_RECEIVER_EX_H
@@ -22,7 +22,7 @@ public:
 	virtual Channel* getChannel();
 
 protected:
-	virtual void onGetError(Channel* pChannel);
+	virtual void onGetError(Channel* pChannel, const std::string& err);
 
 	ClientObject* pClientObject_;
 };

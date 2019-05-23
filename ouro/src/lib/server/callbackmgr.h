@@ -1,22 +1,21 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
-
+	
 /*
-	CallbackMgr( Callback Manager )
-		Since some of the callback operations are asynchronous,
-		we manage these callbacks through a manager and return a unique id that identifies the callback.
-		The external can use this id to trigger the callback.
-
-	usage:
+	CallbackMgr (callback manager)
+		Since some callback operations are asynchronous, we manage these callbacks through a manager and return an external one.
+		Identifies the unique id of the callback that the external can use to trigger this callback.
+		
+	Usage:
 	typedef CallbackMgr<std::tr1::function<void(Entity*, int64, bool)>> CALLBACK_MGR;
 	CALLBACK_MGR callbackMgr;
 	void xxx(Entity*, int64, bool){}
-	CALLBACK_ID callbackID = callbackMgr.save(&xxx); // You can use bind to bind a class member function
+	CALLBACK_ID callbackID = callbackMgr.save(&xxx); // Bind can be used to bind a class member function
 */
 
 #ifndef OURO_CALLBACKMGR_H
 #define OURO_CALLBACKMGR_H
-
+	
 #include "Python.h"
 #include "idallocate.h"
 #include "serverconfig.h"
@@ -26,7 +25,7 @@
 #include "common/timer.h"
 #include "pyscript/pyobject_pointer.h"
 #include "pyscript/pickler.h"
-
+	
 namespace Ouroboros{
 
 template<typename T>
@@ -45,8 +44,8 @@ public:
 	~CallbackMgr()
 	{
 		finalise();
-	}
-
+	}	
+	
 	void finalise()
 	{
 		cbMap_.clear();
@@ -57,7 +56,7 @@ public:
 
 	void createFromStream(Ouroboros::MemoryStream& s);
 
-	/**
+	/** 
 		Add a callback to the manager
 	*/
 	CALLBACK_ID save(T callback, uint64 timeout = 0/*secs*/)
@@ -66,15 +65,15 @@ public:
 			timeout = uint64(ServerConfig::getSingleton().callback_timeout_);
 
 		CALLBACK_ID cbID = idAlloc_.alloc();
-		cbMap_.insert(typename CALLBACKS::value_type(cbID,
+		cbMap_.insert(typename CALLBACKS::value_type(cbID, 
 			std::pair< T, uint64 >(callback, timestamp() + (timeout * stampsPerSecond()))));
 
 		tick();
 		return cbID;
 	}
-
-	/**
-		Take a callback via callbackID
+	
+	/** 
+		Take callback through callbackID
 	*/
 	T take(CALLBACK_ID cbID)
 	{
@@ -85,7 +84,7 @@ public:
 			cbMap_.erase(itr);
 			return t;
 		}
-
+		
 		tick();
 		return NULL;
 	}
@@ -98,7 +97,7 @@ public:
 		if(timestamp() - lastTimestamp_ < (ServerConfig::getSingleton().callback_timeout_ * stampsPerSecond()))
 			return;
 
-		lastTimestamp_ = timestamp();
+		lastTimestamp_ = timestamp(); 
 		typename CALLBACKS::iterator iter = cbMap_.begin();
 		for(; iter!= cbMap_.end(); )
 		{
@@ -117,7 +116,7 @@ public:
 	}
 
 	/**
-		Overtime callback
+		Timeout callback
 	*/
 	bool processTimeout(CALLBACK_ID cbID, T callback)
 	{
@@ -126,8 +125,8 @@ public:
 	}
 
 protected:
-	CALLBACKS cbMap_;									// All callbacks are stored in this map
-	IDAllocate<CALLBACK_ID> idAlloc_;					// Callback id dispatcher
+	CALLBACKS cbMap_; // All callbacks are stored in this map
+	IDAllocate<CALLBACK_ID> idAlloc_; // callback id allocator
 	uint64 lastTimestamp_;
 };
 
@@ -167,20 +166,20 @@ inline void CallbackMgr<PyObjectPtr>::createFromStream(Ouroboros::MemoryStream& 
 		s.readBlob(data);
 
 		PyObject* pyCallback = NULL;
-
+		
 		if(data.size() > 0)
 			pyCallback = script::Pickler::unpickle(data);
-
+		
 		uint64 timeout;
 		s >> timeout;
 
 		if(pyCallback == NULL || cbID == 0)
 		{
-			ERROR_MSG(fmt::format("CallbackMgr::createFromStream: pyCallback({}) is error!\n", cbID));
+			ERROR_MSG(fmt::format("CallbackMgr::createFromStream: pyCallback({}) error!\n", cbID));
 			continue;
 		}
 
-		cbMap_.insert(CallbackMgr<PyObjectPtr>::CALLBACKS::value_type(cbID,
+		cbMap_.insert(CallbackMgr<PyObjectPtr>::CALLBACKS::value_type(cbID, 
 			std::pair< PyObjectPtr, uint64 >(pyCallback, timeout)));
 
 		Py_DECREF(pyCallback);
@@ -197,22 +196,19 @@ inline void CallbackMgr<PyObject*>::finalise()
 	}
 
 	cbMap_.clear();
-}
+}	
 
 template<>
 inline bool CallbackMgr<PyObject*>::processTimeout(CALLBACK_ID cbID, PyObject* callback)
 {
 	PyObject* pystr = PyObject_Str(callback);
-	wchar_t* PyUnicode_AsWideCharStringRet0 = PyUnicode_AsWideCharString(pystr, NULL);
-	char* ccattr = strutil::wchar2char(PyUnicode_AsWideCharStringRet0);
-	PyMem_Free(PyUnicode_AsWideCharStringRet0);
+	const char* ccattr = PyUnicode_AsUTF8AndSize(callback, NULL);
 	Py_DECREF(pystr);
 
 	INFO_MSG(fmt::format("CallbackMgr::processTimeout: callbackID:{}, callback({}) timeout!\n", cbID,
 		ccattr));
 
 	Py_DECREF(callback);
-	free(ccattr);
 	return true;
 }
 

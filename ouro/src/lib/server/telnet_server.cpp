@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 #include "telnet_server.h"
@@ -133,7 +133,7 @@ void TelnetServer::closeHandler(int fd, TelnetHandler* pTelnetHandler)
 	pDispatcher_->deregisterReadFileDescriptor(fd);
 	handlers_.erase(iter);
 
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 	::close(fd);
 #else
 	::closesocket(fd);

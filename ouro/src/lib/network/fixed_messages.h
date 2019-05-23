@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_FIXED_NETWORK_MESSAGES_H
 #define OURO_FIXED_NETWORK_MESSAGES_H
@@ -8,18 +8,18 @@
 #include "helper/debug_helper.h"
 #include "network/common.h"
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 /*
-	Used to make mandatory conventions for intermediate protocols (between front-end and back-end).
-	Frontends that do not use the ouro set of protocol auto-binding mechanisms can use this to enforce protocol appointments.
+	Used to enforce the contract between the intermediate protocol (between the front end and the back end).
+	The front end that does not use the kbe package protocol auto-binding mechanism can use this to force the agreement protocol.
 */
 class FixedMessages : public Singleton<FixedMessages>
 {
 public:
 
-	// Fixed protocol data structure
+	// fixed protocol data structure
 	struct MSGInfo
 	{
 		MessageID msgid;
@@ -37,7 +37,7 @@ public:
 	bool isFixed(MessageID msgid);
 
 public:
-	typedef OUROUnordered_map<std::string, MSGInfo> MSGINFO_MAP;
+	typedef KBEUnordered_map<std::string, MSGInfo> MSGINFO_MAP;
 
 private:
 	MSGINFO_MAP _infomap;

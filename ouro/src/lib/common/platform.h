@@ -1,20 +1,20 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_PLATFORM_H
 #define OURO_PLATFORM_H
 
-// common include
+// common include	
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
+#include <stdarg.h> 
 #include <math.h>
-#include <assert.h>
+#include <assert.h> 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
-#include <string>
-#include <cstring>
+#include <string>  
+#include <cstring>  
 #include <vector>
 #include <map>
 #include <list>
@@ -27,21 +27,21 @@
 #include <cctype>
 #include <iterator>
 #include "common/strutil.h"
-// windows include
+// windows include	
 #if defined( __WIN32__ ) || defined( WIN32 ) || defined( _WIN32 )
 #pragma warning(disable:4996)
 #pragma warning(disable:4819)
 #pragma warning(disable:4049)
 #pragma warning(disable:4217)
 #include <io.h>
-#include <time.h>
+#include <time.h> 
 //#define FD_SETSIZE 1024
-#ifndef WIN32_LEAN_AND_MEAN
-#include <winsock2.h>		// Must be included before windows.h, otherwise network module compiles error
-#include <mswsock.h>
+#ifndef WIN32_LEAN_AND_MEAN 
+#include <winsock2.h> // Must be included before windows.h, otherwise the network module will compile error
+#include <mswsock.h> 
 #define WIN32_LEAN_AND_MEAN
 #endif
-#include <windows.h>
+#include <windows.h> 
 #include <unordered_map>
 #include <functional>
 #include <memory>
@@ -50,7 +50,7 @@
 // linux include
 #include <errno.h>
 #include <float.h>
-#include <pthread.h>
+#include <pthread.h>	
 #include <fcntl.h>
 #include <unistd.h>
 #include <signal.h>
@@ -61,7 +61,7 @@
 #include <signal.h>
 #include <net/if.h>
 #include <netinet/in.h>
-#include <netinet/tcp.h>
+#include <netinet/tcp.h> 
 #include <netinet/ip.h>
 #include <arpa/inet.h>
 #include <tr1/unordered_map>
@@ -73,7 +73,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/uio.h>
-#include <sys/resource.h>
+#include <sys/resource.h> 
 #include <linux/errqueue.h>
 #endif
 
@@ -91,19 +91,19 @@
 #define SIGSYS	32
 #endif
 
-/** Defining the engine name space */
+/** Define engine namespace*/
 namespace Ouroboros
-{
+{ 
 
-/** Defining engine byte order */
+/** Define engine endian*/
 #define OUROBOROS_LITTLE_ENDIAN							0
 #define OUROBOROS_BIG_ENDIAN								1
 #if !defined(OUROBOROS_ENDIAN)
 #  if defined (USE_BIG_ENDIAN)
 #    define OUROBOROS_ENDIAN OUROBOROS_BIG_ENDIAN
-#  else
+#  else 
 #    define OUROBOROS_ENDIAN OUROBOROS_LITTLE_ENDIAN
-#  endif
+#  endif 
 #endif
 
 
@@ -143,7 +143,7 @@ namespace Ouroboros
 #  define OURO_COMPILER COMPILER_GNU
 #elif defined( __clang__ )
 #  define OURO_COMPILER COMPILER_CLANG
-
+	
 #else
 #  pragma error "FATAL ERROR: Unknown compiler."
 #endif
@@ -212,8 +212,8 @@ typedef unsigned long											ulong;
 #define const_charptr											const char*
 #define PyObject_ptr											PyObject*
 
-#define OUROShared_ptr											std::tr1::shared_ptr
-#define OUROUnordered_map										std::tr1::unordered_map
+#define KBEShared_ptr											std::tr1::shared_ptr
+#define KBEUnordered_map										std::tr1::unordered_map
 
 /* Use correct types for x64 platforms, too */
 #if OURO_COMPILER != COMPILER_GNU
@@ -309,32 +309,32 @@ typedef uint32													uintptr;
 #define PRAppID													PRIu64
 #define PRDBID													PRIu64
 
-typedef uint16													ENTITY_TYPE;											// The entity's category type definition supports 0-65535 categories
-typedef int32													ENTITY_ID;												// The type of entityID
-typedef uint32													SPACE_ID;												// The id of a space
-typedef uint32													CALLBACK_ID;											// a callback id assigned by CallbackMgr
-typedef uint64													COMPONENT_ID;											// The id of a server component
-typedef int32													COMPONENT_ORDER;										// The start order of a component
-typedef int32													COMPONENT_GUS;											// Genuuid_sections of a component generate interval segments of random numbers
-typedef	uint32													TIMER_ID;												// The id type of a timer
-typedef uint8													ENTITYCALL_CALL_TYPE;									// The type of call category delivered by entityCall
+typedef uint16 ENTITY_TYPE; // entity class type definition supports 0-65535 categories
+typedef int32 ENTITY_ID; //type of entityID
+typedef uint32 SPACE_ID; // the id of a space
+typedef uint32 CALLBACK_ID; // an id assigned by CallbackMgr for a callback
+typedef uint64 COMPONENT_ID; // id of a server component
+typedef int32 COMPONENT_ORDER; // The starting order of a component
+typedef int32 COMPONENT_GUS; // A component's genuuid_sections generates a random number interval
+typedef uint32 TIMER_ID; // a timer id type
+typedef uint8 ENTITYCALL_CALL_TYPE; //classCall The category of the call class to be delivered
 typedef uint32													GAME_TIME;
 typedef uint32													GameTime;
 typedef int32													ScriptID;
-typedef uint32													ArraySize;												// The size of any array uses this description
-typedef uint64													DBID;													// An index in the database is used as an ID
+typedef uint32 ArraySize; // The size of any array is described by this
+typedef uint64 DBID; // An index in the database is used as an ID
 typedef uint32													CELL_ID;
-typedef OUROUnordered_map< std::string, std::string >			SPACE_DATA;												// Data stored in space
+typedef KBEUnordered_map< std::string, std::string > SPACE_DATA; // data stored in space
 
 #if OURO_PLATFORM == PLATFORM_WIN32
 	#define IFNAMSIZ											16
-	typedef UINT_PTR											OUROSOCKET;
+	typedef UINT_PTR											KBESOCKET;
 #ifndef socklen_t
 	typedef	int													socklen_t;
 #endif
 	typedef unsigned short										u_int16_t;
 	typedef unsigned long										u_int32_t;
-
+	
 #ifndef IFF_UP
 	enum
 	{
@@ -351,11 +351,11 @@ typedef OUROUnordered_map< std::string, std::string >			SPACE_DATA;												/
 	};
 #endif
 #else
-	typedef int													OUROSOCKET;
+	typedef int													KBESOCKET;
 #endif
 
 /*---------------------------------------------------------------------------------
-	Will be multithreaded on multiple platforms
+	Will be multi-threaded on multiple platforms
 ---------------------------------------------------------------------------------*/
 #if OURO_PLATFORM == PLATFORM_WIN32
 	#define THREAD_ID											HANDLE
@@ -367,7 +367,7 @@ typedef OUROUnordered_map< std::string, std::string >			SPACE_DATA;												/
 	#define THREAD_MUTEX_INIT(x)								InitializeCriticalSection(&x)
 	#define THREAD_MUTEX_DELETE(x)								DeleteCriticalSection(&x)
 	#define THREAD_MUTEX_LOCK(x)								EnterCriticalSection(&x)
-	#define THREAD_MUTEX_UNLOCK(x)								LeaveCriticalSection(&x)
+	#define THREAD_MUTEX_UNLOCK(x)								LeaveCriticalSection(&x)	
 #else
 	#define THREAD_ID											pthread_t
 	#define THREAD_SINGNAL										pthread_cond_t
@@ -378,7 +378,7 @@ typedef OUROUnordered_map< std::string, std::string >			SPACE_DATA;												/
 	#define THREAD_MUTEX_INIT(x)								pthread_mutex_init (&x, NULL)
 	#define THREAD_MUTEX_DELETE(x)								pthread_mutex_destroy(&x)
 	#define THREAD_MUTEX_LOCK(x)								pthread_mutex_lock(&x)
-	#define THREAD_MUTEX_UNLOCK(x)								pthread_mutex_unlock(&x)
+	#define THREAD_MUTEX_UNLOCK(x)								pthread_mutex_unlock(&x)		
 #endif
 
 /*---------------------------------------------------------------------------------
@@ -478,16 +478,16 @@ inline const T & max( const T & a, const T & b )
 
 #endif
 
-// Maximum length of all name strings
-#define MAX_NAME 256
+// the maximum length of all name strings
+#define MAX_NAME 256	
 
-// The maximum length of the ip string
+// the maximum length of the ip string
 #define MAX_IP 256
 
-// Conventional buf length
+// regular buf length
 #define MAX_BUF 256
 
-// Conventional buf length
+// regular buf length
 #define SQL_BUF 65535
 
 #ifndef MAX_PATH
@@ -502,7 +502,7 @@ inline char* ouro_strerror(int ierrorno = 0)
 		ierrorno = GetLastError();
 
 	static char lpMsgBuf[256] = {0};
-
+	
 	/*
 	FormatMessage(
 		FORMAT_MESSAGE_FROM_SYSTEM |
@@ -513,7 +513,7 @@ inline char* ouro_strerror(int ierrorno = 0)
 		(LPTSTR) &lpMsgBuf,
 		1024,
 		NULL
-	);
+	); 
 	*/
 	ouro_snprintf(lpMsgBuf, 256, "errorno=%d",  ierrorno);
 	return lpMsgBuf;
@@ -533,7 +533,7 @@ inline int ouro_lasterror()
 #endif
 }
 
-/** Get user UID */
+/** Get user UID*/
 inline int32 getUserUID()
 {
 	static int32 iuid = 0;
@@ -562,7 +562,7 @@ inline int32 getUserUID()
 	return iuid;
 }
 
-/** Get username */
+/** Get username*/
 inline const char * getUsername()
 {
 #if OURO_PLATFORM == PLATFORM_WIN32
@@ -573,26 +573,35 @@ inline const char * getUsername()
 	static char username[MAX_NAME];
 	memset(username, 0, MAX_NAME);
 
-	if(dwSize > 0)
+	if (dwSize > 0)
 	{
 		size_t outsize = 0;
-		strutil::wchar2char((wchar_t*)&wusername, &outsize);
 
-		if(outsize == 0)
+		char* ptest = strutil::wchar2char((wchar_t*)&wusername, &outsize);
+
+		if (outsize == 0)
 		{
-			// May be a Chinese name, not a Chinese name
+			// May be Chinese name, not Chinese name
 			strcpy(username, "error_name");
 		}
+		else
+		{
+			if(ptest)
+				ouro_snprintf(username, MAX_NAME, "%s", ptest);
+		}
+
+		if (ptest)
+			free(ptest);
 	}
 
 	return username;
 #else
-	char * pUsername = cuserid( NULL );
+	char * pUsername = cuserid(NULL);
 	return pUsername ? pUsername : "";
 #endif
 }
 
-/** Get process ID */
+/** Get process ID*/
 inline int32 getProcessPID()
 {
 #if OURO_PLATFORM != PLATFORM_WIN32
@@ -602,12 +611,12 @@ inline int32 getProcessPID()
 #endif
 }
 
-/** Get system time (accurate to milliseconds) */
+/** Get system time (accurate to milliseconds)*/
 #if OURO_PLATFORM == PLATFORM_WIN32
-	inline uint32 getSystemTime()
-	{
-		// Note that this function can only be correctly maintained on windows for 49 days.
-		return ::GetTickCount();
+	inline uint32 getSystemTime() 
+	{ 
+		// Note that this function can only be maintained for 49 days on Windows.
+		return ::GetTickCount(); 
 	};
 #else
 	inline uint32 getSystemTime()
@@ -619,10 +628,10 @@ inline int32 getProcessPID()
 	};
 #endif
 
-/** Get 2 system time difference */
+/** Get 2 system time differences*/
 inline uint32 getSystemTimeDiff(uint32 oldTime, uint32 newTime)
 {
-    // Prevent getSystemTime() from overflowing
+    // Prevent the overflow of getSystemTime ()
     if (oldTime > newTime)
     {
         return (uint32)((int64)0xFFFFFFFF + 1 - (int64)oldTime) + newTime;
@@ -674,7 +683,7 @@ inline uint32 ouro_clock()
 	return (uint32)(ouro_clock64() & 0xfffffffful);
 }
 
-/* Generate a 64-bit uuid
+/* produces a 64-bit uuid
 */
 extern COMPONENT_ORDER g_componentGlobalOrder;
 extern COMPONENT_ORDER g_componentGroupOrder;
@@ -693,63 +702,63 @@ inline uint64 genUUID64()
 		tv = now;
 		lastNum = 0;
 	}
-
+	
 	if(g_genuuid_sections <= 0)
 	{
-		// Timestamp 32 bits, random number 16 bits, 16-bit iteration number (maximum 65535-1)
+		// Timestamp 32 bits, random number 16 bits, 16 bit iterations (maximum 65535-1)
 		static uint32 rnd = 0;
 		if(rnd == 0)
 		{
 			srand(getSystemTime());
 			rnd = (uint32)(rand() << 16);
 		}
-
+		
 		assert(lastNum < 65535 && "genUUID64(): overflow!");
-
+		
 		return (tv << 32) | rnd | lastNum++;
 	}
 	else
 	{
-		// Timestamp 32 bits, app group ID 16 bits, 16-bit iteration number (maximum 65535-1)
+		// Timestamp 32 bits, app group ID 16 bits, 16 bit iterations (maximum 65535-1)
 		static uint32 sections = g_genuuid_sections << 16;
-
+		
 		assert(lastNum < 65535 && "genUUID64(): overflow!");
-
+		
 		return (tv << 32) | sections | lastNum++;
 	}
 }
 
-/** sleep Cross-platform */
+/** sleep cross-platform*/
 #if OURO_PLATFORM == PLATFORM_WIN32
 	inline void sleep(uint32 ms)
-	{
-		::Sleep(ms);
+	{ 
+		::Sleep(ms); 
 	}
 #else
 	inline void sleep(uint32 ms)
-	{
+	{ 
 	  struct timeval tval;
 	  tval.tv_sec	= ms / 1000;
 	  tval.tv_usec	= ( ms * 1000) % 1000000;
 	  select(0, NULL, NULL, NULL, &tval);
-	}
+	}	
 #endif
 
-/** Determine whether the platform is little-endian */
+/** Determine if the platform is little endian*/
 inline bool isPlatformLittleEndian()
 {
    int n = 1;
    return *((char*)&n) ? true : false;
 }
 
-/** Setting environment variables */
+/** Set environment variables*/
 #if OURO_PLATFORM == PLATFORM_WIN32
 	inline void setenv(const std::string& name, const std::string& value, int overwrite)
 	{
 		_putenv_s(name.c_str(), value.c_str());
 	}
 #else
-	// Linux directly using setenv
+	// Linux directly uses setenv
 #endif
 
 }

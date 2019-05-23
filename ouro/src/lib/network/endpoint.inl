@@ -1,7 +1,7 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
-namespace Ouroboros {
+namespace Ouroboros { 
 namespace Network
 {
 
@@ -19,6 +19,9 @@ socket_(-1)
 	}
 
 	isRefSocket_ = false;
+
+	sslHandle_ = NULL;
+	sslContext_ = NULL;
 }
 
 INLINE EndPoint::EndPoint(Address address):
@@ -34,6 +37,9 @@ socket_(-1)
 	}
 
 	isRefSocket_ = false;
+
+	sslHandle_ = NULL;
+	sslContext_ = NULL;
 }
 
 INLINE EndPoint::~EndPoint()
@@ -63,12 +69,12 @@ INLINE bool EndPoint::good() const
 #endif
 }
 
-INLINE EndPoint::operator OUROSOCKET() const
+INLINE EndPoint::operator KBESOCKET() const
 {
 	return socket_;
 }
 
-INLINE OUROSOCKET EndPoint::socket() const
+INLINE KBESOCKET EndPoint::socket() const
 {
 	return socket_;
 }
@@ -101,7 +107,7 @@ INLINE int EndPoint::setnodelay(bool nodelay)
 
 INLINE int EndPoint::setnonblocking(bool nonblocking)
 {
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 	int val = nonblocking ? O_NONBLOCK : 0;
 	return ::fcntl(socket_, F_SETFL, val);
 #else
@@ -112,7 +118,7 @@ INLINE int EndPoint::setnonblocking(bool nonblocking)
 
 INLINE int EndPoint::setbroadcast(bool broadcast)
 {
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 	int val;
 	if (broadcast)
 	{
@@ -128,7 +134,7 @@ INLINE int EndPoint::setbroadcast(bool broadcast)
 
 INLINE int EndPoint::setreuseaddr(bool reuseaddr)
 {
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 	int val;
 #else
 	bool val;
@@ -148,7 +154,7 @@ INLINE int EndPoint::setlinger(uint16 onoff, uint16 linger)
 
 INLINE int EndPoint::setkeepalive(bool keepalive)
 {
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 	int val;
 #else
 	bool val;
@@ -170,7 +176,7 @@ INLINE int EndPoint::bind(u_int16_t networkPort, u_int32_t networkAddr)
 
 INLINE int EndPoint::joinMulticastGroup(u_int32_t networkAddr)
 {
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 	struct ip_mreqn req;
 	req.imr_multiaddr.s_addr = networkAddr;
 	req.imr_address.s_addr = INADDR_ANY;
@@ -183,7 +189,7 @@ INLINE int EndPoint::joinMulticastGroup(u_int32_t networkAddr)
 
 INLINE int EndPoint::quitMulticastGroup(u_int32_t networkAddr)
 {
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 	struct ip_mreqn req;
 	req.imr_multiaddr.s_addr = networkAddr;
 	req.imr_address.s_addr = INADDR_ANY;
@@ -196,20 +202,28 @@ INLINE int EndPoint::quitMulticastGroup(u_int32_t networkAddr)
 
 INLINE int EndPoint::close()
 {
-	if (socket_ == -1)
-	{
-		return 0;
-	}
+	destroySSL();
+	address_ = Address::NONE;
 
-	// In UDP mode, socket is fd for server listen
-	// Socket for reference mode
+#if OURO_PLATFORM == PLATFORM_WIN32
+	const KBESOCKET invalidSocket = INVALID_SOCKET;
+#else
+	const KBESOCKET invalidSocket = -1;
+#endif
+
+	if (socket_ == invalidSocket)
+		return 0;
+
+	// UDP模式下， socket是服务器listen的fd
+	// socket为引用模式
 	if (isRefSocket_)
 	{
-		this->setFileDescriptor(-1);
+		this->setFileDescriptor(invalidSocket);
+		isRefSocket_ = false;
 		return 0;
 	}
 
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 	int ret = ::close(socket_);
 #else
 	int ret = ::closesocket(socket_);
@@ -217,7 +231,7 @@ INLINE int EndPoint::close()
 
 	if (ret == 0)
 	{
-		this->setFileDescriptor(-1);
+		this->setFileDescriptor(invalidSocket);
 	}
 
 	return ret;
@@ -280,7 +294,7 @@ INLINE int EndPoint::getremotehostname(std::string * host) const
 {
 	sockaddr_in sin;
 	socklen_t sinLen = sizeof(sin);
-
+	
 	int ret = ::getpeername(socket_, (struct sockaddr*)&sin, &sinLen);
 	if (ret == 0)
 	{
@@ -377,7 +391,7 @@ INLINE int EndPoint::connect(u_int16_t networkPort, u_int32_t networkAddr, bool 
 		setnonblocking(true);
 		setnodelay(true);
 	}
-
+	
 	return ret;
 }
 
@@ -387,23 +401,23 @@ INLINE EndPoint * EndPoint::accept(u_int16_t * networkPort, u_int32_t * networkA
 	socklen_t		sinLen = sizeof(sin);
 	int ret = (int)::accept(socket_, (sockaddr*)&sin, &sinLen);
 
-#if defined(unix)
+#if OURO_PLATFORM == PLATFORM_UNIX
 	if (ret < 0) return NULL;
 #else
 	if (ret == INVALID_SOCKET) return NULL;
 #endif
 
-	EndPoint * pNew = EndPoint::createPoolObject();
+	EndPoint * pNew = EndPoint::createPoolObject(OBJECTPOOL_POINT);
 
 	pNew->setFileDescriptor(ret);
 	pNew->addr(sin.sin_port, sin.sin_addr.s_addr);
-
+	
 	if(autosetflags)
 	{
 		pNew->setnonblocking(true);
 		pNew->setnodelay(true);
 	}
-
+	
 	if (networkPort != NULL) *networkPort = sin.sin_port;
 	if (networkAddr != NULL) *networkAddr = sin.sin_addr.s_addr;
 
@@ -412,15 +426,21 @@ INLINE EndPoint * EndPoint::accept(u_int16_t * networkPort, u_int32_t * networkA
 
 INLINE int EndPoint::send(const void * gramData, int gramSize)
 {
+	if (isSSL())
+		return SSL_write(sslHandle_, (char*)gramData, gramSize);
+
 	return ::send(socket_, (char*)gramData, gramSize, 0);
 }
 
 INLINE int EndPoint::recv(void * gramData, int gramSize)
 {
+	if (isSSL())
+		return SSL_read(sslHandle_, (char*)gramData, gramSize);
+
 	return ::recv(socket_, (char*)gramData, gramSize, 0);
 }
 
-#ifdef unix
+#if OURO_PLATFORM == PLATFORM_UNIX
 INLINE int EndPoint::getInterfaceFlags(char * name, int & flags)
 {
 	struct ifreq	request;

@@ -1,37 +1,39 @@
 LIB =	navigation
 
-SRCS =					\
-	DetourAlloc			\
+SRCS =						\
+	DetourAlloc				\
+	DetourAssert			\
 	DetourCommon			\
 	DetourNavMesh			\
-	DetourNavMeshBuilder		\
+	DetourNavMeshBuilder	\
 	DetourNavMeshQuery		\
-	DetourNode			\
-	DetourCrowd			\
+	DetourNode				\
+	DetourCrowd				\
 	DetourLocalBoundary		\
-	DetourObstacleAvoidance		\
+	DetourObstacleAvoidance	\
 	DetourPathCorridor		\
 	DetourPathQueue			\
 	DetourProximityGrid		\
 	DetourTileCache			\
-	DetourTileCacheBuilder		\
-	navigation			\
+	DetourTileCacheBuilder	\
+	navigation				\
 	navigation_handle		\
-	navigation_tile_handle		\
-	navigation_mesh_handle		\
-	Recast				\
-	RecastAlloc			\
-	RecastArea			\
+	navigation_tile_handle	\
+	navigation_mesh_handle	\
+	Recast					\
+	RecastAlloc				\
+	RecastArea				\
+	RecastAssert			\
 	RecastContour			\
 	RecastFilter			\
 	RecastLayers			\
-	RecastMesh			\
+	RecastMesh				\
 	RecastMeshDetail		\
 	RecastRasterization		\
 	RecastRegion
 
 ifndef OURO_ROOT
-export OURO_ROOT := $(subst /ouro/src/lib/$(LIB),,$(CURDIR))
+export OURO_ROOT := $(subst /kbe/src/lib/$(LIB),,$(CURDIR))
 endif
 
-include $(OURO_ROOT)/ouro/src/build/common.mak
+include $(OURO_ROOT)/kbe/src/build/common.mak

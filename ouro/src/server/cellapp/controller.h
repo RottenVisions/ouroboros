@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #ifndef OURO_CONTROLLER_H
 #define OURO_CONTROLLER_H
@@ -15,30 +15,30 @@ class Controllers;
 class MemoryStream;
 
 /*
-	Controller, management trap, Vision, etc. Wait
+	Controller, manage trap, Vision, etc.
 */
 class Controller
 {
 public:
 	enum ControllerType
 	{
-		CONTROLLER_TYPE_NORMAL = 0,			// Conventional type
-		CONTROLLER_TYPE_PROXIMITY = 1,		// Range trigger type
-		CONTROLLER_TYPE_MOVE = 2,			// Mobile controller type
-		CONTROLLER_TYPE_ROTATE = 3,			// Rotary controller type
+		CONTROLLER_TYPE_NORMAL = 0, // regular type
+		CONTROLLER_TYPE_PROXIMITY = 1, // range trigger type
+		CONTROLLER_TYPE_MOVE = 2, // mobile controller type
+		CONTROLLER_TYPE_ROTATE = 3, // Rotate controller type
 	};
 
 	Controller(Controller::ControllerType type, Entity* pEntity, int32 userarg, uint32 id = 0);
 	Controller(Entity* pEntity);
 	virtual ~Controller();
-
+	
 	uint32 id() { return id_; }
 	void id(uint32 v) { id_ = v; }
-
+	
 	int32 userarg() const { return userarg_; }
-
+	
 	Entity* pEntity() const { return pEntity_; }
-
+	
 	void pControllers(Controllers* v) { pControllers_ = v; }
 
 	virtual void destroy();
@@ -52,9 +52,9 @@ public:
 protected:
 	uint32 id_;
 	Entity* pEntity_;
-
+	
 	int32 userarg_;
-
+	
 	Controllers* pControllers_;
 
 	ControllerType type_;

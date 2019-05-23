@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "dbmgr.h"
 #include "sync_app_datas_handler.h"
@@ -16,7 +16,7 @@
 #include "cellappmgr/cellappmgr_interface.h"
 #include "loginapp/loginapp_interface.h"
 
-namespace Ouroboros{
+namespace Ouroboros{	
 
 //-------------------------------------------------------------------------------------
 SyncAppDatasHandler::SyncAppDatasHandler(Network::NetworkInterface & networkInterface):
@@ -76,7 +76,7 @@ bool SyncAppDatasHandler::process()
 			continue;
 
 		COMPONENT_TYPE tcomponentType = cinfos->componentType;
-		if(tcomponentType == BASEAPP_TYPE ||
+		if(tcomponentType == BASEAPP_TYPE || 
 			tcomponentType == CELLAPP_TYPE ||
 			tcomponentType == LOGINAPP_TYPE)
 		{
@@ -84,7 +84,7 @@ bool SyncAppDatasHandler::process()
 			break;
 		}
 	}
-
+	
 	if(!hasApp)
 	{
 		lastRegAppTime_ = timestamp();
@@ -96,8 +96,8 @@ bool SyncAppDatasHandler::process()
 
 	std::string digest = EntityDef::md5().getDigestStr();
 
-	// If you are connecting to dbmgr you need to wait to receive app initial information
-	// For example: Initially assigned the entityID segment and the order information of this app startup (whether the first baseapp started)
+	// If you are connected to dbmgr, you need to wait to receive the app initial information.
+	// For example: the initial assignment of the entityID section and the order in which the app is launched (whether the first baseapp is started)
 	iter = apps_.begin();
 	for(; iter != apps_.end(); ++iter)
 	{
@@ -109,12 +109,12 @@ bool SyncAppDatasHandler::process()
 
 		COMPONENT_TYPE tcomponentType = cinfos->componentType;
 
-		if(tcomponentType == BASEAPP_TYPE ||
-			tcomponentType == CELLAPP_TYPE ||
+		if(tcomponentType == BASEAPP_TYPE || 
+			tcomponentType == CELLAPP_TYPE || 
 			tcomponentType == LOGINAPP_TYPE)
 		{
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
-
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+			
 			switch(tcomponentType)
 			{
 			case BASEAPP_TYPE:
@@ -123,8 +123,8 @@ bool SyncAppDatasHandler::process()
 
 					std::pair<ENTITY_ID, ENTITY_ID> idRange = Dbmgr::getSingleton().idServer().allocRange();
 					(*pBundle).newMessage(BaseappInterface::onDbmgrInitCompleted);
-					BaseappInterface::onDbmgrInitCompletedArgs6::staticAddToBundle((*pBundle), g_ourotime, idRange.first,
-						idRange.second, cInitInfo.startGlobalOrder, cInitInfo.startGroupOrder,
+					BaseappInterface::onDbmgrInitCompletedArgs6::staticAddToBundle((*pBundle), g_ourotime, idRange.first, 
+						idRange.second, cInitInfo.startGlobalOrder, cInitInfo.startGroupOrder, 
 						digest);
 				}
 				break;
@@ -134,15 +134,15 @@ bool SyncAppDatasHandler::process()
 
 					std::pair<ENTITY_ID, ENTITY_ID> idRange = Dbmgr::getSingleton().idServer().allocRange();
 					(*pBundle).newMessage(CellappInterface::onDbmgrInitCompleted);
-					CellappInterface::onDbmgrInitCompletedArgs6::staticAddToBundle((*pBundle), g_ourotime, idRange.first,
-						idRange.second, cInitInfo.startGlobalOrder, cInitInfo.startGroupOrder,
+					CellappInterface::onDbmgrInitCompletedArgs6::staticAddToBundle((*pBundle), g_ourotime, idRange.first, 
+						idRange.second, cInitInfo.startGlobalOrder, cInitInfo.startGroupOrder, 
 						digest);
 				}
 				break;
 			case LOGINAPP_TYPE:
 				(*pBundle).newMessage(LoginappInterface::onDbmgrInitCompleted);
-				LoginappInterface::onDbmgrInitCompletedArgs3::staticAddToBundle((*pBundle),
-						cInitInfo.startGlobalOrder, cInitInfo.startGroupOrder,
+				LoginappInterface::onDbmgrInitCompletedArgs3::staticAddToBundle((*pBundle), 
+						cInitInfo.startGlobalOrder, cInitInfo.startGroupOrder, 
 						digest);
 
 				break;

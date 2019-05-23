@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 
 namespace Ouroboros { 
@@ -18,9 +18,9 @@ INLINE void MethodDescription::setUType(ENTITY_METHOD_UID muid)
 	utype_ = muid; 
 }
 
-INLINE bool MethodDescription::isExposed(void) const
-{ 
-	return isExposed_; 
+INLINE MethodDescription::EXPOSED_TYPE MethodDescription::isExposed(void) const
+{
+	return exposedType_;
 }
 	
 INLINE std::vector<DataType*>& MethodDescription::getArgTypes(void)

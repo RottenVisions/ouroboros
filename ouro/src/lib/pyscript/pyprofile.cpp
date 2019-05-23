@@ -1,11 +1,11 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 
 #include "script.h"
 #include "pyprofile.h"
 #include "pyobject_pointer.h"
 #include "common/memorystream.h"
 
-namespace Ouroboros{
+namespace Ouroboros{ 
 namespace script{
 
 PyProfile::PROFILES PyProfile::profiles_;
@@ -18,7 +18,7 @@ bool PyProfile::initialize(Script* pScript)
 {
 	if(isInit)
 		return true;
-
+	
 	PyObject* cProfileModule = PyImport_ImportModule("cProfile");
 
 	if(!cProfileModule)
@@ -26,7 +26,7 @@ bool PyProfile::initialize(Script* pScript)
 		ERROR_MSG("can't import cProfile!\n");
 		PyErr_PrintEx(0);
 	}
-
+	
 	profileMethod_ = PyObject_GetAttrString(cProfileModule, "Profile");
 
 	isInit = profileMethod_ != NULL;
@@ -53,15 +53,15 @@ bool PyProfile::start(std::string profile)
 		return false;
 	}
 
-	PyObject* pyRet = PyObject_CallFunction(profileMethod_,
+	PyObject* pyRet = PyObject_CallFunction(profileMethod_, 
 		const_cast<char*>(""));
-
+	
 	if(!pyRet)
 	{
 		SCRIPT_ERROR_CHECK();
 		return false;
 	}
-
+	
 	PyObject* pyRet1 = PyObject_CallMethod(pyRet, const_cast<char*>("enable"),
 		const_cast<char*>(""));
 
@@ -94,13 +94,13 @@ bool PyProfile::stop(std::string profile)
 
 	PyObject* pyRet = PyObject_CallMethod(iter->second.get(), const_cast<char*>("disable"),
 		const_cast<char*>(""));
-
+	
 	if(!pyRet)
 	{
 		SCRIPT_ERROR_CHECK();
 		return false;
 	}
-
+	
 	Py_DECREF(pyRet);
 
 	char buf[MAX_BUF];
@@ -136,7 +136,7 @@ void PyProfile::print_stats(const std::string& sort, const std::string& profileN
 
 	PyObject* pyRet = PyObject_CallMethod(iter->second.get(), const_cast<char*>("print_stats"),
 		const_cast<char*>("s"), const_cast<char*>(sort.c_str()));
-
+	
 	if(pyRet)
 		Py_DECREF(pyRet);
 	else
@@ -155,7 +155,7 @@ void PyProfile::addToStream(std::string profile, MemoryStream* s)
 
 	ScriptStdOutErrHook* pScriptStdOutErrHook = new ScriptStdOutErrHook();
 	if(!pScriptStdOutErrHook->install())
-	{
+	{												
 		ERROR_MSG("PyProfile::addToStream: pyStdouterrHook_->install() is failed!\n");
 		delete pScriptStdOutErrHook;
 		SCRIPT_ERROR_CHECK();
@@ -168,7 +168,7 @@ void PyProfile::addToStream(std::string profile, MemoryStream* s)
 
 	PyObject* pyRet = PyObject_CallMethod(iter->second.get(), const_cast<char*>("print_stats"),
 		const_cast<char*>("s"), const_cast<char*>("time"));
-
+	
 	pScriptStdOutErrHook->setPrint(true);
 	pScriptStdOutErrHook->uninstall();
 
@@ -179,7 +179,7 @@ void PyProfile::addToStream(std::string profile, MemoryStream* s)
 	{
 		return;
 	}
-
+	
 	(*s) << retBufferPtr;
 
 	// DEBUG_MSG(fmt::format("PyProfile::addToStream:{}", retBufferPtr));
@@ -190,7 +190,7 @@ void PyProfile::addToStream(std::string profile, MemoryStream* s)
 //-------------------------------------------------------------------------------------
 bool PyProfile::dump(std::string profile, std::string fileName)
 {
-	/* Profile
+	/* ╪сть╫А╧Ш
 		import pstats
 		p = pstats.Stats("*.prof")
 		p.sort_stats("time").print_stats()
@@ -229,9 +229,9 @@ bool PyProfile::dump(std::string profile, std::string fileName)
 
 	pyRet = PyObject_CallMethod(iter->second.get(), const_cast<char*>("print_stats"),
 		const_cast<char*>("s"), const_cast<char*>("time"));
-
+	
 	SCRIPT_ERROR_CHECK();
-
+	
 	if(pyRet)
 		Py_DECREF(pyRet);
 

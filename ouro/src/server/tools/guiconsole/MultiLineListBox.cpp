@@ -15,11 +15,11 @@ IMPLEMENT_DYNAMIC(CMultiLineListBox, CListBox)
 CMultiLineListBox::CMultiLineListBox()
 {
 	m_sArray.clear();
-	m_nMaxWidth   =   0;
+	m_nMaxWidth   =   0; 
 	m_autoScroll = true;
 }
 
-CMultiLineListBox::~CMultiLineListBox()
+CMultiLineListBox::~CMultiLineListBox() 
 {
 	Clear(true);
 }
@@ -89,26 +89,26 @@ int CMultiLineListBox::AddString(LPCTSTR pszText, COLORREF fgColor, COLORREF bgC
 	memset(&scrollInfo,   0,   sizeof(SCROLLINFO));
 	scrollInfo.cbSize   =   sizeof(SCROLLINFO);
 	scrollInfo.fMask   =   SIF_ALL;
-	GetScrollInfo(SB_VERT,   &scrollInfo,   SIF_ALL);
+	GetScrollInfo(SB_VERT,   &scrollInfo,   SIF_ALL); 
 
 	int   nScrollWidth   =   0;
 	if(GetCount() > 1 && ((int)scrollInfo.nMax >= (int)scrollInfo.nPage))
 	{
 		nScrollWidth = GetSystemMetrics(SM_CXVSCROLL);
-	}
+	} 
 
 	SIZE   sSize;
-	CClientDC   myDC(this);
+	CClientDC   myDC(this); 
 
 	CFont* pListBoxFont = GetFont();
 	if(pListBoxFont != NULL)
 	{
-		CFont* pOldFont =  myDC.SelectObject(pListBoxFont);
+		CFont* pOldFont =  myDC.SelectObject(pListBoxFont); 
 		GetTextExtentPoint32(myDC.m_hDC, pszText, ::wcslen(pszText), &sSize);
 
-		m_nMaxWidth   =   max(m_nMaxWidth,   (int)sSize.cx);
-		SetHorizontalExtent(m_nMaxWidth   +   3);
-		myDC.SelectObject(pOldFont);
+		m_nMaxWidth   =   max(m_nMaxWidth,   (int)sSize.cx); 
+		SetHorizontalExtent(m_nMaxWidth   +   3); 
+		myDC.SelectObject(pOldFont);   
 	}
 
 	autoScroll();
@@ -168,7 +168,7 @@ void CMultiLineListBox::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 		COLORREF crOldTextColor = dc.GetTextColor();
 		COLORREF crOldBkColor = dc.GetBkColor();
 
-		// If this item is selected, set the background color
+		// If this item is selected, set the background color 
 		// and the text color to appropriate values. Also, erase
 		// rect by filling it with the background color.
 		CRect rc(lpDrawItemStruct->rcItem);
@@ -332,14 +332,14 @@ void CMultiLineListBox::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBa
 	bool done = false;
 	switch(nSBCode)
 	{
-	case SB_THUMBPOSITION:	//Scroll Position
-	case SB_LINELEFT:		//Left indent
-	case SB_LINERIGHT:		//Right indent
+	case SB_THUMBPOSITION: //Drag slider
+	case SB_LINELEFT: //Click the arrow on the left
+	case SB_LINERIGHT: //Click the arrow on the right
 		done = true;
 		break;
-	}
+	} 
 
-	CListBox::OnVScroll(nSBCode, nPos, pScrollBar);
+	CListBox::OnVScroll(nSBCode, nPos, pScrollBar); 
 
 	if(done)
 	{

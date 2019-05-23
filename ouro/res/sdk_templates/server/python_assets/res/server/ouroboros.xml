@@ -1,0 +1,70 @@
+<root>
+	<!--
+		Personalized server configuration ({assets}/res/server/ouroboros.xml)
+
+		If you need to change the engine settings, please override the corresponding parameters of kbe/res/server/ouroboros_defaults.xml in {assets}/res/server/ouroboros.xml).
+		This has the advantage of not breaking the engine's default settings, creating conflicts when you update the engine, and not affecting other project settings in multiple logical projects.
+		For details, please refer to: http://ouroboros.org/cn/docs/configuration/ouroboros.html
+	-->
+	
+	<trace_packet>
+		<debug_type> 0 </debug_type>
+	</trace_packet>
+	
+	<publish>
+		<!-- Publish status, which can be obtained in the script. Ouroboros.publish()
+			(apps released state, This value can be obtained in the script. Ouroboros.publish())
+			Type: Integer8
+			0 : debug
+			1 : release
+			Other custom
+		-->
+		<state> 0 </state>
+
+		<!-- The version number of the script layer release
+			(Script layer released version number)
+		 -->
+		<script_version> 0.1.0 </script_version>
+	</publish>
+	
+	<!-- defined => kbe/res/server/ouroboros_defs.xml -->
+	<dbmgr>
+		<account_system>
+			<!-- Account recovery password related
+				(Account reset password)
+			-->
+			<account_resetPassword>
+				<!-- Is it open to reset the password?
+					(Whether open reset password)
+				-->
+				<enable>	true	</enable>
+			</account_resetPassword>
+			
+			<!-- Account registration related
+				(Account registration)
+			-->
+			<account_registration> 
+				<!-- Is it open for registration?
+					(Whether open registration)
+				-->
+				<enable>	true	</enable>
+				
+				<!-- When the login is legal, the game database can not be created automatically.
+					(When logged in, the game database can not find the game account is automatically created)
+				-->
+				<loginAutoCreate> true </loginAutoCreate>
+			</account_registration>
+		</account_system>
+		
+		<databaseInterfaces>
+			<default>
+				<!-- <host> localhost </host> -->
+				<!-- <databaseName> kbe </databaseName> -->
+			</default>
+		</databaseInterfaces>
+	</dbmgr>
+	
+	<baseapp>
+		<backupPeriod> 500 </backupPeriod>
+	</baseapp>
+</root>

@@ -1,4 +1,4 @@
-// 2017-2018 Rotten Visions, LLC. https://www.rottenvisions.com
+// 2017-2019 Rotten Visions, LLC. https://www.rottenvisions.com
 #include "globaldata_server.h"
 #include "components.h"
 #include "network/channel.h"
@@ -6,8 +6,8 @@
 #include "../../server/cellapp/cellapp_interface.h"
 #include "../../server/baseapp/baseapp_interface.h"
 
-namespace Ouroboros{
-
+namespace Ouroboros{ 
+		
 //-------------------------------------------------------------------------------------
 GlobalDataServer::GlobalDataServer(DATA_TYPE dataType):
 dataType_(dataType)
@@ -20,10 +20,10 @@ GlobalDataServer::~GlobalDataServer()
 }
 
 //-------------------------------------------------------------------------------------
-bool GlobalDataServer::write(Network::Channel* pChannel, COMPONENT_TYPE componentType,
+bool GlobalDataServer::write(Network::Channel* pChannel, COMPONENT_TYPE componentType, 
 	const std::string& key, const std::string& value)
 {
-	// Broadcast changes
+	// changes made by the broadcast
 	broadcastDataChanged(pChannel, componentType, key, value);
 
 	DATA_MAP_KEY iter = dict_.find(key);
@@ -31,9 +31,9 @@ bool GlobalDataServer::write(Network::Channel* pChannel, COMPONENT_TYPE componen
 		iter->second = value.c_str();
 		return true;
 	}
-
+	
 	dict_[key] = value;
-	return true;
+	return true;	
 }
 
 //-------------------------------------------------------------------------------------
@@ -45,11 +45,11 @@ bool GlobalDataServer::del(Network::Channel* pChannel, COMPONENT_TYPE componentT
 	}
 
 	broadcastDataChanged(pChannel, componentType, key, "", true);
-	return true;
+	return true;	
 }
 
 //-------------------------------------------------------------------------------------
-void GlobalDataServer::broadcastDataChanged(Network::Channel* pChannel, COMPONENT_TYPE componentType,
+void GlobalDataServer::broadcastDataChanged(Network::Channel* pChannel, COMPONENT_TYPE componentType, 
 										const std::string& key, const std::string& value, bool isDelete)
 {
 	INFO_MSG(fmt::format("GlobalDataServer::broadcastDataChanged: writer({0}, addr={4}), keySize={1}, valSize={2}, isDelete={3}\n",
@@ -61,7 +61,7 @@ void GlobalDataServer::broadcastDataChanged(Network::Channel* pChannel, COMPONEN
 		COMPONENT_TYPE ct = (*iter);
 		Components::COMPONENTS& channels = Components::getSingleton().getComponents(ct);
 		Components::COMPONENTS::iterator iter1 = channels.begin();
-
+		
 		for(; iter1 != channels.end(); ++iter1)
 		{
 			Network::Channel* lpChannel = iter1->pChannel;
@@ -72,11 +72,11 @@ void GlobalDataServer::broadcastDataChanged(Network::Channel* pChannel, COMPONEN
 
 			if(dataType_ == BASEAPP_DATA && iter1->componentType != BASEAPP_TYPE)
 				continue;
-
+				
 			if(dataType_ == CELLAPP_DATA && iter1->componentType != CELLAPP_TYPE)
 				continue;
 
-			Network::Bundle* pBundle = Network::Bundle::createPoolObject();
+			Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
 
 			switch(dataType_)
 			{
@@ -91,7 +91,7 @@ void GlobalDataServer::broadcastDataChanged(Network::Channel* pChannel, COMPONEN
 				}
 				else
 				{
-					OURO_ASSERT(false && "componentType is error!\n");
+					OURO_ASSERT(false && "componentType error!\n");
 				}
 				break;
 			case BASEAPP_DATA:
@@ -101,11 +101,11 @@ void GlobalDataServer::broadcastDataChanged(Network::Channel* pChannel, COMPONEN
 				(*pBundle).newMessage(CellappInterface::onBroadcastCellAppDataChanged);
 				break;
 			default:
-				OURO_ASSERT(false && "dataType is error!\n");
+				OURO_ASSERT(false && "dataType error!\n");
 				break;
 			};
 
-
+			
 			(*pBundle) << isDelete;
 			ArraySize slen = key.size();
 			(*pBundle) << slen;
@@ -131,8 +131,8 @@ void GlobalDataServer::onGlobalDataClientLogon(Network::Channel* client, COMPONE
 	DATA_MAP_KEY iter = dict_.begin();
 	for(; iter != dict_.end(); ++iter)
 	{
-		Network::Bundle* pBundle = Network::Bundle::createPoolObject();
-
+		Network::Bundle* pBundle = Network::Bundle::createPoolObject(OBJECTPOOL_POINT);
+		
 		switch(dataType_)
 		{
 		case GLOBAL_DATA:
@@ -146,7 +146,7 @@ void GlobalDataServer::onGlobalDataClientLogon(Network::Channel* client, COMPONE
 			}
 			else
 			{
-				OURO_ASSERT(false && "componentType is error!\n");
+				OURO_ASSERT(false && "componentType error!\n");
 			}
 			break;
 		case BASEAPP_DATA:
@@ -168,7 +168,7 @@ void GlobalDataServer::onGlobalDataClientLogon(Network::Channel* client, COMPONE
 			(*pBundle).newMessage(CellappInterface::onBroadcastCellAppDataChanged);
 			break;
 		default:
-			OURO_ASSERT(false && "dataType is error!\n");
+			OURO_ASSERT(false && "dataType error!\n");
 			break;
 		};
 
