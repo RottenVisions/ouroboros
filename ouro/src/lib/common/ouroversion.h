@@ -6,10 +6,10 @@
 #include "common/platform.h"
 
 namespace Ouroboros{
-	
+
 #define OURO_VERSION_MAJOR 2
 #define OURO_VERSION_MINOR 5
-#define OURO_VERSION_PATCH 0
+#define OURO_VERSION_PATCH 2
 
 
 namespace OUROVersion

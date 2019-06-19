@@ -201,7 +201,7 @@ bool DefContext::addToStream(MemoryStream* pMemoryStream)
 	(*pMemoryStream) << databaseLength;
 	(*pMemoryStream) << utype;
 	(*pMemoryStream) << detailLevel;
-	
+
 	(*pMemoryStream) << propertyFlags;
 	(*pMemoryStream) << propertyIndex;
 	(*pMemoryStream) << propertyDefaultVal;
@@ -546,7 +546,7 @@ static bool registerDefContext(DefContext& defContext)
 	{
 		if (!EntityDef::validDefPropertyName(defContext.attrName))
 		{
-			PyErr_Format(PyExc_AssertionError, "EntityDef.%s: '%s.%s' is limited!\n\n", 
+			PyErr_Format(PyExc_AssertionError, "EntityDef.%s: '%s.%s' is limited!\n\n",
 				defContext.optionName.c_str(), name.c_str(), defContext.attrName.c_str());
 
 			return false;
@@ -611,7 +611,7 @@ static bool registerDefContext(DefContext& defContext)
 		{
 			// If it is a script part of a different process, then a merge registration is required
 			if (iter->second.componentType != defContext.componentType && DefContext::allScriptDefContextLineMaps.find(defContext.pyObjectSourceFile) != DefContext::allScriptDefContextLineMaps.end() &&
-				(defContext.type == DefContext::DC_TYPE_ENTITY || defContext.type == DefContext::DC_TYPE_COMPONENT || defContext.type == DefContext::DC_TYPE_INTERFACE) && 
+				(defContext.type == DefContext::DC_TYPE_ENTITY || defContext.type == DefContext::DC_TYPE_COMPONENT || defContext.type == DefContext::DC_TYPE_INTERFACE) &&
 				iter->second.type == defContext.type)
 			{
 				std::vector< std::string >::iterator bciter = defContext.baseClasses.begin();
@@ -622,10 +622,10 @@ static bool registerDefContext(DefContext& defContext)
 						iter->second.baseClasses.push_back((*bciter));
 					}
 
-					OURO_ASSERT(defContext.base_methods.size() == 0 && 
-						defContext.cell_methods.size() == 0 &&  
-						defContext.client_methods.size() == 0 && 
-						defContext.components.size() == 0 && 
+					OURO_ASSERT(defContext.base_methods.size() == 0 &&
+						defContext.cell_methods.size() == 0 &&
+						defContext.client_methods.size() == 0 &&
+						defContext.components.size() == 0 &&
 						defContext.propertys.size() == 0);
 
 					if (defContext.hasClient)
@@ -860,7 +860,7 @@ static PyObject* __py_def_parse(PyObject *self, PyObject* args)
 {
 	CallContext cc = g_callContexts.top();
 	g_callContexts.pop();
-	
+
 	DefContext defContext;
 	defContext.optionName = cc.optionName;
 
@@ -1074,32 +1074,14 @@ static PyObject* __py_def_parse(PyObject *self, PyObject* args)
 			const_cast<char*>("(O)"), Py_None);
 
 		if (!pyRet)
-			return NULL;
+		{
+			PY_RETURN_ERROR;
+		}
 
 		if (pyRet != Py_None)
 		{
 			PyObject* pyStrResult = PyObject_Str(pyRet);
 			Py_DECREF(pyRet);
-
-			defContext.propertyDefaultVal = PyUnicode_AsUTF8AndSize(pyStrResult, NULL);
-			Py_DECREF(pyStrResult);
-
-			// Verify that this string can be restored to an object
-			if (defContext.propertyDefaultVal.size() > 0)
-			{
-				PyObject* module = PyImport_AddModule("__main__");
-				if (module == NULL)
-					return NULL;
-
-				PyObject* mdict = PyModule_GetDict(module); // Borrowed reference.
-				PyObject* result = PyRun_String(const_cast<char*>(defContext.propertyDefaultVal.c_str()),
-					Py_eval_input, mdict, mdict);
-
-				if (result == NULL)
-					return NULL;
-
-				Py_DECREF(result);
-			}
 		}
 		else
 		{
@@ -1206,7 +1188,7 @@ static PyObject* __py_def_parse(PyObject *self, PyObject* args)
 	}
 	else if (defContext.optionName == "fixed_array")
 	{
-		// @Def.fixed_array() 
+		// @Def.fixed_array()
 		// def ENTITYID_LIST()->ENTITY_ID: pass
 		defContext.isModuleScope = false;
 	}
@@ -1234,10 +1216,10 @@ static PyObject* __py_def_parse(PyObject *self, PyObject* args)
 			if (outs.size() != 2)
 			{
 				if(PyFunction_Check(pyFunc))
-					PyErr_Format(PyExc_AssertionError, "EntityDef.%s: \'%s\' must be defined in the entity module!\n", 
+					PyErr_Format(PyExc_AssertionError, "EntityDef.%s: \'%s\' must be defined in the entity module!\n",
 						defContext.optionName.c_str(), moduleQualname);
 				else
-					PyErr_Format(PyExc_AssertionError, "EntityDef.%s: please check the command format is: EntityDef.%s(..)\n", 
+					PyErr_Format(PyExc_AssertionError, "EntityDef.%s: please check the command format is: EntityDef.%s(..)\n",
 						defContext.optionName.c_str(), defContext.optionName.c_str());
 
 				PY_RETURN_ERROR;
@@ -1481,6 +1463,29 @@ static PyObject* __py_def_parse(PyObject *self, PyObject* args)
 	}
 	else if (defContext.optionName == "property")
 	{
+		// Verify that this string can be restored to an object
+		if (defContext.propertyDefaultVal.size() > 0)
+		{
+			PyObject* module = PyImport_AddModule("__main__");
+			if (module == NULL)
+			{
+				noerror = false;
+			}
+			else
+			{
+				if (defContext.returnType != "UNICODE" && defContext.returnType != "STRING")
+				{
+					PyObject* mdict = PyModule_GetDict(module); // Borrowed reference.
+					PyObject* result = PyRun_String(const_cast<char*>(defContext.propertyDefaultVal.c_str()),
+						Py_eval_input, mdict, mdict);
+
+					if (result == NULL)
+						noerror = false;
+					else
+						Py_DECREF(result);
+				}
+			}
+		}
 		noerror = onDefProperty(defContext);
 	}
 	else if (defContext.optionName == "entity")
@@ -1575,7 +1580,7 @@ static PyObject* __py_def_rename(PyObject* self, PyObject* args, PyObject* kwarg
 		PyObject *key, *value;
 		Py_ssize_t pos = 0;
 
-		while (PyDict_Next(kwargs, &pos, &key, &value)) 
+		while (PyDict_Next(kwargs, &pos, &key, &value))
 		{
 			std::string typeName = "";
 			if (!PyUnicode_Check(value))
@@ -1671,7 +1676,7 @@ static PyObject* __py_def_fixed_array(PyObject* self, PyObject* args, PyObject* 
 		PyObject *key, *value;
 		Py_ssize_t pos = 0;
 
-		while (PyDict_Next(kwargs, &pos, &key, &value)) 
+		while (PyDict_Next(kwargs, &pos, &key, &value))
 		{
 			std::string typeName = "";
 			if (!PyUnicode_Check(value))
@@ -1750,7 +1755,7 @@ static PyObject* __py_def_fixed_array(PyObject* self, PyObject* args, PyObject* 
 	g_callContexts.push(cc);
 
 	// @EntityDef.fixed_array()
-	// class XXXArray£º
+	// class XXXArrayï¿½ï¿½
 	return PyCFunction_New(&__call_def_parse, self);
 }
 
@@ -1827,7 +1832,7 @@ bool uninstallModule()
 	while (!g_callContexts.empty()) g_callContexts.pop();
 	DefContext::allScriptDefContextMaps.clear();
 	DefContext::allScriptDefContextLineMaps.clear();
-	return true; 
+	return true;
 }
 
 //-------------------------------------------------------------------------------------
@@ -1853,7 +1858,7 @@ static bool loadAllScriptForComponentType(COMPONENT_TYPE loadComponentType)
 
 	if (rootPath.size() == 0)
 	{
-		ERROR_MSG(fmt::format("PyEntityDef::loadAllScriptForComponentType(): get scripts path error! loadComponentType={}\n", 
+		ERROR_MSG(fmt::format("PyEntityDef::loadAllScriptForComponentType(): get scripts path error! loadComponentType={}\n",
 			COMPONENT_NAME_EX(loadComponentType)));
 
 		return false;
@@ -1942,7 +1947,7 @@ static bool loadAllScriptForComponentType(COMPONENT_TYPE loadComponentType)
 	}
 
 	free(wpath);
-	
+
 	return true;
 }
 
@@ -2021,7 +2026,7 @@ static bool execPython(COMPONENT_TYPE componentType)
 	ScriptStdOutErr* pyStdouterr = new ScriptStdOutErr();
 
 	// Install py redirect script module
-	if (!pyStdouterr->install()) 
+	if (!pyStdouterr->install())
 	{
 		ERROR_MSG("PyEntityDef::execPython(): pyStdouterr->install() is failed!\n");
 		delete pyStdouterr;
@@ -2104,7 +2109,7 @@ static bool loadAllScripts()
 	for (std::vector< COMPONENT_TYPE >::iterator iter = loadOtherComponentTypes.begin(); iter != loadOtherComponentTypes.end(); ++iter)
 	{
 		COMPONENT_TYPE componentType = (*iter);
-		
+
 		if (g_componentType == componentType)
 		{
 			if (!loadAllScriptForComponentType(g_componentType))
@@ -2320,7 +2325,7 @@ static bool registerDefMethods(ScriptDefModule* pScriptModule, DefContext& defCo
 			std::string argName = defMethodContext.argsvecs[0];
 			std::string argType = defMethodContext.annotationsMaps[argName];
 
-			// If the callerID parameter of the exposed method is ignored
+			// If the callerID parameter of the Exposed method is ignored
 			if (argType == "CALLER_ID")
 			{
 				if (!defMethodContext.exposed)
@@ -2393,7 +2398,7 @@ static bool registerDefMethods(ScriptDefModule* pScriptModule, DefContext& defCo
 						delete dataType1;
 						return false;
 					}
-					
+
 					dataType = dataType1;
 				}
 			}
@@ -2463,7 +2468,7 @@ static bool registerDefPropertys(ScriptDefModule* pScriptModule, DefContext& def
 		std::string					indexType = defPropContext.propertyIndex;
 		DETAIL_TYPE					detailLevel = DETAIL_LEVEL_FAR;
 		std::string					name = defPropContext.attrName;
-		
+
 		if (!EntityDef::validDefPropertyName(name))
 		{
 			ERROR_MSG(fmt::format("PyEntityDef::registerDefPropertys: '{}' is limited, in module({}), file: \"{}\"!\n",
@@ -2888,7 +2893,7 @@ bool initialize()
 
 		return false;
 	}
-	
+
 	static const char* CALLER_ID = "CALLER_ID";
 	if (PyModule_AddStringConstant(entitydefModule, CALLER_ID, CALLER_ID))
 	{

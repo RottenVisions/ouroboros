@@ -1,4 +1,4 @@
-// LogWindow.cpp : implementation file
+﻿// LogWindow.cpp : implementation file
 //
 
 #include "stdafx.h"
@@ -20,7 +20,7 @@ CString  state_flags[8] = {
 	L"↘ ",
 	L"↓",
 	L"↙",
-	L"�?",
+	L"←",
 };
 
 int state_flags_idx = 0;

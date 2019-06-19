@@ -534,9 +534,9 @@ class TestSetLiteral(GrammarTest):
 class TestIdentfier(GrammarTest):
     def test_non_ascii_identifiers(self):
         self.validate("Ã–rter = 'places'\ngrÃ¼n = 'green'")
-        Â Â Â Â Â Â Â Â Self.validate("èŸ’ = aèŸ’ = é”¦è›‡ = 1")
+Â Â Â Â Â Â Â Â self.validate("èŸ’ = aèŸ’ = é”¦è›‡ = 1")
         self.validate("Âµ = aÂµ = ÂµÂµ = 1")
-        self.validate("ð?”˜ð?”«ð?”¦ð?” ð?”¬ð?”¡ð?”¢ = a_ð?”˜ð?”«ð?”¦ð?” ð?”¬ð?”¡ð?”¢ = 1")
+        self.validate("ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½ = a_ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½?ï¿½ï¿½ = 1")
 
 
 class TestNumericLiterals(GrammarTest):

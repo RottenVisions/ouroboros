@@ -6,7 +6,7 @@
 #include "fixeddict.h"
 #include "fixedarray.h"
 #include "entity_call.h"
-#include "py_entitydef.h"	
+#include "py_entitydef.h"
 #include "property.h"
 #include "entity_component.h"
 #include "scriptdef_module.h"
@@ -142,17 +142,17 @@ bool UInt64Type::isSameType(PyObject* pyValue)
 	}
 
 	PyLong_AsUnsignedLongLong(pyValue);
-	if (!PyErr_Occurred()) 
+	if (!PyErr_Occurred())
 		return true;
-	
+
 	PyErr_Clear();
 	PyLong_AsUnsignedLong(pyValue);
-	if (!PyErr_Occurred()) 
+	if (!PyErr_Occurred())
 		return true;
-	
+
 	PyErr_Clear();
 	long v = PyLong_AsLong(pyValue);
-	if (!PyErr_Occurred()) 
+	if (!PyErr_Occurred())
 	{
 		if(v < 0)
 		{
@@ -180,10 +180,10 @@ PyObject* UInt64Type::parseDefaultStr(std::string defaultVal)
 
 	PyObject* pyval = PyLong_FromUnsignedLongLong(val);
 
-	if (PyErr_Occurred()) 
+	if (PyErr_Occurred())
 	{
 		PyErr_Clear();
-		PyErr_Format(PyExc_TypeError, "UInt64Type::parseDefaultStr: defaultVal(%s) error! val=[%s]", 
+		PyErr_Format(PyExc_TypeError, "UInt64Type::parseDefaultStr: defaultVal(%s) error! val=[%s]",
 			pyval != NULL ? pyval->ob_type->tp_name : "NULL", defaultVal.c_str());
 
 		PyErr_PrintEx(0);
@@ -201,18 +201,18 @@ void UInt64Type::addToStream(MemoryStream* mstream, PyObject* pyValue)
 	uint64 v = static_cast<uint64>(PyLong_AsUnsignedLongLong(pyValue));
 
 	if (PyErr_Occurred())
-	{	
+	{
 		PyErr_Clear();
 		v = (uint64)PyLong_AsUnsignedLong(pyValue);
 		if (PyErr_Occurred())
-		{	
+		{
 			PyErr_Clear();
 			v = (uint64)PyLong_AsLong(pyValue);
 
 			if(PyErr_Occurred())
 			{
 				PyErr_Clear();
-				PyErr_Format(PyExc_TypeError, "UInt64Type::addToStream: pyValue(%s) is wrong!", 
+				PyErr_Format(PyExc_TypeError, "UInt64Type::addToStream: pyValue(%s) is wrong!",
 					(pyValue == NULL) ? "NULL": pyValue->ob_type->tp_name);
 
 				PyErr_PrintEx(0);
@@ -230,11 +230,11 @@ PyObject* UInt64Type::createFromStream(MemoryStream* mstream)
 {
 	uint64 val = 0;
 	if(mstream)
-		(*mstream) >> val;	
+		(*mstream) >> val;
 
 	PyObject* pyval = PyLong_FromUnsignedLongLong(val);
 
-	if (PyErr_Occurred()) 
+	if (PyErr_Occurred())
 	{
 		PyErr_Format(PyExc_TypeError, "UInt64Type::createFromStream: errval=%" PRIu64 ", default return is 0", val);
 		PyErr_PrintEx(0);
@@ -272,12 +272,12 @@ bool UInt32Type::isSameType(PyObject* pyValue)
 	}
 
 	PyLong_AsUnsignedLong(pyValue);
-	if (!PyErr_Occurred()) 
+	if (!PyErr_Occurred())
 		return true;
-	
+
 	PyErr_Clear();
 	long v = PyLong_AsLong(pyValue);
-	if (!PyErr_Occurred()) 
+	if (!PyErr_Occurred())
 	{
 		if(v < 0)
 		{
@@ -286,7 +286,7 @@ bool UInt32Type::isSameType(PyObject* pyValue)
 		}
 		return true;
 	}
-	
+
 	PyErr_Clear();
 	OUT_TYPE_ERROR("UINT32");
 	return false;
@@ -305,10 +305,10 @@ PyObject* UInt32Type::parseDefaultStr(std::string defaultVal)
 
 	PyObject* pyval = PyLong_FromUnsignedLong(val);
 
-	if (PyErr_Occurred()) 
+	if (PyErr_Occurred())
 	{
 		PyErr_Clear();
-		PyErr_Format(PyExc_TypeError, "UInt32Type::parseDefaultStr: defaultVal(%s) error! val=[%s]", 
+		PyErr_Format(PyExc_TypeError, "UInt32Type::parseDefaultStr: defaultVal(%s) error! val=[%s]",
 			pyval != NULL ? pyval->ob_type->tp_name : "NULL", defaultVal.c_str());
 
 		PyErr_PrintEx(0);
@@ -326,7 +326,7 @@ void UInt32Type::addToStream(MemoryStream* mstream, PyObject* pyValue)
 	uint32 v = PyLong_AsUnsignedLong(pyValue);
 
 	if (PyErr_Occurred())
-	{	
+	{
 		PyErr_Clear();
 		v = (uint32)PyLong_AsLong(pyValue);
 
@@ -334,7 +334,7 @@ void UInt32Type::addToStream(MemoryStream* mstream, PyObject* pyValue)
 		{
 			PyErr_Clear();
 
-			PyErr_Format(PyExc_TypeError, "UInt32Type::addToStream: pyValue(%s) is wrong!", 
+			PyErr_Format(PyExc_TypeError, "UInt32Type::addToStream: pyValue(%s) is wrong!",
 				(pyValue == NULL) ? "NULL": pyValue->ob_type->tp_name);
 
 			PyErr_PrintEx(0);
@@ -351,11 +351,11 @@ PyObject* UInt32Type::createFromStream(MemoryStream* mstream)
 {
 	uint32 val = 0;
 	if(mstream)
-		(*mstream) >> val;	
+		(*mstream) >> val;
 
 	PyObject* pyval = PyLong_FromUnsignedLong(val);
 
-	if (PyErr_Occurred()) 
+	if (PyErr_Occurred())
 	{
 		PyErr_Format(PyExc_TypeError, "UInt32Type::createFromStream: errval=%u, default return is 0", val);
 		PyErr_PrintEx(0);
@@ -393,12 +393,12 @@ bool Int64Type::isSameType(PyObject* pyValue)
 	}
 
 	PyLong_AsLongLong(pyValue);
-	if (!PyErr_Occurred()) 
+	if (!PyErr_Occurred())
 		return true;
 
 	PyErr_Clear();
 	PyLong_AsLong(pyValue);
-	if (!PyErr_Occurred()) 
+	if (!PyErr_Occurred())
 	{
 		return true;
 	}
@@ -421,10 +421,10 @@ PyObject* Int64Type::parseDefaultStr(std::string defaultVal)
 
 	PyObject* pyval = PyLong_FromLongLong(val);
 
-	if (PyErr_Occurred()) 
+	if (PyErr_Occurred())
 	{
 		PyErr_Clear();
-		PyErr_Format(PyExc_TypeError, "Int64Type::parseDefaultStr: defaultVal(%s) error! val=[%s]", 
+		PyErr_Format(PyExc_TypeError, "Int64Type::parseDefaultStr: defaultVal(%s) error! val=[%s]",
 			pyval != NULL ? pyval->ob_type->tp_name : "NULL", defaultVal.c_str());
 
 		PyErr_PrintEx(0);
@@ -442,7 +442,7 @@ void Int64Type::addToStream(MemoryStream* mstream, PyObject* pyValue)
 	int64 v = PyLong_AsLongLong(pyValue);
 
 	if (PyErr_Occurred())
-	{	
+	{
 		PyErr_Clear();
 		v = (uint32)PyLong_AsLong(pyValue);
 
@@ -450,7 +450,7 @@ void Int64Type::addToStream(MemoryStream* mstream, PyObject* pyValue)
 		{
 			PyErr_Clear();
 
-			PyErr_Format(PyExc_TypeError, "Int64Type::addToStream: pyValue(%s) is wrong!", 
+			PyErr_Format(PyExc_TypeError, "Int64Type::addToStream: pyValue(%s) is wrong!",
 				(pyValue == NULL) ? "NULL": pyValue->ob_type->tp_name);
 
 			PyErr_PrintEx(0);
@@ -467,11 +467,11 @@ PyObject* Int64Type::createFromStream(MemoryStream* mstream)
 {
 	int64 val = 0;
 	if(mstream)
-		(*mstream) >> val;	
+		(*mstream) >> val;
 
 	PyObject* pyval = PyLong_FromLongLong(val);
 
-	if (PyErr_Occurred()) 
+	if (PyErr_Occurred())
 	{
 		PyErr_Format(PyExc_TypeError, "Int64Type::createFromStream: errval=%" PRI64 ", default return is 0", val);
 		PyErr_PrintEx(0);
@@ -521,10 +521,10 @@ PyObject* FloatType::parseDefaultStr(std::string defaultVal)
 
 	PyObject* pyval = PyFloat_FromDouble(val);
 
-	if (PyErr_Occurred()) 
+	if (PyErr_Occurred())
 	{
 		PyErr_Clear();
-		PyErr_Format(PyExc_TypeError, "FloatType::parseDefaultStr: defaultVal(%s) error! val=[%s]", 
+		PyErr_Format(PyExc_TypeError, "FloatType::parseDefaultStr: defaultVal(%s) error! val=[%s]",
 			pyval != NULL ? pyval->ob_type->tp_name : "NULL", defaultVal.c_str());
 
 		PyErr_PrintEx(0);
@@ -541,7 +541,7 @@ void FloatType::addToStream(MemoryStream* mstream, PyObject* pyValue)
 {
 	if(!PyFloat_Check(pyValue))
 	{
-		PyErr_Format(PyExc_TypeError, "FloatType::addToStream: pyValue(%s) is wrong!", 
+		PyErr_Format(PyExc_TypeError, "FloatType::addToStream: pyValue(%s) is wrong!",
 			(pyValue == NULL) ? "NULL": pyValue->ob_type->tp_name);
 
 		PyErr_PrintEx(0);
@@ -557,11 +557,11 @@ PyObject* FloatType::createFromStream(MemoryStream* mstream)
 {
 	float val = 0.0;
 	if(mstream)
-		(*mstream) >> val;	
+		(*mstream) >> val;
 
 	PyObject* pyval = PyFloat_FromDouble(val);
 
-	if (PyErr_Occurred()) 
+	if (PyErr_Occurred())
 	{
 		PyErr_Format(PyExc_TypeError, "FloatType::createFromStream: errval=%f, default return is 0", val);
 		PyErr_PrintEx(0);
@@ -611,10 +611,10 @@ PyObject* DoubleType::parseDefaultStr(std::string defaultVal)
 
 	PyObject* pyval = PyFloat_FromDouble(val);
 
-	if (PyErr_Occurred()) 
+	if (PyErr_Occurred())
 	{
 		PyErr_Clear();
-		PyErr_Format(PyExc_TypeError, "DoubleType::parseDefaultStr: defaultVal(%s) error! val=[%s]", 
+		PyErr_Format(PyExc_TypeError, "DoubleType::parseDefaultStr: defaultVal(%s) error! val=[%s]",
 			pyval != NULL ? pyval->ob_type->tp_name : "NULL", defaultVal.c_str());
 
 		PyErr_PrintEx(0);
@@ -631,7 +631,7 @@ void DoubleType::addToStream(MemoryStream* mstream, PyObject* pyValue)
 {
 	if(!PyFloat_Check(pyValue))
 	{
-		PyErr_Format(PyExc_TypeError, "DoubleType::addToStream: pyValue(%s) is wrong!", 
+		PyErr_Format(PyExc_TypeError, "DoubleType::addToStream: pyValue(%s) is wrong!",
 			(pyValue == NULL) ? "NULL": pyValue->ob_type->tp_name);
 
 		PyErr_PrintEx(0);
@@ -646,11 +646,11 @@ PyObject* DoubleType::createFromStream(MemoryStream* mstream)
 {
 	double val = 0.0;
 	if(mstream)
-		(*mstream) >> val;	
+		(*mstream) >> val;
 
 	PyObject* pyval = PyFloat_FromDouble(val);
 
-	if (PyErr_Occurred()) 
+	if (PyErr_Occurred())
 	{
 		PyErr_Format(PyExc_TypeError, "UInt32Type::createFromStream: errval=%lf, default return is 0", val);
 		PyErr_PrintEx(0);
@@ -677,18 +677,18 @@ bool Vector2Type::isSameType(PyObject* pyValue)
 {
 	if(pyValue == NULL)
 	{
-		PyErr_Format(PyExc_TypeError, 
+		PyErr_Format(PyExc_TypeError,
 			"must be set to a VECTOR2 type.");
-		
+
 		PyErr_PrintEx(0);
 		return false;
 	}
 
 	if(!PySequence_Check(pyValue) || (uint32)PySequence_Size(pyValue) != 2)
 	{
-		PyErr_Format(PyExc_TypeError, 
+		PyErr_Format(PyExc_TypeError,
 			"must be set to a VECTOR2 type.");
-		
+
 		PyErr_PrintEx(0);
 		return false;
 	}
@@ -698,9 +698,9 @@ bool Vector2Type::isSameType(PyObject* pyValue)
 		PyObject* pyVal = PySequence_GetItem(pyValue, index);
 		if(!PyFloat_Check(pyVal) && !PyLong_Check(pyVal) && !PyLong_AsLongLong(pyVal))
 		{
-			PyErr_Format(PyExc_TypeError, 
+			PyErr_Format(PyExc_TypeError,
 				"VECTOR2 item is not digit.");
-			
+
 			PyErr_PrintEx(0);
 			return false;
 		}
@@ -759,7 +759,7 @@ PyObject* Vector2Type::createFromStream(MemoryStream* mstream)
 #endif
 
 	if(mstream)
-		(*mstream) >> x >> y;	
+		(*mstream) >> x >> y;
 
 	return new script::ScriptVector2(float(x), float(y));
 }
@@ -1000,7 +1000,7 @@ bool StringType::isSameType(PyObject* pyValue)
 	}
 	else
 	{
-		PyObject* pyfunc = PyObject_GetAttrString(pyValue, "encode"); 
+		PyObject* pyfunc = PyObject_GetAttrString(pyValue, "encode");
 		if(pyfunc == NULL)
 		{
 			SCRIPT_ERROR_CHECK();
@@ -1008,11 +1008,11 @@ bool StringType::isSameType(PyObject* pyValue)
 		}
 		else
 		{
-			PyObject* pyRet = PyObject_CallFunction(pyfunc, 
+			PyObject* pyRet = PyObject_CallFunction(pyfunc,
 				const_cast<char*>("(s)"), "ascii");
-			
+
 			S_RELEASE(pyfunc);
-			
+
 			if(!pyRet)
 			{
 				SCRIPT_ERROR_CHECK();
@@ -1024,7 +1024,7 @@ bool StringType::isSameType(PyObject* pyValue)
 			}
 		}
 	}
-	
+
 	return ret;
 }
 
@@ -1033,11 +1033,11 @@ PyObject* StringType::parseDefaultStr(std::string defaultVal)
 {
 	PyObject* pyobj = PyUnicode_FromString(defaultVal.c_str());
 
-	if (pyobj && !PyErr_Occurred()) 
+	if (pyobj && !PyErr_Occurred())
 		return pyobj;
 
 	PyErr_Clear();
-	PyErr_Format(PyExc_TypeError, "StringType::parseDefaultStr: defaultVal(%s) error! val=[%s]", 
+	PyErr_Format(PyExc_TypeError, "StringType::parseDefaultStr: defaultVal(%s) error! val=[%s]",
 		pyobj != NULL ? pyobj->ob_type->tp_name : "NULL", defaultVal.c_str());
 
 	PyErr_PrintEx(0);
@@ -1069,7 +1069,7 @@ PyObject* StringType::createFromStream(MemoryStream* mstream)
 
 	PyObject* pyobj = PyUnicode_FromString(val.c_str());
 
-	if (pyobj && !PyErr_Occurred()) 
+	if (pyobj && !PyErr_Occurred())
 		return pyobj;
 
 	PyErr_PrintEx(0);
@@ -1110,13 +1110,13 @@ PyObject* UnicodeType::parseDefaultStr(std::string defaultVal)
 {
 	PyObject* pyobj = PyUnicode_DecodeUTF8(defaultVal.data(), defaultVal.size(), "");
 
-	if(pyobj && !PyErr_Occurred()) 
+	if(pyobj && !PyErr_Occurred())
 	{
 		return pyobj;
 	}
 
 	PyErr_Clear();
-	PyErr_Format(PyExc_TypeError, "UnicodeType::parseDefaultStr: defaultVal(%s) error! val=[%s]", 
+	PyErr_Format(PyExc_TypeError, "UnicodeType::parseDefaultStr: defaultVal(%s) error! val=[%s]",
 		pyobj != NULL ? pyobj->ob_type->tp_name : "NULL", defaultVal.c_str());
 
 	PyErr_PrintEx(0);
@@ -1151,7 +1151,7 @@ PyObject* UnicodeType::createFromStream(MemoryStream* mstream)
 
 	PyObject* pyobj = PyUnicode_DecodeUTF8(val.data(), val.size(), "");
 
-	if(pyobj && !PyErr_Occurred()) 
+	if(pyobj && !PyErr_Occurred())
 	{
 		return pyobj;
 	}
@@ -1197,16 +1197,16 @@ PyObject* PythonType::parseDefaultStr(std::string defaultVal)
 		PyObject* module = PyImport_AddModule("__main__");
 		if(module == NULL)
 		{
-			PyErr_SetString(PyExc_SystemError, 
+			PyErr_SetString(PyExc_SystemError,
 				"PythonType::createObject:PyImport_AddModule __main__ error!");
-			
-			PyErr_PrintEx(0);	
+
+			PyErr_PrintEx(0);
 			S_Return;
 		}
 
 		PyObject* mdict = PyModule_GetDict(module); // Borrowed reference.
-		
-		PyObject* result = PyRun_String(const_cast<char*>(defaultVal.c_str()), 
+
+		PyObject* result = PyRun_String(const_cast<char*>(defaultVal.c_str()),
 							Py_eval_input, mdict, mdict);
 
 		if (result == NULL)
@@ -1217,7 +1217,7 @@ PyObject* PythonType::parseDefaultStr(std::string defaultVal)
 
 		return result;
 	}
-		
+
 	S_Return;
 }
 
@@ -1428,7 +1428,7 @@ bool BlobType::isSameType(PyObject* pyValue)
 		return false;
 	}
 
-	if (!PyBytes_Check(pyValue) && 
+	if (!PyBytes_Check(pyValue) &&
 		!PyObject_TypeCheck(pyValue, script::PyMemoryStream::getScriptType()))
 	{
 		OUT_TYPE_ERROR("BLOB");
@@ -1560,7 +1560,7 @@ void EntityCallType::addToStream(MemoryStream* mstream, PyObject* pyValue)
 				}
 			}
 		}
-		
+
 		// can only be entityCall
 		if(id == 0)
 		{
@@ -1603,7 +1603,7 @@ PyObject* EntityCallType::createFromStream(MemoryStream* mstream)
 				}
 			}
 
-			return new EntityCall(EntityDef::findScriptModule(utype), NULL, cid, 
+			return new EntityCall(EntityDef::findScriptModule(utype), NULL, cid,
 							id, (ENTITYCALL_TYPE)type);
 		}
 	}
@@ -1798,7 +1798,7 @@ bool FixedArrayType::isSameType(PyObject* pyValue)
 		OUT_TYPE_ERROR("ARRAY");
 		return false;
 	}
-	
+
 	if(!PySequence_Check(pyValue))
 	{
 		OUT_TYPE_ERROR("ARRAY");
@@ -1870,8 +1870,8 @@ PyObject* FixedArrayType::createFromStreamEx(MemoryStream* mstream, bool onlyPer
 
 	if(mstream)
 	{
-		(*mstream) >> size;	
-		
+		(*mstream) >> size;
+
 		std::vector<PyObject*>& vals = pFixedArray->getValues();
 		for(ArraySize i=0; i<size; ++i)
 		{
@@ -1884,21 +1884,21 @@ PyObject* FixedArrayType::createFromStreamEx(MemoryStream* mstream, bool onlyPer
 			}
 
 			PyObject* pyVal = NULL;
-			
+
 			if(dataType_->type() == DATA_TYPE_FIXEDDICT)
 				pyVal = ((FixedDictType*)dataType_)->createFromStreamEx(mstream, onlyPersistents);
 			else if(dataType_->type() == DATA_TYPE_FIXEDARRAY)
 				pyVal = ((FixedArrayType*)dataType_)->createFromStreamEx(mstream, onlyPersistents);
 			else
 				pyVal = dataType_->createFromStream(mstream);
-	
+
 			if(pyVal)
 			{
 				vals.push_back(pyVal);
 			}
 			else
 			{
-				ERROR_MSG(fmt::format("FixedArrayType::createFromStream: {}, pyVal is NULL! size={}\n", 
+				ERROR_MSG(fmt::format("FixedArrayType::createFromStream: {}, pyVal is NULL! size={}\n",
 					aliasName(), size));
 
 				break;
@@ -1965,7 +1965,7 @@ std::string FixedDictType::debugInfos(void)
 		retstr += iter->second->dataType->aliasName();
 		retstr += "), ";
 	}
-	
+
 	if(retstr.size() > 0)
 		retstr.erase(retstr.size() - 2, 2);
 
@@ -2117,6 +2117,8 @@ bool FixedDictType::initialize(XML* xml, TiXmlNode* node, std::string& parentNam
 					ERROR_MSG(fmt::format("FixedDictType::initialize: key[{}] did not find array-type[{}]!\n",
 						typeName.c_str(), strType.c_str()));
 
+					dataType->decRef();
+					pDictItemDataType->dataType = NULL;
 					return false;
 				}
 			}
@@ -2135,7 +2137,7 @@ bool FixedDictType::initialize(XML* xml, TiXmlNode* node, std::string& parentNam
 
 					keyTypes_.push_back(std::pair< std::string, DictItemDataTypePtr >(typeName, pDictItemDataType));
 					dataType->incRef();
-					
+
 					if(dataType->type() == DATA_TYPE_ENTITYCALL)
 					{
 						persistent = false;
@@ -2148,9 +2150,11 @@ bool FixedDictType::initialize(XML* xml, TiXmlNode* node, std::string& parentNam
 				}
 				else
 				{
-					ERROR_MSG(fmt::format("FixedDictType::initialize: key[{}] did not find type[{}]!\n", 
+					ERROR_MSG(fmt::format("FixedDictType::initialize: key[{}] did not find type[{}]!\n",
 						typeName.c_str(), strType.c_str()));
-					
+
+					dataType->decRef();
+					pDictItemDataType->dataType = NULL;
 					return false;
 				}
 			}
@@ -2265,6 +2269,8 @@ bool FixedDictType::initialize(script::entitydef::DefContext* pDefContext, const
 				}
 				else
 				{
+					dataType->decRef();
+					pDictItemDataType->dataType = NULL;
 					return false;
 				}
 			}
@@ -2305,6 +2311,8 @@ bool FixedDictType::initialize(script::entitydef::DefContext* pDefContext, const
 				ERROR_MSG(fmt::format("PyEntityDef::FixedDictType::initialize: {}.{} is not a legal data type[{}], file: \"{}\"!\n",
 					defContextItem.moduleName.c_str(), defContextItem.attrName.c_str(), defContextItem.returnType, defContextItem.pyObjectSourceFile));
 
+				dataType->decRef();
+				pDictItemDataType->dataType = NULL;
 				return false;
 			}
 		}
@@ -2409,16 +2417,16 @@ PyObject* FixedDictType::impl_createObjFromDict(PyObject* dictData)
 		return dictData;
 	}
 
-	PyObject* pyRet = PyObject_CallFunction(pycreateObjFromDict_, 
+	PyObject* pyRet = PyObject_CallFunction(pycreateObjFromDict_,
 		const_cast<char*>("(O)"), dictData);
-	
+
 	if(pyRet == NULL || !impl_isSameType(pyRet))
 	{
 		SCRIPT_ERROR_CHECK();
 
 		ERROR_MSG(fmt::format("FixedDictType::impl_createObjFromDict: {}.isSameType() is failed!\n",
 			moduleName_.c_str()));
-		
+
 		Py_RETURN_NONE;
 	}
 
@@ -2428,9 +2436,9 @@ PyObject* FixedDictType::impl_createObjFromDict(PyObject* dictData)
 //-------------------------------------------------------------------------------------
 PyObject* FixedDictType::impl_getDictFromObj(PyObject* pyobj)
 {
-	PyObject* pyRet = PyObject_CallFunction(pygetDictFromObj_, 
+	PyObject* pyRet = PyObject_CallFunction(pygetDictFromObj_,
 		const_cast<char*>("(O)"), pyobj);
-	
+
 	if(pyRet == NULL)
 	{
 		SCRIPT_ERROR_CHECK();
@@ -2443,15 +2451,15 @@ PyObject* FixedDictType::impl_getDictFromObj(PyObject* pyobj)
 //-------------------------------------------------------------------------------------
 bool FixedDictType::impl_isSameType(PyObject* pyobj)
 {
-	PyObject* pyRet = PyObject_CallFunction(pyisSameType_, 
+	PyObject* pyRet = PyObject_CallFunction(pyisSameType_,
 		const_cast<char*>("(O)"), pyobj);
-	
+
 	if(pyRet == NULL)
 	{
 		SCRIPT_ERROR_CHECK();
 		return false;
 	}
-	
+
 	bool ret = Py_True == pyRet;
 	Py_DECREF(pyRet);
 	return ret;
@@ -2467,13 +2475,13 @@ DataType* FixedDictType::isSameItemType(const char* keyName, PyObject* pyValue)
 		{
 			if(pyValue == NULL || !iter->second->dataType->isSameType(pyValue))
 			{
-				PyErr_Format(PyExc_TypeError, 
-					"set FIXED_DICT(%s) error! at key: %s(%s), keyNames=[%s].", 
-					this->aliasName(), 
+				PyErr_Format(PyExc_TypeError,
+					"set FIXED_DICT(%s) error! at key: %s(%s), keyNames=[%s].",
+					this->aliasName(),
 					iter->first.c_str(),
 					(pyValue == NULL ? "NULL" : pyValue->ob_type->tp_name),
 					debugInfos().c_str());
-				
+
 				PyErr_PrintEx(0);
 				return NULL;
 			}
@@ -2521,9 +2529,9 @@ bool FixedDictType::isSameType(PyObject* pyValue)
 	Py_ssize_t dictSize = PyDict_Size(pyValue);
 	if(dictSize != (Py_ssize_t)keyTypes_.size())
 	{
-		PyErr_Format(PyExc_TypeError, 
-			"FIXED_DICT(%s) key does not match! giveKeySize=%d, dictKeySize=%d, dictKeyNames=[%s], notFoundKeys=[%s].", 
-			this->aliasName(), dictSize, keyTypes_.size(), 
+		PyErr_Format(PyExc_TypeError,
+			"FIXED_DICT(%s) key does not match! giveKeySize=%d, dictKeySize=%d, dictKeyNames=[%s], notFoundKeys=[%s].",
+			this->aliasName(), dictSize, keyTypes_.size(),
 			debugInfos().c_str(), getNotFoundKeys(pyValue).c_str());
 
 		PyErr_PrintEx(0);
@@ -2556,7 +2564,7 @@ bool FixedDictType::isSameType(PyObject* pyValue)
 			return false;
 		}
 	}
-	
+
 	return true;
 }
 
@@ -2595,7 +2603,7 @@ void FixedDictType::addToStreamEx(MemoryStream* mstream, PyObject* pyValue, bool
 	{
 		pydict = static_cast<FixedDict*>(pyValue)->getDictObject();
 	}
-	
+
 	FIXEDDICT_KEYTYPE_MAP::iterator iter = keyTypes_.begin();
 	for(; iter != keyTypes_.end(); ++iter)
 	{
@@ -2605,9 +2613,9 @@ void FixedDictType::addToStreamEx(MemoryStream* mstream, PyObject* pyValue, bool
 				continue;
 		}
 
-		PyObject* pyObject = 
+		PyObject* pyObject =
 			PyDict_GetItemString(pydict, const_cast<char*>(iter->first.c_str()));
-		
+
 		if(pyObject == NULL)
 		{
 			ERROR_MSG(fmt::format("FixedDictType::addToStreamEx: {} not found key[{}]. keyNames[{}]\n",
@@ -2626,7 +2634,7 @@ void FixedDictType::addToStreamEx(MemoryStream* mstream, PyObject* pyValue, bool
 			Py_DECREF(pobj);
 			continue;
 		}
-		
+
 		if(!iter->second->dataType->isSameType(pyObject))
 		{
 			// OURO_ASSERT(pyObject != NULL);
@@ -2689,7 +2697,7 @@ EntityComponentType::EntityComponentType(ScriptDefModule* pScriptDefModule, DATA
 //-------------------------------------------------------------------------------------
 EntityComponentType::~EntityComponentType()
 {
-} 
+}
 
 //-------------------------------------------------------------------------------------
 bool EntityComponentType::isSameType(PyObject* pyValue)
@@ -2744,7 +2752,7 @@ bool EntityComponentType::isSameCellDataType(PyObject* pyValue)
 			continue;
 
 		PyObject* pyVal = PyDict_GetItemString(pyValue, propertyDescription->getName());
-		
+
 		if (pyVal)
 		{
 			if (!propertyDescription->getDataType()->isSameType(pyVal))
@@ -2867,7 +2875,7 @@ void EntityComponentType::addPersistentToStreamTemplates(ScriptDefModule* pScrip
 	}
 }
 //-------------------------------------------------------------------------------------
-void EntityComponentType::addCellDataToStream(MemoryStream* mstream, uint32 flags, PyObject* pyValue, 
+void EntityComponentType::addCellDataToStream(MemoryStream* mstream, uint32 flags, PyObject* pyValue,
 	ENTITY_ID ownerID, PropertyDescription* parentPropertyDescription, COMPONENT_TYPE sendtoComponentType, bool checkValue)
 {
 	OURO_ASSERT(PyDict_Check(pyValue));
@@ -3097,7 +3105,7 @@ PyObject* EntityComponentType::createCellDataFromPersistentStream(MemoryStream* 
 			continue;
 
 		PyObject* pyobj = NULL;
-		
+
 		if(mstream)
 			pyobj = propertyDescription->createFromStream(mstream);
 
