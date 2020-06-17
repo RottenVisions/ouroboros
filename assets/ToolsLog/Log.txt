@@ -1,0 +1,46 @@
+﻿[2018-12-15 02:34:36] :Debug path C:\Users\Black\Ouroboros\assets
+[2018-12-15 02:34:53] :Debug path C:\Users\Black\Ouroboros\assets
+[2018-12-15 02:36:26] :Debug path C:\Users\Black\Ouroboros\assets
+[2018-12-15 02:36:41] :Debug path C:\Users\Black\Ouroboros\assets
+[2018-12-15 02:45:23] :Debug path C:\Users\Black\Ouroboros\assets
+[2018-12-15 02:45:32] :Debug Account
+[2018-12-15 02:45:37] :Debug Avatar
+[2018-12-15 02:45:38] :Debug Entity
+[2018-12-15 02:45:40] :Debug FirstEntity
+[2018-12-15 02:45:41] :Debug Scene
+[2018-12-15 02:45:42] :Debug Avatar
+[2018-12-17 01:55:40] :Debug path C:\Users\Black\Ouroboros\assets
+[2018-12-17 01:58:05] :Debug path C:\Users\Black\Ouroboros\assets
+[2018-12-17 02:02:11] :Debug GameObject
+[2018-12-17 02:04:00] :Debug Account
+[2018-12-17 02:04:39] :Debug Avatar
+[2018-12-17 02:04:42] :Debug FirstEntity
+[2018-12-17 02:04:43] :Debug Entity
+[2018-12-17 02:04:45] :Debug Scene
+[2019-01-20 19:55:04] :Debug path C:\Users\Black\Ouroboros\assets
+[2019-01-20 19:55:14] :Debug Avatar
+[2019-01-20 19:55:26] :Debug Account
+[2019-01-20 19:56:10] :Debug AvatarProperties
+[2019-01-20 19:56:15] :Debug GameObject
+[2019-01-20 19:56:16] :Debug NPCObject
+[2019-01-20 19:56:17] :Debug Teleport
+[2019-01-20 19:56:19] :Debug Account
+[2019-01-20 19:56:21] :Debug Avatar
+[2019-01-20 19:56:22] :Debug FirstEntity
+[2019-01-20 19:56:23] :Debug Entity
+[2019-01-20 19:56:24] :Debug FirstEntity
+[2019-01-20 19:56:32] :Debug Scene
+[2019-01-20 19:56:36] :Debug Space
+[2019-01-20 19:56:39] :Debug SpaceDuplicate
+[2019-01-20 19:56:40] :Debug Spaces
+[2019-01-20 19:56:41] :Debug SpawnPoint
+[2019-01-20 19:56:43] :Debug Spaces
+[2019-01-20 19:57:18] :Debug path C:\Users\Black\Ouroboros\assets
+[2019-04-04 07:15:54] :Debug path C:\Users\Black\Ouroboros\assets
+[2019-04-04 07:26:18] :Debug path C:\Users\Black\Ouroboros\assets
+[2019-04-04 07:26:50] :Debug path C:\Users\Black\Ouroboros\assets
+[2019-10-07 19:10:56] :Debug path C:\Users\Black\Ouroboros\assets
+[2019-10-07 19:11:15] :Debug Enemy
+[2019-10-07 19:11:25] :Debug Avatar
+[2020-05-11 03:34:45] :Debug path C:\Users\Black\Ouroboros\assets
+[2020-05-11 03:35:14] :Debug TestEntity

@@ -1,14 +1,84 @@
-<root>
+﻿<root>
 	<Properties>
+		<avatars>
+			<Type>AVATAR_INFO_LIST</Type>
+			<Default>
+			</Default>
+			<Flags>BASE</Flags>
+			<Persistent>true</Persistent>
+		</avatars>
+		<lastSelCharacter>
+			<Type>DBID</Type>
+			<Default>0</Default>
+			<Flags>BASE_AND_CLIENT</Flags>
+			<Persistent>true</Persistent>
+		</lastSelCharacter>
+		<activeAvatar>
+			<Type>ENTITYCALL</Type>
+			<Flags>BASE</Flags>
+		</activeAvatar>
+		<lastClientIpAddr>
+			<Type>UINT32</Type>
+			<Default>0</Default>
+			<Flags>BASE</Flags>
+		</lastClientIpAddr>
+        <gameMaster>
+            <Type>BOOL</Type>
+            <Default>False</Default>
+            <Flags>BASE</Flags>
+            <Persistent>true</Persistent>
+        </gameMaster>
 	</Properties>
-
 	<ClientMethods>
+		<onReqAvatarList>
+			<Arg>AVATAR_INFO_LIST</Arg>
+		</onReqAvatarList>
+		<onCreateAvatarResult>
+			<Arg>UINT8</Arg>
+			<Arg>AVATAR_INFO</Arg>
+		</onCreateAvatarResult>
+		<onRemoveAvatar>
+			<Arg>DBID</Arg>
+		</onRemoveAvatar>
+		<onEnterGameFailed>
+			<Arg>INT8</Arg>
+		</onEnterGameFailed>
+		<onEnterGameSuccess />
+		<onExitGameFailed>
+			<Arg>INT8</Arg>
+		</onExitGameFailed>
+		<onExitGameSuccess />
+		<onFirstEntityHello>
+			<Arg>UNICODE</Arg>
+		</onFirstEntityHello>
 	</ClientMethods>
-
 	<BaseMethods>
+		<reqAvatarList>
+			<Exposed />
+		</reqAvatarList>
+		<reqCreateAvatar>
+			<Exposed />
+			<Arg>UNICODE</Arg>
+			<Arg>UINT8</Arg>
+			<Arg>UINT8</Arg>
+			<Arg>UINT8</Arg>
+		</reqCreateAvatar>
+		<reqRemoveAvatar>
+			<Exposed />
+			<Arg>UNICODE</Arg>
+		</reqRemoveAvatar>
+		<selectActiveAvatar>
+			<Exposed />
+			<Arg>DBID</Arg>
+		</selectActiveAvatar>
+		<createCell>
+			<Arg>ENTITYCALL</Arg>
+		</createCell>
+		<enterGame>
+			<Exposed />
+		</enterGame>
+		<exitGame>
+			<Exposed />
+		</exitGame>
 	</BaseMethods>
-
-	<CellMethods>
-	</CellMethods>
-
 </root>

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import Ouroboros
 from OURODebug import *
+#import dialogmgr
+import abilities
+import auras
 
 def onInit(isReload):
 	"""
@@ -8,6 +11,9 @@ def onInit(isReload):
 	When the engine is started after initialization is complete all of the script after the interface is invoked
 	"""
 	DEBUG_MSG('onInit::isReload:%s' % isReload)
+	#dialogmgr.onInit()
+	abilities.onInit()
+	auras.onInit()
 
 def onGlobalData(key, value):
 	"""
@@ -37,17 +43,31 @@ def onCellAppDataDel(key):
 	"""
 	DEBUG_MSG('onCellAppDataDel: %s' % key)
 
-def onSpaceData( spaceID, key, value ):
-	"""
-	Ouroboros method.
-	Change in spaceData
-	"""
-	pass
 
-def onAllSpaceGeometryLoaded( spaceID, isBootstrap, mapping ):
+def onSpaceData(spaceID, key, value):
 	"""
 	Ouroboros method.
-	space a portion or all of the chunk data is loaded
-	Specifically which part of the need by the cell responsible for the scope of the decision
+	spaceData change
+	@spaceID:  The data is set in the space of this spaceID.
+	@key:  Key set.
+	@value:  The value that is set, or None if the value is deleted.
 	"""
-	pass
+	DEBUG_MSG('onSpaceData: spaceID=%s, key=%s, value=%s.' % (spaceID, key, value))
+
+
+def onSpaceGeometryLoaded(spaceID, mapping):
+	"""
+	Ouroboros method.
+	Space Some or all chunks and other data are loaded.
+	Which part needs to be determined by the scope of the cell
+	"""
+	DEBUG_MSG('onSpaceGeometryLoaded: spaceID=%s, mapping=%s.' % (spaceID, mapping))
+
+
+def onAllSpaceGeometryLoaded(spaceID, isBootstrap, mapping):
+	"""
+	Ouroboros method.
+	Space Some or all chunks and other data are loaded.
+	Which part needs to be determined by the scope of the cell
+	"""
+	DEBUG_MSG('onAllSpaceGeometryLoaded: spaceID=%s, isBootstrap=%i, mapping=%s.' % (spaceID, isBootstrap, mapping))

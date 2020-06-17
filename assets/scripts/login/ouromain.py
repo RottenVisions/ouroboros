@@ -4,11 +4,11 @@ import Ouroboros
 from OURODebug import *
 
 """
-loginapp process main processing Ouroboros service terminal login, create account, etc.
-Currently the script supports several functions:
-1: register an account to check
-2: login check
-3: self-defined socket callback, the reference to the interface in the Poller implementation
+The loginapp process mainly deals with the Ouroboros server login and account creation.
+Currently the script supports several functions.:
+1: Registered account check
+2: Login check
+3: Custom socket callback, refer to the Poller implementation in the interface
 """
 
 

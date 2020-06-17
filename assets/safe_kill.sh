@@ -18,4 +18,13 @@ fi
 export OURO_RES_PATH="$OURO_ROOT/ouro/res/:$(pwd):$(pwd)/res:$(pwd)/scripts/"
 export OURO_BIN_PATH="$OURO_ROOT/ouro/bin/server/"
 
-python $OURO_ROOT/ouro/tools/server/pycluster/cluster_controller.py stop
+userid=`id -u $1 &>/dev/null`
+XUID=$?
+
+if [ $XUID = 0 ]
+then
+	XUID=`$OURO_BIN_PATH/obcmd --getuid`
+	echo UID=$XUID
+fi
+
+python $OURO_ROOT/ouro/tools/server/pycluster/cluster_controller.py stop $XUID

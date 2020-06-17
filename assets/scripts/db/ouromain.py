@@ -9,7 +9,8 @@ from OURODebug import *
 def onDBMgrReady():
 	"""
 	Ouroboros method.
-	dbmgr is ready.
+	Dbmgr is ready
+
 	"""
 	INFO_MSG('onDBMgrReady: bootstrapGroupIndex=%s, bootstrapGlobalIndex=%s' % \
 	 (os.getenv("OURO_BOOTIDX_GROUP"), os.getenv("OURO_BOOTIDX_GLOBAL")))
@@ -24,15 +25,19 @@ def onTick(timerID):
 def onDBMgrShutDown():
 	"""
 	Ouroboros method.
-	This dbmgr be closed before the callback function
+	The callback function before this dbmgr is closed
+
 	"""
 	INFO_MSG('onDBMgrShutDown()')
 
 def onSelectAccountDBInterface(accountName):
 	"""
 	Ouroboros method.
-	This callback implementation returns an account and a corresponding database interface, the selected interface after the dbmgr for the account of the relevant operations by the corresponding database interface to complete the
-	The database interface in ouroboros_defs. xml->dbmgr->databaseInterfaces definition.
-	The use of the interface can be based on the accountName to determine the Account should be stored in which database.
+	This callback implementation returns the database interface corresponding to an account. After the selected interface, the related operations of dbmgr for this account are completed by the corresponding database interface.
+
+	The database interface is defined in ouroboros_defs.xml->dbmgr->databaseInterfaces.
+
+	Use this interface to determine which database the account should be stored in based on accountName.
+
 	"""
 	return "default"

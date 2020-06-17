@@ -1,0 +1,18 @@
+﻿<root>
+	<BaseMethods>
+		<loginToScene>
+			<Arg>ENTITYCALL</Arg>
+		</loginToScene>
+		<logoutScene>
+			<Arg>INT32</Arg>
+		</logoutScene>
+	</BaseMethods>
+	<CellMethods>
+		<onEnter>
+			<Arg>ENTITYCALL</Arg>
+		</onEnter>
+		<onLeave>
+			<Arg>INT32</Arg>
+		</onLeave>
+	</CellMethods>
+</root>

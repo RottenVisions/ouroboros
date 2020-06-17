@@ -1,10 +1,13 @@
-This is a Ouroboros service end asset library
+This is a Ouroboros server asset library
+
 ========
 
-##Start service end
+##Starting the server
 
-The use of fixed parameters to start:
 
+Start with fixed parameters:
+
+	
 	Linux:
 		start_server.sh
 
@@ -12,9 +15,11 @@ The use of fixed parameters to start:
 		start_server.bat
 
 
-##Close the service end
+##Close the server
 
-Quickly kill the service end of the process:
+
+Quickly kill the server process:
+
 
 	Linux:
 		kill_server.sh
@@ -23,7 +28,8 @@ Quickly kill the service end of the process:
 		kill_server.bat
 
 
-If it is a formal operating environment, you should use the safe-off mode, this mode can ensure the data security of the archive, the security to tell the user is offline, and so on.
+If it is a formal operating environment, you should use a secure shutdown method, which ensures data security archiving, safely tells users to go offline, and so on.
+
 
 	Linux:
 		safe_kill.sh

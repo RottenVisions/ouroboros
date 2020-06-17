@@ -52,7 +52,7 @@ class Poller:
 			sock, addr = self._clients.get(fileno, None)
 			if sock is None:
 				return
-			
+
 			data = sock.recv(2048)
 			DEBUG_MSG("Poller::onRecv: %s/%i get data, size=%i" % (addr, sock.fileno(), len(data)))
 			self.processData(sock, data)

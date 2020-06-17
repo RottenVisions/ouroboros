@@ -1,8 +1,19 @@
-<root>
-	<!--
-		Entity registration file(<your asset library>/scripts/entities.xml)
-	-->
+﻿<root>
+    <!--
+		Entity registration file ('your asset library'/scripts/entities.xml)
+    -->
 
 	<!-- <Avatar/> -->
-	<Account hasClient="true"></Account><!-- <Account hasCell="true" hasBase="true" hasClient="true"></Account> -->
+	<Account hasClient="true" /><!-- <Account hasCell="true" hasBase="true" hasClient="true"></Account> -->
+	<Avatar hasClient="true" />
+    <Enemy hasClient="true"></Enemy>
+	<NPC hasClient="true"></NPC>
+	<Gate hasClient="true"></Gate>
+	<FirstEntity hasClient="true" />
+    <TestEntity hasClient="true" />
+	<Scene />
+	<Space />
+	<Spaces />
+    <SpaceDuplicate />
+	<SpawnPoint />
 </root>
