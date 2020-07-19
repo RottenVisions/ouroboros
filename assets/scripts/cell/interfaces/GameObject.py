@@ -40,7 +40,6 @@ class GameObject:
 		return False
 
 	def getDatas(self):
-		DEBUG_MSG('%i is uid of this player' % self.uid)
 		if self.isPlayer():
 			return data_avatar_initial.data[self.uid]
 

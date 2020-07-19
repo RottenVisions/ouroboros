@@ -9,6 +9,8 @@ class AbilityObject:
 		self._name = ''
 		self._level = 0
 		self._icon = ''
+		self._apCost = -1
+		self._school = ''
 
 	def loadFromDict(self, dictDatas):
 		"""
@@ -18,7 +20,9 @@ class AbilityObject:
 		self._id = dictDatas.get('id', 0)
 		self._name = dictDatas.get('name', '')
 		self._level = dictDatas.get('level', 0)
-		self._icon = dictDatas.get('icon', 0)
+		self._icon = dictDatas.get('icon', '')
+		self._apCost = dictDatas.get('apCost', -1)
+		self._school = dictDatas.get('school', '')
 
 	def getID(self):
 		return self._id
@@ -31,3 +35,9 @@ class AbilityObject:
 
 	def getIcon(self):
 		return self._icon
+
+	def getAPCost(self):
+		return self._apCost
+
+	def getSchool(self):
+		return self._school

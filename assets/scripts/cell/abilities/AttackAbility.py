@@ -47,6 +47,6 @@ class AttackAbility(ActiveAbility):
 
 		if damage < 0:
 			damage = 0
-		receiver.receiveDamage(caster.id, GlobalDefine.SOURCE_TYPE_ABILITY, self.getID(), self.getIcon(), self.getSchool(), damage)
+		receiver.receiveDamage(receiver.id, caster.id, GlobalDefine.SOURCE_TYPE_ABILITY, self.getID(), self.getIcon(), self.getSchool(), damage)
 		if self.getID() == 6: #Bloodsucking, add blood to yourself
-			caster.receiveDamage(caster.id, GlobalDefine.SOURCE_TYPE_ABILITY, self.getID(), self.getIcon(), self.getSchool(), -int(damage*0.1))
+			caster.receiveDamage(receiver.id, caster.id, GlobalDefine.SOURCE_TYPE_ABILITY, self.getID(), self.getIcon(), self.getSchool(), -int(damage*0.1))

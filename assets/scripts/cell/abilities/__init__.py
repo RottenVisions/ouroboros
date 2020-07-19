@@ -28,3 +28,4 @@ def getAuraByID(auraID):
 	for key, ability in _g_abilities.items():
 		if ability.getID() == auraID:
 			return ability
+	return None

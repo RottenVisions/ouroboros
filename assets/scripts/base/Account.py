@@ -94,24 +94,32 @@ class Account(Ouroboros.Proxy):
 			"position"			: data_avatar_initial.data[roleType]["spawnPos"],
 
 			# ----------cell---------
-			"roleTypeCell"      : roleType,
+			"roleTypeCell"		: roleType,
 			# ---------properties
 			"level"				: data_avatar_initial.data[roleType]["level"],
-			"exp"				: data_avatar_initial.data[roleType]["experience"],
+			"experience"		: data_avatar_initial.data[roleType]["experience"],
 			"currency"			: data_avatar_initial.data[roleType]["currency"],
 			"strength"			: data_avatar_initial.data[roleType]["strength"],
-			"dexterity"			: data_avatar_initial.data[roleType]["dexterity"],
-			"stamina"			: data_avatar_initial.data[roleType]["stamina"],
+			"endurance"			: data_avatar_initial.data[roleType]["endurance"],
+			"will"				: data_avatar_initial.data[roleType]["will"],
 
 			"attack_Max"		: data_avatar_initial.data[roleType]["strength"]*2,
 			"attack_Min"		: data_avatar_initial.data[roleType]["strength"]*1,
-			"defence"			: int(data_avatar_initial.data[roleType]["dexterity"]/4),
-			"rating"			: int(data_avatar_initial.data[roleType]["dexterity"]/ 15+100),
-			"dodge"				: int(data_avatar_initial.data[roleType]["dexterity"]/ 15+100),
-			"HP_Max"            : 10,
+			"defence"			: int(data_avatar_initial.data[roleType]["endurance"]/4),
+			"rating"			: int(data_avatar_initial.data[roleType]["endurance"]/ 15+100),
+			"dodge"				: int(data_avatar_initial.data[roleType]["endurance"]/ 15+100),
+
+			"HP"				: int(data_avatar_initial.data[roleType]["hp"]),
+			"HP_Max"			: int(data_avatar_initial.data[roleType]["hpMax"]),
+			"EG"				: int(data_avatar_initial.data[roleType]["eg"]),
+			"EG_Max"			: int(data_avatar_initial.data[roleType]["egMax"]),
+
+			"abilityPoints"		: data_avatar_initial.data[roleType]["abilityPoints"],
+			"abilities"			: data_avatar_initial.data[roleType]["abilities"],
 			# ---------properties
 
 		}
+		DEBUG_MSG('PROPS', props['HP'], props['HP_Max'], props['EG'], props['EG_Max'])
 
 		avatar = Ouroboros.createEntityLocally('Avatar', props)
 		if avatar:
@@ -295,7 +303,7 @@ class Account(Ouroboros.Proxy):
 		avatarinfo.extend([0, "", 0, 0, 0, 0, avatarData])
 
 		INFO_MSG('success: %i, %s %i' % (success, str(bool(success)), int(success)))
-		if bool(success) == True or success == 1:
+		if bool(success) is True or success == 1:
 			info = TAvatarInfo()
 			info.extend([avatar.databaseID, avatar.cellData["name"], avatar.roleType, 1, avatar.gender, avatar.hairStyle, avatarData])
 			self.avatars[avatar.databaseID] = info

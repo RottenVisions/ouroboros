@@ -95,9 +95,9 @@
 	      tickCount   ： Add quantity each time            (Each time you add the number of)
 	  -->
 	  <defaultAddBots>
-	      <totalCount> 10  </totalCount>                              <!-- Type: Integer -->
+	      <totalCount> 1  </totalCount>                              <!-- Type: Integer -->
 	      <tickTime> 0.1  </tickTime>                                 <!-- Type: Float -->
-	      <tickCount> 5  </tickCount>                                 <!-- Type: Integer -->
+	      <tickCount> 1  </tickCount>                                 <!-- Type: Integer -->
 	  </defaultAddBots>
 
 	  <!-- Robot account related -->

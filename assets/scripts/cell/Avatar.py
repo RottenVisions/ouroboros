@@ -2,10 +2,14 @@
 import Ouroboros
 import GlobalDefine
 import ServerConstantsDefine
+import Helper
 
 import data_entities
+import data_avatar_initial
+
 from OURODebug import *
 from interfaces.GameObject import GameObject
+from interfaces.AnimationState import AnimationState
 from interfaces.Combat import Combat
 from interfaces.Ability import Ability
 from interfaces.Teleport import Teleport
@@ -19,6 +23,7 @@ from interfaces.AuraBox import AuraBox
 class Avatar(Ouroboros.Entity,
 				GameObject,
 				State,
+				AnimationState,
 				Motion,
 			 	AbilityBox,
 			 	Aura,
@@ -34,6 +39,7 @@ class Avatar(Ouroboros.Entity,
 		Ouroboros.Entity.__init__(self)
 		GameObject.__init__(self)
 		State.__init__(self)
+		AnimationState.__init__(self)
 		Motion.__init__(self)
 		AbilityBox.__init__(self)
 		AuraBox.__init__(self)
@@ -47,6 +53,7 @@ class Avatar(Ouroboros.Entity,
 		self.topSpeed = self.moveSpeed + 15.0
 		# self.topSpeedY = 10.0
 
+		self.setDefaultData()
 		self.resetProperties()
 		self.updateBaseProperties()
 		self.resetEntity()
@@ -83,11 +90,17 @@ class Avatar(Ouroboros.Entity,
 
 		self.client.dropItem_re(itemId, UUid)'''
 
+	def setDefaultData(self):
+		roleType = Helper.getAvatarGlobalProperty(self.id, 'roleType')
+		self.HP_Max = int(data_avatar_initial.data[roleType]["hpMax"])
+		self.EG_Max = int(data_avatar_initial.data[roleType]["egMax"])
+
 	def resetProperties(self):
-		self.attack_Max = self.strength * 2
-		self.attack_Min = self.strength * 1
-		self.defence = int(self.dexterity / 4)
-		self.HP_Max = self.stamina * 10
+		pass
+		#self.attack_Max = self.strength * 2
+		#self.attack_Min = self.strength * 1
+		#self.defence = int(self.will / 4)
+		#self.HP_Max = self.endurance * 10
 
 	def equipNotify(self, itemId):
 		self.equipWeapon = itemId
@@ -163,6 +176,19 @@ class Avatar(Ouroboros.Entity,
 		DEBUG_MSG("Avatar::onDestroy: %i." % self.id)
 		Teleport.onDestroy(self)
 		Combat.onDestroy(self)
+
+	# Requests
+	def reqLevel(self):
+		if self.client:
+			self.client.onReqLevel(self.level)
+
+	def reqAbilities(self):
+		if self.client:
+			self.client.onReqAbilities(self.abilities)
+
+	def reqAbilityPoints(self):
+		if self.client:
+			self.client.onReqAbilityPoints(self.abilityPoints)
 
 	def revive(self, exposed, type):
 		"""

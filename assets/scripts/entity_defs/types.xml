@@ -12,7 +12,6 @@
     <ENTITY_NO>UINT32</ENTITY_NO>
 
     <ENTITY_UTYPE>UINT32</ENTITY_UTYPE>
-    <ITEM_COUNT>UINT32</ITEM_COUNT>
 
     <ENTITY_STATE>INT8</ENTITY_STATE>
     <ENTITY_SUBSTATE>UINT8</ENTITY_SUBSTATE>
@@ -34,6 +33,12 @@
     <AURA_ID>INT32</AURA_ID>
 	<ITEM_ID>INT32</ITEM_ID>
 	<QUEST_ID>INT32</QUEST_ID>
+
+    <ITEM_COUNT>UINT32</ITEM_COUNT>
+
+    <ABILITIES_LIST>ARRAY
+        <of>ABILITY_ID</of>
+    </ABILITIES_LIST>
 
     <MODIFICATION_SOURCE>INT32</MODIFICATION_SOURCE>
     <MODIFICATION_SCHOOL>UNICODE</MODIFICATION_SCHOOL>
@@ -92,14 +97,44 @@
             </values>
         </Properties>
     </AVATAR_INFO_LIST>
+
+    <ITEM_INFO>FIXED_DICT
+        <implementedBy>ITEM_INFO.item_info_inst</implementedBy>
+        <Properties>
+            <UUID>
+                <Type>DBID</Type>
+            </UUID>
+            <itemId>
+                <Type>ITEM_ID</Type>
+            </itemId>
+            <itemCount>
+                <Type>ITEM_COUNT</Type>
+            </itemCount>
+            <itemIndex>
+                <Type>INT32</Type>
+            </itemIndex>
+        </Properties>
+    </ITEM_INFO>
+
+    <ITEM_INFO_LIST>FIXED_DICT
+        <implementedBy>ITEM_INFO.item_info_list_inst</implementedBy>
+        <Properties>
+            <values>
+                <Type>ARRAY
+                    <of>ITEM_INFO</of>
+                </Type>
+            </values>
+        </Properties>
+    </ITEM_INFO_LIST>
+
     <BAG>FIXED_DICT
         <Properties>
-            <values22>
+            <values>
                 <Type>ARRAY
                     <of>ARRAY <of>INT64</of>
                     </of>
                 </Type>
-            </values22>
+            </values>
         </Properties>
     </BAG>
     <EXAMPLES>FIXED_DICT

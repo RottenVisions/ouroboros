@@ -6,6 +6,8 @@ from OURODebug import *
 import Watcher
 import data_spaces
 
+import items
+
 from EntityCreator import *
 
 def onBaseAppReady(isBootstrap):
@@ -110,6 +112,7 @@ def onInit(isReload):
 	@param isReload: whether is be to rewrite the load script after the triggered
 	@type isReload: bool
 	"""
+	items.onInit()
 	INFO_MSG('onInit::isReload:%s' % isReload)
 
 def onFini():

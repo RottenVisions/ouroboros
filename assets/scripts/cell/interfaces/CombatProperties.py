@@ -13,6 +13,7 @@ class CombatProperties:
 	def __init__(self):
 		# self.HP_Max = 100
 		# self.EG_Max = 100
+		print(self.EG_Max)
 
 		# Non-death status needs to be filled
 		if not self.isState(GlobalDefine.ENTITY_STATE_DEAD) and self.HP == 0 and self.EG == 0:

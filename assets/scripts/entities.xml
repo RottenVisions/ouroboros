@@ -6,11 +6,12 @@
 	<!-- <Avatar/> -->
 	<Account hasClient="true" /><!-- <Account hasCell="true" hasBase="true" hasClient="true"></Account> -->
 	<Avatar hasClient="true" />
-    <Enemy hasClient="true"></Enemy>
-	<NPC hasClient="true"></NPC>
-	<Gate hasClient="true"></Gate>
+	<Enemy hasClient="true"/>
+	<NPC hasClient="true"/>
+	<Gate hasClient="true"/>
 	<FirstEntity hasClient="true" />
     <TestEntity hasClient="true" />
+	<TargetDummy hasClient="true" />
 	<Scene />
 	<Space />
 	<Spaces />

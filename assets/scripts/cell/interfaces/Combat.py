@@ -33,6 +33,19 @@ class Combat(CombatProperties):
 		self.level += lv
 		self.onLevelChanged(lv)
 
+	def setTarget(self, targetID):
+		# Do not target ourselves
+		if targetID == self.id:
+			targetID = 0
+
+		mainTargetEntity = Ouroboros.entities.get(targetID)
+
+		if mainTargetEntity:
+			self.mainTarget = targetID
+			self.mainTargetEntity = mainTargetEntity
+			return True
+		return False
+
 	def isDead(self):
 		"""
 		"""
@@ -70,7 +83,7 @@ class Combat(CombatProperties):
 		"""
 		return True
 
-	def receiveDamage(self, sourceID, origin, typeID, icon, school, amount):
+	def receiveDamage(self, targetID, sourceID, origin, typeID, icon, school, amount):
 		"""
 		defined.
 		"""
@@ -88,9 +101,10 @@ class Combat(CombatProperties):
 		else:
 			self.setHP(self.HP - amount)
 
-		self.allClients.receiveDamage(sourceID, origin, typeID, icon, school, amount)
+		if self.allClients:
+			self.allClients.receiveDamage(targetID, sourceID, origin, typeID, icon, school, amount)
 
-	def receiveHealing(self, sourceID, origin, typeID, icon, school, amount):
+	def receiveHealing(self, targetID, sourceID, origin, typeID, icon, school, amount):
 		"""
 		defined.
 		"""
@@ -102,7 +116,8 @@ class Combat(CombatProperties):
 
 		self.addHP(amount)
 
-		self.allClients.receiveHealing(sourceID, origin, typeID, icon, school, amount)
+		if self.allClients:
+			self.allClients.receiveHealing(targetID, sourceID, origin, typeID, icon, school, amount)
 
 	def addEnemy(self, entityID, enmity):
 		"""
@@ -168,16 +183,16 @@ class Combat(CombatProperties):
 		"""
 		virtual method.
 		"""
-		self.exp = 0
+		self.experience = 0
 		if self.roleTypeCell == 1:#warrior
 			self.strength = data_avatar_initial.datas[self.roleTypeCell]["strength"] + 1*self.level
-			self.dexterity = data_avatar_initial.datas[self.roleTypeCell]["dexterity"] + 2*self.level
-			self.stamina = data_avatar_initial.datas[self.roleTypeCell]["stamina"] + 4*self.level
+			self.endurance = data_avatar_initial.datas[self.roleTypeCell]["endurance"] + 2*self.level
+			self.will = data_avatar_initial.datas[self.roleTypeCell]["will"] + 4*self.level
 
 		else:				#Mage
 			self.strength = data_avatar_initial.datas[self.roleTypeCell]["strength"] + 2*self.level
-			self.dexterity = data_avatar_initial.datas[self.roleTypeCell]["dexterity"] + 1*self.level
-			self.stamina = data_avatar_initial.datas[self.roleTypeCell]["stamina"] + 1*self.level
+			self.endurance = data_avatar_initial.datas[self.roleTypeCell]["endurance"] + 1*self.level
+			self.will = data_avatar_initial.datas[self.roleTypeCell]["will"] + 1*self.level
 		self.base.updateProperties()
 		pass
 

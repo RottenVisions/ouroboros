@@ -30,6 +30,7 @@ class ActiveAura(AuraObject):
 			return
 
 		self.auraTimer -= ServerConstantsDefine.TICK_TYPE_AURA
+
 		if self.auraTimer % AuraObject.getPeriod(self) == 0:
 			self.tickCount += 1
 			self.onAuraTick(tid, userArg, superScript)
@@ -46,6 +47,7 @@ class ActiveAura(AuraObject):
 
 		self.auraTimer = AuraObject.getDuration(self)
 		self.tickCount = 0
+
 		AuraObject.setActiveState(self, True)
 		ActiveAura.setSource(self, attacher)
 
@@ -70,14 +72,17 @@ class ActiveAura(AuraObject):
 		
 		#Run any checks here then, run the super
 		return GlobalConst.GC_OK
+
+	def canDetach(self, detacher, auraCastObject):
+		# Run any checks here then, run the super
+		return GlobalConst.GC_OK
 	
 	def attachTo(self, attacher, auraCastObject):
 		self.onAttach(attacher, auraCastObject)
-		return self
+		return self # Note this return self here is re-used when attaching to a de-tached aura. If this becomes a problem use deep copy when creating an aura (like with items)
 
 	def detachFrom(self, superScript):
 		self.onDetach(AuraObject)
-		superScript.detach(AuraObject)
 	
 	def refreshIt(self, attacher, auraCastObject, superScript):
 		if self.auraTimer > AuraObject.getDuration(self) and \

@@ -1,24 +1,4 @@
 import Ouroboros
-import datetime
-
-def stringToBool(v):
-	return v.lower() in ("yes", "true", "t", "1")
-
-def getTime():
-	timeObj = datetime.datetime.now()
-	return "%s:%s:%s" % (timeObj.hour, timeObj.minute, timeObj.second)
-
-def getTimeDots():
-	timeObj = datetime.datetime.now()
-	return "%s.%s.%s" % (timeObj.hour, timeObj.minute, timeObj.second)
-
-def getDate():
-	timeObj = datetime.datetime.now()
-	return "%s/%s/%s" % (timeObj.month, timeObj.day, timeObj.year)
-
-def getDateDots():
-	timeObj = datetime.datetime.now()
-	return "%s.%s.%s" % (timeObj.month, timeObj.day, timeObj.year)
 
 def getEntity(id):
 	for e in Ouroboros.entities.values():
@@ -32,3 +12,9 @@ def getPlayerByName(name):
 			if player.getPlayerName() == name:
 				return player
 	return None
+
+def getAvatarGlobalProperty(id, property):
+	return Ouroboros.globalData["avatar_%i.%s" % (id, property)]
+
+def setAvatarGlobalProperty(id, property, value):
+	Ouroboros.globalData["avatar_%i.%s" % (id, property)] = value
